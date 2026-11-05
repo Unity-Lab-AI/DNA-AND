@@ -32,6 +32,10 @@ namespace DnaAnd.Shell
         private readonly UploadBuffer[] _sysStatic = new UploadBuffer[3], _sysBodies = new UploadBuffer[3];
         private readonly StarVertex[][] _sysVerts = new StarVertex[3][];
         private readonly int[] _sysCount = new int[3];
+        private readonly int[] _focus = { -1, -1, -1 };              // per solar system: the body the camera follows, -1 = the star
+        private readonly StarVertex[][] _sysStaticShifted = new StarVertex[3][];
+        private readonly Mat4[,] _tileVp = new Mat4[3, 3];
+        private float _sysZoom = 1f;                                  // set 2 zooms from the whole system down to one planet
 
         public string Title
         {
@@ -77,7 +81,7 @@ namespace DnaAnd.Shell
                 _systemNames[row] = SystemLayouts[row];
                 foreach (var e in content.OfKind("solar-systems.dnat", "system")) if (e.Id == SystemLayouts[row]) _systemNames[row] = e.Name;
                 _sysStatic[row] = new UploadBuffer(gpu.Device, (long)Math.Max(1, _systems[row].Static.Length) * stride);
-                _sysStatic[row].Write(_systems[row].Static, _systems[row].Static.Length);
+                _sysStaticShifted[row] = new StarVertex[_systems[row].Static.Length];
                 _sysVerts[row] = new StarVertex[(_systems[row].Bodies.Count + 1) * (1 + TrailPoints)];
                 _sysBodies[row] = new UploadBuffer(gpu.Device, (long)_sysVerts[row].Length * stride);
             }
@@ -94,7 +98,8 @@ namespace DnaAnd.Shell
             if (!OneSet && input.WasPressed(0xDB)) Set = 1;   // [ key
             if (!OneSet && input.WasPressed(0xDD)) Set = 2;   // ] key
             _yaw += (float)dt * 0.03f;
-            if (input.Wheel != 0) _zoom = Math.Max(0.3f, Math.Min(4f, _zoom * (float)Math.Pow(1.15, input.Wheel)));
+            if (input.Wheel != 0 && Set != 2) _zoom = Math.Max(0.3f, Math.Min(4f, _zoom * (float)Math.Pow(1.15, input.Wheel)));
+            if (input.Wheel != 0 && Set == 2) _sysZoom = Math.Max(0.3f, Math.Min(1e9f, _sysZoom * (float)Math.Pow(1.25, input.Wheel)));
         }
 
         public void Draw(int width, int height, double time)
@@ -132,21 +137,59 @@ namespace DnaAnd.Shell
             {
                 var sys = _systems[row];
                 double outer = 0; foreach (var b in sys.Bodies) if (b.Parent < 0) outer = Math.Max(outer, b.OrbitUnits);
-                _sysCount[row] = SpaceGen.BodyVerts(sys, time / 200.0, 1 / 200.0, 0.05, _sysVerts[row], TrailPoints);
+                double scale = 1.0 / Math.Max(1e-30, outer);          // the system is drawn 1 across, so tiny planets stay precise
+                double fx, fy, fz;
+                _sysCount[row] = SpaceGen.BodyVerts(sys, time / 200.0, 1 / 200.0, 0.05, _sysVerts[row], _focus[row], scale, out fx, out fy, out fz);
                 _sysBodies[row].Write(_sysVerts[row], _sysCount[row]);
+                var st = sys.Static; var sh = _sysStaticShifted[row];
+                for (int i = 0; i < st.Length; i++)
+                {
+                    sh[i] = st[i];
+                    sh[i].X = (float)((st[i].X - fx) * scale); sh[i].Y = (float)((st[i].Y - fy) * scale); sh[i].Z = (float)((st[i].Z - fz) * scale);
+                    sh[i].Size = (float)(st[i].Size * scale);
+                }
+                if (st.Length > 0) _sysStatic[row].Write(sh, st.Length);
+                // closest the camera may come: a few radii from the followed body
+                double nearest = (_focus[row] >= 0 ? sys.Bodies[_focus[row]].RadiusUnits : sys.StarRadius) * scale * 4;
+                double dist = Math.Max(nearest, 2.6 / _sysZoom);
                 for (int col = 0; col < 3; col++)
                 {
                     float pitch = col == 1 ? 0.55f : 1.45f;
-                    double dist = outer * 2.6 / _zoom;
                     var eye = new Vec3((float)(Math.Cos(_yaw) * Math.Cos(pitch) * dist), (float)(Math.Sin(pitch) * dist), (float)(Math.Sin(_yaw) * Math.Cos(pitch) * dist));
                     Mat4 view = Mat4.LookAt(eye, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
-                    Mat4 vp = view * Mat4.Perspective(0.9f, tileW / (float)Math.Max(1, tileH), (float)(dist * 1e-3), (float)(dist * 1e3));
+                    Mat4 vp = view * Mat4.Perspective(0.9f, tileW / (float)Math.Max(1, tileH), (float)(dist * 1e-3), (float)(dist * 1e4));
+                    _tileVp[row, col] = vp;
                     var right = new Vec3(view.M11, view.M21, view.M31); var up = new Vec3(view.M12, view.M22, view.M32);
                     float style = col + 1;
-                    DrawTile(_sysStatic[row], sys.Static.Length, vp, right, up, 0f, 0.0025f, style, col * tileW, row * tileH, tileW, tileH, time);
+                    DrawTile(_sysStatic[row], st.Length, vp, right, up, 0f, 0.0025f, style, col * tileW, row * tileH, tileW, tileH, time);
                     DrawTile(_sysBodies[row], _sysCount[row], vp, right, up, 1f, col == 2 ? 0.012f : 0.008f, style, col * tileW, row * tileH, tileW, tileH, time);
                 }
             }
+        }
+
+        /// <summary>Set 2: a left-click picks the body nearest the mouse in that tile for the camera to follow;
+        /// clicking empty space far from any body goes back to the star.</summary>
+        public void PickFocus(int x, int y, int width, int height)
+        {
+            int tileW = Math.Max(1, width / 3), tileH = Math.Max(1, height / 3);
+            int col = Math.Max(0, Math.Min(2, x / tileW)), row = RowAt(y, height);
+            float mx = (x - col * tileW) / (float)tileW * 2f - 1f, my = 1f - (y - row * tileH) / (float)tileH * 2f;
+            Mat4 m = _tileVp[row, col];
+            int best = -1; float bestD = 0.08f;                       // must be within this distance on screen
+            for (int i = 0; i < _systems[row].Bodies.Count; i++)
+            {
+                var v = _sysVerts[row][i + 1];
+                float cx = v.X * m.M11 + v.Y * m.M21 + v.Z * m.M31 + m.M41;
+                float cy = v.X * m.M12 + v.Y * m.M22 + v.Z * m.M32 + m.M42;
+                float cw = v.X * m.M14 + v.Y * m.M24 + v.Z * m.M34 + m.M44;
+                if (cw <= 0) continue;
+                float d = (float)Math.Sqrt((cx / cw - mx) * (cx / cw - mx) + (cy / cw - my) * (cy / cw - my));
+                if (d < bestD) { bestD = d; best = i; }
+            }
+            if (best == _focus[row]) return;
+            _focus[row] = best;
+            if (best >= 0) _sysZoom = Math.Max(_sysZoom, 8f);           // jump in a little so the planet shows up
+            else _sysZoom = 1f;
         }
 
         private void DrawTile(UploadBuffer buf, int count, Mat4 vp, Vec3 right, Vec3 up, float sizeScale, float minSize, float style, int x, int y, int w, int h, double time)
@@ -194,6 +237,7 @@ namespace DnaAnd.Shell
             for (int c = 0; c < 3; c++) sb.Append("  " + (c + 1) + ". " + StyleNames[c] + "\n");
             sb.Append("\nControls:\n  Right-click a sample: mark or unmark it as a keeper (green frame)\n  Keepers menu: the same, with tick boxes\n");
             if (Set == 1) sb.Append("  Left-click a galaxy: zoom deep into it (Esc or right-click to come back)\n");
+            if (Set == 2) sb.Append("  Left-click a planet: the camera follows it; then the mouse wheel zooms all the way in to it\n  Left-click empty space: back to the star\n");
             sb.Append("  Mouse wheel: zoom   ·   [ and ]: previous and next set\n  Exit menu or Esc: close the game\n\nKeepers are saved in picks.txt in the game folder.");
             return sb.ToString();
         }

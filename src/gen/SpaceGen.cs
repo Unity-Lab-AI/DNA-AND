@@ -254,11 +254,20 @@ namespace DnaAnd.Gen
         /// </summary>
         public static int BodyVerts(StarSystem sys, double simYears, double yearsPerSecond, double maxTurnPerSecond, StarVertex[] outV, int trailPoints)
         {
-            var pos = new Vec3[sys.Bodies.Count];
-            int n = 0;
-            outV[n++] = Star(new Vec3(0, 0, 0), (float)sys.StarRadius, sys.SR, sys.SG, sys.SB, 1f);
+            double fx, fy, fz;
+            return BodyVerts(sys, simYears, yearsPerSecond, maxTurnPerSecond, outV, -1, 1.0, out fx, out fy, out fz);
+        }
+
+        /// <summary>Star and bodies, worked out in double precision, written relative to the focus body
+        /// (-1 = the star) and multiplied by <paramref name="scale"/>, so a single planet can fill the screen
+        /// without shaking. The focus position (unscaled, star-centred) is given back for anything drawn with it.</summary>
+        public static int BodyVerts(StarSystem sys, double simYears, double yearsPerSecond, double maxTurnPerSecond, StarVertex[] outV,
+            int focus, double scale, out double fx, out double fy, out double fz)
+        {
+            int count = sys.Bodies.Count;
+            var px = new double[count]; var pz = new double[count];
             double seconds = yearsPerSecond > 0 ? simYears / yearsPerSecond : 0;
-            for (int i = 0; i < sys.Bodies.Count; i++)
+            for (int i = 0; i < count; i++)
             {
                 var b = sys.Bodies[i];
                 double period = Math.Max(1e-4, b.Period);
@@ -267,10 +276,17 @@ namespace DnaAnd.Gen
                 double ang = turn <= maxTurnPerSecond || yearsPerSecond <= 0
                     ? b.Phase + simYears / period * Math.PI * 2
                     : b.Phase + seconds * maxTurnPerSecond;
-                Vec3 centre = b.Parent >= 0 ? pos[b.Parent] : new Vec3(0, 0, 0);
-                var p = centre + new Vec3((float)(Math.Cos(ang) * b.OrbitUnits), 0, (float)(Math.Sin(ang) * b.OrbitUnits));
-                pos[i] = p;
-                outV[n++] = Star(p, (float)b.RadiusUnits, b.R, b.G, b.B, b.Parent >= 0 ? 0.6f : 1f);
+                double cx = b.Parent >= 0 ? px[b.Parent] : 0, cz = b.Parent >= 0 ? pz[b.Parent] : 0;
+                px[i] = cx + Math.Cos(ang) * b.OrbitUnits; pz[i] = cz + Math.Sin(ang) * b.OrbitUnits;
+            }
+            fx = focus >= 0 && focus < count ? px[focus] : 0; fy = 0; fz = focus >= 0 && focus < count ? pz[focus] : 0;
+            int n = 0;
+            outV[n++] = Star(new Vec3((float)(-fx * scale), 0, (float)(-fz * scale)), (float)(sys.StarRadius * scale), sys.SR, sys.SG, sys.SB, 1f);
+            for (int i = 0; i < count; i++)
+            {
+                var b = sys.Bodies[i];
+                outV[n++] = Star(new Vec3((float)((px[i] - fx) * scale), 0, (float)((pz[i] - fz) * scale)), (float)(b.RadiusUnits * scale),
+                    b.R, b.G, b.B, b.Parent >= 0 ? 0.6f : 1f);
             }
             return n;
         }

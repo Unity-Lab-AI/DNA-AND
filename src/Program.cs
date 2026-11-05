@@ -93,6 +93,7 @@ namespace DnaAnd
                 {
                     viewer.Update(window.Input, clock.Delta);
                     if (window.Input.RightClicked) { viewer.ToggleMark(window.Input.MouseX, window.Input.MouseY, window.Width, window.Height); menuDirty = true; }
+                    else if (window.Input.LeftClicked && viewer.Set == 2) viewer.PickFocus(window.Input.MouseX, window.Input.MouseY, window.Width, window.Height);
                     else if (window.Input.LeftClicked && viewer.Set == 1)
                     {
                         int row = viewer.RowAt(window.Input.MouseY, window.Height);
