@@ -9,7 +9,7 @@ namespace DnaAnd.Platform
         private readonly bool[] _pressed = new bool[256];
         public int MouseX, MouseY, MouseDX, MouseDY;
         public int Wheel;            // wheel notches this frame (+ away from you)
-        public bool LeftDown, RightDown, LeftClicked;
+        public bool LeftDown, RightDown, LeftClicked, RightClicked;
         private int _lastX, _lastY; private bool _haveLast;
 
         public bool IsDown(int key) { return key >= 0 && key < 256 && _down[key]; }
@@ -19,7 +19,7 @@ namespace DnaAnd.Platform
         public void EndFrame()
         {
             Array.Clear(_pressed, 0, 256);
-            MouseDX = MouseDY = 0; Wheel = 0; LeftClicked = false;
+            MouseDX = MouseDY = 0; Wheel = 0; LeftClicked = false; RightClicked = false;
         }
 
         /// <summary>Feeds one window message. Returns true if it was an input message.</summary>
@@ -46,7 +46,7 @@ namespace DnaAnd.Platform
                 }
                 case Win32.WM_LBUTTONDOWN: LeftDown = true; LeftClicked = true; return true;
                 case Win32.WM_LBUTTONUP: LeftDown = false; return true;
-                case Win32.WM_RBUTTONDOWN: RightDown = true; return true;
+                case Win32.WM_RBUTTONDOWN: RightDown = true; RightClicked = true; return true;
                 case Win32.WM_RBUTTONUP: RightDown = false; return true;
                 case Win32.WM_MOUSEWHEEL:
                     Wheel += (short)((wParam.ToInt64() >> 16) & 0xFFFF) / 120; return true;

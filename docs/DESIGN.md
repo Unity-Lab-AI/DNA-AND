@@ -449,7 +449,7 @@ The feedback: "now the first set looked best but they have to be zoomable to the
 | Build the deep zoom next | "Yes, build deep zoom now (Suggested)" |
 
 ### What this means for the build
-- **Set 1 pick:** the RimWorld-like (flat, clean) style for galaxies.
+- **Set 1 pick:** the RimWorld-like (flat, clean) style for galaxies. **Corrected:** "they jsut timed out i could NOT look at them all and clicking brout it up and no way back but the center column on the first test looked the best". The pick is the **center column, Populous-like** (tilted 3D, faceted).
 - **Deep zoom:** click a galaxy to open it full-window. One continuous zoom goes from galaxy, to the core's supermassive black hole (accretion disk and jets), to clusters and nebulas, to any star's full system (planets, moons, belts, Kuiper belt, Oort cloud). Each level is generated live from the seed and the content files. 64-bit positions and a moving origin keep it precise.
 
 ---
@@ -577,3 +577,9 @@ Everything the creator has said about this project, in order. Short process repl
 56. **Set 1 feedback:** see "Round 21".
 57. **Calm motion:** see "Round 22".
 58. "well i cant reall use the tests because you never put a revert keep option with tine out they just have  a 3 sec timer out so i dont hev time to judge anything". Added the keep-or-revert prompt: `test.cmd` stays open, asks every 2 minutes, K keeps it running, no answer within 15 s closes it safely. `test.cmd 3000` stays a quick check. The exe on its own has no timer.
+59. "they jsut timed out i could NOT look at them all and clicking brout it up and no way back but the center column on the first test looked the best". Fixes:
+    - The exe finds its files from any launch.
+    - Esc or right-click goes back from the deep zoom.
+    - The watchdog pauses while the window is moved or resized, and the stall limit is now 6 s.
+    - New `play.cmd` with no timer.
+    - The set 1 pick is corrected to the center column (Populous-like).

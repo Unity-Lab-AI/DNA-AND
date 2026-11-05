@@ -41,6 +41,7 @@ namespace DnaAnd.Platform
                 Thread.Sleep(250);
                 double now = _clock.Total;
                 double last = BitConverter.Int64BitsToDouble(Interlocked.Read(ref _lastBeat));
+                if (Window.InSizeMove) { Beat(); continue; } // not a stall: the player is moving the window
                 double limit = _running ? _stallSeconds : StartupLimitSeconds;
                 if (now - last > limit) Bail((_running ? "main loop stalled for " : "start-up took longer than ") + (now - last).ToString("0.0") + " s");
                 if (_hardLimitSeconds >= 0 && now > _hardLimitSeconds + (_running ? 0 : StartupLimitSeconds)) Bail("test run passed its hard limit of " + _hardLimitSeconds + " s");

@@ -25,13 +25,13 @@ That's it. Nothing to download or install.
 2. Run **`build.cmd`**.
 3. The game appears at **`build/DNA-AND.exe`**.
 
-🔭 **Samples:** run `build\DNA-AND.exe`, then click a galaxy to zoom deep into it. Scroll to zoom, drag to rotate, **Enter** visits the star in the middle, **H** goes to the core black hole, **1–5** set time speed, **Space** pauses, and **Backspace** goes back.
+🔭 **Samples:** run `build\DNA-AND.exe`, then click a galaxy to zoom deep into it. Scroll to zoom, drag to rotate, **Enter** visits the star in the middle, **H** goes to the core black hole, **1–5** set time speed, **Space** pauses, and **Esc** or **right-click** goes back.
 
 🧪 **Look-around test:** `test.cmd` opens the game and leaves it running. Every 2 minutes a countdown bar appears across the top; press **K** to keep it running. If you don't answer within 15 seconds, it closes itself safely.
 
 ⏱️ **Quick check:** `test.cmd 3000` runs for 3 seconds and closes.
 
-▶️ **Normal play:** run `build\DNA-AND.exe` directly. There's no timer at all.
+▶️ **Normal play:** run `play.cmd`, or double-click `build\DNA-AND.exe`. There's no timer at all.
 
 The game always runs in a window and never changes your display settings, so closing it is always a full revert.
 

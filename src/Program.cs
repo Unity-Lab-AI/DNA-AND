@@ -27,9 +27,13 @@ namespace DnaAnd
             }
 
             try { Win32.SetProcessDpiAwarenessContext(Win32.DPI_PER_MONITOR_AWARE_V2); } catch { }
+            // run from the repo root no matter how the game was started (double-click, test.cmd, play.cmd)
+            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            string root = System.IO.Directory.Exists(System.IO.Path.Combine(exeDir, "content")) ? exeDir : System.IO.Path.GetDirectoryName(exeDir);
+            System.IO.Directory.SetCurrentDirectory(root);
             var clock = new Clock();
-            // Safety: force-exit if the main loop stalls 3 s, or if a test overruns its time by 5 s.
-            var watchdog = new Watchdog(clock, 3.0, smokeMs >= 0 ? smokeMs / 1000.0 + 5.0 : -1);
+            // Safety: force-exit if the main loop stalls 6 s, or if a test overruns its time by 5 s.
+            var watchdog = new Watchdog(clock, 6.0, smokeMs >= 0 ? smokeMs / 1000.0 + 5.0 : -1);
 
             ContentLibrary content = ContentLibrary.Load("content");
             var window = new Window("DNA-AND", 1600, 900);
@@ -57,7 +61,8 @@ namespace DnaAnd
                 clock.Tick();
                 watchdog.Beat();
 
-                if (deep == null && window.Input.WasPressed(Win32.VK_ESCAPE)) window.Close();
+                bool cameBack = false;
+                if (deep == null && !cameBack && window.Input.WasPressed(Win32.VK_ESCAPE)) window.Close();
                 // keep-or-revert: like a display-settings prompt. K keeps it running; no answer closes it safely.
                 double left = -1;
                 if (tryEvery > 0)
@@ -89,7 +94,7 @@ namespace DnaAnd
                         deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(row), viewer.NameOf(row), Seed + (ulong)row * 7919UL);
                     }
                 }
-                else if (!deep.Update(window.Input, clock.Delta, gpu.Width, gpu.Height)) { deep.Dispose(); deep = null; }
+                else if (!deep.Update(window.Input, clock.Delta, gpu.Width, gpu.Height)) { deep.Dispose(); deep = null; cameBack = true; }
                 gpu.BeginFrame(0.005f, 0.006f, 0.012f);
                 if (deep == null) viewer.Draw(gpu.Width, gpu.Height, clock.Total); else deep.Draw(gpu.Width, gpu.Height, clock.Total);
                 if (left > 0) bar.Draw(left / KeepWindow, gpu.Width, gpu.Height);
