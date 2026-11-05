@@ -375,7 +375,7 @@ tiny bootstrap assembler (runs on the PowerShell built into Windows) → our own
 
 The only outside pieces are Windows itself, your graphics card's driver, and the online leaderboard service, which plugs in as a swappable side car.
 
-👉 [How to Build](docs/HOW-TO-BUILD.md "From raw bytes to the setup exe") · [Builder Wiki](wiki/index.md "How every system is built")
+👉 [How to Build](docs/HOW-TO-BUILD.md "From the bootstrap to the setup exe") · [Builder Wiki](wiki/index.md "How every system is built")
 
 ---
 
