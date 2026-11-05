@@ -12,17 +12,17 @@ namespace DnaAnd.Sim
 {
     internal sealed class SeaLife
     {
-        public sealed class Kind { public string Name; public double SizeKm; public float R, G, B; public int Shape; }   // shape 0 fish, 1 drifter, 2 amoeba
+        public sealed class Kind { public string Name; public double SizeKm; public float R, G, B; public int Shape; public int Stage; }   // shape 0 fish, 1 drifter, 2 amoeba; Stage: what life must have reached first
         public static readonly Kind[] Kinds =
         {
-            new Kind { Name = "megalodon-sized shark", SizeKm = 0.016, R = 0.42f, G = 0.47f, B = 0.52f, Shape = 0 },
-            new Kind { Name = "shark", SizeKm = 0.004, R = 0.5f, G = 0.55f, B = 0.6f, Shape = 0 },
-            new Kind { Name = "big fish", SizeKm = 0.0012, R = 0.35f, G = 0.45f, B = 0.65f, Shape = 0 },
-            new Kind { Name = "fish", SizeKm = 0.0003, R = 0.75f, G = 0.72f, B = 0.4f, Shape = 0 },
-            new Kind { Name = "minnow", SizeKm = 0.00005, R = 0.8f, G = 0.82f, B = 0.85f, Shape = 0 },
-            new Kind { Name = "krill", SizeKm = 0.00001, R = 0.95f, G = 0.5f, B = 0.4f, Shape = 1 },
-            new Kind { Name = "copepod (tiny drifting animal)", SizeKm = 0.000001, R = 0.85f, G = 0.85f, B = 0.6f, Shape = 1 },
-            new Kind { Name = "amoeba", SizeKm = 0.0000003, R = 0.6f, G = 0.85f, B = 0.75f, Shape = 2 },
+            new Kind { Name = "megalodon-sized shark", SizeKm = 0.016, R = 0.42f, G = 0.47f, B = 0.52f, Shape = 0, Stage = 5 },
+            new Kind { Name = "shark", SizeKm = 0.004, R = 0.5f, G = 0.55f, B = 0.6f, Shape = 0, Stage = 5 },
+            new Kind { Name = "big fish", SizeKm = 0.0012, R = 0.35f, G = 0.45f, B = 0.65f, Shape = 0, Stage = 4 },
+            new Kind { Name = "fish", SizeKm = 0.0003, R = 0.75f, G = 0.72f, B = 0.4f, Shape = 0, Stage = 4 },
+            new Kind { Name = "minnow", SizeKm = 0.00005, R = 0.8f, G = 0.82f, B = 0.85f, Shape = 0, Stage = 4 },
+            new Kind { Name = "krill", SizeKm = 0.00001, R = 0.95f, G = 0.5f, B = 0.4f, Shape = 1, Stage = 3 },
+            new Kind { Name = "copepod (tiny drifting animal)", SizeKm = 0.000001, R = 0.85f, G = 0.85f, B = 0.6f, Shape = 1, Stage = 3 },
+            new Kind { Name = "amoeba", SizeKm = 0.0000003, R = 0.6f, G = 0.85f, B = 0.75f, Shape = 2, Stage = 1 },
         };
 
         public sealed class Animal { public int Kind; public double X, Y, Z, Dx, Dy, Dz, Phase; }
@@ -30,8 +30,12 @@ namespace DnaAnd.Sim
         private readonly Rng _rng = new Rng(99);
 
         /// <summary>Keeps animals near the camera's size around it: those far too big or small, or far away, go; new ones arrive.</summary>
+        /// <summary>The highest stage life has reached in this water: only animals that far up the ladder can be here.</summary>
+        public int StageHere = 99;
+
         public void Update(double viewKm, double camX, double camY, double camZ, Vec3 up, Vec3 ahead, double dt)
         {
+            Animals.RemoveAll(a => Kinds[a.Kind].Stage > StageHere);
             Animals.RemoveAll(a =>
             {
                 var k = Kinds[a.Kind];
@@ -43,7 +47,7 @@ namespace DnaAnd.Sim
             for (int i = 0; i < Kinds.Length; i++)
             {
                 var k = Kinds[i];
-                if (k.SizeKm < viewKm * 0.02 || k.SizeKm > viewKm * 60) continue;
+                if (k.SizeKm < viewKm * 0.02 || k.SizeKm > viewKm * 60 || k.Stage > StageHere) continue;
                 int have = 0; foreach (var a in Animals) if (a.Kind == i) have++;
                 int want = k.Shape == 0 ? (k.SizeKm > 0.003 ? 3 : 18) : 40;
                 for (; have < want; have++)

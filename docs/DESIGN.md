@@ -703,3 +703,27 @@ Everything the creator has said about this project, in order. Short process repl
 128. "push it we are good to go". Sets 7 and 8 and the journey are pushed to both remotes.
 129. **Life can start more than once:** "ur lighning bolt can start life again too u can start life in more than one place on one planet". The lightning-bolt power can start life again, and life can be started in more than one place on one planet. Each start is its own first cell with its own family tree, and they can meet, compete and mix.
 130. "not as many times as you like powers take life souls". Starting life again is not free. Every strike of Lightning or use of Spark of Life costs Souls, like every power, so the number of starts is limited by the Souls you have.
+131. **Starting Souls:** the creator chose "First spark is free". The first Lightning strike (or Spark of Life) that starts life on a planet costs nothing. Every strike after that costs Souls like any power. Living things then give off Souls.
+132. The planet's life runs at 20,000 years a second while you watch, and living things give off 0.00002 Souls a year for each crowd of life. Both are starting values, to be balanced.
+133. "and ytou cant go boom theres a shark has to start out with viruses the cells and multi cell then neurves then brains then communitcation and so on and so forth". Life climbs a ladder of stages, one step at a time:
+    0. replicators (virus-like)
+    1. single cells
+    2. many-celled life
+    3. nerves
+    4. brains
+    5. big-brained hunters
+    6. communication
+    The first spark makes only replicators. A new species occasionally climbs one step. What you see up close follows the stage reached at that spot: viruses first, then cells, and sea animals only once nerves and brains have evolved there.
+134. "dozen there are ike 10 million on earth idk 12 seems light". There are 6,144 regions with up to 40 species each, so up to about 245,000 at once on a planet. Each simulated species stands for a group of close real species, because simulating 10 million one by one every frame is not possible.
+135. **100 rule for planet life:** the creator chose "100 regions, 100 species each". Each planet has 100 regions spread evenly over the sphere, each holding up to 100 species groups, so up to 10,000 on a planet at once.
+136. "200 million years in 100sec how is it suppose to last 6 hhours till integence gets to space?". Pacing (starting values, to be balanced): each stage runs its own clock, so it takes about as long as on Earth, played over the playthrough's chapter times:
+    | Stage | Earth time to the next step | Play time |
+    |---|---|---|
+    | replicators | 200 million years | 15 min |
+    | single cells | 3 billion years | 40 min |
+    | many-celled life | 100 million years | 20 min |
+    | nerves | 80 million years | 20 min |
+    | brains | 500 million years | 45 min |
+    | big-brained hunters | 2 million years | 30 min |
+    | communication | (civilization) | 60 min |
+    That is about 3 hours to communication and 4 to 6 hours to space. Souls come in at about 1.5 a second on a living planet.
