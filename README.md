@@ -156,11 +156,11 @@ Every species that ever lived, on one **circular tree**: your first cell at the 
 |--|--|
 | 📜 **100 ages** | From the first stone tool to intergalactic. On Earth they follow real history. Other worlds can take their own order |
 | 🌳 **The tech tree** | 100 branches in 10 families that feed each other. Metal feeds war, war feeds rockets, rockets feed space |
-| 🗳️ **Real society** | Tribes, culture, religion, politics, trade, war |
-| 💀 **Self-destruction** | Collapse can throw them back ages. "Intelligent life has amazing ways of killing itself" |
-| 🤏 **You only nudge** | You never pick their next discovery. You inspire, scare, bless and punish. They choose |
+| 🗳️ **100 kinds of society** | How they rule, trade, live together, believe and keep order, from bands to galactic law |
+| 💀 **100 ways to self-destruct** | Nuclear winter, rogue machines, grey goo, engineered plague. Collapse can throw them back ages |
+| 🤏 **100 ways to nudge** | You never pick their next discovery. You raise prophets, send omens, start wars and end famines. They choose |
 
-👉 [Ages of Civilization](docs/wiki/ages-of-civilization.md "100 ages") · [Tech Tree](docs/wiki/tech-tree.md "How discoveries connect")
+👉 [Ages of Civilization](docs/wiki/ages-of-civilization.md "100 ages") · [Tech Tree](docs/wiki/tech-tree.md "100 branches") · [Society](docs/wiki/society.md "100 kinds of society") · [Nudges](docs/wiki/nudges.md "100 ways to nudge")
 
 ---
 
@@ -189,9 +189,10 @@ Powers cost **Souls**. Cost = the power's **tier (T1–T100) × area × strength
 | 🌱 **Life gives** | Living things slowly give off souls. More life, more souls |
 | 🩸 **Death pays** | Intelligent deaths give the most. A volcano going off under a city pays a fortune |
 | 🖐️ **Harvesting** | You can reap souls by hand, but it's slow, it glows, and if intelligent life sees it they panic |
-| 🏭 **They harvest for you** | As civilizations grow they farm, sacrifice and strip whole planets, and the souls flow to you |
+| 🏭 **They harvest for you** | 100 harvest steps, one per age, from the first hunt to the intergalactic harvest |
+| 🩸 **The Dark Harvest** | 🔞 100 cruel methods: driven-mad beasts, plagues made to kill better, birth laws, death cults, slave plantations, gene wars, killer machines, and world grinders that eat planets like lawns |
 
-👉 [Souls & Harvesting](docs/wiki/souls-and-harvesting.md "The currency of a god")
+👉 [Souls & Harvesting](docs/wiki/souls-and-harvesting.md "The currency of a god") · [The Dark Harvest](docs/wiki/dark-harvest.md "100 cruel ways civilizations harvest for you")
 
 ---
 

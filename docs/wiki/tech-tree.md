@@ -368,6 +368,8 @@ Every one of the 100 ages adds a new way for your people to harvest life, and th
 | 99 | 🌌 Galactic | A galactic empire uses up a galaxy |
 | 100 | ⚔️ Intergalactic | ⭐ Intergalactic: spreading across galaxies, using everything up |
 
+> 🩸 Alongside these 100 steps run the [Dark Harvest](dark-harvest.md "100 cruel methods, matrixed by era") methods: the cruelest ways each era finds to harvest life.
+
 > 💡 **Tip:** A big harvest means less life left in your galaxy. Your [leaderboard](leaderboard-and-genebank.md "Scores and the shared Genebank") score is **life in your galaxy plus life harvested**, so keep both up.
 
 ---
