@@ -158,7 +158,11 @@ namespace DnaAnd.Gen
                 if (e.Id == kind.Id) e.TryRange("mass-sol", out massLo, out massHi);
             double mass = Math.Max(0.08, massLo + rng.NextDouble() * (massHi - massLo));
             sys.Luminosity = Math.Pow(mass, 3.5);
-            sys.StarRadius = Units.Km(696000 * Math.Pow(mass, 0.8));
+            // its real size, from content (giants and supergiants are far wider than their mass alone would make them)
+            double rLo = -1, rHi = -1;
+            foreach (var e in content.OfKind("stars.dnat", "star")) if (e.Id == kind.Id) e.TryRange("radius-sol", out rLo, out rHi);
+            double radiusSol = rLo > 0 ? rLo + rng.NextDouble() * (rHi - rLo) : Math.Pow(mass, 0.8);
+            sys.StarRadius = Units.Km(696000 * radiusSol);
             double frostSun = ZoneAu(content, "frost-line", 2.7), hzSun = ZoneAu(content, "habitable", 1.0);
             double scale = Math.Sqrt(sys.Luminosity);
             sys.FrostLineAu = frostSun * scale; sys.HabitableAu = hzSun * scale;

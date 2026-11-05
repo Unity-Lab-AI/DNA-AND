@@ -358,6 +358,8 @@ namespace DnaAnd.Gen
 
         public sealed class FieldKind { public string Id, Name, Where; public float R, G, B; public bool Buried; }
         public static readonly List<FieldKind> Fields = new List<FieldKind>();
+        /// <summary>What each kind of world's air is made of, from content.</summary>
+        public static readonly Dictionary<string, string> Air = new Dictionary<string, string>();
 
         // the colour each field shows in the resource view, and whether it is buried out of sight
         private static readonly string[] FieldIds = { "ocean-water", "volcanic-sulfide", "epithermal", "porphyry", "orogenic-gold", "skarn", "pegmatite",
@@ -371,6 +373,7 @@ namespace DnaAnd.Gen
         public static void LoadFields(ContentLibrary content)
         {
             if (Fields.Count > 0) return;
+            foreach (var e in content.Entries) if ((e.Kind == "planet" || e.Kind == "giant") && e.Props.ContainsKey("air")) Air[e.Id] = e.Get("air", "");
             for (int i = 0; i < FieldIds.Length; i++)
             {
                 var k = new FieldKind { Id = FieldIds[i], Name = FieldIds[i], Where = "", R = FieldColour[i, 0], G = FieldColour[i, 1], B = FieldColour[i, 2], Buried = FieldBuried[i] };
@@ -544,6 +547,12 @@ namespace DnaAnd.Gen
         private static double Smooth(double a, double b, double v) { double t = Math.Max(0, Math.Min(1, (v - a) / (b - a))); return t * t * (3 - 2 * t); }
 
         /// <summary>Ground height in km (below 0 is the sea floor) under a unit direction, with every detail: keeps the camera on top of the ground.</summary>
+        /// <summary>The colour of the ground under a unit direction (what you see when you push into it).</summary>
+        public void GroundColourAt(double x, double y, double z, out float r, out float g, out float b)
+        {
+            float gl; Height(x, y, z, 30, out r, out g, out b, out gl);
+        }
+
         public double GroundAt(double x, double y, double z)
         {
             float r, g, b, gl;

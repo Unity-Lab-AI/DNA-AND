@@ -165,6 +165,9 @@ namespace DnaAnd.Render
             _clearDepth(_list, _dsv, 1, 1f, 0, 0, IntPtr.Zero);
         }
 
+        /// <summary>Clears only the depth, so what is drawn next shows on top of everything drawn so far.</summary>
+        public void ClearDepth() { _clearDepth(_list, _dsv, 1, 1f, 0, 0, IntPtr.Zero); }
+
         /// <summary>Finishes the frame and shows it, synced to the monitor (vsync).</summary>
         public void EndFrame()
         {

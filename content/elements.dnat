@@ -1,6 +1,7 @@
 # DNA-AND content · elements (all 118)
 # researched: IUPAC periodic table (atomic numbers, symbols, names, groups); standard states at room temperature;
-#   natural vs lab-made from standard chemistry references. The in-game uses come from the public Elements page.
+#   natural vs lab-made from standard chemistry references; melting and boiling points in kelvin at 1 atmosphere
+#   from standard reference tables (CRC Handbook values, rounded); "unknown" where never measured. The in-game uses come from the public Elements page.
 # Spec: docs/CONTENT-FORMAT.md · wiki/systems/r06-planet.md · content/physics.dnat
 
 @element h
@@ -13,6 +14,8 @@ group: Nonmetal
 state-at-room-temp: gas
 origin: natural
 in-game: Makes water, fuels stars, part of all life
+melt-k: 14
+boil-k: 20
 
 @element he
 name: Helium
@@ -24,6 +27,8 @@ group: Noble gas
 state-at-room-temp: gas
 origin: natural
 in-game: Made by stars; light gas for balloons and cooling
+melt-k: 1
+boil-k: 4
 
 @element li
 name: Lithium
@@ -35,6 +40,8 @@ group: Alkali metal
 state-at-room-temp: solid
 origin: natural
 in-game: Batteries for tech
+melt-k: 454
+boil-k: 1615
 
 @element be
 name: Beryllium
@@ -46,6 +53,8 @@ group: Alkaline earth
 state-at-room-temp: solid
 origin: natural
 in-game: Light, strong alloys for spacecraft
+melt-k: 1560
+boil-k: 2742
 
 @element b
 name: Boron
@@ -57,6 +66,8 @@ group: Metalloid
 state-at-room-temp: solid
 origin: natural
 in-game: Plant nutrient; strong glass
+melt-k: 2349
+boil-k: 4200
 
 @element c
 name: Carbon
@@ -68,6 +79,8 @@ group: Nonmetal
 state-at-room-temp: solid
 origin: natural
 in-game: The backbone of all life; coal, diamond
+melt-k: 3915
+boil-k: 3915
 
 @element n
 name: Nitrogen
@@ -79,6 +92,8 @@ group: Nonmetal
 state-at-room-temp: gas
 origin: natural
 in-game: Builds DNA and proteins; most of Earth's air
+melt-k: 63
+boil-k: 77
 
 @element o
 name: Oxygen
@@ -90,6 +105,8 @@ group: Nonmetal
 state-at-room-temp: gas
 origin: natural
 in-game: Breathing, water, fire
+melt-k: 54
+boil-k: 90
 
 @element f
 name: Fluorine
@@ -101,6 +118,8 @@ group: Halogen
 state-at-room-temp: gas
 origin: natural
 in-game: Strong teeth and bones; toxic gas in bulk
+melt-k: 54
+boil-k: 85
 
 @element ne
 name: Neon
@@ -112,6 +131,8 @@ group: Noble gas
 state-at-room-temp: gas
 origin: natural
 in-game: Glowing signs in cities
+melt-k: 25
+boil-k: 27
 
 @element na
 name: Sodium
@@ -123,6 +144,8 @@ group: Alkali metal
 state-at-room-temp: solid
 origin: natural
 in-game: Salt in the seas; nerves need it
+melt-k: 371
+boil-k: 1156
 
 @element mg
 name: Magnesium
@@ -134,6 +157,8 @@ group: Alkaline earth
 state-at-room-temp: solid
 origin: natural
 in-game: Heart of chlorophyll — photosynthesis needs it
+melt-k: 923
+boil-k: 1363
 
 @element al
 name: Aluminium
@@ -145,6 +170,8 @@ group: Post-transition
 state-at-room-temp: solid
 origin: natural
 in-game: Light metal for aircraft and tech
+melt-k: 933
+boil-k: 2792
 
 @element si
 name: Silicon
@@ -156,6 +183,8 @@ group: Metalloid
 state-at-room-temp: solid
 origin: natural
 in-game: Rock and sand; computer chips
+melt-k: 1687
+boil-k: 3538
 
 @element p
 name: Phosphorus
@@ -167,6 +196,8 @@ group: Nonmetal
 state-at-room-temp: solid
 origin: natural
 in-game: DNA backbone and cell energy
+melt-k: 317
+boil-k: 550
 
 @element s
 name: Sulfur
@@ -178,6 +209,8 @@ group: Nonmetal
 state-at-room-temp: solid
 origin: natural
 in-game: Proteins; volcanic gas; gunpowder
+melt-k: 388
+boil-k: 718
 
 @element cl
 name: Chlorine
@@ -189,6 +222,8 @@ group: Halogen
 state-at-room-temp: gas
 origin: natural
 in-game: Salt in the seas; poison gas in war
+melt-k: 172
+boil-k: 239
 
 @element ar
 name: Argon
@@ -200,6 +235,8 @@ group: Noble gas
 state-at-room-temp: gas
 origin: natural
 in-game: Inert gas in the air; welding
+melt-k: 84
+boil-k: 87
 
 @element k
 name: Potassium
@@ -211,6 +248,8 @@ group: Alkali metal
 state-at-room-temp: solid
 origin: natural
 in-game: Plant growth; nerves
+melt-k: 337
+boil-k: 1032
 
 @element ca
 name: Calcium
@@ -222,6 +261,8 @@ group: Alkaline earth
 state-at-room-temp: solid
 origin: natural
 in-game: Bones, shells, coral reefs, limestone
+melt-k: 1115
+boil-k: 1757
 
 @element sc
 name: Scandium
@@ -233,6 +274,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Light aerospace alloys
+melt-k: 1814
+boil-k: 3109
 
 @element ti
 name: Titanium
@@ -244,6 +287,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Strong, light metal for spacecraft
+melt-k: 1941
+boil-k: 3560
 
 @element v
 name: Vanadium
@@ -255,6 +300,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Hard steel
+melt-k: 2183
+boil-k: 3680
 
 @element cr
 name: Chromium
@@ -266,6 +313,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Stainless steel
+melt-k: 2180
+boil-k: 2944
 
 @element mn
 name: Manganese
@@ -277,6 +326,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Photosynthesis helper; steel
+melt-k: 1519
+boil-k: 2334
 
 @element fe
 name: Iron
@@ -288,6 +339,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Blood carries oxygen with it; the Iron Age; planet cores
+melt-k: 1811
+boil-k: 3134
 
 @element co
 name: Cobalt
@@ -299,6 +352,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Vitamin B12; magnets and batteries
+melt-k: 1768
+boil-k: 3200
 
 @element ni
 name: Nickel
@@ -310,6 +365,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Planet cores; alloys
+melt-k: 1728
+boil-k: 3186
 
 @element cu
 name: Copper
@@ -321,6 +378,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: The Copper Age; wires for electricity
+melt-k: 1358
+boil-k: 2835
 
 @element zn
 name: Zinc
@@ -332,6 +391,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Enzymes; brass and batteries
+melt-k: 693
+boil-k: 1180
 
 @element ga
 name: Gallium
@@ -343,6 +404,8 @@ group: Post-transition
 state-at-room-temp: solid
 origin: natural
 in-game: Electronics and solar panels
+melt-k: 303
+boil-k: 2477
 
 @element ge
 name: Germanium
@@ -354,6 +417,8 @@ group: Metalloid
 state-at-room-temp: solid
 origin: natural
 in-game: Early electronics
+melt-k: 1211
+boil-k: 3106
 
 @element as
 name: Arsenic
@@ -365,6 +430,8 @@ group: Metalloid
 state-at-room-temp: solid
 origin: natural
 in-game: Poison
+melt-k: 887
+boil-k: 887
 
 @element se
 name: Selenium
@@ -376,6 +443,8 @@ group: Nonmetal
 state-at-room-temp: solid
 origin: natural
 in-game: Trace nutrient; solar cells
+melt-k: 494
+boil-k: 958
 
 @element br
 name: Bromine
@@ -387,6 +456,8 @@ group: Halogen
 state-at-room-temp: liquid
 origin: natural
 in-game: Fire retardants; sea salt
+melt-k: 266
+boil-k: 332
 
 @element kr
 name: Krypton
@@ -398,6 +469,8 @@ group: Noble gas
 state-at-room-temp: gas
 origin: natural
 in-game: Lighting
+melt-k: 116
+boil-k: 120
 
 @element rb
 name: Rubidium
@@ -409,6 +482,8 @@ group: Alkali metal
 state-at-room-temp: solid
 origin: natural
 in-game: Atomic clocks
+melt-k: 312
+boil-k: 961
 
 @element sr
 name: Strontium
@@ -420,6 +495,8 @@ group: Alkaline earth
 state-at-room-temp: solid
 origin: natural
 in-game: Red fireworks
+melt-k: 1050
+boil-k: 1655
 
 @element y
 name: Yttrium
@@ -431,6 +508,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Lasers and superconductors
+melt-k: 1799
+boil-k: 3609
 
 @element zr
 name: Zirconium
@@ -442,6 +521,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Nuclear reactor parts
+melt-k: 2128
+boil-k: 4682
 
 @element nb
 name: Niobium
@@ -453,6 +534,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Superconducting magnets
+melt-k: 2750
+boil-k: 5017
 
 @element mo
 name: Molybdenum
@@ -464,6 +547,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Nitrogen-fixing enzymes; hard steel
+melt-k: 2896
+boil-k: 4912
 
 @element tc
 name: Technetium
@@ -475,6 +560,8 @@ group: Transition
 state-at-room-temp: solid
 origin: lab-made (only tiny traces in nature)
 in-game: Radioactive; medical scans
+melt-k: 2430
+boil-k: 4538
 
 @element ru
 name: Ruthenium
@@ -486,6 +573,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Electronics
+melt-k: 2607
+boil-k: 4423
 
 @element rh
 name: Rhodium
@@ -497,6 +586,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Engine catalysts
+melt-k: 2237
+boil-k: 3968
 
 @element pd
 name: Palladium
@@ -508,6 +599,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Catalysts
+melt-k: 1828
+boil-k: 3236
 
 @element ag
 name: Silver
@@ -519,6 +612,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Money; kills germs
+melt-k: 1235
+boil-k: 2435
 
 @element cd
 name: Cadmium
@@ -530,6 +625,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Batteries; toxic
+melt-k: 594
+boil-k: 1040
 
 @element in
 name: Indium
@@ -541,6 +638,8 @@ group: Post-transition
 state-at-room-temp: solid
 origin: natural
 in-game: Touch screens
+melt-k: 430
+boil-k: 2345
 
 @element sn
 name: Tin
@@ -552,6 +651,8 @@ group: Post-transition
 state-at-room-temp: solid
 origin: natural
 in-game: Bronze (with copper)
+melt-k: 505
+boil-k: 2875
 
 @element sb
 name: Antimony
@@ -563,6 +664,8 @@ group: Metalloid
 state-at-room-temp: solid
 origin: natural
 in-game: Alloys; toxic
+melt-k: 904
+boil-k: 1860
 
 @element te
 name: Tellurium
@@ -574,6 +677,8 @@ group: Metalloid
 state-at-room-temp: solid
 origin: natural
 in-game: Solar panels
+melt-k: 723
+boil-k: 1261
 
 @element i
 name: Iodine
@@ -585,6 +690,8 @@ group: Halogen
 state-at-room-temp: solid
 origin: natural
 in-game: Needed for growth; medicine
+melt-k: 387
+boil-k: 457
 
 @element xe
 name: Xenon
@@ -596,6 +703,8 @@ group: Noble gas
 state-at-room-temp: gas
 origin: natural
 in-game: Ion engines for spacecraft
+melt-k: 161
+boil-k: 165
 
 @element cs
 name: Caesium
@@ -607,6 +716,8 @@ group: Alkali metal
 state-at-room-temp: solid
 origin: natural
 in-game: Atomic clocks
+melt-k: 302
+boil-k: 944
 
 @element ba
 name: Barium
@@ -618,6 +729,8 @@ group: Alkaline earth
 state-at-room-temp: solid
 origin: natural
 in-game: Green fireworks; medical scans
+melt-k: 1000
+boil-k: 2170
 
 @element la
 name: Lanthanum
@@ -629,6 +742,8 @@ group: Lanthanide
 state-at-room-temp: solid
 origin: natural
 in-game: Camera lenses; batteries
+melt-k: 1193
+boil-k: 3737
 
 @element ce
 name: Cerium
@@ -640,6 +755,8 @@ group: Lanthanide
 state-at-room-temp: solid
 origin: natural
 in-game: Catalysts; polishing glass
+melt-k: 1068
+boil-k: 3716
 
 @element pr
 name: Praseodymium
@@ -651,6 +768,8 @@ group: Lanthanide
 state-at-room-temp: solid
 origin: natural
 in-game: Strong magnets
+melt-k: 1208
+boil-k: 3793
 
 @element nd
 name: Neodymium
@@ -662,6 +781,8 @@ group: Lanthanide
 state-at-room-temp: solid
 origin: natural
 in-game: Super-strong magnets for motors
+melt-k: 1297
+boil-k: 3347
 
 @element pm
 name: Promethium
@@ -673,6 +794,8 @@ group: Lanthanide
 state-at-room-temp: solid
 origin: lab-made (only tiny traces in nature)
 in-game: Radioactive; nuclear batteries
+melt-k: 1315
+boil-k: 3273
 
 @element sm
 name: Samarium
@@ -684,6 +807,8 @@ group: Lanthanide
 state-at-room-temp: solid
 origin: natural
 in-game: Magnets
+melt-k: 1345
+boil-k: 2067
 
 @element eu
 name: Europium
@@ -695,6 +820,8 @@ group: Lanthanide
 state-at-room-temp: solid
 origin: natural
 in-game: Red glow in screens
+melt-k: 1099
+boil-k: 1802
 
 @element gd
 name: Gadolinium
@@ -706,6 +833,8 @@ group: Lanthanide
 state-at-room-temp: solid
 origin: natural
 in-game: Medical scans
+melt-k: 1585
+boil-k: 3546
 
 @element tb
 name: Terbium
@@ -717,6 +846,8 @@ group: Lanthanide
 state-at-room-temp: solid
 origin: natural
 in-game: Green glow in screens
+melt-k: 1629
+boil-k: 3503
 
 @element dy
 name: Dysprosium
@@ -728,6 +859,8 @@ group: Lanthanide
 state-at-room-temp: solid
 origin: natural
 in-game: Magnets that stand heat
+melt-k: 1680
+boil-k: 2840
 
 @element ho
 name: Holmium
@@ -739,6 +872,8 @@ group: Lanthanide
 state-at-room-temp: solid
 origin: natural
 in-game: Strongest magnetic fields
+melt-k: 1734
+boil-k: 2993
 
 @element er
 name: Erbium
@@ -750,6 +885,8 @@ group: Lanthanide
 state-at-room-temp: solid
 origin: natural
 in-game: Fiber-optic signals
+melt-k: 1802
+boil-k: 3141
 
 @element tm
 name: Thulium
@@ -761,6 +898,8 @@ group: Lanthanide
 state-at-room-temp: solid
 origin: natural
 in-game: Lasers
+melt-k: 1818
+boil-k: 2223
 
 @element yb
 name: Ytterbium
@@ -772,6 +911,8 @@ group: Lanthanide
 state-at-room-temp: solid
 origin: natural
 in-game: Atomic clocks
+melt-k: 1097
+boil-k: 1469
 
 @element lu
 name: Lutetium
@@ -783,6 +924,8 @@ group: Lanthanide
 state-at-room-temp: solid
 origin: natural
 in-game: Medical treatments
+melt-k: 1925
+boil-k: 3675
 
 @element hf
 name: Hafnium
@@ -794,6 +937,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Reactor control rods
+melt-k: 2506
+boil-k: 4876
 
 @element ta
 name: Tantalum
@@ -805,6 +950,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Electronics
+melt-k: 3290
+boil-k: 5731
 
 @element w
 name: Tungsten
@@ -816,6 +963,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Hardest metal to melt; light bulbs, armor
+melt-k: 3695
+boil-k: 5828
 
 @element re
 name: Rhenium
@@ -827,6 +976,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Jet and rocket engines
+melt-k: 3459
+boil-k: 5869
 
 @element os
 name: Osmium
@@ -838,6 +989,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Densest element
+melt-k: 3306
+boil-k: 5285
 
 @element ir
 name: Iridium
@@ -849,6 +1002,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Left by asteroid strikes
+melt-k: 2719
+boil-k: 4701
 
 @element pt
 name: Platinum
@@ -860,6 +1015,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Catalysts; wealth
+melt-k: 2041
+boil-k: 4098
 
 @element au
 name: Gold
@@ -871,6 +1028,8 @@ group: Transition
 state-at-room-temp: solid
 origin: natural
 in-game: Wealth and trade; electronics
+melt-k: 1337
+boil-k: 3129
 
 @element hg
 name: Mercury
@@ -882,6 +1041,8 @@ group: Transition
 state-at-room-temp: liquid
 origin: natural
 in-game: Liquid metal; poison
+melt-k: 234
+boil-k: 630
 
 @element tl
 name: Thallium
@@ -893,6 +1054,8 @@ group: Post-transition
 state-at-room-temp: solid
 origin: natural
 in-game: Poison
+melt-k: 577
+boil-k: 1746
 
 @element pb
 name: Lead
@@ -904,6 +1067,8 @@ group: Post-transition
 state-at-room-temp: solid
 origin: natural
 in-game: Pipes and shielding; poison
+melt-k: 601
+boil-k: 2022
 
 @element bi
 name: Bismuth
@@ -915,6 +1080,8 @@ group: Post-transition
 state-at-room-temp: solid
 origin: natural
 in-game: Medicine; low-melting alloys
+melt-k: 544
+boil-k: 1837
 
 @element po
 name: Polonium
@@ -926,6 +1093,8 @@ group: Post-transition
 state-at-room-temp: solid
 origin: natural
 in-game: Highly radioactive
+melt-k: 527
+boil-k: 1235
 
 @element at
 name: Astatine
@@ -937,6 +1106,8 @@ group: Halogen
 state-at-room-temp: solid
 origin: natural
 in-game: Rare and radioactive
+melt-k: 575
+boil-k: 610
 
 @element rn
 name: Radon
@@ -948,6 +1119,8 @@ group: Noble gas
 state-at-room-temp: gas
 origin: natural
 in-game: Radioactive gas from rock; causes mutations
+melt-k: 202
+boil-k: 211
 
 @element fr
 name: Francium
@@ -959,6 +1132,8 @@ group: Alkali metal
 state-at-room-temp: solid
 origin: natural
 in-game: Extremely rare and radioactive
+melt-k: 300
+boil-k: 950
 
 @element ra
 name: Radium
@@ -970,6 +1145,8 @@ group: Alkaline earth
 state-at-room-temp: solid
 origin: natural
 in-game: Radioactive glow
+melt-k: 973
+boil-k: 2010
 
 @element ac
 name: Actinium
@@ -981,6 +1158,8 @@ group: Actinide
 state-at-room-temp: solid
 origin: natural
 in-game: Radioactive; medicine
+melt-k: 1323
+boil-k: 3471
 
 @element th
 name: Thorium
@@ -992,6 +1171,8 @@ group: Actinide
 state-at-room-temp: solid
 origin: natural
 in-game: Nuclear fuel; heats planet interiors
+melt-k: 2023
+boil-k: 5061
 
 @element pa
 name: Protactinium
@@ -1003,6 +1184,8 @@ group: Actinide
 state-at-room-temp: solid
 origin: natural
 in-game: Rare and radioactive
+melt-k: 1841
+boil-k: 4300
 
 @element u
 name: Uranium
@@ -1014,6 +1197,8 @@ group: Actinide
 state-at-room-temp: solid
 origin: natural
 in-game: Nuclear power and bombs; heats planet interiors
+melt-k: 1405
+boil-k: 4404
 
 @element np
 name: Neptunium
@@ -1026,6 +1211,8 @@ state-at-room-temp: solid
 origin: natural
 in-game: Made in reactors
 unlock: once a civilization first creates it
+melt-k: 917
+boil-k: 4273
 
 @element pu
 name: Plutonium
@@ -1038,6 +1225,8 @@ state-at-room-temp: solid
 origin: natural
 in-game: Nuclear bombs; space probe power
 unlock: once a civilization first creates it
+melt-k: 913
+boil-k: 3501
 
 @element am
 name: Americium
@@ -1050,6 +1239,8 @@ state-at-room-temp: solid
 origin: lab-made
 in-game: Smoke detectors
 unlock: once a civilization first creates it
+melt-k: 1449
+boil-k: 2880
 
 @element cm
 name: Curium
@@ -1062,6 +1253,8 @@ state-at-room-temp: solid
 origin: lab-made
 in-game: Space probe power
 unlock: once a civilization first creates it
+melt-k: 1613
+boil-k: 3383
 
 @element bk
 name: Berkelium
@@ -1074,6 +1267,8 @@ state-at-room-temp: solid
 origin: lab-made
 in-game: Lab-made only
 unlock: once a civilization first creates it
+melt-k: 1259
+boil-k: 2900
 
 @element cf
 name: Californium
@@ -1086,6 +1281,8 @@ state-at-room-temp: solid
 origin: lab-made
 in-game: Starts nuclear reactors
 unlock: once a civilization first creates it
+melt-k: 1173
+boil-k: 1743
 
 @element es
 name: Einsteinium
@@ -1098,6 +1295,8 @@ state-at-room-temp: solid
 origin: lab-made
 in-game: Lab-made only
 unlock: once a civilization first creates it
+melt-k: 1133
+boil-k: 1269
 
 @element fm
 name: Fermium
@@ -1110,6 +1309,8 @@ state-at-room-temp: solid
 origin: lab-made
 in-game: Lab-made only
 unlock: once a civilization first creates it
+melt-k: unknown
+boil-k: unknown
 
 @element md
 name: Mendelevium
@@ -1122,6 +1323,8 @@ state-at-room-temp: solid
 origin: lab-made
 in-game: Lab-made only
 unlock: once a civilization first creates it
+melt-k: unknown
+boil-k: unknown
 
 @element no
 name: Nobelium
@@ -1134,6 +1337,8 @@ state-at-room-temp: solid
 origin: lab-made
 in-game: Lab-made only
 unlock: once a civilization first creates it
+melt-k: unknown
+boil-k: unknown
 
 @element lr
 name: Lawrencium
@@ -1146,6 +1351,8 @@ state-at-room-temp: solid
 origin: lab-made
 in-game: Lab-made only
 unlock: once a civilization first creates it
+melt-k: unknown
+boil-k: unknown
 
 @element rf
 name: Rutherfordium
@@ -1158,6 +1365,8 @@ state-at-room-temp: unknown
 origin: lab-made
 in-game: Lab-made, lasts seconds
 unlock: once a civilization first creates it
+melt-k: unknown
+boil-k: unknown
 
 @element db
 name: Dubnium
@@ -1170,6 +1379,8 @@ state-at-room-temp: unknown
 origin: lab-made
 in-game: Lab-made, lasts seconds
 unlock: once a civilization first creates it
+melt-k: unknown
+boil-k: unknown
 
 @element sg
 name: Seaborgium
@@ -1182,6 +1393,8 @@ state-at-room-temp: unknown
 origin: lab-made
 in-game: Lab-made, lasts seconds
 unlock: once a civilization first creates it
+melt-k: unknown
+boil-k: unknown
 
 @element bh
 name: Bohrium
@@ -1194,6 +1407,8 @@ state-at-room-temp: unknown
 origin: lab-made
 in-game: Lab-made, lasts seconds
 unlock: once a civilization first creates it
+melt-k: unknown
+boil-k: unknown
 
 @element hs
 name: Hassium
@@ -1206,6 +1421,8 @@ state-at-room-temp: unknown
 origin: lab-made
 in-game: Lab-made, lasts seconds
 unlock: once a civilization first creates it
+melt-k: unknown
+boil-k: unknown
 
 @element mt
 name: Meitnerium
@@ -1218,6 +1435,8 @@ state-at-room-temp: unknown
 origin: lab-made
 in-game: Lab-made, lasts moments
 unlock: once a civilization first creates it
+melt-k: unknown
+boil-k: unknown
 
 @element ds
 name: Darmstadtium
@@ -1230,6 +1449,8 @@ state-at-room-temp: unknown
 origin: lab-made
 in-game: Lab-made, lasts moments
 unlock: once a civilization first creates it
+melt-k: unknown
+boil-k: unknown
 
 @element rg
 name: Roentgenium
@@ -1242,6 +1463,8 @@ state-at-room-temp: unknown
 origin: lab-made
 in-game: Lab-made, lasts moments
 unlock: once a civilization first creates it
+melt-k: unknown
+boil-k: unknown
 
 @element cn
 name: Copernicium
@@ -1254,6 +1477,8 @@ state-at-room-temp: unknown
 origin: lab-made
 in-game: Lab-made, lasts moments
 unlock: once a civilization first creates it
+melt-k: unknown
+boil-k: unknown
 
 @element nh
 name: Nihonium
@@ -1266,6 +1491,8 @@ state-at-room-temp: unknown
 origin: lab-made
 in-game: Lab-made, lasts moments
 unlock: once a civilization first creates it
+melt-k: unknown
+boil-k: unknown
 
 @element fl
 name: Flerovium
@@ -1278,6 +1505,8 @@ state-at-room-temp: unknown
 origin: lab-made
 in-game: Lab-made, lasts moments
 unlock: once a civilization first creates it
+melt-k: unknown
+boil-k: unknown
 
 @element mc
 name: Moscovium
@@ -1290,6 +1519,8 @@ state-at-room-temp: unknown
 origin: lab-made
 in-game: Lab-made, lasts moments
 unlock: once a civilization first creates it
+melt-k: unknown
+boil-k: unknown
 
 @element lv
 name: Livermorium
@@ -1302,6 +1533,8 @@ state-at-room-temp: unknown
 origin: lab-made
 in-game: Lab-made, lasts moments
 unlock: once a civilization first creates it
+melt-k: unknown
+boil-k: unknown
 
 @element ts
 name: Tennessine
@@ -1314,6 +1547,8 @@ state-at-room-temp: unknown
 origin: lab-made
 in-game: Lab-made, lasts moments
 unlock: once a civilization first creates it
+melt-k: unknown
+boil-k: unknown
 
 @element og
 name: Oganesson
@@ -1326,6 +1561,8 @@ state-at-room-temp: unknown
 origin: lab-made
 in-game: Heaviest known element
 unlock: once a civilization first creates it
+melt-k: unknown
+boil-k: unknown
 
 # ── Generator rules ──
 

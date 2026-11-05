@@ -580,8 +580,8 @@ Order: galactic scale down, the same order as the sample sets.
   - [ ] Write the how-to for building the game with our tools
   - `docs/HOW-TO-BUILD.md` has the plan. Exact commands get added as each step exists.
 - **Old per-subject sample tasks (round 6)** were replaced by the ordered "Sample sets" list (galactic scale down, full tree of life). Original text, verbatim:
-  - Samples: Microbes (3 examples × 3 styles)
-  - Samples: Viruses (3 examples × 3 styles)
+  - [x] Samples: Microbes (3 examples × 3 styles)
+  - [x] Samples: Viruses (3 examples × 3 styles)
   - Samples: Intelligent creatures (3 examples × 3 styles)
   - Samples: A handful of other living things (plants, insects, animals, fish, birds) (3 examples × 3 styles)
   - [x] Samples: Galaxy layouts (3 examples × 3 styles)
@@ -594,9 +594,13 @@ Order: galactic scale down, the same order as the sample sets.
   - Samples: Space colonies (3 examples × 3 styles)
   - Samples: Space stations (3 examples × 3 styles)
   - [x] Samples: Resource fields (3 examples × 3 styles)
-  - Samples: The whole periodic table of elements (all 118) (3 examples × 3 styles)
+  - [x] Samples: The whole periodic table of elements (all 118) (3 examples × 3 styles)
 - **"Combined score from all the categories"** (R15). Replaced by the creator's round 4 answer: "life in your galaxy and life \"havested\"". The new task is under R15.
 - **"Power list (`docs/POWERS.md`)"** (R11). The list itself is done (see FINALIZED). Replaced by "Build all 100 powers from the power list".
 - [ ] **Stars from the templates:** "okay thoise are good to be templetes for all the variatiosn and colors and sizes like real starts". Build every star kind in content/stars.dnat from the approved set-3 templates, with real colours and real sizes.
 - [ ] **Remaining sample sets in the locked style only:** "yup same one the center one is the best, dont need to test them twice". Sets 4–17 show only the Populous-like style.
 - [ ] **Stuck at the deepest zoom inside the Dyson sphere:** "when i zommed all all the way in to the ground as close as i could get, i got stuck in the ground and couldnt back back up(but that can be solved when we do micorscopic)". Fix with the microscopic set.
+- [ ] **Sample sets in proper order:** "okay well we need to do everything in proper order for the full game". The order is elements → microscopic world (viruses, microbes) → kingdoms of life → intelligent creatures → cities → stations, colonies and ships (built from their species).
+- [ ] **Elements into the in-game wiki:** "looks good that can go in the wiki once we flush it out with tool tips throughought and propelry gate it all off for balanced play and leveling". This needs tooltips throughout, and gating of everything for balanced play and levelling.
+- [x] **One journey, starting among the galaxies:** "and its starts in the mix of glaxixies" / "no that started above a planet". A view of many galaxies, then zoom into one, then its solar system, a planet, the surface, and the microbes.
+- [ ] **A 10-second clip of the journey:** "make it a 10sec clip" / "save it".

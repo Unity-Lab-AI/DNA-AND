@@ -5,6 +5,9 @@
 
 # ── Main-sequence stars (the seven classic types) ──
 
+# radius-sol: real radius ranges in Sun radii (standard astronomy references, rounded); a red supergiant can be
+#   over 100,000 times wider than a neutron star, billions of times by volume.
+
 @star o-type
 name: O-type blue star
 real: yes
@@ -15,6 +18,7 @@ life-years: 1e6..1e7
 share-of-stars: rarest
 death: supernova
 tags: hot, bright, short-lived, ultraviolet
+radius-sol: 6.6..15
 
 @star b-type
 name: B-type blue-white star
@@ -26,6 +30,7 @@ life-years: 1e7..3e8
 share-of-stars: rare
 death: supernova at the heavy end, white dwarf at the light end
 tags: hot, bright
+radius-sol: 1.8..6.6
 
 @star a-type
 name: A-type white star
@@ -38,6 +43,7 @@ share-of-stars: uncommon
 death: white dwarf
 example: Sirius A
 tags: bright
+radius-sol: 1.4..1.8
 
 @star f-type
 name: F-type yellow-white star
@@ -49,6 +55,7 @@ life-years: 3e9..7e9
 share-of-stars: uncommon
 death: white dwarf
 tags: stable, life-friendly
+radius-sol: 1.15..1.4
 
 @star g-type
 name: G-type yellow star
@@ -61,6 +68,7 @@ share-of-stars: common
 death: red giant, then white dwarf
 example: the Sun
 tags: stable, life-friendly
+radius-sol: 0.96..1.15
 
 @star k-type
 name: K-type orange star
@@ -72,6 +80,7 @@ life-years: 1.5e10..4.5e10
 share-of-stars: common
 death: white dwarf
 tags: stable, long-lived, life-friendly
+radius-sol: 0.7..0.96
 
 @star m-type
 name: M-type red dwarf
@@ -84,6 +93,7 @@ share-of-stars: most common
 death: white dwarf, far in the future
 example: Proxima Centauri
 tags: dim, long-lived, flares
+radius-sol: 0.1..0.7
 
 # ── Giants and supergiants ──
 
@@ -93,6 +103,7 @@ real: yes
 color: red-orange
 stage: late life of a Sun-like star
 tags: swollen, cool surface
+radius-sol: 10..100
 
 @star red-supergiant
 name: Red supergiant
@@ -102,6 +113,7 @@ stage: late life of a heavy star
 example: Betelgeuse
 death: supernova
 tags: huge, cool surface
+radius-sol: 200..1500
 
 @star blue-supergiant
 name: Blue supergiant
@@ -110,6 +122,7 @@ color: blue
 example: Rigel
 death: supernova
 tags: huge, very bright
+radius-sol: 20..100
 
 @star wolf-rayet
 name: Wolf-Rayet star
@@ -117,6 +130,7 @@ real: yes
 color: blue
 stage: heavy star blowing off its outer layers
 tags: very hot, strong winds
+radius-sol: 1..20
 
 # ── Young and failed stars ──
 
@@ -125,12 +139,14 @@ name: Protostar
 real: yes
 stage: a star still forming inside a gas cloud
 tags: young, hidden in dust
+radius-sol: 2..10
 
 @star t-tauri
 name: T Tauri star
 real: yes
 stage: a young Sun-like star, not yet steady
 tags: young, flaring, variable
+radius-sol: 1.5..3
 
 @star brown-dwarf
 name: Brown dwarf
@@ -139,6 +155,7 @@ mass-jupiter: 13..80
 stage: too light to burn like a true star
 color: magenta-red
 tags: dim, failed star
+radius-sol: 0.08..0.12
 
 # ── Dead and strange stars ──
 
@@ -148,36 +165,42 @@ real: yes
 color: white
 stage: the leftover core of a Sun-like star
 tags: small, dense, cooling
+radius-sol: 0.008..0.02
 
 @star neutron-star
 name: Neutron star
 real: yes
 stage: the crushed core left by a supernova
 tags: tiny, extremely dense
+radius-sol: 0.000014..0.000017
 
 @star pulsar
 name: Pulsar
 real: yes
 stage: a spinning neutron star sweeping beams through space
 tags: spinning, beams, radiation
+radius-sol: 0.000014..0.000017
 
 @star magnetar
 name: Magnetar
 real: yes
 stage: a neutron star with an enormous magnetic field
 tags: magnetic, star-quakes
+radius-sol: 0.000014..0.000017
 
 @star black-hole
 name: Stellar black hole
 real: yes
 stage: the collapsed core of a very heavy star
 tags: no light, swallows matter
+radius-sol: 0.000004..0.00004
 
 @star cepheid
 name: Cepheid variable
 real: yes
 stage: a giant that swells and shrinks on a steady beat
 tags: pulsing, variable
+radius-sol: 20..200
 
 # ── Luminosity classes (how bright for its type) ──
 
@@ -224,36 +247,43 @@ name: Carbon star (class C)
 real: yes
 color: deep red
 says: a cool giant whose air is rich in carbon
+radius-sol: 100..400
 
 @star s-type
 name: S-type star
 real: yes
 says: a cool giant between ordinary red giants and carbon stars
+radius-sol: 100..300
 
 @star l-dwarf
 name: L-type brown dwarf
 real: yes
 says: the warmest brown dwarfs, with metal-hydride clouds
+radius-sol: 0.08..0.12
 
 @star t-dwarf
 name: T-type brown dwarf
 real: yes
 says: cooler brown dwarfs with methane in their air
+radius-sol: 0.08..0.12
 
 @star y-dwarf
 name: Y-type brown dwarf
 real: yes
 says: the coldest brown dwarfs, barely warmer than a planet
+radius-sol: 0.08..0.12
 
 @star rr-lyrae
 name: RR Lyrae variable
 real: yes
 says: an old pulsing star that brightens and dims in less than a day
+radius-sol: 4..6
 
 @star mira
 name: Mira variable
 real: yes
 says: a pulsing red giant that brightens and dims over months
+radius-sol: 200..400
 
 # ── Generator rules ──
 

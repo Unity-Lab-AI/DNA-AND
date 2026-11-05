@@ -51,7 +51,7 @@ And somewhere along the way, they start to wonder **who you are**.
 
 ## 📸 A look inside
 
-Straight from the game, drawn live by its own generators:
+Straight from the game, drawn live by its own generators. It all joins up into one zoom, from a field of galaxies down to the microbes in the soil:
 
 <table>
 <tr>
