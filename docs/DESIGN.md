@@ -369,6 +369,22 @@ The ask: "well i thought we needed to write the games content before we could ha
 
 ---
 
+## Round 16: space in full (verbatim)
+
+The asks:
+- "remebr space has all kind sof things for ort clouds to comets and merots hitting planets and astorid belts and nebulas andplanets of all makes ups with temp ranges that need different techs and inter solarystem flt hyperdrives for glaaxy to galaxty ect ect all planed out in all docs"
+- "resources and colinatzitions of other planets mining outsposert prison coloniers all of it"
+
+### What these mean for the build
+All of the following is planned in `docs/wiki/space-and-dyson-spheres.md`:
+- **100 kinds of space objects** in 10 groups: planets, moons, small bodies (comets, asteroids, dwarf planets), belts and clouds (asteroid belts, the Kuiper belt, **Oort clouds**), gas and dust (**nebulas**), star groups, galaxies, extreme objects, events and hazards.
+- **Impacts:** comets and meteorites really hit planets, in 10 sizes from shooting star to planet collision. They come from Oort clouds, the Kuiper belt and asteroid belts, or from the god's powers.
+- **Worlds of every makeup:** 10 conditions × 10 levels = a 100-cell matrix (temperature ranges, gravity, air pressure, air makeup, radiation, water, day length, surface, magnetic shield, local life). Each level needs its own tech, and each species has its own matrix.
+- **The 100-step travel ladder:** in-system flight, propulsion, life support, interstellar ships, **hyperdrives**, navigation, infrastructure, and travel from **galaxy to galaxy**.
+- **100 space resources** and **100 kinds of colony**, including mining outposts, prison colonies, farms, fortresses and capitals.
+
+---
+
 ## How we work (verbatim)
 
 These are the creator's working rules for this repo, each in his own words.
@@ -448,3 +464,4 @@ Everything the creator has said about this project, in order. Short process repl
 38. "and when we do the dsamples we show the non headless and do them galactic scale down one set of samples at a time to take input before doing the next set"
 39. "i never made a 10-20 rule". Corrected: no fixed seed count.
 40. "and what the fuck we are still doing docs u ments as this:" ... Animals / Insects / Microbes and viruses ..." IS NOT ALL LIVING THINGS IN THE FULL KINDOM PHILUM CLASS GENIUS SPECIES and the full kindom thing in full"
+41. **Space in full:** see "Round 16". "remebr space has all kind sof things for ort clouds to comets and merots hitting planets and astorid belts and nebulas andplanets of all makes ups with temp ranges that need different techs and inter solarystem flt hyperdrives for glaaxy to galaxty ect ect all planed out in all docs" / "resources and colinatzitions of other planets mining outsposert prison coloniers all of it"
