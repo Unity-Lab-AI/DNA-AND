@@ -53,6 +53,144 @@ Living things are sorted into ranks, like real biology. **Every rank tracks the 
 
 ---
 
+## 🌳 The full tree, kingdom by kingdom
+
+Every living thing in DNA-AND sits somewhere on this tree, the same way real life does. Your world starts with the real branches below and **invents new ones** as it evolves. Every rank fills to 100.
+
+```
+Life
+├── 🦠 Viruses (not cells)
+├── 🔵 Domain Bacteria
+├── 🟠 Domain Archaea
+└── 🧬 Domain Eukaryotes
+    ├── 🟢 Protists
+    ├── 🍄 Fungi
+    ├── 🌿 Plants
+    └── 🐾 Animals
+```
+
+### 🦠 Viruses
+
+*Not cells. Outside the three domains*
+
+| Phylum / group | What's in it |
+|---|---|
+| **DNA viruses** | Pox viruses, herpes viruses |
+| **RNA viruses** | Flu, cold viruses |
+| **Retroviruses** | Viruses that write themselves into their host's DNA |
+| **Bacteriophages** | Viruses that hunt bacteria |
+| **Giant viruses** | Viruses bigger than some bacteria |
+| **Plant viruses** | Mosaic viruses |
+
+### 🔵 Bacteria
+
+*Domain Bacteria*
+
+| Phylum / group | What's in it |
+|---|---|
+| **Proteobacteria** | E. coli, nitrogen fixers |
+| **Cyanobacteria** | The first oxygen makers |
+| **Firmicutes** | Soil and gut bacteria |
+| **Actinobacteria** | Soil bacteria that make antibiotics |
+| **Bacteroidetes** | Gut partners |
+| **Spirochaetes** | Spiral swimmers |
+
+### 🟠 Archaea
+
+*Domain Archaea*
+
+| Phylum / group | What's in it |
+|---|---|
+| **Euryarchaeota** | Methane makers, salt lovers |
+| **Crenarchaeota** | Heat and acid lovers |
+| **Thaumarchaeota** | Ocean and soil ammonia eaters |
+| **Asgard archaea** | The closest relatives of complex cells |
+
+### 🟢 Protists
+
+*Domain Eukaryotes · kingdom Protista*
+
+| Phylum / group | What's in it |
+|---|---|
+| **Green algae** | The ancestors of land plants |
+| **Red algae** | Seaweeds of deep water |
+| **Brown algae** | Kelp forests |
+| **Diatoms** | Glass-shelled ocean drifters |
+| **Amoebas** | Shape-shifting hunters |
+| **Ciliates** | Hair-covered swimmers |
+| **Flagellates** | Whip-tailed swimmers |
+| **Slime molds** | Brainless maze solvers |
+| **Apicomplexans** | Parasites like the malaria maker |
+
+### 🍄 Fungi
+
+*Domain Eukaryotes · kingdom Fungi*
+
+| Phylum / group | What's in it |
+|---|---|
+| **Chytrids** | Swimming water fungi |
+| **Zygomycetes** | Bread molds |
+| **Glomeromycetes** | Root partners of plants |
+| **Ascomycetes** | Yeasts, morels, mold |
+| **Basidiomycetes** | Mushrooms, rusts |
+
+### 🌿 Plants
+
+*Domain Eukaryotes · kingdom Plantae*
+
+| Phylum / group | What's in it |
+|---|---|
+| **Mosses** | The first land plants |
+| **Liverworts** | Flat, damp ground plants |
+| **Hornworts** | Small horned plants |
+| **Club mosses** | Ancient spore plants |
+| **Ferns** | Spore plants with big fronds |
+| **Conifers** | Pines, firs, redwoods |
+| **Cycads** | Palm-like seed plants |
+| **Ginkgo** | A living fossil tree |
+| **Flowering plants** | Grasses, flowers, fruit trees |
+
+### 🐾 Animals
+
+*Domain Eukaryotes · kingdom Animalia*
+
+| Phylum / group | What's in it |
+|---|---|
+| **Sponges** | The simplest animals |
+| **Cnidarians** | Jellyfish, corals, anemones |
+| **Flatworms** | Simple worms |
+| **Roundworms** | Tiny worms everywhere |
+| **Segmented worms** | Earthworms, leeches |
+| **Mollusks** | Snails, clams, octopuses |
+| **Arthropods** | Insects, spiders, crabs, centipedes |
+| **Echinoderms** | Starfish, urchins |
+| **Chordates** | Fish, amphibians, reptiles, birds, mammals |
+
+**Inside the arthropods (classes):**
+
+| Class | What's in it |
+|---|---|
+| **Insects** | Beetles, ants, bees, butterflies |
+| **Arachnids** | Spiders, scorpions, mites |
+| **Crustaceans** | Crabs, shrimp, lobsters |
+| **Myriapods** | Centipedes, millipedes |
+
+**Inside the chordates (classes):**
+
+| Class | What's in it |
+|---|---|
+| **Jawless fish** | Lampreys, hagfish |
+| **Cartilaginous fish** | Sharks, rays |
+| **Bony fish** | Most fish |
+| **Amphibians** | Frogs, salamanders |
+| **Reptiles** | Lizards, snakes, turtles, crocodiles |
+| **Birds** | Every bird |
+| **Mammals** | Every mammal |
+
+Below each class come its **orders → families → genera → species**, each tracked 100 deep. The real seeds for every rank live in the game's content files (`content/life/`).
+
+---
+
 ## 🔃 Sort it any way
 
 | Sort by | Shows |

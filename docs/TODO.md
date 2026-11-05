@@ -59,11 +59,14 @@ Order: galactic scale down, the same order as the sample sets.
 - [ ] Content: Space colonies (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Spaceships (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Cities (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Intelligent creatures (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Animals (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Insects (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Microbes (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Viruses (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Intelligent creatures (any kingdom) in `content/life/`
+- [ ] Content: Animals: every phylum → class → order → family → genus → species in `content/life/`
+- [ ] Content: Plants: every phylum down to species in `content/life/`
+- [ ] Content: Fungi: every phylum down to species in `content/life/`
+- [ ] Content: Protists: every group down to species in `content/life/`
+- [ ] Content: Archaea: every phylum down to species in `content/life/`
+- [ ] Content: Bacteria: every phylum down to species in `content/life/`
+- [ ] Content: Viruses: every group down to type in `content/life/`
 - [ ] Content: Elements (all 118) (seeds, ranges, parts, rules) in `content/`
 - [ ] Then: seeds and rules for the rest of the 100 categories
 - [ ] Content compiler (part of R1): `.dnat` text → our binary
@@ -151,6 +154,7 @@ Order: galactic scale down, the same order as the sample sets.
 ### R4.5 — Art style samples
 - [ ] Live sample viewer, its own window, moving and rotatable: "Live viewer, moving (Suggested)"
 - [ ] Sample sets, galactic scale down, one set at a time, waiting for the creator's input before the next: "and when we do the dsamples we show the non headless and do them galactic scale down one set of samples at a time to take input before doing the next set"
+  - Life sets follow the full tree (`docs/wiki/tree-of-life.md`): "and what the fuck we are still doing docs u ments as this:" ... Animals / Insects / Microbes and viruses ..." IS NOT ALL LIVING THINGS IN THE FULL KINDOM PHILUM CLASS GENIUS SPECIES and the full kindom thing in full"
   - [ ] Set 1: Galaxy layouts
   - [ ] Set 2: Solar system layouts
   - [ ] Set 3: Stars
@@ -159,11 +163,15 @@ Order: galactic scale down, the same order as the sample sets.
   - [ ] Set 6: Dyson spheres
   - [ ] Set 7: Space stations, colonies and spaceships
   - [ ] Set 8: Cities
-  - [ ] Set 9: Intelligent creatures
-  - [ ] Set 10: Animals
-  - [ ] Set 11: Insects
-  - [ ] Set 12: Microbes and viruses
-  - [ ] Set 13: Elements
+  - [ ] Set 9: Intelligent creatures (any kingdom)
+  - [ ] Set 10: Animals: every phylum, then its classes, orders, families, genera, species
+  - [ ] Set 11: Plants: every phylum down to species
+  - [ ] Set 12: Fungi: every phylum down to species
+  - [ ] Set 13: Protists: every group down to species
+  - [ ] Set 14: Archaea: every phylum down to species
+  - [ ] Set 15: Bacteria: every phylum down to species
+  - [ ] Set 16: Viruses: every group down to type
+  - [ ] Set 17: Elements (all 118)
 
 - [ ] Every sample generated procedurally from a seed: "and remember thses things are get dynamic procedural generations"
 - [ ] Samples rendered with Direct3D 12: "Straight to Direct3D 12"
@@ -175,21 +183,6 @@ Order: galactic scale down, the same order as the sample sets.
   - Styles: RimWorld-like, Populous-like, Stardew-like, all drawn originally by us: "try a rimworld like and a, populous like, and a stardew like".
   - Light on the GPU, built for living things that move and spread: "not one thats too gpu intense and these will be living things in the environment moving and spreading as told before".
   - Waits on R4's basic renderer: "we cant do em till you build tyhier egine and shit".
-- [ ] Samples: Microbes (3 examples × 3 styles)
-- [ ] Samples: Viruses (3 examples × 3 styles)
-- [ ] Samples: Intelligent creatures (3 examples × 3 styles)
-- [ ] Samples: A handful of other living things (plants, insects, animals, fish, birds) (3 examples × 3 styles)
-- [ ] Samples: Galaxy layouts (3 examples × 3 styles)
-- [ ] Samples: Solar system layouts (3 examples × 3 styles)
-- [ ] Samples: Planets (3 examples × 3 styles)
-- [ ] Samples: Stars (3 examples × 3 styles)
-- [ ] Samples: Gas giants (3 examples × 3 styles)
-- [ ] Samples: Dyson spheres (3 examples × 3 styles)
-- [ ] Samples: Space ships (3 examples × 3 styles)
-- [ ] Samples: Space colonies (3 examples × 3 styles)
-- [ ] Samples: Space stations (3 examples × 3 styles)
-- [ ] Samples: Resource fields (3 examples × 3 styles)
-- [ ] Samples: The whole periodic table of elements (all 118) (3 examples × 3 styles)
 - [ ] Side-by-side comparison sheet of every subject, for the creator to pick one style
 - [ ] Lock in the chosen style, recorded verbatim in `docs/DESIGN.md`
 
@@ -367,5 +360,21 @@ Order: galactic scale down, the same order as the sample sets.
 
 ## TOMBSTONES
 
+- **Old per-subject sample tasks (round 6)** were replaced by the ordered "Sample sets" list (galactic scale down, full tree of life). Original text, verbatim:
+  - Samples: Microbes (3 examples × 3 styles)
+  - Samples: Viruses (3 examples × 3 styles)
+  - Samples: Intelligent creatures (3 examples × 3 styles)
+  - Samples: A handful of other living things (plants, insects, animals, fish, birds) (3 examples × 3 styles)
+  - Samples: Galaxy layouts (3 examples × 3 styles)
+  - Samples: Solar system layouts (3 examples × 3 styles)
+  - Samples: Planets (3 examples × 3 styles)
+  - Samples: Stars (3 examples × 3 styles)
+  - Samples: Gas giants (3 examples × 3 styles)
+  - Samples: Dyson spheres (3 examples × 3 styles)
+  - Samples: Space ships (3 examples × 3 styles)
+  - Samples: Space colonies (3 examples × 3 styles)
+  - Samples: Space stations (3 examples × 3 styles)
+  - Samples: Resource fields (3 examples × 3 styles)
+  - Samples: The whole periodic table of elements (all 118) (3 examples × 3 styles)
 - **"Combined score from all the categories"** (R15). Replaced by the creator's round 4 answer: "life in your galaxy and life \"havested\"". The new task is under R15.
 - **"Power list (`docs/POWERS.md`)"** (R11). The list itself is done (see FINALIZED). Replaced by "Build all 100 powers from the power list".

@@ -68,7 +68,17 @@ example: the Sun
 
 One file per subject, in `content/`, named `<subject>.dnat` (**DNA**-AND **t**ext).
 
-The sample subjects come first (round 15): planets, stars, gas giants, Dyson spheres, space stations, space colonies, spaceships, galaxy layouts, solar system layouts, resource fields, cities, microbes, viruses, insects, animals, intelligent creatures and elements.
+Life follows the full tree, one folder per kingdom and one file per phylum or class:
+
+```
+content/life/viruses/   content/life/bacteria/   content/life/archaea/
+content/life/protists/  content/life/fungi/      content/life/plants/
+content/life/animals/   (e.g. animals/arthropods-insects.dnat, animals/chordates-mammals.dnat)
+```
+
+Each entry names its full path: `domain`, `kingdom`, `phylum`, `class`, `order`, `family`, `genus`.
+
+The sample subjects come first (round 15): planets, stars, gas giants, Dyson spheres, space stations, space colonies, spaceships, galaxy layouts, solar system layouts, resource fields, cities, intelligent creatures, every kingdom of life (animals, plants, fungi, protists, archaea, bacteria, viruses), and the elements.
 
 ---
 
