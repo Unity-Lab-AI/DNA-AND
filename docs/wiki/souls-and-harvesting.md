@@ -59,4 +59,4 @@ Your [leaderboard](leaderboard-and-genebank.md) score is:
 
 So a thriving galaxy *and* a ruthless harvest both count.
 
-💬 *Suggestion:* intelligent deaths give more souls than simple ones, and harvesting is shown as a visible glow that nearby intelligent life can spot.
+🧠 **Intelligent deaths give the most souls.** And harvesting shows as a **visible glow**: if intelligent life nearby spots it, they get scared.

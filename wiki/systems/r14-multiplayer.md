@@ -20,4 +20,4 @@ last-verified: none (plan only)
 - The others send their actions (powers, camera) and receive what changed.
 - Everyone sees everyone else's **cursor**.
 
-💬 *Suggestion:* our own reliable messaging over UDP, built on Windows sockets. → [S16](../../docs/suggestions/D.md#s16--multiplayer-transport)
+✅ Our own reliable messaging over UDP, built on Windows sockets. The host shares a join code; up to 8 players.

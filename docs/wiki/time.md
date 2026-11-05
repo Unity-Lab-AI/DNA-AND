@@ -28,7 +28,7 @@ When something big happens — the first walk, the first fire, the first farm, t
 
 > 🎬 *You don't miss the moment a fish crawls onto land.*
 
-Then you speed back up. Each [milestone](glossary.md#milestone "A big step in evolution or history, like first walking or first fire") you pass moves the clock into a new rhythm.
+Time drops to 1× and a short cinematic plays. Then you speed back up. (Don't want the cinematics? Turn them off in Settings → Gameplay.) Each [milestone](glossary.md#milestone "A big step in evolution or history, like first walking or first fire") you pass moves the clock into a new rhythm.
 
 👉 All 100 stages and their milestones are in [Stages of Life](stages-of-life.md).
 

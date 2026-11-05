@@ -43,7 +43,7 @@ After the swap, a slot looks like this:
 ![<what the image shows>](<relative path to the png> "<what the image shows>")
 ```
 
-💬 *Suggestion:* the capture tool is a mode of the game exe itself ([S20](../suggestions/D.md#s20--capture-tool)).
+✅ The capture tool is a mode of the game exe itself.
 
 ## 📋 Slots so far
 

@@ -21,15 +21,15 @@ The base every system sits on.
 
 ## 🎲 Same seed = same universe
 Every random choice comes from the world seed, so one seed always rebuilds the same galaxy.
-💬 *Suggestion:* our own small seeded random generator, written from scratch. → [S7](../../docs/suggestions/D.md#s7--random-numbers)
+✅ Our own small seeded random generator, written from scratch.
 
 ## 🔭 Galaxy-size numbers
 Distances run from a virus to across galaxies.
-💬 *Suggestion:* 64-bit numbers with a "moving origin" that re-centres on the camera. → [S6](../../docs/suggestions/D.md#s6--number-precision)
+✅ 64-bit numbers with a "moving origin" that re-centres on the camera.
 
 ## 🧠 Memory and 🧵 threads
-💬 *Suggestion:* large pre-reserved memory pools per system. → [S4](../../docs/suggestions/D.md#s4--memory)
-💬 *Suggestion:* one worker per CPU core, pulling small jobs from a shared queue. → [S5](../../docs/suggestions/D.md#s5--threading)
+✅ Large pre-reserved memory pools per system.
+✅ One worker per CPU core, pulling small jobs from a shared queue.
 
 ## 💾 Save files
-💬 *Suggestion:* our own binary format made of versioned chunks (universe, planets, life, civs, player). → [S11](../../docs/suggestions/D.md#s11--save-format)
+✅ Our own binary format made of versioned chunks (universe, planets, life, civs, player).

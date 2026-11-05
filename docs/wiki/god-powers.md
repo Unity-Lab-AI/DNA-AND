@@ -61,7 +61,9 @@ On a dead planet, on day one, you have:
 | **Tier** | Soul cost: 💠 cheap → 💠💠💠💠💠 enormous |
 | **Unlocks** | When it becomes available |
 
-💬 *Suggestion:* the soul-cost tiers and unlock points below are proposals, not decided rules. See `docs/suggestions/C.md` → *Power costs and unlocks*.
+💸 **What you actually pay** = the power's tier × how big an area you hit × how strong you make it. A gentle rain on one valley is cheap; a planet-wide storm is not.
+
+⏳ **Cooldowns:** tier 4 and 5 powers (💠💠💠💠 and up) need time to recharge after each use. Smaller powers have no cooldown, so souls are the only limit.
 
 **Unlock points:**
 

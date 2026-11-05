@@ -18,15 +18,13 @@ Get the latest `DNA-AND-Setup.exe` from either release page. They're the same fi
 
 ## 🖥️ 2. Check your PC
 
-💬 *Suggestion. These specs aren't decided yet* ([S21](suggestions/D.md#s21--system-requirements)).
-
 | | Minimum | Recommended |
 |---|---|---|
 | 🪟 System | Windows 10 / 11, 64-bit | Windows 11, 64-bit |
 | 🧠 CPU | 4 cores | 8+ cores |
 | 💾 RAM | 8 GB | 16 GB |
 | 🎨 Graphics | Direct3D 12 card, 4 GB | Direct3D 12 card, 8 GB |
-| 📀 Disk | 💬 to be measured | 💬 to be measured |
+| 📀 Disk | Measured at first release | Measured at first release |
 | 🌐 Internet | Only for the leaderboard, Genebank and online multiplayer | — |
 
 ## 📦 3. Install
@@ -55,7 +53,7 @@ Download the newer `DNA-AND-Setup.exe` and run it. It installs over the old vers
 
 **Windows Settings → Apps → Installed apps → DNA-AND → Uninstall.**
 
-💬 Whether uninstalling also deletes your saves is still to be decided.
+💾 Your saved worlds are **kept**. The uninstaller asks whether you want them deleted too.
 
 ## 🆘 Trouble?
 

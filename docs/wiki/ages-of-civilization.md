@@ -19,7 +19,9 @@
 
 > ⚠️ **Watch out:** the higher they climb, the bigger their weapons. An Atomic Age civilization can end itself in an afternoon.
 
-> 💬 *Suggestion* — collapsing civilizations can **fall back** to earlier ages, not just stall. See `docs/suggestions/B.md`.
+> 📉 **Collapse is real:** a fallen civilization can **slide back** to earlier ages and has to climb again.
+
+> 🪐 **Other worlds, other histories:** on other [planet templates](glossary.md#template "Unlockable world types beyond Earth") the ages can come in their own order, just like the stages of life.
 
 ---
 

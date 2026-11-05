@@ -16,7 +16,7 @@
 | 🤏 **They pick, you push** | Civilizations research on their own. Powers like **Inspiration** (67) and **Dark Age** (77) speed them up or hold them back. |
 | 🔗 **Branches feed each other** | Metal feeds war, war feeds rockets, rockets feed space. |
 
-> 💬 *Suggestion* — a discovery needs the one before it **on its own branch**, plus any links shown with ➕. See `docs/suggestions/B.md`.
+> 🔗 A discovery needs the one before it **on its own branch**, plus any links shown with ➕.
 
 ---
 
@@ -114,7 +114,7 @@ Tamed wolves (13) ─ Farming (14) ─ Herding (15) ─ Irrigation (19)
             └─ Terraforming (94) ─ Galactic (99) ─ Intergalactic (100)
 ```
 
-| Step | | What your people do | What you get 💬 |
+| Step | | What your people do | What you get |
 |---|---|---|---|
 | 1 | 🌾 | Farm, herd and hunt | A trickle of harvested life |
 | 2 | 🛐 | Make offerings and sacrifices to you | Souls without you lifting a finger |
@@ -122,8 +122,6 @@ Tamed wolves (13) ─ Farming (14) ─ Herding (15) ─ Irrigation (19)
 | 4 | 🧬 | Grow and edit life in bulk | A flood |
 | 5 | 🌍 | Strip whole planets of resources | Planet-sized harvests |
 | 6 | 🌌 | Spread across galaxies, using everything up | The endgame harvest |
-
-> 💬 *Suggestion* — which ages switch on each harvest step. See `docs/suggestions/B.md`.
 
 > 💡 **Tip:** A big harvest means less life left in your galaxy. Your [leaderboard](leaderboard-and-genebank.md "Scores and the shared Genebank") score is **life in your galaxy plus life harvested**, so keep both up.
 
