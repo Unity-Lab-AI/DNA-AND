@@ -8,10 +8,42 @@ using DnaAnd.Render;
 
 namespace DnaAnd.Gen
 {
+    /// <summary>A star's living surface: redrawn every frame so the plasma moves and only the near side is drawn.</summary>
+    internal sealed class StarSurface
+    {
+        public Vec3[] Normals; public float Radius, Size, Cell, R, G, B;
+        public bool Giant, Brown, Hot, Spotty; public uint Seed;
+
+        /// <summary>Writes the side facing <paramref name="toEye"/> (unit vector) into <paramref name="outV"/>; returns how many.</summary>
+        public int Draw(Vec3 toEye, double time, StarVertex[] outV, int start)
+        {
+            int n = start;
+            float t = (float)time * (Giant ? 0.02f : 0.05f);   // slow boiling
+            for (int i = 0; i < Normals.Length; i++)
+            {
+                Vec3 q = Normals[i];
+                float facing = Vec3.Dot(q, toEye);
+                if (facing < -0.05f) continue;                  // back side: hidden, and would wash the colour out
+                float cells = Noise.Fractal(q.X * Cell + t, q.Y * Cell - t * 0.7f, q.Z * Cell + 5, Seed, 3);
+                float fine = Noise.Fractal(q.X * Cell * 4 - t * 2, q.Y * Cell * 4, q.Z * Cell * 4 + t, Seed + 77, 2);
+                float heat;
+                if (Brown) heat = 0.5f + 0.32f * (float)Math.Sin(q.Y * 10 + cells * 4 + t);   // cloud bands
+                else heat = 0.25f + 1.1f * (cells - 0.5f) + 0.35f * (fine - 0.5f) + 0.45f;
+                if (Spotty && Noise.Fractal(q.X * 3 + 50, q.Y * 3, q.Z * 3, Seed + 9, 2) > 0.7f) heat *= 0.35f; // star spots
+                heat *= 0.45f + 0.55f * Math.Max(0f, facing);   // darker toward the edge, like a real star
+                heat = Math.Max(0.05f, Math.Min(1.15f, heat));
+                // plasma colour: hot cells keep the star's colour, cool gaps go deeper and redder (never just white)
+                float r = R * (0.25f + 0.75f * heat), g = G * (float)Math.Pow(heat, Hot ? 1.0 : 1.5), b = B * (float)Math.Pow(heat, Hot ? 0.9 : 2.0);
+                outV[n++] = SpaceGen.Star(q * Radius, Size, r * 0.62f, g * 0.62f, b * 0.62f, 1f);
+            }
+            return n - start;
+        }
+    }
+
     internal static class StarGen
     {
         /// <summary>Points for one star, radius about 1, centred on the origin.</summary>
-        public static StarVertex[] Build(ContentLibrary content, string id, ulong seed, out string name)
+        public static StarVertex[] Build(ContentLibrary content, string id, ulong seed, out string name, out StarSurface surfaceOut)
         {
             name = id; string color = "white";
             foreach (var e in content.OfKind("stars.dnat", "star"))
@@ -26,24 +58,23 @@ namespace DnaAnd.Gen
             bool compact = id == "neutron-star" || id == "pulsar" || id == "magnetar";
             bool spotty = id == "m-type" || id == "k-type" || id == "g-type";
             float radius = compact ? 0.28f : white ? 0.45f : 1f;
-            int surface = compact ? 900 : white ? 1500 : 3200;
+            int surface = compact ? 1200 : white ? 2000 : 6000;
             float cell = giant ? 1.6f : brown ? 1f : 5f;       // noise frequency: giants have huge convection cells
 
+            var normals = new Vec3[surface];
             for (int i = 0; i < surface; i++)
             {
                 // even spread over the sphere
                 double yv = 1 - 2 * (i + 0.5) / surface, rr = Math.Sqrt(1 - yv * yv), th = i * 2.399963229728653;
-                var n = new Vec3((float)(Math.Cos(th) * rr), (float)yv, (float)(Math.Sin(th) * rr));
-                float noise = Noise.Fractal(n.X * cell + 7, n.Y * cell + 3, n.Z * cell + 11, nseed, 4);
-                float bright;
-                if (brown) bright = 0.45f + 0.35f * (float)Math.Sin(n.Y * 9 + noise * 3);           // cloud bands
-                else if (giant) bright = 0.55f + 0.9f * (noise - 0.5f) + 0.25f;                      // big boiling cells
-                else bright = 0.85f + 0.4f * (noise - 0.5f);                                         // fine granulation
-                if (spotty && Noise.Fractal(n.X * 3 + 50, n.Y * 3, n.Z * 3, nseed + 9, 2) > 0.72f) bright *= 0.35f; // star spots
-                if (white || compact) bright = 1.1f;
-                bright = Math.Max(0.12f, Math.Min(1.3f, bright));
-                list.Add(SpaceGen.Star(n * radius, radius * (compact ? 0.16f : 0.085f), r, g, b, bright));
+                normals[i] = new Vec3((float)(Math.Cos(th) * rr), (float)yv, (float)(Math.Sin(th) * rr));
             }
+            // points just touching, not piled up: spacing on a sphere of radius 1 is about sqrt(4 pi / count)
+            float size = radius * (float)Math.Sqrt(4 * Math.PI / surface) * 0.62f;
+            surface = 0;
+            bool hot = r < g || b > 0.95f;
+            var surf = new StarSurface { Normals = normals, Radius = radius, Size = size, Cell = cell, R = r, G = g, B = b,
+                Giant = giant, Brown = brown, Hot = hot, Spotty = spotty, Seed = nseed };
+            surfaceOut = surf;
 
             // the glow around it: a loose shell of dim points
             int corona = brown ? 0 : compact ? 160 : 420;

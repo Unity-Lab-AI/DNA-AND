@@ -40,7 +40,10 @@ namespace DnaAnd.Shell
         private static readonly string[] StarIds = { "g-type", "m-type", "o-type", "red-giant", "red-supergiant", "blue-supergiant", "white-dwarf", "pulsar", "brown-dwarf" };
         private readonly string[] _starNames = new string[9];
         private readonly UploadBuffer[] _starBufs = new UploadBuffer[9];
-        private readonly int[] _starCounts = new int[9];                                  // set 2 zooms from the whole system down to one planet
+        private readonly int[] _starCounts = new int[9];
+        private readonly StarSurface[] _surfaces = new StarSurface[9];
+        private readonly UploadBuffer[] _surfBufs = new UploadBuffer[9];
+        private readonly StarVertex[][] _surfVerts = new StarVertex[9][];                                  // set 2 zooms from the whole system down to one planet
 
         public string Title
         {
@@ -94,7 +97,9 @@ namespace DnaAnd.Shell
 
             for (int i = 0; i < 9; i++)
             {
-                StarVertex[] v = StarGen.Build(content, StarIds[i], seed * 31UL + (ulong)i, out _starNames[i]);
+                StarVertex[] v = StarGen.Build(content, StarIds[i], seed * 31UL + (ulong)i, out _starNames[i], out _surfaces[i]);
+                _surfVerts[i] = new StarVertex[_surfaces[i].Normals.Length];
+                _surfBufs[i] = new UploadBuffer(gpu.Device, (long)_surfVerts[i].Length * stride);
                 _starCounts[i] = v.Length;
                 _starBufs[i] = new UploadBuffer(gpu.Device, (long)Math.Max(1, v.Length) * stride);
                 _starBufs[i].Write(v, v.Length);
@@ -219,6 +224,10 @@ namespace DnaAnd.Shell
                 Mat4 view = Mat4.LookAt(eye, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
                 Mat4 vp = view * Mat4.Perspective(0.9f, tileW / (float)Math.Max(1, tileH), 0.01f, 50f);
                 var right = new Vec3(view.M11, view.M21, view.M31); var up = new Vec3(view.M12, view.M22, view.M32);
+                float len = (float)Math.Sqrt(Vec3.Dot(eye, eye));
+                int sc = _surfaces[i].Draw(eye * (1f / len), time, _surfVerts[i], 0);
+                _surfBufs[i].Write(_surfVerts[i], sc);
+                DrawTile(_surfBufs[i], sc, vp, right, up, 1f, 0f, 2f, (i % 3) * tileW, (i / 3) * tileH, tileW, tileH, time);
                 DrawTile(_starBufs[i], _starCounts[i], vp, right, up, 1f, 0f, 2f, (i % 3) * tileW, (i / 3) * tileH, tileW, tileH, time);
             }
         }
@@ -355,6 +364,7 @@ namespace DnaAnd.Shell
             foreach (var b in _sysStatic) if (b != null) b.Dispose();
             foreach (var b in _sysBodies) if (b != null) b.Dispose();
             foreach (var b in _starBufs) if (b != null) b.Dispose();
+            foreach (var b in _surfBufs) if (b != null) b.Dispose();
         }
     }
 }
