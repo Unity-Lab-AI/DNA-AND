@@ -34,3 +34,6 @@ The in-game wiki covers everything in the game: every entry in the top-100 lists
 ## 🔞 Rating
 
 The game is 18+ ("this is a 18 plus game because it has all type of things form sex to killing and murder"). The rating shows on the main menu, the installer and the release pages.
+
+## 📌 Decided specs (build from these)
+- HUD as specified in `docs/wiki/hud.md` (round 18): a slim header bar, a build-your-own action bar, click-to-open and drag-to-move panels, an element tree panel, painter brushes, and brush sizes that unlock with time and life spread.

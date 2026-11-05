@@ -396,6 +396,22 @@ All of the following is planned in `docs/wiki/space-and-dyson-spheres.md`:
 
 ---
 
+## Round 18: the HUD (verbatim)
+
+The ask: "and we havent talked about the hud much but it should be intrusive so the game window is as big as possible and everthing is click to open and click hold drag to move and everything is properly wow type of game paly action bar buiold your own with setting and wiki and you main curancy and coutnes and time at the header and all of that and things like the element tree and abilityis to add things liek them and water and head with painter tools and brush sizes unlockable as time goes on making things like harvest and powers effeect bigger areas as time goes on and life stpreads"
+
+### What this means for the build
+- **A non-intrusive HUD.** "intrusive" is read as non-intrusive, because the goal is "the game window is as big as possible". The world fills the screen.
+- **Panels:** everything is a panel, opened with a click and moved with click-hold-drag.
+- **Header bar:** settings, wiki, souls (the main currency), counters (life, harvested, score), time controls and the date.
+- **Action bar:** WoW-style. Build your own by dragging powers, tools and brushes onto slots, with rebindable hotkeys.
+- **Element tree:** the full periodic table as a panel, used to paint elements into the world.
+- **Painter tools:** element, water, heat, cold, gene, power and harvest brushes. **Brush sizes unlock as time goes on and life spreads**, so harvesting and powers cover bigger areas. Cost is still tier × area × strength.
+- **Claude filled in these WoW-style details** (any of them can be changed): extra movable bars, panel positions remembered, a strength slider, and the panel list.
+- **Spec:** `docs/wiki/hud.md`.
+
+---
+
 ## How we work (verbatim)
 
 These are the creator's working rules for this repo, each in his own words.
@@ -477,3 +493,4 @@ Everything the creator has said about this project, in order. Short process repl
 40. "and what the fuck we are still doing docs u ments as this:" ... Animals / Insects / Microbes and viruses ..." IS NOT ALL LIVING THINGS IN THE FULL KINDOM PHILUM CLASS GENIUS SPECIES and the full kindom thing in full"
 41. **Space in full:** see "Round 16". "remebr space has all kind sof things for ort clouds to comets and merots hitting planets and astorid belts and nebulas andplanets of all makes ups with temp ranges that need different techs and inter solarystem flt hyperdrives for glaaxy to galaxty ect ect all planed out in all docs" / "resources and colinatzitions of other planets mining outsposert prison coloniers all of it"
 42. **Galaxy sizes:** "Fewer, every one detailed"
+43. **HUD:** see "Round 18". "and we havent talked about the hud much but it should be intrusive so the game window is as big as possible and everthing is click to open and click hold drag to move and everything is properly wow type of game paly action bar buiold your own with setting and wiki and you main curancy and coutnes and time at the header and all of that and things like the element tree and abilityis to add things liek them and water and head with painter tools and brush sizes unlockable as time goes on making things like harvest and powers effeect bigger areas as time goes on and life stpreads"
