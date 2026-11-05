@@ -667,3 +667,4 @@ Everything the creator has said about this project, in order. Short process repl
 98. "i had a problem pressing c to get back out". I now goes in or out from anywhere, including the view from the middle, and going out comes out above where you were. C switches the view from the middle on and off.
 99. "yup c is busted for getting out of the dyson sphere". C and I both go in and out of the sphere. The view from the middle moved to M.
 100. "now i cant see anything going in goes all black". Cause: on the first frame inside, the camera had not been placed yet, so it sat at the star and its height became invalid. Fix: the camera is placed before the first picture inside, at a safe height.
+101. "okay its working now". Going in and out of the Dyson sphere works.

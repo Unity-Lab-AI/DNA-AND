@@ -13,7 +13,7 @@ namespace DnaAnd
         private static int Main(string[] args)
         {
             // --smoke <ms>: a timed test run that closes itself after <ms> milliseconds.
-            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int openSet = 0; int testPlanet = -1; int testDyson = -1; bool testInside = false; int testJumps = 0; bool testFieldView = false; double testAlt = -1; double[] tour = null; int tourStep = 0; string tourName = "tour"; double shotAt = -1; string shotPath = null; int testSpeed = -1; double tryEvery = -1;
+            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int openSet = 0; int testPlanet = -1; int pressKey = -1; double pressAt = -1; int testDyson = -1; bool testInside = false; int testJumps = 0; bool testFieldView = false; double testAlt = -1; double[] tour = null; int tourStep = 0; string tourName = "tour"; double shotAt = -1; string shotPath = null; int testSpeed = -1; double tryEvery = -1;
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i] == "--smoke" && i + 1 < args.Length) int.TryParse(args[i + 1], out smokeMs);
@@ -26,6 +26,11 @@ namespace DnaAnd
                 if (args[i] == "--set4") openSet = 4;
                 if (args[i] == "--set5") openSet = 5;
                 if (args[i] == "--set6") openSet = 6;
+                if (args[i] == "--press" && i + 2 < args.Length)   // --press <key letter> <seconds>: press a key once, for test runs
+                {
+                    pressKey = char.ToUpperInvariant(args[i + 1][0]);
+                    double.TryParse(args[i + 2], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out pressAt);
+                }
                 if (args[i] == "--dyson" && i + 1 < args.Length) int.TryParse(args[i + 1], out testDyson);   // fly to Dyson sample N
                 if (args[i] == "--inside") testInside = true;
                 if (args[i] == "--jump" && i + 1 < args.Length) int.TryParse(args[i + 1], out testJumps);   // fly to the Nth kind of field
@@ -129,6 +134,7 @@ namespace DnaAnd
                     if (testSpeed >= 0) deep.TestSpeed(testSpeed);
                     testDeep = -1;
                 }
+                if (pressKey >= 0 && clock.Total >= pressAt) { window.Input.Press(pressKey); pressKey = -1; }
                 if (planet != null) { if (!planet.Update(window.Input, clock.Delta))
                     {
                         if (viewer.Set == 6) window.Close();          // the Dyson sphere is the whole set: leaving it closes the sample
