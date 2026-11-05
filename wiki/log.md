@@ -73,3 +73,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Content for every sample subject
 
 - Researched content files: planets, gas giants, moons, small bodies, nebulas, resource fields, space tech, cities, elements (118), and life (viruses, bacteria, archaea, protists, fungi, plants, animals, extinct life, intelligent creatures).
+
+## 2026-11-05 — Scope sync
+
+- Every spec page lists its content files. Added 23 TODO build tasks, 6 new player pages, README scope sections, the LISTS "Seeded in" column and 4 generators.

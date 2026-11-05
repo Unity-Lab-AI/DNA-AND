@@ -69,8 +69,8 @@ No. Intelligent life has to carry it there, by ship or by your Life Seed power.
 **19. Do stars die?**  
 Yes. Stars can be brightened, dimmed or blown up by your powers.
 
-**20. Is there weather?**  
-Rain, storms, snow, wind, seasons, day and night.
+**20. What's out there besides stars and planets?**  
+Black holes and quasars, nebulas, moons of every kind, asteroids, comets, the Kuiper belt and the Oort cloud. See [The Deep Sky](deep-sky.md) and [Worlds & Moons](worlds-and-moons.md).
 
 ---
 
@@ -100,11 +100,11 @@ Yes, and it stays greyed out on the [Tree of Life](tree-of-life.md) forever.
 **28. Why do creatures fight so much?**  
 Every gene is selfish. All life tries to get more and do more before death.
 
-**29. Do creatures die of old age?**  
-Yes. Death always comes.
+**29. Are there dinosaurs?**  
+They can evolve again on Earth-like worlds, in new forms. Extinct life, mass extinctions included, is in [Lost Worlds](lost-worlds.md).
 
-**30. Can life breed without sex?**  
-Yes. Some life copies itself, and some needs two parents.
+**30. Which kingdoms of life are there?**  
+Viruses, bacteria, archaea, protists, fungi, plants and animals, each down to species. See [Life's Kingdoms](lifes-kingdoms.md).
 
 ---
 

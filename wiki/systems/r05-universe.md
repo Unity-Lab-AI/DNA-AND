@@ -31,3 +31,15 @@ You start on an Earth-template planet in a random solar system. Life reaches oth
 
 - 100 space objects in 10 groups, including Oort clouds, the Kuiper belt, comets, asteroid belts and nebulas (`docs/wiki/space-and-dyson-spheres.md`).
 - Impacts in 10 sizes, from comets and meteorites out of Oort clouds, the Kuiper belt and asteroid belts.
+
+## 📦 Content (build from these)
+
+This system is built from these researched content files (`docs/CONTENT-FORMAT.md`). Every entry and every rule in them is part of the spec (WORK-LAWS LAW 1).
+
+- `content/galaxies.dnat`: 47 entries (Galaxy types (real), Extra galaxy types (from research), Real examples, Parts a galaxy is built from, Structures between galaxies) and 11 rules
+- `content/solar-systems.dnat`: 31 entries (Kinds of systems (real), Real examples, Zones a system is built from) and 12 rules
+- `content/stars.dnat`: 34 entries (Main-sequence stars (the seven classic types), Giants and supergiants, Young and failed stars, Dead and strange stars, Luminosity classes (how bright for its type), Extra star types) and 5 rules
+- `content/black-holes.dnat`: 35 entries (Kinds of black hole, Parts, Active galaxy cores (a feeding supermassive black hole), Events, Real examples) and 7 rules
+- `content/nebulas.dnat`: 12 entries (The five main kinds, Star-forming structures) and 6 rules
+- `content/small-bodies.dnat`: 39 entries (Asteroids by makeup, Asteroids by orbit, Comets, Dwarf planets and far bodies, Meteors and meteorites) and 7 rules
+- `content/moons.dnat`: 18 entries (By how they formed, By surface and inside, By orbit) and 6 rules

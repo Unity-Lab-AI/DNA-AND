@@ -652,6 +652,79 @@ Late in the game you unlock powers that work on stars and planets: [stellar flar
 
 ---
 
+## 🛠️ Space tech in full
+
+### How big a civilization's power is
+
+| | What it is |
+|---|---|
+| **Planetary civilization (Type I)** | Uses all the energy reaching its home planet |
+| **Stellar civilization (Type II)** | Uses all the energy of its star, with a Dyson swarm or sphere |
+| **Galactic civilization (Type III)** | Uses the energy of its whole galaxy |
+
+### Megastructures
+
+| | What it is |
+|---|---|
+| **Dyson swarm** *(predicted by science)* | A huge cloud of separate collectors and habitats orbiting a star, catching its light; the kind real scientists think is buildable |
+| **Dyson bubble** *(predicted by science)* | Collectors that float on the star's light instead of orbiting it |
+| **Dyson shell** *(predicted by science)* | One solid shell around the star; unstable without constant correction |
+| **Matrioshka brain** *(predicted by science)* | Nested Dyson shells, each using the waste heat of the one inside, built to think instead of to live in |
+| **Stellar engine** *(predicted by science)* | A structure that moves a whole star, by pushing on its light from one side |
+| **Star ring** *(predicted by science)* | A vast spinning band around a star, its inner face a land to live on |
+| **Topopolis** *(predicted by science)* | An endless tube habitat wrapped around a star |
+| **Space elevator** *(predicted by science)* | A cable from the ground to orbit, so cargo climbs to space instead of riding rockets |
+| **Orbital ring** *(predicted by science)* | A spinning ring around a planet, with cables hanging down to the ground |
+| **Planet-wide shield** *(predicted by science)* | A giant magnetic or physical shield protecting a planet from its star or from weapons |
+
+### Space habitats and stations
+
+| | What it is |
+|---|---|
+| **Orbital station** | A crewed outpost in orbit, from a small lab to a city |
+| **Stanford torus** *(predicted by science)* | A spinning wheel about 1.7 km wide, with gravity from the spin |
+| **Bernal sphere** *(predicted by science)* | A spinning hollow ball up to about 16 km wide |
+| **O'Neill cylinder** *(predicted by science)* | Twin spinning cylinders with whole landscapes on their inner walls, made to feel like home gravity |
+| **Hollowed asteroid** *(predicted by science)* | A habitat dug inside an asteroid and spun for gravity |
+| **Shipyard** | A station where ships are built |
+| **Orbital refinery** | A station that turns mined rock and ice into metal and fuel |
+
+### Ships by job
+
+| | What it is |
+|---|---|
+| **Probe** | An uncrewed explorer |
+| **Lander** | Lands on a world's surface |
+| **Shuttle** | Carries crew and cargo between the ground and orbit |
+| **Freighter** | Hauls cargo between worlds |
+| **Mining ship** | Mines asteroids, comets and rings |
+| **Fuel scoop tanker** | Skims fuel from giant planets |
+| **Colony ship** | Carries settlers to found a new colony |
+| **Generation ship** *(predicted by science)* | A ship so slow that its crew live and die aboard for generations before it arrives |
+| **Seed ship** *(predicted by science)* | Carries frozen life or genes instead of living crew |
+| **Warship** | Built to fight |
+| **Carrier** | Carries smaller craft into battle |
+| **World grinder** *(DNA-AND original)* | A huge moving machine, powered by atomics and a Dyson sphere, that eats whole worlds like a lawnmower crossing a lawn (Dark Harvest) |
+
+### Drives
+
+| | What it is |
+|---|---|
+| **Chemical rocket** | Burns fuel and oxidizer; proven but needs huge amounts of fuel |
+| **Ion drive** | Electricity pushes charged gas out very fast; tiny thrust, huge efficiency, months to build speed |
+| **Light sail** | A huge thin sail pushed by starlight; weaker the farther from the star |
+| **Magnetic sail** *(predicted by science)* | Rides the star's wind with a magnetic field |
+| **Nuclear-thermal rocket** | A reactor heats the propellant; about twice as efficient as the best chemical rockets |
+| **Nuclear-pulse drive** *(predicted by science)* | Rides a chain of small atomic blasts against a pusher plate |
+| **Fusion drive** *(predicted by science)* | Fusion exhaust, hundreds of times more efficient than chemical rockets |
+| **Antimatter drive** *(predicted by science)* | Matter meeting antimatter; the most energy per kilogram of any fuel |
+| **Laser-pushed sail** *(predicted by science)* | A sail pushed by giant lasers from home, to a good fraction of light speed |
+| **Warp drive** *(predicted by science)* | Bends space around the ship instead of moving through it; allowed on paper but needs exotic matter |
+| **Hyperdrive** *(DNA-AND original)* | Jumps through hyperspace between stars; in DNA-AND the step up from slower-than-light travel, growing into jump gates, wormhole networks and galaxy-to-galaxy jumps |
+| **Wormhole travel** *(predicted by science)* | A shortcut tunnel through space, held open with exotic matter |
+
+---
+
 ## 🔗 See also
 
 [Groups & Flocking](groups-and-flocking.md "All things flock together: the 100-step grouping ladder") · [Planets & Templates](planets-and-templates.md "Earth, and the worlds you unlock") · [Tech Tree](tech-tree.md "How every discovery connects") · [Leaderboard & Genebank](leaderboard-and-genebank.md "Scores and Genome of the Week") · [God Powers](god-powers.md "All 100 powers, pluses and minuses") · [🏠 Wiki home](README.md)

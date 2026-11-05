@@ -55,3 +55,17 @@ Bigger layers steer smaller ones, and members can defect when that helps their o
 - 100 milestones per stage, 10,000 in all, built from the top-100 lists, 10 per family × 10 families. Milestone 100 is the headline. Only headline milestones slow time and trigger autosave (`docs/wiki/milestones.md`).
 - 100-step grouping ladder and 100 ways species mix (`docs/wiki/groups-and-flocking.md`). Tree of life with every rank tracked 100 deep (`docs/wiki/tree-of-life.md`).
 - The full tree: 3 domains + 6 kingdoms + viruses, each kingdom down to species (`docs/wiki/tree-of-life.md`). Life content lives in `content/life/<kingdom>/`.
+
+## 📦 Content (build from these)
+
+This system is built from these researched content files (`docs/CONTENT-FORMAT.md`). Every entry and every rule in them is part of the spec (WORK-LAWS LAW 1).
+
+- `content/life/viruses.dnat`: 22 entries (Baltimore groups (how a virus's genes get read), Shapes and parts, Who they infect, Life cycles) and 6 rules
+- `content/life/bacteria.dnat`: 31 entries (Shapes, Cell parts, How they get energy and food, Main groups (phyla), Group life, Swapping genes) and 5 rules
+- `content/life/archaea.dnat`: 12 entries (What makes them different, Extremophiles, Main groups (phyla)) and 3 rules
+- `content/life/protists.dnat`: 25 entries (Supergroups, Protist groups (seeds), How they move) and 4 rules
+- `content/life/fungi.dnat`: 16 entries (Phyla, Body parts, Ways of living) and 5 rules
+- `content/life/plants.dnat`: 36 entries (Groups (phyla and lines), Big splits, Organs and tissues, How they make food, How they breed) and 6 rules
+- `content/life/animals.dnat`: 84 entries (Body-plan traits, Phyla, Arthropod classes, Insect orders (seeds), Fish classes, Land vertebrate classes, Bird orders (seeds), Mammal orders (seeds)) and 5 rules
+- `content/life/extinct.dnat`: 47 entries (Mass extinctions (the Big Five, and after), The first strange animals, Early fish and the walk onto land, Dinosaurs, Other Mesozoic giants, After the dinosaurs: the age of mammals, Extinct plants) and 5 rules
+- `content/life/intelligent.dnat`: 29 entries (Real thinking animals (seeds), Signs of a mind, What pushes a line toward intelligence) and 5 rules

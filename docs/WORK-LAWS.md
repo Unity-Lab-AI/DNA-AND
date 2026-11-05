@@ -56,6 +56,7 @@ Before every push:
 - no removed line loses information
 - no generic "sun"
 - no work notes in public docs (LAW 15)
+- **content coverage:** every content file is referenced by its builder spec page, has build tasks in the TODO, and is shown on a player page. Every entry in it appears there. This check is run with our own tools before each milestone push, not as a script inside the project (LAW 5)
 
 ### LAW 12 · Decisions stay in the main session
 > "stop u dont outsource importatn decistions to a fuucking agent thhat knows nothing of the project!"

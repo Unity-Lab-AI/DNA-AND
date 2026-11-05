@@ -43,6 +43,10 @@ last-verified: none (plan only)
 | ⛏️ **Resource field** | Ore veins, asteroid belts, gas clouds, oil and mineral fields | Elements, geology |
 | ⚗️ **Element** | How each of the 118 elements looks in the world | Element data |
 | 🌦️ **Weather & effect** | Storms, fire, lava, explosions, souls rising | Climate, powers, events |
+| ⚫ **Black hole & active core** | Black holes, accretion disks, jets, quasars, blazars | Mass, spin, feeding, view angle |
+| 🌫️ **Nebula** | Emission, reflection, dark and planetary nebulas, pillars, supernova remnants | Stars nearby, gas, age |
+| ☄️ **Small body** | Asteroids, comets and their tails, dwarf planets, belts and clouds, meteorites | Makeup, distance from the star |
+| 🦴 **Fossil & ruin** | Fossils of extinct life, ruins of fallen civilizations | Extinct lines, collapsed cities |
 | 🔊 **Sound** | Calls, footsteps, machines, weather | Species body plan, materials, events |
 
 > 🐜 **Built in their own image.** The city, tech and space-tech generators read the **builder's** body plan and genes. Insect species get insect cities and insect spaceships, and wolf-folk get wolf-folk stations.
@@ -55,3 +59,31 @@ The style samples (R4.5) are the generators' first output: 3 examples × 3 style
 
 ## 🔗 Depends on
 [R3 · Engine core](r03-engine-core.md) (arrays, seeded random, threads) · [R4 · Renderer](r04-renderer.md) (Direct3D 12 and our shader generator) · [R7 · Genome](r07-genome.md) (the data creatures are built from)
+
+## 📦 Content (build from these)
+
+This system is built from these researched content files (`docs/CONTENT-FORMAT.md`). Every entry and every rule in them is part of the spec (WORK-LAWS LAW 1).
+
+- `content/black-holes.dnat`: 35 entries (Kinds of black hole, Parts, Active galaxy cores (a feeding supermassive black hole), Events, Real examples) and 7 rules
+- `content/cities.dnat`: 50 entries (Settlement sizes, Layouts, Districts, Infrastructure, in rough order of invention, Building materials by age) and 8 rules
+- `content/elements.dnat`: 118 entries (Main) and 5 rules
+- `content/galaxies.dnat`: 47 entries (Galaxy types (real), Extra galaxy types (from research), Real examples, Parts a galaxy is built from, Structures between galaxies) and 11 rules
+- `content/gas-giants.dnat`: 30 entries (Kinds, Cloud classes (Sudarsky, by temperature), Layers, Features, Solar System examples) and 7 rules
+- `content/life/animals.dnat`: 84 entries (Body-plan traits, Phyla, Arthropod classes, Insect orders (seeds), Fish classes, Land vertebrate classes, Bird orders (seeds), Mammal orders (seeds)) and 5 rules
+- `content/life/archaea.dnat`: 12 entries (What makes them different, Extremophiles, Main groups (phyla)) and 3 rules
+- `content/life/bacteria.dnat`: 31 entries (Shapes, Cell parts, How they get energy and food, Main groups (phyla), Group life, Swapping genes) and 5 rules
+- `content/life/extinct.dnat`: 47 entries (Mass extinctions (the Big Five, and after), The first strange animals, Early fish and the walk onto land, Dinosaurs, Other Mesozoic giants, After the dinosaurs: the age of mammals, Extinct plants) and 5 rules
+- `content/life/fungi.dnat`: 16 entries (Phyla, Body parts, Ways of living) and 5 rules
+- `content/life/intelligent.dnat`: 29 entries (Real thinking animals (seeds), Signs of a mind, What pushes a line toward intelligence) and 5 rules
+- `content/life/plants.dnat`: 36 entries (Groups (phyla and lines), Big splits, Organs and tissues, How they make food, How they breed) and 6 rules
+- `content/life/protists.dnat`: 25 entries (Supergroups, Protist groups (seeds), How they move) and 4 rules
+- `content/life/viruses.dnat`: 22 entries (Baltimore groups (how a virus's genes get read), Shapes and parts, Who they infect, Life cycles) and 6 rules
+- `content/moons.dnat`: 18 entries (By how they formed, By surface and inside, By orbit) and 6 rules
+- `content/nebulas.dnat`: 12 entries (The five main kinds, Star-forming structures) and 6 rules
+- `content/physics.dnat`: 49 entries (The four forces of nature, Particles and atoms, Inside a planet, What moves inside a planet, Atmospheres) and 8 rules
+- `content/planets.dnat`: 27 entries (By size, By makeup, By heat and orbit, Earth-family examples) and 6 rules
+- `content/resource-fields.dnat`: 26 entries (Made by magma, Made by hot fluids, Made by water and time, Made by weather, Fields in space) and 6 rules
+- `content/small-bodies.dnat`: 39 entries (Asteroids by makeup, Asteroids by orbit, Comets, Dwarf planets and far bodies, Meteors and meteorites) and 7 rules
+- `content/solar-systems.dnat`: 31 entries (Kinds of systems (real), Real examples, Zones a system is built from) and 12 rules
+- `content/space-tech.dnat`: 44 entries (How big a civilization's power is (Kardashev scale), Megastructures, Space habitats and stations, Ships by job, Drives) and 7 rules
+- `content/stars.dnat`: 34 entries (Main-sequence stars (the seven classic types), Giants and supergiants, Young and failed stars, Dead and strange stars, Luminosity classes (how bright for its type), Extra star types) and 5 rules

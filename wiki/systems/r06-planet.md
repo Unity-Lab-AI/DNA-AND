@@ -34,3 +34,14 @@ Earth comes first. Other templates (list 62, "Planet templates to unlock after E
 - 100 planet templates, listed in `docs/wiki/planets-and-templates.md`. Earth is first, then 2–8 unlock first. Life on a template never exists before the player's first action.
 - All 118 elements (`docs/wiki/elements.md`). Lab-made 93+ unlock once a civilization creates them.
 - Interiors, convection, tectonics or stagnant lid, volcanism, geodynamo, magnetosphere, auroras, atmosphere layers, greenhouse effect and air escape, from `content/physics.dnat`.
+
+## 📦 Content (build from these)
+
+This system is built from these researched content files (`docs/CONTENT-FORMAT.md`). Every entry and every rule in them is part of the spec (WORK-LAWS LAW 1).
+
+- `content/planets.dnat`: 27 entries (By size, By makeup, By heat and orbit, Earth-family examples) and 6 rules
+- `content/gas-giants.dnat`: 30 entries (Kinds, Cloud classes (Sudarsky, by temperature), Layers, Features, Solar System examples) and 7 rules
+- `content/moons.dnat`: 18 entries (By how they formed, By surface and inside, By orbit) and 6 rules
+- `content/physics.dnat`: 49 entries (The four forces of nature, Particles and atoms, Inside a planet, What moves inside a planet, Atmospheres) and 8 rules
+- `content/resource-fields.dnat`: 26 entries (Made by magma, Made by hot fluids, Made by water and time, Made by weather, Fields in space) and 6 rules
+- `content/elements.dnat`: 118 entries (Main) and 5 rules
