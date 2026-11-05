@@ -196,7 +196,7 @@ namespace DnaAnd
                     else if (universe.HandOff >= 0)
                     {
                         var g = universe.Focus;
-                        deep = new DeepView(gpu, pipeline, content, g.Type, g.Name, g.Seed);
+                        deep = new DeepView(gpu, pipeline, content, g.Type, g.Name, g.Seed) { Meshes = meshes };
                         deep.AimForJourney();
                         universe.HandOff = -1;
                     }
@@ -212,10 +212,9 @@ namespace DnaAnd
                     // the journey: close enough to a planet, so fly down to it, carrying on from the same distance
                     int b = deep.HandOff;
                     var body = deep.System.Bodies[b];
-                    string kind = TerrainKind(body.Kind);
-                    uint tseed = (uint)(deep.SystemSeed * 977UL + (ulong)b);
-                    var t = new DnaAnd.Gen.PlanetTerrain(gpu.Device, kind, body.Kind, tseed);
-                    var tf = new DnaAnd.Gen.PlanetTerrain(gpu.Device, kind, body.Kind, tseed, true);
+                    // carry on with the same 3D planet the solar system view was already drawing, so nothing jumps
+                    var t = deep.FocusTerrain ?? new DnaAnd.Gen.PlanetTerrain(gpu.Device, TerrainKind(body.Kind), body.Kind, (uint)(deep.SystemSeed * 977UL + (ulong)b));
+                    var tf = deep.FocusFields ?? t;
                     planet = new PlanetView(gpu, meshes, pipeline, t, tf, false) { Journey = true };
                     planet.SetAltitude((deep.Distance / deep.BodyRadiusUnits(b) - 1) * t.Radius);
                     deep.HandOff = -1;

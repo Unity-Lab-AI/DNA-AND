@@ -28,6 +28,12 @@ namespace DnaAnd.Shell
         public int HandOff = -1;
         /// <summary>Set when the player zooms out past the whole galaxy: back to the mix of galaxies.</summary>
         public bool Ascend;
+        /// <summary>For drawing the planet being approached as the real 3D planet (set by the journey).</summary>
+        public MeshPipes Meshes;
+        /// <summary>The 3D planet being approached (made when a planet is picked; the planet view carries on with this same one).</summary>
+        public PlanetTerrain FocusTerrain, FocusFields;
+        private StarSurface _starSurface; private StarVertex[] _starCorona, _starSurfVerts; private UploadBuffer _starCoronaBuf, _starSurfBuf, _shineBuf;
+        private double _glideFromX, _glideFromY, _glideFromZ; private bool _gliding;
         private int _pendingStar = -1;              // the journey: the star being flown toward, opened once close enough
 
         /// <summary>The journey: aim at a Sun-like star out in the disc, so rolling the wheel in flies to it.</summary>
@@ -43,7 +49,7 @@ namespace DnaAnd.Shell
             }
             if (best < 0) return;
             _pendingStar = best;
-            SetFocus(_stars[best].X, _stars[best].Y, _stars[best].Z);
+            _glideFromX = 0; _glideFromY = 0; _glideFromZ = 0; _gliding = true;   // start on the whole galaxy, glide toward the star as you zoom
             _dist = 3.5;
         }
 
@@ -51,6 +57,10 @@ namespace DnaAnd.Shell
         {
             _focusStar = best; _pendingStar = -1;
             StarKind kind = _kindList[Math.Max(0, _kinds[best])];
+            string sname; _starCorona = StarGen.Build(_content, kind.Id, _seed * 77UL + (ulong)best, out sname, out _starSurface);
+            _starSurfVerts = new StarVertex[_starSurface.Normals.Length];
+            if (_starCoronaBuf != null) _starCoronaBuf.Dispose(); if (_starSurfBuf != null) _starSurfBuf.Dispose();
+            _starCoronaBuf = Upload(_starCorona); _starSurfBuf = new UploadBuffer(_gpu.Device, (long)_starSurfVerts.Length * Stride);
             _system = SpaceGen.System(_content, kind, _seed * 31UL + (ulong)best); _focusBody = -1;
             SetFocus(_stars[best].X, _stars[best].Y, _stars[best].Z);
             if (_sysStatic != null) _sysStatic.Dispose();
@@ -134,6 +144,17 @@ namespace DnaAnd.Shell
             }
             if (_pendingStar >= 0 && input.Wheel < 0 && _dist > 0.5) _pendingStar = -1;      // backing away from the target star: let it go
             if (input.Wheel != 0) _dist *= Math.Pow(0.82, input.Wheel);
+            if (_pendingStar >= 0 && _gliding)
+            {
+                // how far the zoom has come from the whole galaxy (3.5) to near the star (0.002): the view's centre slides the same share of the way
+                double t = Math.Max(0, Math.Min(1, (Math.Log(3.5) - Math.Log(Math.Max(_dist, 1e-9))) / (Math.Log(3.5) - Math.Log(0.002))));
+                t = t * t * (3 - 2 * t);
+                var s0 = _stars[_pendingStar];
+                double nx = _glideFromX + (s0.X - _glideFromX) * t, ny = _glideFromY + (s0.Y - _glideFromY) * t, nz = _glideFromZ + (s0.Z - _glideFromZ) * t;
+                double moved = Math.Abs(nx - _fx) + Math.Abs(ny - _fy) + Math.Abs(nz - _fz);
+                if (moved > _dist * 0.01 || t >= 1) SetFocus(nx, ny, nz);
+                if (t >= 1) _gliding = false;
+            }
             if (_pendingStar >= 0 && _dist < 2e-6) OpenStar(_pendingStar);                 // close enough to the star: open its solar system
             double minDist = _focusStar >= 0 ? _system.StarRadius * 1.5 : _pendingStar >= 0 ? 1e-6 : _bh.HorizonUnits * 3;
             if (_focusBody >= 0) minDist = _system.Bodies[_focusBody].RadiusUnits * 1.05;
@@ -168,6 +189,15 @@ namespace DnaAnd.Shell
         {
             if (_system == null) return;
             _focusBody = i < 0 || i >= _system.Bodies.Count ? -1 : i;
+            FocusTerrain = null; FocusFields = null;
+            if (_focusBody >= 0)
+            {
+                var body = _system.Bodies[_focusBody];
+                string kind = TerrainKind(body.Kind);
+                uint tseed = (uint)(SystemSeed * 977UL + (ulong)_focusBody);
+                FocusTerrain = new PlanetTerrain(_gpu.Device, kind, body.Kind, tseed);
+                FocusFields = new PlanetTerrain(_gpu.Device, kind, body.Kind, tseed, true);
+            }
             double outer = 0; foreach (var b in _system.Bodies) if (b.Parent < 0) outer = Math.Max(outer, b.OrbitUnits);
             _dist = _focusBody < 0 ? outer * 2.2 : _system.Bodies[_focusBody].RadiusUnits * 60;
         }
@@ -231,10 +261,34 @@ namespace DnaAnd.Shell
             _dist = outer * 2.2;
         }
 
+        public static string TerrainKind(string bodyKind)
+        {
+            switch (bodyKind)
+            {
+                case "Temperate world": return "temperate";
+                case "Lava planet": return "lava";
+                case "Ice world": return "snowball";
+                case "Gas giant": return "gas-giant";
+                case "Ice giant": return "ice-giant";
+                case "Hot Jupiter": return "hot-jupiter";
+                default: return "desert";
+            }
+        }
+
+        /// <summary>The camera, built from its direction (always unit length) and then moved out by the distance,
+        /// so it stays exact even a trillionth of a galaxy unit from a planet.</summary>
+        private Mat4 OrbitView()
+        {
+            var dir = new Vec3((float)(Math.Cos(_yaw) * Math.Cos(_pitch)), (float)Math.Sin(_pitch), (float)(Math.Sin(_yaw) * Math.Cos(_pitch)));
+            Mat4 v = Mat4.LookAt(dir, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
+            v.M41 = (float)(v.M41 * _dist); v.M42 = (float)(v.M42 * _dist); v.M43 = (float)(v.M43 * _dist);
+            return v;
+        }
+
         private Mat4 ViewProj(int w, int h)
         {
             var eye = new Vec3((float)(Math.Cos(_yaw) * Math.Cos(_pitch) * _dist), (float)(Math.Sin(_pitch) * _dist), (float)(Math.Sin(_yaw) * Math.Cos(_pitch) * _dist));
-            Mat4 view = Mat4.LookAt(eye, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
+            Mat4 view = OrbitView();
             float near = (float)(_dist * 1e-3), far = (float)Math.Max(_dist * 1e5, 12);
             return view * Mat4.Perspective(0.9f, w / (float)Math.Max(1, h), near, far);
         }
@@ -242,12 +296,15 @@ namespace DnaAnd.Shell
         public void Draw(int w, int h, double time)
         {
             var eye = new Vec3((float)(Math.Cos(_yaw) * Math.Cos(_pitch) * _dist), (float)(Math.Sin(_pitch) * _dist), (float)(Math.Sin(_yaw) * Math.Cos(_pitch) * _dist));
-            Mat4 view = Mat4.LookAt(eye, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
+            Mat4 view = OrbitView();
             Mat4 vp = ViewProj(w, h);
             var right = new Vec3(view.M11, view.M21, view.M31); var up = new Vec3(view.M12, view.M22, view.M32);
 
-            Draw(_starBuf, _stars.Length, vp, right, up, 0f, 0.0028f, 2f, w, h, time);            // galaxy stars: Populous-like (the chosen galaxy style)
-            if (_structures.Length > 0) Draw(_structBuf, _structures.Length, vp, right, up, 1f, 0.0018f, 0f, w, h, time); // clusters, nebulas
+            // the galaxy's stars, clusters and nebulas, with their own near and far range so they stay in view however close you are to a planet
+            Mat4 bgVp = view * Mat4.Perspective(0.9f, w / (float)Math.Max(1, h), (float)Math.Max(_dist * 1e-3, 1e-5), (float)Math.Max(_dist * 1e5, 12));
+            Draw(_starBuf, _stars.Length, bgVp, right, up, 0f, 0.0028f, 2f, w, h, time);            // galaxy stars: Populous-like (the chosen galaxy style)
+            if (_structures.Length > 0) Draw(_structBuf, _structures.Length, bgVp, right, up, 1f, 0.0018f, 0f, w, h, time); // clusters, nebulas
+            _gpu.ClearDepth();
             if (_focusStar < 0)
             {
                 Draw(_coreBuf, _bh.Glow.Length, vp, right, up, 0f, 0.0016f, 0f, w, h, time);
@@ -259,8 +316,49 @@ namespace DnaAnd.Shell
             {
                 UpdateBodies(time);
                 Draw(_sysStatic, _system.Static.Length, vp, right, up, 0f, 0.002f, 1f, w, h, time); // orbits, belts, Oort cloud
-                Draw(_sysBodies, _bodyCount, vp, right, up, 1f, 0.006f, 1f, w, h, time);    // the star, planets and moons
+                Draw(_sysBodies, _bodyCount, vp, right, up, 1f, 0.004f, 0f, w, h, time);    // the planets and moons: glows in their own colours
+                DrawStar(vp, view, eye, right, up, w, h, time);
+                DrawFocusPlanet(eye, w, h, time);
             }
+        }
+
+        // the system's star: a wide shine in its own colour from afar, and close up its moving plasma and corona (the set 3 look)
+        private void DrawStar(Mat4 vp, Mat4 view, Vec3 eye, Vec3 right, Vec3 up, int w, int h, double time)
+        {
+            if (_starSurface == null) return;
+            var sp = _bodyVerts[0];                                  // the star's place, relative to what the camera is centred on
+            double R = _system.StarRadius;
+            // the shine: three soft layers in the star's colour, never smaller than a little blur on screen
+            var shine = new StarVertex[3];
+            for (int k = 0; k < 3; k++) shine[k] = SpaceGen.Star(new Vec3(sp.X, sp.Y, sp.Z), (float)(R * (2 + k * 4)), _system.SR, _system.SG, _system.SB, 0.5f / (k + 1));
+            if (_shineBuf == null) _shineBuf = new UploadBuffer(_gpu.Device, 3L * Stride);
+            _shineBuf.Write(shine, 3);
+            Draw(_shineBuf, 3, vp, right, up, 1f, 0.02f, 0f, w, h, time);
+            // close enough to see its disc: the plasma surface and corona, scaled to the star's real size
+            var toStar = new Vec3(sp.X - eye.X, sp.Y - eye.Y, sp.Z - eye.Z);
+            double d = Math.Sqrt(Vec3.Dot(toStar, toStar));
+            if (R / Math.Max(1e-30, d) < 0.004) return;
+            var toEye = toStar * (float)(-1 / Math.Max(1e-30, d));
+            int n = _starSurface.Draw(toEye, time, _starSurfVerts, 0);
+            _starSurfBuf.Write(_starSurfVerts, n);
+            var m = Mat4.Identity; m.M11 = m.M22 = m.M33 = (float)R; m.M41 = sp.X; m.M42 = sp.Y; m.M43 = sp.Z;
+            Mat4 svp = m * vp;
+            Draw(_starSurfBuf, n, svp, right, up, (float)R, 0f, 2f, w, h, time, true);
+            Draw(_starCoronaBuf, _starCorona.Length, svp, right, up, (float)R, 0f, 2f, w, h, time, true);
+        }
+
+        // the planet being approached, as the real 3D planet, once it is more than a speck on screen
+        private void DrawFocusPlanet(Vec3 eye, int w, int h, double time)
+        {
+            if (FocusTerrain == null || Meshes == null || _focusBody < 0) return;
+            double rU = _system.Bodies[_focusBody].RadiusUnits, eyeD = Math.Sqrt(Vec3.Dot(eye, eye));
+            if (rU / eyeD < 0.002) return;
+            double kmPerUnit = FocusTerrain.Radius / rU;
+            double ex = eye.X / eyeD, ey = eye.Y / eyeD, ez = eye.Z / eyeD, camKm = eyeD * kmPerUnit;
+            Mat4 viewRot = Mat4.LookAt(new Vec3(0, 0, 0), new Vec3((float)-ex, (float)-ey, (float)-ez), new Vec3(0, 1, 0));
+            Mat4 proj = Mat4.Perspective(0.9f, w / (float)Math.Max(1, h), (float)(camKm * 0.05), (float)(camKm * 4));
+            _gpu.ClearDepth();
+            FocusTerrain.Draw(Meshes, ex * camKm, ey * camKm, ez * camKm, viewRot, proj, time, 2.6, 0, 0, 0, 0, 0, 0, w, h, 24);
         }
 
         private const int TrailPoints = 72;
@@ -276,6 +374,12 @@ namespace DnaAnd.Shell
             var st = _system.Static;
             for (int i = 0; i < st.Length; i++) { var v = st[i]; v.X = (float)(st[i].X - fx); v.Y = (float)(st[i].Y - fy); v.Z = (float)(st[i].Z - fz); _staticShifted[i] = v; }
             if (st.Length > 0) _sysStatic.Write(_staticShifted, st.Length);
+        }
+
+        private void Draw(UploadBuffer buf, int count, Mat4 vp, Vec3 right, Vec3 up, float sizeScale, float minSize, float style, int w, int h, double time, bool scaled)
+        {
+            // a scaled group (the star's surface): the size of each point is already in the group's own units
+            Draw(buf, count, vp, right, up, scaled ? 1f : sizeScale, minSize, style, w, h, time);
         }
 
         private void Draw(UploadBuffer buf, int count, Mat4 vp, Vec3 right, Vec3 up, float sizeScale, float minSize, float style, int w, int h, double time)
@@ -306,7 +410,7 @@ namespace DnaAnd.Shell
 
         public void Dispose()
         {
-            foreach (var b in new[] { _starBuf, _structBuf, _diskBuf, _jetBuf, _coreBuf, _sysStatic, _sysBodies }) if (b != null) b.Dispose();
+            foreach (var b in new[] { _starBuf, _structBuf, _diskBuf, _jetBuf, _coreBuf, _sysStatic, _sysBodies, _starCoronaBuf, _starSurfBuf, _shineBuf }) if (b != null) b.Dispose();
         }
     }
 }
