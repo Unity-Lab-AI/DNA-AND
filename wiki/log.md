@@ -120,3 +120,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Body builder
 
 - r04b generators: the body builder, bodies from genes, and what intelligent species build (`BodyGen`, `GeneBody`, `CivGen`). Status is now partial.
+
+## 2026-11-05 — Planet life on land
+
+- r08 life sim: one shared life sim per planet, the stage ladder with each stage competing only with its own kind, and the land life drawn from the evolved species.

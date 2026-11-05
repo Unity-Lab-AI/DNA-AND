@@ -91,7 +91,7 @@ namespace DnaAnd.Gen
             }
         }
 
-        private static void Ground(Body b, float size, float r, float g, float bl) { b.Box(new Vec3(0, -0.62f, 0), size, 0.04f, size, r, g, bl); }
+        private static void Ground(Body b, float size, float r, float g, float bl) { b.GroundSlab(new Vec3(0, -0.62f, 0), size, 0.04f, size, r, g, bl); }
 
         // a tribe's camp: shelters of hide round a fire, drying racks, and the tribe's own banner
         private static void Camp(Body b, Genome g, Rng r, int style)

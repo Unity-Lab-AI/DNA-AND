@@ -66,7 +66,7 @@ namespace DnaAnd.Gen
 
         private static void Plant(Body b, Genome g, Rng r)
         {
-            b.Blob(new Vec3(0, -0.95f, 0), 0.9f, 0.08f, 0.9f, 0.35f, 0.3f, 0.2f);
+            b.GroundDisc(new Vec3(0, -0.95f, 0), 0.9f, 0.08f, 0.9f, 0.35f, 0.3f, 0.2f);
             float h = 0.4f + g.Size * 0.25f;
             float lr = Math.Min(1, g.R * 0.4f), lg = 0.4f + g.G * 0.5f, lb = g.B * 0.35f;     // leaves: green, tinted by the family colour
             Branch(b, r, new Vec3(0, -0.9f, 0), new Vec3(0, 1, 0), h, 0.06f + g.Size * 0.03f, 1 + Count(g.Branch, 2), lr, lg, lb, g.Toxin > 0.5f);
@@ -92,7 +92,7 @@ namespace DnaAnd.Gen
 
         private static void Fungus(Body b, Genome g, Rng r)
         {
-            b.Blob(new Vec3(0, -0.55f, 0), 0.8f, 0.08f, 0.8f, 0.35f, 0.28f, 0.18f);
+            b.GroundDisc(new Vec3(0, -0.55f, 0), 0.8f, 0.08f, 0.8f, 0.35f, 0.28f, 0.18f);
             int caps = 1 + Count(g.Branch, 4);
             for (int k = 0; k < caps; k++)
             {
@@ -133,7 +133,7 @@ namespace DnaAnd.Gen
             var dir = new Vec3((float)Math.Cos(tilt), (float)Math.Sin(tilt), 0);
             float groundY = -0.7f;
             float bodyY = swims ? 0 : legPairs == 0 ? groundY + seg * 0.9f : groundY + legLen + seg * 0.4f;   // legless ones lie on the ground
-            if (!swims) b.Blob(new Vec3(0, groundY - 0.03f, 0), 1.0f, 0.04f, 0.75f, 0.35f, 0.5f, 0.22f);    // ground
+            if (!swims) b.GroundDisc(new Vec3(0, groundY - 0.04f, 0), 1.0f, 0.04f, 0.75f, 0.35f, 0.5f, 0.22f);    // ground
             float step = seg * 1.4f;
             var start = new Vec3(-(segs - 1) * step * 0.5f * (float)Math.Cos(tilt * 0.5), bodyY, 0);   // the body rises from its hips
             var pts = new Vec3[segs];

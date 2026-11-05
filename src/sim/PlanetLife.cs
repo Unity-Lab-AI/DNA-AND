@@ -20,6 +20,7 @@ namespace DnaAnd.Sim
     {
         public const int Regions = 100;                            // the 100 rule: 100 regions spread evenly over the planet
         public readonly Dictionary<int, Species> All = new Dictionary<int, Species>();   // the living species; extinct ones are let go
+        public int Climbs;                                         // how many lineages have climbed a step
         public int EverLived { get { return _nextId - 1; } }
         public double Years;                                       // since the first spark
         public int Sparks;                                         // how many times life has been started
@@ -159,8 +160,8 @@ namespace DnaAnd.Sim
                     {
                         var g = Genome.Mutate(sp.G, _rng, 3);
                         // now and then a lineage climbs one step up the ladder of life; never skipping a step
-                        if (g.Stage == TopStage && g.Stage < StageNames.Length - 1 && Years - _stageReached > StageYears[TopStage] && _rng.NextDouble() < 0.02)
-                        { g.Stage++; g.Size = Math.Min(3f, g.Size * 1.6f); }
+                        if (g.Stage == TopStage && g.Stage < StageNames.Length - 1 && Years - _stageReached > StageYears[TopStage] && _rng.NextDouble() < 0.2)
+                        { g.Stage++; g.Size = Math.Min(3f, g.Size * 1.6f); Climbs++; }
                         g.R = Math.Max(0.1f, Math.Min(1, sp.G.R + _rng.Range(-0.2f, 0.2f))); g.G = Math.Max(0.1f, Math.Min(1, sp.G.G + _rng.Range(-0.2f, 0.2f))); g.B = Math.Max(0.1f, Math.Min(1, sp.G.B + _rng.Range(-0.2f, 0.2f)));
                         int nid = _nextId++;
                         All.Add(nid, new Species { Id = nid, Parent = id, Root = sp.Root, G = g, Born = Years });
@@ -168,14 +169,22 @@ namespace DnaAnd.Sim
                     }
                 }
             }
-            // competition: a region holds only so much life, and every species in it is squeezed back to fit
+            // competition: a region holds only so much of each way of living. Each stage competes with its own kind
+            // (cells with cells, animals with animals), so new kinds of life find room beside the old instead of being crowded out.
+            var totals = new double[StageNames.Length];
             for (int i = 0; i < _cells.Length; i++)
             {
                 var cell = _cells[i]; if (cell.Count == 0) continue;
-                double total = 0; foreach (var kv in cell) total += kv.Value;
-                if (total <= Room) continue;
-                double k = Room / total; var ids = new List<int>(cell.Keys);
-                foreach (int id in ids) { double n = cell[id] * k; if (n < 0.05) cell.Remove(id); else cell[id] = n; }
+                Array.Clear(totals, 0, totals.Length);
+                foreach (var kv in cell) totals[All[kv.Key].G.Stage] += kv.Value;
+                bool over = false; foreach (double t in totals) if (t > Room) over = true;
+                if (!over) continue;
+                var ids = new List<int>(cell.Keys);
+                foreach (int id in ids)
+                {
+                    double t = totals[All[id].G.Stage]; if (t <= Room) continue;
+                    double nn = cell[id] * Room / t; if (nn < 0.05) cell.Remove(id); else cell[id] = nn;
+                }
             }
             foreach (var a in add)
             {

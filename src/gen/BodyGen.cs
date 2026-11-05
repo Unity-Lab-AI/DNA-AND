@@ -15,6 +15,7 @@ namespace DnaAnd.Gen
     internal struct Part
     {
         public int Kind; public Vec3 C, U, V, W; public float SU, SV, SW; public float R, G, B, Glow;
+        public bool IsGround;     // the patch of ground a sample stands on; left out when the body stands on a real world
 
         public bool Inside(Vec3 p)
         {
@@ -31,6 +32,13 @@ namespace DnaAnd.Gen
         public readonly List<Part> Parts = new List<Part>();
         public string Name;
         public float Radius = 1;          // roughly how big it is, for the camera
+        public float GroundY = float.NaN; // where its feet, roots or foundations meet the ground (NaN: it floats)
+
+        /// <summary>The patch of ground a sample stands on: a flat blob whose top is the ground level.</summary>
+        public void GroundDisc(Vec3 c, float sx, float sy, float sz, float r, float g, float b)
+        { Blob(c, sx, sy, sz, r, g, b); var p = Parts[Parts.Count - 1]; p.IsGround = true; Parts[Parts.Count - 1] = p; GroundY = c.Y + sy; }
+        public void GroundSlab(Vec3 c, float sx, float sy, float sz, float r, float g, float b)
+        { Box(c, sx, sy, sz, r, g, b); var p = Parts[Parts.Count - 1]; p.IsGround = true; Parts[Parts.Count - 1] = p; GroundY = c.Y + sy; }
 
         private static Vec3 Up = new Vec3(0, 1, 0);
 
@@ -70,15 +78,20 @@ namespace DnaAnd.Gen
 
         // ── turning parts into triangles ──
 
-        public static StarVertex[] Build(Body body, int look)
+        public static StarVertex[] Build(Body body, int look) { return Build(body, look, 7, true); }
+
+        /// <summary><paramref name="split"/>: how finely smooth blobs are cut (lower for crowds in the world);
+        /// <paramref name="withGround"/>: false leaves out the sample's patch of ground.</summary>
+        public static StarVertex[] Build(Body body, int look, int split, bool withGround)
         {
             var l = new List<StarVertex>();
             if (look == 2) { Blocks(body, l); return l.ToArray(); }
             foreach (var p in body.Parts)
             {
-                if (p.Kind == 0) Ellipsoid(l, p, look == 0 ? 7 : 1, look == 1);
+                if (p.IsGround && !withGround) continue;
+                if (p.Kind == 0) Ellipsoid(l, p, look == 0 ? split : 1, look == 1);
                 else if (p.Kind == 1) BoxMesh(l, p, look == 1);
-                else ConeMesh(l, p, look == 0 ? 40 : 6, look == 1);
+                else ConeMesh(l, p, look == 0 ? split * 5 : 6, look == 1);
             }
             return l.ToArray();
         }
