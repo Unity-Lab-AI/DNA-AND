@@ -27,6 +27,8 @@
 
 🎛️ **Every key can be rebound** in Settings → Controls.
 
+🪟 **Panels:** click a button to open a panel, then click, hold and drag its title to move it. Drag powers onto your action bar. See [The HUD](hud.md "Header, action bar, panels, brushes").
+
 <!-- IMG: docs/img/controls-overlay.png | The in-game controls overlay: a mouse diagram and WASD keys drawn over a top-down view of a coastline -->
 > 🖼️ *The in-game controls overlay* — rendered by the game's own 3D generator
 
