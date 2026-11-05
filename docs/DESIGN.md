@@ -82,3 +82,18 @@ These are tracked in `docs/TODO.md` under "Questions for the creator".
 - **Multiplayer:** one player's computer hosts.
 - **The game never ends** until the player restarts with a new world and galaxy.
 - **Two wikis:** one inside the game, one for us builders.
+
+---
+
+## Answers, round 3 (verbatim)
+
+| Question | Answer (verbatim) |
+|---|---|
+| Real or invented list entries | "real and dynamic invented combo procedurally" |
+| How powers are paid for | "i like that maybe u have to harvet life and later on u get the intelligent sure intelligences using their powers to harvest life for you endgame kinda wiked liek the intelligences goal is to harvest life for its needs and since all life is like a virus advanced forms seprad and use up avasil nutrientrs and resources and have to spread. jsut liek real life" |
+| Mills in the credits | "Alfreddo is Mills but he goes by Alfreddo so use that." |
+
+### What these mean for the build
+- **Entries are a mix:** real-world things, plus new ones the game invents as it runs.
+- **Powers are paid for by harvesting life.** Later, intelligent life uses its own powers to harvest life for you. In the endgame, intelligent life harvests life for its own needs. Like a virus, advanced life spreads, uses up nutrients and resources, and has to keep spreading.
+- **Credits:** Alfreddo stays as Alfreddo (he is also Mills).

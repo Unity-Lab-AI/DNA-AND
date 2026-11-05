@@ -30,7 +30,8 @@ _(Round 1 and 2 answered — see `docs/DESIGN.md` and `docs/FINALIZED.md`.)_
 
 ### Lists and powers (from round 2 answers)
 - [ ] Top 100 categories list, for approval: "do top 100 for everything from viruse types, aminals, insects, fish, birds, environmets, senses, abilities, and not limited to thed bit to incluse the top one hundered top onehundreds" (`docs/LISTS.md`)
-- [ ] Fill each approved category with its top 100 entries
+- [ ] Fill each approved category with its top 100 entries — "real and dynamic invented combo procedurally"
+- [ ] Procedural generator that invents new entries on top of the real ones
 - [ ] 100 god powers, each with uses, pluses and minuses: "they all need their usesas and pluses and minuses in some cases raise temp with fire lower with cold add water to flood sun to dry it up solar flare to fuck with tech, ,ect ect ect ect ect ect ectr x100" (`docs/POWERS.md`)
 - [ ] Builder wiki for us, plus the in-game wiki ("both")
 - [ ] Unity AI Lab team credits, website and git/GitHub links: "this deserves the unity ai lab team credits and website .com with the git and github links"
@@ -111,6 +112,8 @@ _(Round 1 and 2 answered — see `docs/DESIGN.md` and `docs/FINALIZED.md`.)_
 ### R11 — God mode
 - [ ] Power list (`docs/POWERS.md`)
 - [ ] Unlocking powers with points from the amount of life in your galaxies
+- [ ] Paying for powers by harvesting life: "maybe u have to harvet life and later on u get the intelligent sure intelligences using their powers to harvest life for you"
+- [ ] Endgame: intelligent life harvests life for its own needs, spreads and uses up nutrients and resources: "since all life is like a virus advanced forms seprad and use up avasil nutrientrs and resources and have to spread. jsut liek real life"
 - [ ] Gene powers with good and bad outcomes
 - [ ] Life starting from the player's first action
 

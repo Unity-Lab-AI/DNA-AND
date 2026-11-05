@@ -140,4 +140,4 @@
 
 ## Questions on this list
 - Swap, cut or add any?
-- Should powers cost points, recharge over time, or both?
+- **Answered:** powers are paid for by harvesting life, and later intelligent life harvests for you (see `docs/DESIGN.md`, round 3). The harvest cost of each power is still to be set.
