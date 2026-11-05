@@ -31,7 +31,7 @@ Every stage quotes the creator's words (see `docs/DESIGN.md` for the full record
 
 ✅ **Passed:** both the `/super-review` and the `/unity` check. Then round 15 changed the order: **content first** (R0), then code ("Content first, then code (Suggested)"). All code follows `docs/WORK-LAWS.md`: **the docs are the spec**.
 
-### [~] R0 — Game content (before code)
+### [x] R0 — Game content (before code): sample subjects done
 > "well i thought we needed to write the games content before we could have something to generate in the game engine"
 
 The content the live generators work from: seeds, ranges, parts and rules, written now in our own text format (`docs/CONTENT-FORMAT.md`) and compiled to our own binary by our toolchain later. Sample subjects first, then the rest.
