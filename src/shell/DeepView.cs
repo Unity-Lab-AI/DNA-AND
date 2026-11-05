@@ -119,11 +119,10 @@ namespace DnaAnd.Shell
             _bodyVerts = new StarVertex[(_system.Bodies.Count + 1) * (1 + TrailPoints)];
             _staticShifted = new StarVertex[_system.Static.Length];
             _sysBodies = new UploadBuffer(_gpu.Device, (long)_bodyVerts.Length * Stride);
-            // and pick its Earth-like world (or its first planet), so rolling on in flies down to it
-            int pick = 0;
-            for (int i = 0; i < _system.Bodies.Count; i++) if (_system.Bodies[i].Parent < 0 && _system.Bodies[i].Kind == "Temperate world") { pick = i; break; }
-            PickBody(pick);
-            _dist = Math.Max(_dist, _system.Bodies[pick].RadiusUnits * 4000);
+            // show the whole system: nothing is picked for you; click a planet or moon (or Tab) to choose where to go
+            _focusBody = -1; FocusTerrain = null; FocusFields = null;
+            double outer = 0; foreach (var b in _system.Bodies) if (b.Parent < 0) outer = Math.Max(outer, b.OrbitUnits);
+            _dist = outer * 2.2;
         }
         public SpaceGen.StarSystem System { get { return _system; } }
         public ulong SystemSeed { get { return _seed * 31UL + (ulong)Math.Max(0, _focusStar); } }
@@ -252,8 +251,10 @@ namespace DnaAnd.Shell
                 var body = _system.Bodies[_focusBody];
                 string kind = TerrainKind(body.Kind);
                 uint tseed = (uint)(SystemSeed * 977UL + (ulong)_focusBody);
-                FocusTerrain = new PlanetTerrain(_gpu.Device, kind, body.Kind, tseed);
-                FocusFields = new PlanetTerrain(_gpu.Device, kind, body.Kind, tseed, true);
+                // its own real size, from its own solar system
+                double km = body.RadiusUnits / Units.Km(1);
+                FocusTerrain = new PlanetTerrain(_gpu.Device, kind, body.Kind, tseed, false, km);
+                FocusFields = new PlanetTerrain(_gpu.Device, kind, body.Kind, tseed, true, km);
             }
             double outer = 0; foreach (var b in _system.Bodies) if (b.Parent < 0) outer = Math.Max(outer, b.OrbitUnits);
             _dist = _focusBody < 0 ? outer * 2.2 : _system.Bodies[_focusBody].RadiusUnits * 60;
