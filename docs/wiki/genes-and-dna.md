@@ -30,7 +30,7 @@ Open the **gene map** on any creature to see which pieces of its DNA give which 
 
 | Example gene piece | What it gives |
 |---|---|
-| 🌿 Photosynthesis | Makes food from sunlight |
+| 🌿 Photosynthesis | Makes food from starlight |
 | 🫁 Air breathing | Lives out of water |
 | 🦵 Upright walking | Walks on two legs |
 | 👁️ Eyes | Sees light |

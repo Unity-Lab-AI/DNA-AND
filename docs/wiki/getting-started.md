@@ -79,7 +79,7 @@ You never control life directly. You **nudge** it.
 | Goal | Hint |
 |---|---|
 | 🦠 First cells | Warm water + the right elements + lightning |
-| 🌿 Photosynthesis | Give life sunlight and time |
+| 🌿 Photosynthesis | Give life starlight and time |
 | 🐟 Many-celled life | Let them evolve — speed up time |
 | 🦎 Life on land | Raise some land, keep it wet |
 

@@ -60,10 +60,10 @@
 | 16 | 🔥 | Vent Feeders | Cells live off chemicals from deep vents | Chemical food chains | Volcano (19) |
 | 17 | 🟫 | Microbial Mats | Cells stack into slimy carpets | First mats | Census (97) |
 | 18 | 🗿 | Stromatolites | Mats build rock towers in the shallows | First living reefs | Island (20) |
-| 19 | ☀️ | Early Photosynthesis | Cells catch sunlight, no oxygen made yet | First sunlight eaters | Sun (4) |
+| 19 | ☀️ | Early Photosynthesis | Cells catch starlight, no oxygen made yet | First starlight eaters | Sun (4) |
 | 20 | 🌿 | Oxygen Makers | Blue-green bacteria split water and give off oxygen | Oxygen enters the sea | More Oxygen (31) |
 | 21 | 💨 | Great Oxidation | Oxygen floods the air, poisoning old life | Oxygen in the atmosphere | Less Oxygen (32) |
-| 22 | 🛡️ | Ozone Shield | Oxygen high up blocks the harshest sunlight | Ozone layer forms | Ozone (38) |
+| 22 | 🛡️ | Ozone Shield | Oxygen high up blocks the harshest starlight | Ozone layer forms | Ozone (38) |
 
 ---
 
@@ -74,9 +74,9 @@
 | 23 | 🤝 | Swallowed Partners | A cell swallows a bacterium that becomes its power plant | First mitochondria | Symbiosis (53) |
 | 24 | 🔵 | Complex Cells | Big cells with inner parts appear | First complex cell | Watcher (96) |
 | 25 | 🎯 | The Nucleus | DNA gets its own walled room | First nucleus | Gene Scan (98) |
-| 26 | 🍃 | Chloroplasts | A second swallowed partner brings sunlight power | First plant-type cell | Rain (5) |
+| 26 | 🍃 | Chloroplasts | A second swallowed partner brings starlight power | First plant-type cell | Rain (5) |
 | 27 | 💞 | Sexual Reproduction | Two parents mix their genes | First mixed offspring | Merge (60) |
-| 28 | 🟢 | Algae | Sun-eating complex cells spread across the seas | Algae blooms | Fog (13) |
+| 28 | 🟢 | Algae | Starlight-eating complex cells spread across the seas | Algae blooms | Fog (13) |
 | 29 | 🍄 | Fungi | Rot-eaters with threads appear | First fungi | Blight (41) |
 | 30 | 🫂 | Colonies | Cells stick together and share the work | First colony | Lure (48) |
 | 31 | 🧱 | Many-Celled Life | One body, many cells | First multicellular body | Size (65) |
