@@ -106,10 +106,10 @@ Real-style DNA that builds each body and behavior, with mutation, breeding (with
 
 - DNA is stored at 2 bits per letter.
 
-### [ ] R8 — Life: viruses, microbes, plants, insects, animals
+### [ ] R8 — Life: every kingdom, phylum to species
 > "fully dynamic ggenology with microbes and viruses and plants and animals and insects" / "they will be like ants ais with genes that use thatev eveold or been infected with u know EVOLUTION"
 
-Each creature acts on its genes, like an ant. Crowds of the same kind are grouped by where they live ("1 worm can be 4396 worms"). Food chains, disease, extinction, new species.
+The full tree of life: viruses, bacteria, archaea, protists, fungi, plants and animals, each down to species (`docs/wiki/tree-of-life.md`). Each creature acts on its genes, like an ant. Crowds of the same kind are grouped by where they live ("1 worm can be 4396 worms"). Food chains, disease, extinction, new species.
 
 - 100 stages of life (`docs/wiki/stages-of-life.md`), each with its own milestone.
 - One group per cell and species. A group splits into a new species when its genes drift, and individuals appear when you zoom in.

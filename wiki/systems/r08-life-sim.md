@@ -54,3 +54,4 @@ Bigger layers steer smaller ones, and members can defect when that helps their o
 - 100 stages of life (`docs/wiki/stages-of-life.md`). Each stage unlocks exactly one power (or the 5 starters at stage 1).
 - 100 milestones per stage, 10,000 in all, built from the top-100 lists, 10 per family × 10 families. Milestone 100 is the headline. Only headline milestones slow time and trigger autosave (`docs/wiki/milestones.md`).
 - 100-step grouping ladder and 100 ways species mix (`docs/wiki/groups-and-flocking.md`). Tree of life with every rank tracked 100 deep (`docs/wiki/tree-of-life.md`).
+- The full tree: 3 domains + 6 kingdoms + viruses, each kingdom down to species (`docs/wiki/tree-of-life.md`). Life content lives in `content/life/<kingdom>/`.

@@ -316,6 +316,7 @@ The ask: "okay now we need to do everything we need to do so you can get me thos
 - **Subjects:** planets, stars, gas giants, Dyson spheres, space stations, space colonies, spaceships, galaxy and solar system layouts, resource fields, cities, microbes, viruses, insects, animals and intelligent creatures, plus the 118 elements.
 - **Assets come from the species that builds them.** All game assets are dynamic procedural generations ("and remember the game assets are get dynamic procedural generations"). A species' cities, ships and stations are generated from its own genes and body plan: "ie insect species has insect spaceships ansd insect cities".
 - **Sample order:** the samples are shown in their own window (not headless), from galactic scale down, **one set at a time**. Claude waits for the creator's input before doing the next set: "and when we do the dsamples we show the non headless and do them galactic scale down one set of samples at a time to take input before doing the next set".
+- **Life follows the full tree:** life content and life sample sets cover every kingdom (viruses, bacteria, archaea, protists, fungi, plants, animals), each down through phylum, class, order, family, genus and species. This replaces "animals, insects, microbes and viruses". The layout is the standard 3 domains + 6 kingdoms, plus viruses.
 - **Direct3D 12 from day one.** That means we generate the graphics card's shader code ourselves, since there's no outside shader compiler.
 
 ---
@@ -446,3 +447,4 @@ Everything the creator has said about this project, in order. Short process repl
 37. **Content first:** see "Round 15". "well i thought we needed to write the games content before we could have something to generate in the game engine" / "option one and and whats the most dynamic code to use? rust or type script?"
 38. "and when we do the dsamples we show the non headless and do them galactic scale down one set of samples at a time to take input before doing the next set"
 39. "i never made a 10-20 rule". Corrected: no fixed seed count.
+40. "and what the fuck we are still doing docs u ments as this:" ... Animals / Insects / Microbes and viruses ..." IS NOT ALL LIVING THINGS IN THE FULL KINDOM PHILUM CLASS GENIUS SPECIES and the full kindom thing in full"
