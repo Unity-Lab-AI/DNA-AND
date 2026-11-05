@@ -144,12 +144,13 @@ float4 PS(VO i) : SV_Target
                 Marshal.WriteInt32(p, 448, -1);     // sample mask
                 // rasterizer at 452: solid, no culling, depth clip on
                 Marshal.WriteInt32(p, 452, 3); Marshal.WriteInt32(p, 456, 1); Marshal.WriteInt32(p, 476, 1);
-                // depth/stencil at 496: depth off; valid compare funcs and stencil ops
-                Marshal.WriteInt32(p, 504, 2);
+                // depth/stencil at 496: test against depth (glows hide behind solid ground) but never write it
+                Marshal.WriteInt32(p, 496, 1); Marshal.WriteInt32(p, 500, 0); Marshal.WriteInt32(p, 504, 4);
                 for (int f = 0; f < 2; f++) { int b = 516 + f * 16; Marshal.WriteInt32(p, b, 1); Marshal.WriteInt32(p, b + 4, 1); Marshal.WriteInt32(p, b + 8, 1); Marshal.WriteInt32(p, b + 12, 8); }
                 Marshal.WriteInt32(p, 572, 3);      // triangles
                 Marshal.WriteInt32(p, 576, 1);      // one render target
                 Marshal.WriteInt32(p, 580, (int)D3D12.DXGI_FORMAT_R8G8B8A8_UNORM);
+                Marshal.WriteInt32(p, 612, (int)D3D12.DXGI_FORMAT_D32_FLOAT);   // depth format
                 Marshal.WriteInt32(p, 616, 1);      // sample count
                 Guid iid = D3D12.IID_ID3D12PipelineState;
                 Com.Check(Com.Method<CreateGraphicsPipelineStateFn>(device, 10)(device, p, ref iid, out Pipeline), "CreateGraphicsPipelineState");

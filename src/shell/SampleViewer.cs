@@ -47,10 +47,11 @@ namespace DnaAnd.Shell
         // set 4: nine planets and giants up close
         private static readonly string[] PlanetIds = { "temperate", "ocean", "desert", "lava", "snowball", "tidally-locked", "gas-giant", "ice-giant", "hot-jupiter" };
         private readonly string[] _planetNames = new string[9];
-        private readonly PlanetSurface[] _planets = new PlanetSurface[9];
-        private readonly UploadBuffer[] _planetStatic = new UploadBuffer[9], _planetBufs = new UploadBuffer[9];
+        private readonly PlanetTerrain[] _terrains = new PlanetTerrain[9];
+        private readonly UploadBuffer[] _planetStatic = new UploadBuffer[9];
         private readonly int[] _planetStaticCount = new int[9];
-        private readonly StarVertex[][] _planetVerts = new StarVertex[9][];                                  // set 2 zooms from the whole system down to one planet
+        private readonly MeshDrawer _meshDrawer;
+        public PlanetTerrain TerrainAt(int i) { return _terrains[i]; }                                  // set 2 zooms from the whole system down to one planet
 
         public string Title
         {
@@ -68,8 +69,9 @@ namespace DnaAnd.Shell
             }
         }
 
-        public SampleViewer(Gpu gpu, BillboardPipeline pipeline, ContentLibrary content, ulong seed)
+        public SampleViewer(Gpu gpu, BillboardPipeline pipeline, MeshPipeline meshPipe, ContentLibrary content, ulong seed)
         {
+            _meshDrawer = new MeshDrawer(gpu.CommandList, meshPipe);
             Set = 1;
             _frameBuf = new UploadBuffer(gpu.Device, (long)_frameVerts.Length * Marshal.SizeOf(typeof(StarVertex)));
             _drawer = new BillboardDrawer(gpu.CommandList, pipeline);
@@ -115,12 +117,18 @@ namespace DnaAnd.Shell
             }
             for (int i = 0; i < 9; i++)
             {
-                StarVertex[] v = PlanetGen.Build(content, PlanetIds[i], seed * 37UL + (ulong)i, out _planetNames[i], out _planets[i]);
-                _planetStaticCount[i] = v.Length;
-                _planetStatic[i] = new UploadBuffer(gpu.Device, (long)Math.Max(1, v.Length) * stride);
-                _planetStatic[i].Write(v, v.Length);
-                _planetVerts[i] = new StarVertex[_planets[i].MaxPoints];
-                _planetBufs[i] = new UploadBuffer(gpu.Device, (long)_planetVerts[i].Length * stride);
+                PlanetSurface surf;
+                StarVertex[] v = PlanetGen.Build(content, PlanetIds[i], seed * 37UL + (ulong)i, out _planetNames[i], out surf);
+                _terrains[i] = new PlanetTerrain(gpu.Device, PlanetIds[i], _planetNames[i], (uint)(seed * 41UL + (ulong)i));
+                // the air glow and rings, scaled to the planet's real size in km; solid ground now hides what is behind it
+                var all = new System.Collections.Generic.List<StarVertex>(v);
+                for (int k = 0; k < surf.Rings.Count; k++) all.Add(SpaceGen.Star(surf.Rings[k], 0.02f, 0.85f, 0.78f, 0.62f, surf.RingShade[k]));
+                float R = (float)_terrains[i].Radius;
+                var arr = all.ToArray();
+                for (int k = 0; k < arr.Length; k++) { arr[k].X *= R; arr[k].Y *= R; arr[k].Z *= R; arr[k].Size *= R; }
+                _planetStaticCount[i] = arr.Length;
+                _planetStatic[i] = new UploadBuffer(gpu.Device, (long)Math.Max(1, arr.Length) * stride);
+                _planetStatic[i].Write(arr, arr.Length);
             }
             LoadMarks(); // after every sample has its name
         }
@@ -256,18 +264,22 @@ namespace DnaAnd.Shell
             int tileW = width / 3, tileH = height / 3;
             for (int i = 0; i < 9; i++)
             {
+                var t = _terrains[i];
                 bool ringed = PlanetIds[i] == "gas-giant" || PlanetIds[i] == "ice-giant";
-                float pitch = 0.3f, dist = (ringed ? 5.6f : 3.4f) / _zoom;
-                float yaw = 0.6f + (float)Math.Sin(_yaw * 2f + i) * 0.5f;    // sway gently so the day side stays in view
-                var eye = new Vec3((float)(Math.Cos(yaw) * Math.Cos(pitch)) * dist, (float)Math.Sin(pitch) * dist, (float)(Math.Sin(yaw) * Math.Cos(pitch)) * dist);
-                Mat4 view = Mat4.LookAt(eye, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
-                Mat4 vp = view * Mat4.Perspective(0.9f, tileW / (float)Math.Max(1, tileH), 0.01f, 50f);
-                var right = new Vec3(view.M11, view.M21, view.M31); var up = new Vec3(view.M12, view.M22, view.M32);
-                float len = (float)Math.Sqrt(Vec3.Dot(eye, eye));
-                int pc = _planets[i].Draw(eye * (1f / len), time, _planetVerts[i]);
-                _planetBufs[i].Write(_planetVerts[i], pc);
-                DrawTile(_planetBufs[i], pc, vp, right, up, 1f, 0f, 2f, (i % 3) * tileW, (i / 3) * tileH, tileW, tileH, time);
-                DrawTile(_planetStatic[i], _planetStaticCount[i], vp, right, up, 1f, 0f, 2f, (i % 3) * tileW, (i / 3) * tileH, tileW, tileH, time);
+                double R = t.Radius, dist = (ringed ? 5.4 : 3.3) * R / _zoom;
+                // look from the lit side, a little off the line to the star, swaying gently
+                double sway = Math.Sin(_yaw * 2f + i) * 0.35 - 0.75;
+                double sx = t.StarDir[0], sz = t.StarDir[2], cs = Math.Cos(sway), sn = Math.Sin(sway);
+                double ex = sx * cs - sz * sn, ez = sx * sn + sz * cs, ey = 0.35;
+                double el = Math.Sqrt(ex * ex + ey * ey + ez * ez); ex /= el; ey /= el; ez /= el;
+                double camX = ex * dist, camY = ey * dist, camZ = ez * dist;
+                Mat4 viewRot = Mat4.LookAt(new Vec3(0, 0, 0), new Vec3((float)-ex, (float)-ey, (float)-ez), new Vec3(0, 1, 0));
+                Mat4 proj = Mat4.Perspective(0.9f, tileW / (float)Math.Max(1, tileH), (float)(dist * 0.1), (float)(dist * 3));
+                int x = (i % 3) * tileW, y = (i / 3) * tileH;
+                t.Draw(_meshDrawer, camX, camY, camZ, viewRot, proj, 2.6, 0, 0, 0, 0, x, y, tileW, tileH, 64);
+                Mat4 vp = Mat4.Translation((float)-camX, (float)-camY, (float)-camZ) * viewRot * proj;
+                var right = new Vec3(viewRot.M11, viewRot.M21, viewRot.M31); var up = new Vec3(viewRot.M12, viewRot.M22, viewRot.M32);
+                DrawTile(_planetStatic[i], _planetStaticCount[i], vp, right, up, 1f, 0f, 2f, x, y, tileW, tileH, time);
             }
         }
 
@@ -313,7 +325,8 @@ namespace DnaAnd.Shell
             {
                 var st = new System.Text.StringBuilder(Set == 3 ? "Set 3 of 17: stars, all in the game's style (Populous-like)\n\n" : "Set 4 of 17: planets and gas giants, all in the game's style (Populous-like)\n\n");
                 for (int i = 0; i < 9; i++) st.Append("  Row " + (i / 3 + 1) + ", column " + (i % 3 + 1) + ": " + (Set == 3 ? _starNames[i] : _planetNames[i]) + "\n");
-                st.Append("\nControls:\n  Right-click a star: mark or unmark it as a keeper (green frame)\n  Keepers menu: the same, with tick boxes\n  Mouse wheel: zoom\n  Exit menu or Esc: close the game\n\nKeepers are saved in picks.txt in the game folder.");
+                if (Set == 4) st.Append("\n  Left-click a planet: fly down to it, all the way to the ground\n");
+                st.Append("\nControls:\n  Right-click a sample: mark or unmark it as a keeper (green frame)\n  Keepers menu: the same, with tick boxes\n  Mouse wheel: zoom\n  Exit menu or Esc: close the game\n\nKeepers are saved in picks.txt in the game folder.");
                 return st.ToString();
             }
             string what = Set == 2 ? "Set 2 of 17: solar systems" : "Set 1 of 17: galaxies (locked: column 2, Populous-like)";
@@ -406,7 +419,7 @@ namespace DnaAnd.Shell
             foreach (var b in _starBufs) if (b != null) b.Dispose();
             foreach (var b in _surfBufs) if (b != null) b.Dispose();
             foreach (var b in _planetStatic) if (b != null) b.Dispose();
-            foreach (var b in _planetBufs) if (b != null) b.Dispose();
+            foreach (var t in _terrains) if (t != null) t.Dispose();
         }
     }
 }

@@ -13,7 +13,7 @@ namespace DnaAnd
         private static int Main(string[] args)
         {
             // --smoke <ms>: a timed test run that closes itself after <ms> milliseconds.
-            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int openSet = 0; int testSpeed = -1; double tryEvery = -1;
+            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int openSet = 0; int testPlanet = -1; double testAlt = -1; double shotAt = -1; string shotPath = null; int testSpeed = -1; double tryEvery = -1;
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i] == "--smoke" && i + 1 < args.Length) int.TryParse(args[i + 1], out smokeMs);
@@ -24,6 +24,13 @@ namespace DnaAnd
                 if (args[i] == "--set2") openSet = 2;       // open one sample set on its own
                 if (args[i] == "--set3") openSet = 3;
                 if (args[i] == "--set4") openSet = 4;
+                if (args[i] == "--planet" && i + 1 < args.Length) int.TryParse(args[i + 1], out testPlanet);
+                if (args[i] == "--alt" && i + 1 < args.Length) double.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out testAlt);
+                if (args[i] == "--shot" && i + 2 < args.Length)   // --shot <seconds> <file.bmp>: save the game's own picture once
+                {
+                    double.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out shotAt);
+                    shotPath = args[i + 2];
+                }
                 if (args[i] == "--core") testCore = true;    // zoom to the core black hole
                 if (args[i] == "--speed" && i + 1 < args.Length) int.TryParse(args[i + 1], out testSpeed); // 0-4
                 if (args[i] == "--try" && i + 1 < args.Length) double.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out tryEvery); // keep-or-revert prompt every N s
@@ -43,28 +50,31 @@ namespace DnaAnd
             Gpu gpu;
             try { gpu = new Gpu(window.Handle, window.Width, window.Height); }
             catch (Exception ex) { WriteLog("gpu error · " + ex.Message); window.Close(); return 2; }
-            BillboardPipeline pipeline; SampleViewer viewer;
+            BillboardPipeline pipeline; SampleViewer viewer; MeshPipeline meshPipe = null;
             try
             {
                 pipeline = new BillboardPipeline(gpu.Device);
-                viewer = new SampleViewer(gpu, pipeline, content, 20261105UL);
+                meshPipe = new MeshPipeline(gpu.Device, pipeline.RootSignature);
+                viewer = new SampleViewer(gpu, pipeline, meshPipe, content, 20261105UL);
             }
             catch (Exception ex) { WriteLog("setup error · " + ex.Message); gpu.Dispose(); window.Close(); return 2; }
 
             double titleTimer = 0; int frames = 0; bool firstFrame = true;
             double nextAsk = tryEvery > 0 ? tryEvery : double.MaxValue;
-            int menuSet = -1; bool menuDirty = true;
+            int menuSet = -1; bool menuDirty = true; string lastTitle = "";
             string endReason = "closed normally";
             const ulong Seed = 20261105UL;
             DeepView deep = null;
+            PlanetView planet = null;
             if (openSet > 0) viewer.ShowSet(openSet);
+            if (testPlanet >= 0) { planet = new PlanetView(gpu, meshPipe, viewer.TerrainAt(testPlanet)); if (testAlt > 0) planet.SetAltitude(testAlt); }
             if (testDeep >= 0) deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(testDeep), viewer.NameOf(testDeep), Seed + (ulong)testDeep * 7919UL);
             while (window.Pump())
             {
                 clock.Tick();
                 watchdog.Beat();
 
-                if (deep == null && window.Input.WasPressed(Win32.VK_ESCAPE)) window.Close();
+                if (deep == null && planet == null && window.Input.WasPressed(Win32.VK_ESCAPE)) window.Close();
                 // the review menu: rebuilt whenever the set or the keepers change
                 if (viewer.Set != menuSet || menuDirty) { window.SetReviewMenu(viewer.KeeperLabels(), viewer.KeeperTicks()); menuSet = viewer.Set; menuDirty = false; }
                 int cmd = window.MenuCommand; window.MenuCommand = 0;
@@ -91,10 +101,16 @@ namespace DnaAnd
                     if (testSpeed >= 0) deep.TestSpeed(testSpeed);
                     testDeep = -1;
                 }
-                if (deep == null)
+                if (planet != null) { if (!planet.Update(window.Input, clock.Delta)) planet = null; }
+                else if (deep == null)
                 {
                     viewer.Update(window.Input, clock.Delta);
                     if (window.Input.RightClicked) { viewer.ToggleMark(window.Input.MouseX, window.Input.MouseY, window.Width, window.Height); menuDirty = true; }
+                    else if (window.Input.LeftClicked && viewer.Set == 4)
+                    {
+                        int col = Math.Max(0, Math.Min(2, window.Input.MouseX / Math.Max(1, window.Width / 3)));
+                        planet = new PlanetView(gpu, meshPipe, viewer.TerrainAt(viewer.RowAt(window.Input.MouseY, window.Height) * 3 + col));
+                    }
                     else if (window.Input.LeftClicked && viewer.Set == 2) viewer.PickFocus(window.Input.MouseX, window.Input.MouseY, window.Width, window.Height);
                     else if (window.Input.LeftClicked && viewer.Set == 1)
                     {
@@ -104,14 +120,17 @@ namespace DnaAnd
                 }
                 else if (!deep.Update(window.Input, clock.Delta, gpu.Width, gpu.Height)) { deep.Dispose(); deep = null; }
                 gpu.BeginFrame(0.005f, 0.006f, 0.012f);
-                if (deep == null) viewer.Draw(gpu.Width, gpu.Height, clock.Total); else deep.Draw(gpu.Width, gpu.Height, clock.Total);
+                if (planet != null) planet.Draw(gpu, gpu.Width, gpu.Height);
+                else if (deep == null) viewer.Draw(gpu.Width, gpu.Height, clock.Total); else deep.Draw(gpu.Width, gpu.Height, clock.Total);
+                if (shotPath != null && clock.Total >= shotAt) { gpu.CaptureNext = shotPath; shotPath = null; }
                 gpu.EndFrame();
                 if (firstFrame) { firstFrame = false; watchdog.Running(); }
 
                 frames++; titleTimer += clock.Delta;
                 if (titleTimer >= 0.5)
                 {
-                    window.SetTitle(string.Format("{0} · {1:0} fps", deep == null ? viewer.Title : deep.Title, frames / titleTimer));
+                    lastTitle = string.Format("{0} · {1:0} fps", planet != null ? planet.Title : deep == null ? viewer.Title : deep.Title, frames / titleTimer);
+                    window.SetTitle(string.Format("{0} · {1:0} fps", planet != null ? planet.Title : deep == null ? viewer.Title : deep.Title, frames / titleTimer));
                     titleTimer = 0; frames = 0;
                 }
 
@@ -119,9 +138,9 @@ namespace DnaAnd
                 if (smokeMs >= 0 && clock.Total * 1000 >= smokeMs) { window.Close(); smokeMs = -1; }
             }
             if (deep != null) deep.Dispose();
-            viewer.Dispose(); pipeline.Dispose(); gpu.Dispose();
+            viewer.Dispose(); if (meshPipe != null) meshPipe.Dispose(); pipeline.Dispose(); gpu.Dispose();
             watchdog.Stop();
-            WriteLog(string.Format("ok · {0} content entries from {1} files · ran {2:0.00} s · gpu {3}x{4} · {5}", content.Entries.Count, content.Files.Count, clock.Total, gpu.Width, gpu.Height, endReason));
+            WriteLog(string.Format("ok · {0} content entries from {1} files · ran {2:0.00} s · gpu {3}x{4} · {5}", content.Entries.Count, content.Files.Count, clock.Total, gpu.Width, gpu.Height, endReason) + Environment.NewLine + "last title: " + lastTitle);
             return 0;
         }
 

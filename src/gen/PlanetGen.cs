@@ -162,7 +162,7 @@ namespace DnaAnd.Gen
             {
                 double u = rng.NextDouble() * 2 - 1, a = rng.NextDouble() * Math.PI * 2, rr = Math.Sqrt(1 - u * u);
                 float h = rng.Range(1.01f, thick);
-                list.Add(SpaceGen.Star(new Vec3((float)(Math.Cos(a) * rr) * h, (float)u * h, (float)(Math.Sin(a) * rr) * h), 0.05f, ar, ag, ab, 0.07f));
+                list.Add(SpaceGen.Star(new Vec3((float)(Math.Cos(a) * rr) * h, (float)u * h, (float)(Math.Sin(a) * rr) * h), 0.05f, ar, ag, ab, 0.025f));
             }
             // rings: the gas giant gets bright ones, the ice giant faint dark ones
             if (id == "gas-giant" || id == "ice-giant")

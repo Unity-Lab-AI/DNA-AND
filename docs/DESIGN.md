@@ -609,3 +609,11 @@ Everything the creator has said about this project, in order. Short process repl
 68. "they all look white those need the texture and color of stars tho not just white circles so like star texture of plasma, i like the coronas tho". Changes: only the facing side of each star is drawn, with points that just touch, so the colour no longer burns out to white. The surface is moving plasma (boiling cells, darker redder gaps, a darker edge). The coronas are unchanged.
 69. "bottom right doesnt look good but all the other variations are good". The other 8 stars are approved. The brown dwarf (bottom right) had no colour in content, so it showed white. It now has `color: magenta-red`, cloud bands with round storms, and a faint warm haze.
 70. **Stars approved as templates:** "okay thoise are good to be templetes for all the variatiosn and colors and sizes like real starts". The 9 set-3 stars are the templates. Every star kind in stars.dnat is to be generated from them, with real colours and real sizes.
+71. "something is wrong i dont see andy land and cant zoom to the serface to the full huge landscape of the planets with everything on them but life". Changes:
+    - Planets are now solid faceted ground: a depth buffer and a triangle pipeline.
+    - Each planet is a cube-sphere whose patches split near the camera, down to a few metres.
+    - Height and colour come from our own noise in double precision.
+    - The ground has no life: rock, soil, clay, gravel, sand, salt, snow, ice, water and lava.
+    - Left-click a planet in set 4 to fly down to it. The wheel sets the height from orbit to standing height, drag or W A S D moves, and Q and E turn.
+    - The game can save its own picture (`--shot`), so the work can be checked.
+72. "that looks good" (said while the fly-down pictures were on screen).
