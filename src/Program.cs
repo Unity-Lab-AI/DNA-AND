@@ -59,7 +59,8 @@ namespace DnaAnd
             var watchdog = new Watchdog(clock, 6.0, smokeMs >= 0 ? smokeMs / 1000.0 + 5.0 : -1);
 
             ContentLibrary content = ContentLibrary.Load("content");
-            var window = new Window("DNA-AND", 1600, 900, smokeMs >= 0);   // timed checks open small and out of the way
+            bool big = Array.IndexOf(args, "--big") >= 0;                      // a full-size check, for pictures at the size the player sees
+            var window = new Window("DNA-AND", 1600, 900, smokeMs >= 0 && !big);   // timed checks open small and out of the way
             Gpu gpu;
             try { gpu = new Gpu(window.Handle, window.Width, window.Height); }
             catch (Exception ex) { WriteLog("gpu error · " + ex.Message); window.Close(); return 2; }

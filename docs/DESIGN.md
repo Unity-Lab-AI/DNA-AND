@@ -646,3 +646,12 @@ Everything the creator has said about this project, in order. Short process repl
 84. "spacehsipts and docks and economies are built  around dyson spheres" / "get to it". Dyson structures carry docks on their hulls and ship traffic around them. Economies are run by the AI species.
 85. "like halo rings get it". The Dyson ring is a ring world: a band of land on the inside of a spinning ring, with tall walls along both edges holding the air in. It is built our own way, not a copy of any game.
 86. "some orbs". Some Dyson structures are orbs (the full shell, the part-built shell, the Matrioshka brain, the light-sail bubble) and some are rings.
+87. "all those generations looks like notmal plantes not technological dyson spheres". Changes:
+    - Outside: hexagonal solar collector panels with glowing seams, a structural frame of ribs, and lit windows and docks.
+    - Inside: engineered land on hexagonal habitat plates: terraced ground, built lakes, straight canals with light strips, and fields with low walls.
+88. "those are all terible poorly made and full of errors" / "i dont know they all look like dark panels flashing srobe effect with white shadow like tear and id need to see them with their star inside to see the true lighting efrffects on how they behave". Causes and fixes:
+    - The hull and inner land were 40 km apart and seen from hundreds of millions of km, so they fought on screen (the strobe and tears). Each now shows only from its own side.
+    - Thin seams shimmered from far away. They now show only up close.
+    - The sample tiles cut each shell open toward the camera, so the star inside and its light on the inner surface show.
+    - Skirts on the hull stuck out as fins. They now hang inward.
+    - Habitat plates are about 2,000 km across. Going inside starts over dry land.

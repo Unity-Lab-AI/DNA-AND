@@ -194,6 +194,27 @@ namespace DnaAnd.Gen
                         if (t > 0.3) { float tone = (float)(0.7 + 0.2 * Hash((long)(x * 2e5), (long)(z * 2e5), 0, _seed)); r = 0.42f * tone; g = 0.43f * tone; b = 0.47f * tone; glow = 0; }
                     }
                 }
+                {
+                    double lat = Math.Asin(Math.Max(-1, Math.Min(1, y))), lon = Math.Atan2(z, x);
+                    long pi, pj; double pe, pc;
+                    Hex(lon * 75000, lat * 75000, out pi, out pj, out pe, out pc);           // habitat plates, about 2000 km across
+                    long qi, qj; double qe, qc;
+                    Hex(lon * 1500000, lat * 1500000, out qi, out qj, out qe, out qc);       // fields on each plate, about 100 km across
+                    if (hs < 1500 * 0.3)                                                    // not on the ring's edge walls
+                    {
+                        double ground = Math.Round(hs * 0.45 / 0.25) * 0.25;                // terraced, levelled ground
+                        hs = Math.Max(0.05, ground * 0.7 + hs * 0.45 * 0.3);
+                        if (pc < 0.12) { hs = -0.6; }                                       // a built lake in the middle of each plate
+                        else if (pe < 0.012) { hs = -0.4; }                                 // canals between the plates
+                        else if (pe < 0.016) { hs = 0.08; r = 0.9f; g = 0.95f; b = 1f; glow = 0.9f; }  // light strips along the canals
+                        else if (qe < 0.04) { hs += 0.02; r = 0.55f; g = 0.55f; b = 0.58f; glow = 0.15f; } // low walls between the fields
+                        else
+                        {
+                            float t2 = (float)(0.85 + 0.3 * Hash(qi, qj, 1, _seed));
+                            if (hs > 0.05 && glow == 0 && (r + g + b) < 2.4f) { r = 0.5f * t2; g = 0.42f * t2; b = 0.32f * t2; }  // prepared soil, field by field
+                        }
+                    }
+                }
                 LastField = -1; return hs;
             }
             double h = HeightBase(x, y, z, layers, out r, out g, out b, out glow);
@@ -510,6 +531,22 @@ namespace DnaAnd.Gen
         /// <summary>The field under a unit direction (with full detail).</summary>
         public int FieldAt(double x, double y, double z) { float r, g, b, gl; Height(x, y, z, 20, out r, out g, out b, out gl); return LastField; }
 
+        /// <summary>Hexagon grid on flat coordinates: which cell, and how close to its edge (0 = on the edge) and centre.</summary>
+        private static void Hex(double u, double v, out long ci, out long cj, out double edge, out double centre)
+        {
+            // cell centres at i*(1,0) + j*(0.5, 0.866)
+            double fj = v / 0.8660254, fi = u - fj * 0.5;
+            long bi = (long)Math.Floor(fi), bj = (long)Math.Floor(fj);
+            double d1 = 1e9, d2 = 1e9; ci = bi; cj = bj;
+            for (long a = bi - 1; a <= bi + 2; a++)
+                for (long b = bj - 1; b <= bj + 2; b++)
+                {
+                    double cx = a + b * 0.5, cy = b * 0.8660254, d = Math.Sqrt((u - cx) * (u - cx) + (v - cy) * (v - cy));
+                    if (d < d1) { d2 = d1; d1 = d; ci = a; cj = b; } else if (d < d2) d2 = d;
+                }
+            edge = d2 - d1; centre = d1;
+        }
+
         private static double Smooth(double a, double b, double v) { double t = Math.Max(0, Math.Min(1, (v - a) / (b - a))); return t * t * (3 - 2 * t); }
 
         /// <summary>Ground height in km (below 0 is the sea floor) under a unit direction, with every detail: keeps the camera on top of the ground.</summary>
@@ -522,6 +559,18 @@ namespace DnaAnd.Gen
         /// <summary>A good place to start the fly-down: on the lit side, on land with hills or mountains in view.</summary>
         public void StartPoint(out double lat, out double lon)
         {
+            if (Kind == "dyson-shell")
+            {
+                // inside a shell: dry land on a habitat plate, near the middle band
+                var rs = new Rng(_seed ^ 0xD150UL);
+                lat = 0.01; lon = 0.4;
+                for (int i = 0; i < 4000; i++)
+                {
+                    double la = (rs.NextDouble() - 0.5) * 0.06, lo = rs.NextDouble() * Math.PI * 2;
+                    if (GroundAt(Math.Cos(la) * Math.Cos(lo), Math.Sin(la), Math.Cos(la) * Math.Sin(lo)) > 0.1) { lat = la; lon = lo; return; }
+                }
+                return;
+            }
             lat = Math.Asin(StarDir[1]) * 0.7; lon = Math.Atan2(StarDir[2], StarDir[0]);
             if (!Solid) return;
             var rng = new Rng(_seed ^ 0x5EEDUL);
@@ -592,8 +641,14 @@ namespace DnaAnd.Gen
             return level > 3 || Fbm(x, y, z, _seed + 8100u, 2.2, 3) > 0.47;                       // part-built: whole panels missing
         }
 
+        private bool _makingHull, _drawingHull;
+        private int _makeLevel;
+        /// <summary>Sample views only: cut away the part of a shell facing this direction, so the star inside shows.</summary>
+        public double[] Cutaway;
+
         private Patch Make(int layer, int f, int level, long i, long j)
         {
+            _makingHull = layer == Hull; _makeLevel = level;
             double n = Math.Pow(2, level), size = 2.0 / n, s0 = -1 + i * size, t0 = -1 + j * size;
             double cx, cy, cz; Dir(f, s0 + size / 2, t0 + size / 2, out cx, out cy, out cz);
             double baseR = LayerRadius(layer);
@@ -613,17 +668,22 @@ namespace DnaAnd.Gen
                     {
                         // hull plates: a grid of panels with seams, some lit by docks and windows
                         h = 0; gl = HullGlow; al = 1;
-                        // plates: each square of the hull grid has its own shade; thin dark seams between them, at two sizes
-                        double k1 = Radius / 40000.0, k2 = k1 * 40;
-                        double px = x * k1, py = y * k1, pz = z * k1;
-                        double fx = px - Math.Floor(px), fy = py - Math.Floor(py), fz = pz - Math.Floor(pz);
-                        double qx = x * k2 - Math.Floor(x * k2), qy = y * k2 - Math.Floor(y * k2), qz = z * k2 - Math.Floor(z * k2);
-                        double edge = Math.Min(Math.Min(Math.Min(fx, 1 - fx), Math.Min(fy, 1 - fy)), Math.Min(fz, 1 - fz));
-                        double edge2 = Math.Min(Math.Min(Math.Min(qx, 1 - qx), Math.Min(qy, 1 - qy)), Math.Min(qz, 1 - qz));
-                        bool seam = edge < 0.02 || edge2 < 0.03;
-                        float tone = (float)(0.75 + 0.5 * Hash((long)Math.Floor(px), (long)Math.Floor(py), (long)Math.Floor(pz), _seed + 8200u));
-                        r = HullR * tone; g = HullG * tone; bl = HullB * tone;
-                        if (seam) { r *= 0.55f; g *= 0.55f; bl *= 0.55f; }
+                        double lat = Math.Asin(Math.Max(-1, Math.Min(1, y))), lon = Math.Atan2(z, x);
+                        long hi, hj; double he, hcen;
+                        Hex(lon * 60, lat * 60, out hi, out hj, out he, out hcen);                 // big collector panels
+                        long fi2, fj2; double fe, fc;
+                        Hex(lon * 1800, lat * 1800, out fi2, out fj2, out fe, out fc);         // small cells inside each panel
+                        float cell = (float)Hash(hi, hj, 0, _seed + 8200u);
+                        float tone = 0.8f + 0.4f * cell;
+                        r = HullR * 0.35f * tone; g = HullG * 0.55f * tone; bl = HullB * 1.3f * tone;   // dark blue collector glass
+                        gl = HullGlow * 0.4f;
+                        bool near = _makeLevel >= 9, nearer = _makeLevel >= 13;
+                        if (nearer && fe < 0.05) { r *= 0.6f; g *= 0.6f; bl *= 0.6f; }            // the fine cell lines, seen up close
+                        double ribLon = Math.Abs(Math.IEEERemainder(lon, Math.PI / 12)), ribLat = Math.Abs(Math.IEEERemainder(lat, Math.PI / 12));
+                        if (near && he < 0.05) { r = HullR * 1.6f; g = HullG * 2.4f; bl = HullB * 2.9f; gl = 0.85f; }   // glowing seams between panels
+                        double ribW = near ? 0.006 : 0.02;                                                          // the frame is drawn wider from far away
+                        if (ribLon < ribW || ribLat < ribW) { r = 0.62f; g = 0.63f; bl = 0.66f; gl = 0.5f; }        // the structural frame
+                        if (near && cell > 0.965 && hcen < 0.25) { r = 1f; g = 0.82f; bl = 0.45f; gl = 0.95f; }     // lit windows, ports and docks
                     }
                     else if (layer == Ground) h = Height(x, y, z, layers, out r, out g, out bl, out gl);
                     else if (layer == Water) { h = 0; r = 0.04f; g = 0.18f; bl = 0.34f; gl = 0; al = 0.72f; }
@@ -700,7 +760,7 @@ namespace DnaAnd.Gen
         {
             // straight down toward the planet's centre
             double ax = _hx[a] + p.Cx, ay = _hy[a] + p.Cy, az = _hz[a] + p.Cz, al = Math.Sqrt(ax * ax + ay * ay + az * az);
-            if (Shell) drop = -drop;                              // inside a shell, "down" is outward, away from the star
+            if (Shell && !_makingHull) drop = -drop;             // the inner land's "down" is outward, away from the star
             double bx = _hx[b] + p.Cx, by = _hy[b] + p.Cy, bz = _hz[b] + p.Cz, bl = Math.Sqrt(bx * bx + by * by + bz * bz);
             var A = new StarVertex { X = (float)_hx[a], Y = (float)_hy[a], Z = (float)_hz[a], Size = _cgl[a], R = _cr[a], G = _cg[a], B = _cb[a], A = 1 };
             var B = new StarVertex { X = (float)_hx[b], Y = (float)_hy[b], Z = (float)_hz[b], Size = _cgl[b], R = _cr[a], G = _cg[a], B = _cb[a], A = 1 };
@@ -738,7 +798,9 @@ namespace DnaAnd.Gen
             {
                 // a shell: the hull outside, the land inside, both lit by the star at the centre
                 Collect(Hull, camX, camY, camZ, splitFactor);
+                _drawingHull = true;
                 DrawList(pipes.Solid, 0, camX, camY, camZ, Mat4.Identity, viewRot, proj, lx, ly, lz, fogDist, fr, fg, fb, x, y, w, h);
+                _drawingHull = false;
                 if (!Habitable) { Trim(); return; }
             }
             // the ground (and the sea floor)
@@ -802,6 +864,15 @@ namespace DnaAnd.Gen
                 }
                 c[20] = -ox; c[21] = -oy; c[22] = -oz;          // the camera, in the patch's own frame
                 c[25] = fogDist; c[26] = surface; c[28] = fr; c[29] = fg; c[30] = fb;
+                if (Shell)
+                {
+                    // outward direction of this piece (turned into the drawing frame for the turning clouds)
+                    double pl = Math.Sqrt(p.Cx * p.Cx + p.Cy * p.Cy + p.Cz * p.Cz);
+                    var rd = new Vec3((float)(p.Cx / pl), (float)(p.Cy / pl), (float)(p.Cz / pl));
+                    float rx = rd.X * turn.M11 + rd.Y * turn.M21 + rd.Z * turn.M31, ry = rd.X * turn.M12 + rd.Y * turn.M22 + rd.Z * turn.M32, rz = rd.X * turn.M13 + rd.Y * turn.M23 + rd.Z * turn.M33;
+                    c[19] = rx; c[23] = ry; c[31] = rz;
+                    c[27] = _drawingHull ? 2 : 1;
+                }
                 drawer.Draw(p.Buffer, p.Count, c, x, y, w, h);
             }
         }
@@ -862,13 +933,14 @@ namespace DnaAnd.Gen
             {
                 double pl = Math.Sqrt(p.Cx * p.Cx + p.Cy * p.Cy + p.Cz * p.Cz);
                 if (!Built(p.Cx / pl, p.Cy / pl, p.Cz / pl, level, p.Edge / Radius * 0.8)) return;
+                if (Cutaway != null && level >= 3 && (p.Cx * Cutaway[0] + p.Cy * Cutaway[1] + p.Cz * Cutaway[2]) / pl > 0.45) return;
             }
             if (level >= 2 && camDist > r && !Shell)
             {
                 double horizon = Math.Sqrt(camDist * camDist - Radius * Radius) + Math.Sqrt(Math.Max(0, r * r - Radius * Radius));
                 if (dist > horizon + p.Edge * 1.6 + 12) return;
             }
-            bool mustSplit = Shell && Mask != 0 && level < 4;     // rings and gaps show only once the shell is cut into small enough pieces
+            bool mustSplit = Shell && (Mask != 0 || Cutaway != null) && level < 4;     // rings, gaps and cutaways show only once the shell is cut into small enough pieces
             if (level < MaxLevel[layer] && (dist < p.Edge * splitFactor || mustSplit))
             {
                 // the four smaller pieces, nearest to the camera first, so detail fills in where you are looking from

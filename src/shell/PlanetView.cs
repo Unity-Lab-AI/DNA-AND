@@ -65,7 +65,7 @@ namespace DnaAnd.Shell
         }
 
         public void SetAltitude(double km) { _alt = Math.Max(_minAlt, km); }
-        public void GoInside() { if (_terrain.Shell && _terrain.Habitable) { _inside = true; _alt = 30; } }
+        public void GoInside() { if (_terrain.Shell && _terrain.Habitable) { _inside = true; _alt = 30; _terrain.StartPoint(out _lat, out _lon); } }
 
         /// <summary>Flies to an example of the next kind of resource field, 2 km above it.</summary>
         public void JumpToNextField()
@@ -140,6 +140,7 @@ namespace DnaAnd.Shell
             {
                 _inside = !_inside;
                 _alt = _inside ? 30 : 2000;
+                if (_inside) _terrain.StartPoint(out _lat, out _lon);       // come in over dry land
             }
             if (input.WasPressed(0x4E) && _terrain.Solid) JumpToNextField();                                       // N: go to the next kind of field
             double maxAlt = _inside ? _terrain.Radius * 0.9 : _terrain.Radius * 4;      // inside, you can rise almost to the star

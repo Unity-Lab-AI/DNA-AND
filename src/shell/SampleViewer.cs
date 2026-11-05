@@ -316,10 +316,14 @@ namespace DnaAnd.Shell
                 Mat4 viewRot = Mat4.LookAt(new Vec3(0, 0, 0), new Vec3((float)-ex, (float)-ey, (float)-ez), new Vec3(0, 1, 0));
                 Mat4 proj = Mat4.Perspective(0.9f, tileW / (float)Math.Max(1, tileH), (float)(dist * 0.05), (float)(dist * 3));
                 int x = (i % 3) * tileW, y = (i / 3) * tileH;
-                foreach (var sh in d.Shells) sh.Draw(_pipes, camX, camY, camZ, viewRot, proj, time, 2.4, 0, 0, 0, 0, x, y, tileW, tileH, 48);
+                foreach (var sh in d.Shells)
+                {
+                    sh.Cutaway = d.Id == "star-ring" || d.Id == "stellar-engine" ? null : new[] { ex, ey, ez };   // open toward the camera, so the star inside shows
+                    sh.Draw(_pipes, camX, camY, camZ, viewRot, proj, time, 2.4, 0, 0, 0, 0, x, y, tileW, tileH, 48);
+                }
                 Mat4 vp = Mat4.Translation((float)-camX, (float)-camY, (float)-camZ) * viewRot * proj;
                 var right = new Vec3(viewRot.M11, viewRot.M21, viewRot.M31); var up = new Vec3(viewRot.M12, viewRot.M22, viewRot.M32);
-                if (d.StarBright > 0) DrawTile(_dysonStar, _dysonStarCount, vp, right, up, 1f, 0.01f * d.StarBright, 0f, x, y, tileW, tileH, time);
+                DrawTile(_dysonStar, _dysonStarCount, vp, right, up, 1f, 0.012f * Math.Max(0.35f, d.StarBright), 0f, x, y, tileW, tileH, time);
                 DrawTile(_dysonBufs[i], d.Pieces.Length, vp, right, up, 1f, 0.0015f, 2f, x, y, tileW, tileH, time);
             }
         }
