@@ -227,6 +227,28 @@ The ask: "and all things flock togther meaning intigenct>tirbes>villages>towns>c
 
 ---
 
+## Round 8: the mini AIs (verbatim)
+
+The ask: "and we will have to make the mini ai's that are individual, species, hive, glactic mind like typ dynamic control ai of what they are suppose to so selfish gene like all life tries to get more and do more before death but life is life death comes"
+
+| Question | Answer (verbatim) |
+|---|---|
+| How the layers work together | "Bigger steers smaller (Suggested)" |
+| When each layer switches on | "option 2 but real life non brian things still do thing sin life do you need to research?" |
+
+### What these mean for the build
+- **Every living thing runs its own mini AI**, driven by the selfish gene: get more, do more, pass on your genes before death. **Death always comes.**
+- **The layers:** individual → group (pack, flock, colony) → hive → species → galactic mind.
+- **Bigger steers smaller.** Each layer nudges the one below it, but every individual still wants its own genes to win, so members can rebel, cheat or split off.
+- **The layers come only through evolution.** There are no set steps. A layer appears only when a species' genes evolve the brain or bond it needs.
+- **Brainless life still acts**, through chemistry: sense something, respond. This is real biology, so no research was needed:
+  - bacteria move toward food and away from poison, and "vote" with chemical signals (quorum sensing)
+  - slime molds solve mazes
+  - plants grow toward light and water, warn their neighbors, and share food through fungal networks
+  - viruses only latch on, inject and copy
+
+---
+
 ## How we work (verbatim)
 
 These are the creator's working rules for this repo, each in his own words.
@@ -280,3 +302,4 @@ Everything the creator has said about this project, in order. Short process repl
 20. **Review ask:** "then /unity so she(our in house special info handler codex) can make sure nothing waas left out in all the verbatium words and answers given and shew knows me best"
 21. **Style samples ask:** see "Round 6" above. Answers: "3 samples × 3 styles = 9 (Suggested)" / "not one thats too gpu intense and these will be living things in the environment moving and spreading as told before, so come up with the best options idk try a rimworld like and a, populous like, and a stardew like, idk figure it out, but we cant do em till you build tyhier egine and shit" / "Right after basic graphics (Suggested)"
 22. **All things flock together:** see "Round 7" above. Ask: "and all things flock togther meaning intigenct>tirbes>villages>towns>cities wolf>pack>horde>intelligence>humanoioidwolf but more steps with all things do you get what i mean by all things". Answers: "Yes, exactly" / "option 1, every thing blows up to 100 ,, nutiorents, elements, species, the whoel kingdom philum class gensis species thing is all 100 tracking with the whole lengogy tree of life the circular type ones for the heretitary and the genr tree of lifee palnet or solor sytem or galaxy sortable" / "1 yes just like real life, one species can subjegate another in ever way possible this is a 18 plus game because it has all type of things form sex to killing and murder"
+23. **Mini AIs:** see "Round 8" above. Ask: "and we will have to make the mini ai's that are individual, species, hive, glactic mind like typ dynamic control ai of what they are suppose to so selfish gene like all life tries to get more and do more before death but life is life death comes". Answers: "Bigger steers smaller (Suggested)" / "option 2 but real life non brian things still do thing sin life do you need to research?"
