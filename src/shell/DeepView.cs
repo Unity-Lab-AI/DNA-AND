@@ -58,16 +58,24 @@ namespace DnaAnd.Shell
         {
             Mat4 vp = ViewProj(w, h);
             float x = mx / (float)Math.Max(1, w) * 2 - 1, y = 1 - my / (float)Math.Max(1, h) * 2;
-            int best = -1; float bd = 0.03f;
+            int best = -1; float bd = 0.12f * 0.12f;           // the nearest star to the mouse, within about a tenth of the screen
             for (int i = 0; i < _starsRel.Length; i++)
             {
                 StarVertex v = _starsRel[i];
                 float cx = v.X * vp.M11 + v.Y * vp.M21 + v.Z * vp.M31 + vp.M41, cy = v.X * vp.M12 + v.Y * vp.M22 + v.Z * vp.M32 + vp.M42, cw = v.X * vp.M14 + v.Y * vp.M24 + v.Z * vp.M34 + vp.M44;
                 if (cw <= 0) continue;
-                float d = Math.Abs(cx / cw - x) + Math.Abs(cy / cw - y);
+                float d = (cx / cw - x) * (cx / cw - x) + (cy / cw - y) * (cy / cw - y);
                 if (d < bd) { bd = d; best = i; }
             }
             if (best < 0) return;
+            if (_system != null)
+            {
+                // leaving the open solar system for another star: back out to galaxy scale, centred where we were
+                _system = null; _focusStar = -1; _focusBody = -1; FocusTerrain = null; FocusFields = null;
+                if (_sysStatic != null) { _sysStatic.Dispose(); _sysStatic = null; }
+                if (_sysBodies != null) { _sysBodies.Dispose(); _sysBodies = null; }
+                _dist = Math.Max(_dist, 0.002);
+            }
             _pendingStar = best; _glideFromX = _fx; _glideFromY = _fy; _glideFromZ = _fz; _gliding = true;
             _glideStartDist = _dist;
         }
@@ -151,8 +159,8 @@ namespace DnaAnd.Shell
             if (input.WasPressed(0x08) || input.WasPressed(0x1B)) return false;                    // Backspace or Esc: back
             // in a solar system: click a planet or moon (or Tab for the next one) to centre on it; the wheel then flies to it
             if (_system != null && input.WasPressed(0x09)) PickBody((_focusBody + 2) % (_system.Bodies.Count + 1) - 1);
-            if (_system != null && input.LeftClicked) ClickBody(input.MouseX, input.MouseY, w, h);
-            if (_system == null && input.LeftClicked) ClickStar(input.MouseX, input.MouseY, w, h);   // in the galaxy: any star can be picked
+            // a click picks a planet in the open system if one is under the mouse, otherwise any star of the galaxy
+            if (input.LeftClicked && !(_system != null && ClickBody(input.MouseX, input.MouseY, w, h))) ClickStar(input.MouseX, input.MouseY, w, h);
             if (input.LeftDown) { _yaw += input.MouseDX * 0.006f; _pitch = Math.Max(-1.5f, Math.Min(1.5f, _pitch + input.MouseDY * 0.006f)); }
             if (input.Wheel < 0 && _focusStar < 0 && _dist >= 3.99) { Ascend = true; return false; }     // out past the galaxy: back to the universe
             // zooming out lets go step by step: the planet, then the solar system, then the galaxy
@@ -222,7 +230,7 @@ namespace DnaAnd.Shell
             _dist = _focusBody < 0 ? outer * 2.2 : _system.Bodies[_focusBody].RadiusUnits * 60;
         }
 
-        private void ClickBody(int mx, int my, int w, int h)
+        private bool ClickBody(int mx, int my, int w, int h)
         {
             Mat4 vp = ViewProj(w, h);
             float x = mx / (float)Math.Max(1, w) * 2 - 1, y = 1 - my / (float)Math.Max(1, h) * 2;
@@ -235,7 +243,8 @@ namespace DnaAnd.Shell
                 float d = (float)Math.Sqrt((cx / cw - x) * (cx / cw - x) + (cy / cw - y) * (cy / cw - y));
                 if (d < bd) { bd = d; best = i - 1; }       // vertex 0 is the star
             }
-            if (best > -2) PickBody(best);
+            if (best > -2) { PickBody(best); return true; }
+            return false;
         }
 
         public void TestCore() { GoCore(); _dist = _bh.HorizonUnits * 60; }
@@ -325,6 +334,7 @@ namespace DnaAnd.Shell
             Draw(_starBuf, _stars.Length, bgVp, right, up, 0f, 0.0028f, 2f, w, h, time);            // galaxy stars: Populous-like (the chosen galaxy style)
             if (_structures.Length > 0) Draw(_structBuf, _structures.Length, bgVp, right, up, 1f, 0.0018f, 0f, w, h, time); // clusters, nebulas
             _gpu.ClearDepth();
+            if (_pendingStar >= 0) DrawTargetRing(view, right, up, w, h, time);
             if (_focusStar < 0)
             {
                 Draw(_coreBuf, _bh.Glow.Length, vp, right, up, 0f, 0.0016f, 0f, w, h, time);
@@ -381,6 +391,25 @@ namespace DnaAnd.Shell
             FocusTerrain.Draw(Meshes, ex * camKm, ey * camKm, ez * camKm, viewRot, proj, time, 2.6, 0, 0, 0, 0, 0, 0, w, h, 24);
         }
 
+        // a bright ring on screen around the star you picked, so you can see what you are flying to
+        private UploadBuffer _ringBuf;
+        private void DrawTargetRing(Mat4 view, Vec3 right, Vec3 up, int w, int h, double time)
+        {
+            var t = _starsRel[_pendingStar]; var ring = new StarVertex[32];
+            var c = new Vec3(t.X, t.Y, t.Z);
+            var eye = new Vec3((float)(Math.Cos(_yaw) * Math.Cos(_pitch) * _dist), (float)(Math.Sin(_pitch) * _dist), (float)(Math.Sin(_yaw) * Math.Cos(_pitch) * _dist));
+            float d = (float)Math.Sqrt(Vec3.Dot(c - eye, c - eye)) * 0.03f;           // about the same size on screen at any distance
+            for (int i = 0; i < 32; i++)
+            {
+                double a = i * Math.PI * 2 / 32 + time * 0.5;
+                ring[i] = SpaceGen.Star(c + right * (float)(Math.Cos(a) * d) + up * (float)(Math.Sin(a) * d), d * 0.12f, 0.4f, 0.95f, 1f, 1f);
+            }
+            if (_ringBuf == null) _ringBuf = new UploadBuffer(_gpu.Device, 32L * Stride);
+            _ringBuf.Write(ring, 32);
+            Mat4 vp = view * Mat4.Perspective(0.9f, w / (float)Math.Max(1, h), (float)Math.Max(_dist * 1e-3, 1e-5), (float)Math.Max(_dist * 1e5, 12));
+            Draw(_ringBuf, 32, vp, right, up, 1f, 0.004f, 2f, w, h, time);
+        }
+
         private const int TrailPoints = 72;
         private StarVertex[] _staticShifted = new StarVertex[0];
         private int _bodyCount;
@@ -430,7 +459,7 @@ namespace DnaAnd.Shell
 
         public void Dispose()
         {
-            foreach (var b in new[] { _starBuf, _structBuf, _diskBuf, _jetBuf, _coreBuf, _sysStatic, _sysBodies, _starCoronaBuf, _starSurfBuf, _shineBuf }) if (b != null) b.Dispose();
+            foreach (var b in new[] { _starBuf, _structBuf, _diskBuf, _jetBuf, _coreBuf, _sysStatic, _sysBodies, _starCoronaBuf, _starSurfBuf, _shineBuf, _ringBuf }) if (b != null) b.Dispose();
         }
     }
 }
