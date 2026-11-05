@@ -94,6 +94,9 @@ Each creature acts on its genes, like an ant. Crowds of the same kind are groupe
 
 - 100 stages of life (`docs/wiki/stages-of-life.md`), each with its own milestone.
 - One group per cell and species. A group splits into a new species when its genes drift, and individuals appear when you zoom in.
+- **All things flock together:** every kind climbs the 100-step grouping ladder, and any line can reach intelligence ("and all things flock togther meaning intigenct>tirbes>villages>towns>cities wolf>pack>horde>intelligence>humanoioidwolf but more steps with all things do you get what i mean by all things").
+- Mixed species can team up, tame, farm, rule or merge ("1 yes just like real life, one species can subjegate another in ever way possible this is a 18 plus game because it has all type of things form sex to killing and murder").
+- The tree of life: circular family and gene trees, sortable by planet, system or galaxy, with every rank tracked to 100 ("option 1, every thing blows up to 100 ,, nutiorents, elements, species, the whoel kingdom philum class gensis species thing is all 100 tracking with the whole lengogy tree of life the circular type ones for the heretitary and the genr tree of lifee palnet or solor sytem or galaxy sortable").
 
 ### [ ] R9 — Intelligent life and civilization
 > "intelligent life has technology and culture and war and tribalisze and pollitics and stuff like real life does" / "intelligent life has amazing ways of killing its self"

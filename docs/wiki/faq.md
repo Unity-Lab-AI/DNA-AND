@@ -7,6 +7,14 @@
 ### 🎮 Is this a clicker game?
 **No.** Life doesn't grow because you tap a button. It evolves on its own, from real-style DNA. You're the god who nudges it.
 
+### 🔞 Who is it for?
+
+Adults. **DNA-AND is an 18+ game.** Life does everything real life does: mating, hunting, killing, war, conquest and murder.
+
+### 🐺 Can animals other than apes become intelligent?
+
+Yes. **All things flock together.** Wolves, bees, birds, fish, even plants can climb the 100-step [grouping ladder](groups-and-flocking.md "Lone creature to universe-spanning life") all the way to civilization.
+
 ### 🧬 Can I edit a creature's DNA?
 Not directly. You **nudge** with powers: add genes, add elements, raise mutation, push evolution toward a trait. Gene powers can go well or badly. See [Genes & DNA](genes-and-dna.md).
 
