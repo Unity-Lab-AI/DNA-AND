@@ -89,10 +89,11 @@ Order: galactic scale down, the same order as the sample sets.
 - [ ] Procedural generator that invents new entries on top of the real ones
 
 ### R1 — Our own build tools (Helix)
-**Spec:** `wiki/systems/r01-toolchain.md`, `docs/HOW-TO-BUILD.md`, `docs/DECOMPOSED.md`
+**Spec:** `wiki/systems/r01-toolchain.md`, `wiki/systems/r01a-seed-spec.md`, `docs/HOW-TO-BUILD.md`, `docs/DECOMPOSED.md`
 
 - [ ] Design the tiny first tool, written directly as raw machine bytes, that can turn simple text instructions into machine code
   - Decided: a **hex loader** typed in as raw bytes. It turns a text file of hex digits into a Windows exe. Broken down in `docs/DECOMPOSED.md`.
+  - [x] Exact spec written: `wiki/systems/r01a-seed-spec.md` (exe layout, hex format, imports, proofs)
 - [ ] Use it to build a fuller machine-code writer (an "assembler")
 - [ ] Design our own programming language for the game
   - Decided: **Helix**. Low-level and C-like, with manual memory and no garbage collector.

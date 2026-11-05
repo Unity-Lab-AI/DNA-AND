@@ -42,7 +42,7 @@ _(none. The R1 seed tasks below come next.)_
 
 Parent: **R1 — Our own build tools (Helix)**, first minor task. Do these in order.
 
-### [ ] Write down the exact Windows exe layout the loader must produce
+### [x] Write down the exact Windows exe layout the loader must produce. Done: `wiki/systems/r01a-seed-spec.md`
 
 **Parent minor task (from `docs/TODO.md`, verbatim):**
 > "Design the tiny first tool, written directly as raw machine bytes, that can turn simple text instructions into machine code"
@@ -53,7 +53,7 @@ Parent: **R1 — Our own build tools (Helix)**, first minor task. Do these in or
 
 **Verification step:** The layout page lists every required header field and its value, checked against how Windows loads programs.
 
-### [ ] Define the hex text input format
+### [x] Define the hex text input format. Done: `wiki/systems/r01a-seed-spec.md`
 
 **Parent minor task (from `docs/TODO.md`, verbatim):**
 > "Design the tiny first tool, written directly as raw machine bytes, that can turn simple text instructions into machine code"
