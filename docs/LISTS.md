@@ -118,4 +118,4 @@
 
 ## Questions on this list
 - Does this look right, or do you want to swap any out?
-- Should the entries be real-world things only (real viruses, real animals), or should the game also invent its own on top?
+- **Answered:** "real and dynamic invented combo procedurally". Real entries plus game-invented ones.
