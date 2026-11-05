@@ -116,5 +116,15 @@
 99. Colors and patterns of life
 100. Genebank genome kinds
 
+## Extra 100-lists (round 7)
+
+On top of the 100 categories, these also get a top 100 each: "every thing blows up to 100 ,, nutiorents, elements, species, the whoel kingdom philum class gensis species thing is all 100 tracking".
+
+- **Nutrients:** top 100
+- **Species:** top 100 per group
+- **Tree of life ranks:** top 100 each for domain, kingdom, phylum, class, order, family, genus and species (real ones plus game-invented ones)
+- **Group steps:** the 100-step grouping ladder (`docs/wiki/groups-and-flocking.md`)
+- **Elements:** all 118. The full periodic table, as already decided, is kept at its real size.
+
 ## Decisions on this list
 - Entries: "real and dynamic invented combo procedurally". Real entries plus game-invented ones.

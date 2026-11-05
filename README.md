@@ -11,7 +11,7 @@
 
 <p align="center"><b><i>From one spark of life to a galaxy of Dyson spheres. You're the god. Evolution does the rest.</i></b></p>
 
-<p align="center">🪟 Windows &nbsp;·&nbsp; 🎮 Single · Co-op · Multiplayer &nbsp;·&nbsp; 🌍 Its own program, its own window &nbsp;·&nbsp; 🛠️ 100% built from scratch</p>
+<p align="center">🔞 18+ &nbsp;·&nbsp; 🪟 Windows &nbsp;·&nbsp; 🎮 Single · Co-op · Multiplayer &nbsp;·&nbsp; 🌍 Its own program, its own window &nbsp;·&nbsp; 🛠️ 100% built from scratch</p>
 
 ---
 
@@ -24,6 +24,7 @@
 | 🦠 **Evolution** | Microbes, plants, insects, fish, birds, animals and intelligent life evolve on their own |
 | ⚡ **God mode** | 100 powers. Fire, flood, solar flare, plague, miracle. Nudge life, never control it |
 | 💀 **Souls** | Life gives off souls. Spend them on powers, or harvest them... carefully |
+| 🐺 **All things flock** | Wolves become packs, hordes, then wolf-folk cities. Any kind of life can climb to intelligence |
 | 🏛️ **Civilizations** | 100 ages of history: tribes, politics, wars, and amazing ways to destroy themselves |
 | 🚀 **Space** | Other planets, solar systems, Dyson spheres, intergalactic war |
 | 🏆 **Genebank** | Top the leaderboard and upload a genome that lands in other players' worlds by meteorite |
@@ -76,6 +77,7 @@
 | 🧬 [Genes & DNA](docs/wiki/genes-and-dna.md "How real-style genomes build life") | ⚗️ [Elements](docs/wiki/elements.md "All 118, and what they do") |
 | 🌱 [100 Stages of Life](docs/wiki/stages-of-life.md "From chemistry to spacefarers") | 🏛️ [100 Ages of Civilization](docs/wiki/ages-of-civilization.md "From stone tools to intergalactic") |
 | 🌳 [Tech Tree](docs/wiki/tech-tree.md "How the ages connect") | ⚡ [100 God Powers](docs/wiki/god-powers.md "Every power, its pluses and minuses") |
+| 🐺 [Groups & Flocking](docs/wiki/groups-and-flocking.md "Wolf to pack to horde to humanoid wolf-folk") | 🧬 [Tree of Life](docs/wiki/tree-of-life.md "Every species on one circular tree") |
 | 💀 [Souls & Harvesting](docs/wiki/souls-and-harvesting.md "The currency of a god") | 🪐 [Planets & Templates](docs/wiki/planets-and-templates.md "Earth, and the worlds you unlock") |
 | 🌌 [Space & Dyson Spheres](docs/wiki/space-and-dyson-spheres.md "Leaving home") | 👥 [Multiplayer](docs/wiki/multiplayer.md "Co-op and shared cursors") |
 | 🏆 [Leaderboard & Genebank](docs/wiki/leaderboard-and-genebank.md "Scores and shared genomes") | ⚙️ [Menus & Settings](docs/wiki/menus-and-settings.md "Everything on the main screen") |

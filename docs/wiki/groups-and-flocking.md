@@ -1,0 +1,152 @@
+# 🐺 Groups & Flocking
+
+> *A wolf becomes a pack. A pack becomes a horde. A horde learns to think. And one day, wolves build cities.*
+
+<!-- IMG: docs/img/flocking-ladder.png | One wolf, then a pack, then a howling horde, then upright wolf-folk raising a stone village, left to right across a valley -->
+> 🖼️ *One wolf, then a pack, then a horde, then upright wolf-folk raising a stone village* — rendered by the game's own 3D generator
+
+**All things flock together.** Every kind of life groups up, step by step, and **any** line of life can climb all the way to intelligence: wolves, bees, birds, fish, even plants and microbes. Not just apes.
+
+---
+
+## 🧭 How it works
+
+| | |
+|--|--|
+| 🪜 **100 steps** | Every kind of life climbs the same 100-step ladder, from one lone creature to life that spans the universe |
+| 🧬 **Genes decide** | Which steps a species can reach depends on its genome: senses, brains, calls, social instincts |
+| 🛤️ **Own path** | Each kind takes its own route. Wolves go pack → horde. Bees go swarm → hive. Fish go school → shoal |
+| 🔀 **Merge and split** | Groups of the same kind join up (packs into hordes, towns into cities) or break apart |
+| 🤝 **Mixed groups** | Different species can team up, tame, farm, use or rule each other, just like real life |
+| ⏱️ **Milestones** | Hitting a new step is a [milestone](glossary.md#milestone "A big step in evolution or history"). Time slows and you watch it happen |
+
+---
+
+## 🐾 Same ladder, different paths
+
+| Kind | Their climb |
+|---|---|
+| 🐺 **Wolves** | Lone wolf → pair → family → pack → big pack → horde → thinking pack → tool-using wolves → humanoid wolf-folk → tribe → village → town → city → … → the stars |
+| 🐝 **Bees** | Lone bee → swarm → hive → mega-hive → supercolony → hive mind → insect civilization → … |
+| 🐟 **Fish** | Lone fish → school → shoal → super-shoal → thinking shoal → reef cities → ocean civilization → … |
+| 🐦 **Birds** | Lone bird → flock → nesting colony → roost-city → thinking flock → sky civilization → … |
+| 🌳 **Plants** | Seedling → patch → grove → forest → linked root network → a forest that thinks → … |
+| 🦠 **Microbes** | One cell → clump → colony → film → mat → reef → living superorganism → … |
+| 🧍 **Apes** | Lone ape → troop → band → tribe → village → town → city → nation → … |
+
+---
+
+## 🪜 The 100 steps
+
+### 🌑 Alone (1–10)
+| # | Step | # | Step |
+|---|---|---|---|
+| 1 | Lone individual | 6 | Brood or litter |
+| 2 | Mated pair | 7 | Small group |
+| 3 | Parent and young | 8 | Band |
+| 4 | Family | 9 | Roaming band |
+| 5 | Extended family | 10 | Group with a territory |
+
+### 🐺 Packs and herds (11–20)
+| # | Step | # | Step |
+|---|---|---|---|
+| 11 | Pack, school or flock | 16 | Nesting colony |
+| 12 | Large pack | 17 | Migrating mass |
+| 13 | Allied packs | 18 | Swarm |
+| 14 | Herd or super-flock | 19 | Horde |
+| 15 | Colony | 20 | Super-horde |
+
+### 🤝 Social life (21–30)
+| # | Step | # | Step |
+|---|---|---|---|
+| 21 | Ranked group (pecking order) | 26 | Group that teaches its young |
+| 22 | Group with roles | 27 | Group with calls and signals |
+| 23 | Caste group (workers, soldiers) | 28 | Group with traditions |
+| 24 | Group that hunts together | 29 | Group that shares tools |
+| 25 | Group that shares food | 30 | Group with a home base |
+
+### 🧠 Awakening (31–40)
+| # | Step | # | Step |
+|---|---|---|---|
+| 31 | Thinking group | 36 | Tribe |
+| 32 | Group with words | 37 | Tribe with rituals |
+| 33 | Group with names | 38 | Tribe with leaders |
+| 34 | Clan | 39 | Allied tribes |
+| 35 | Kin network | 40 | Tribal confederation |
+
+### 🏘️ Settling down (41–50)
+| # | Step | # | Step |
+|---|---|---|---|
+| 41 | Camp | 46 | Large village |
+| 42 | Seasonal camp | 47 | Market village |
+| 43 | Hamlet | 48 | Walled village |
+| 44 | Village | 49 | Town |
+| 45 | Farming village | 50 | Market town |
+
+### 🏙️ Cities and crowns (51–60)
+| # | Step | # | Step |
+|---|---|---|---|
+| 51 | City | 56 | Large kingdom |
+| 52 | Walled city | 57 | Empire |
+| 53 | City-state | 58 | Great empire |
+| 54 | League of cities | 59 | Nation |
+| 55 | Kingdom | 60 | Nation-state |
+
+### 🌍 One world (61–70)
+| # | Step | # | Step |
+|---|---|---|---|
+| 61 | Alliance of nations | 66 | Planetary union |
+| 62 | Trading bloc | 67 | World government |
+| 63 | Superpower | 68 | City-covered world |
+| 64 | Superpower bloc | 69 | Orbital settlements |
+| 65 | World council | 70 | A planet and its moons |
+
+### ☀️ The solar system (71–80)
+| # | Step | # | Step |
+|---|---|---|---|
+| 71 | First off-world colony | 76 | Solar system union |
+| 72 | Colonies on many worlds | 77 | Swarm of habitats |
+| 73 | Asteroid habitats | 78 | Partial Dyson swarm |
+| 74 | Network of space stations | 79 | Full Dyson sphere civilization |
+| 75 | Solar system nation | 80 | Star-system empire |
+
+### ✨ The stars (81–90)
+| # | Step | # | Step |
+|---|---|---|---|
+| 81 | First star colony | 86 | Galactic arm power |
+| 82 | Two-star nation | 87 | Multi-arm empire |
+| 83 | Star cluster league | 88 | Galactic core power |
+| 84 | Star cluster empire | 89 | Half-galaxy empire |
+| 85 | Interstellar federation | 90 | Galactic civilization |
+
+### 🌌 Beyond the galaxy (91–100)
+| # | Step | # | Step |
+|---|---|---|---|
+| 91 | Galactic union | 96 | Intergalactic federation |
+| 92 | Colony in a satellite galaxy | 97 | Supercluster power |
+| 93 | Two-galaxy power | 98 | Supercluster empire |
+| 94 | Local group league | 99 | Intergalactic union |
+| 95 | Local group empire | 100 | Universe-spanning life |
+
+> 💡 **Tip:** Steps 1–30 happen to every kind of life that groups at all. Steps 31+ need a species that can think. See [Spark of Mind](god-powers.md "Power #61 nudges a species toward intelligence").
+
+---
+
+## 🔗 When species mix
+
+Real life isn't tidy, and neither is DNA-AND. One species can use another **in every way possible**:
+
+| | How | Example |
+|--|---|---|
+| 🤝 | **Teaming up** | Birds that guide hunters to honey |
+| 🐕 | **Taming** | Wolves living with a tribe, then becoming their dogs |
+| 🌾 | **Farming** | Ants farming fungus. Tribes herding animals |
+| 🦠 | **Living inside** | Gut microbes, parasites, viruses |
+| ⛓️ | **Ruling** | One intelligent species conquering and enslaving another |
+| 🧬 | **Merging** | Two lines blending into one civilization |
+
+> 🔞 **DNA-AND is an 18+ game.** Life here does everything real life does: mating, hunting, killing, war, conquest and murder.
+
+---
+
+👉 Next: [Tree of Life](tree-of-life.md "Every species, in one circular family tree") · [Stages of Life](stages-of-life.md) · [Ages of Civilization](ages-of-civilization.md)

@@ -207,6 +207,26 @@ The ask: "remembr we arent using other peoples shit unless we absoulutley have t
 
 ---
 
+## Round 7: all things flock together (verbatim)
+
+The ask: "and all things flock togther meaning intigenct>tirbes>villages>towns>cities wolf>pack>horde>intelligence>humanoioidwolf but more steps with all things do you get what i mean by all things"
+
+| Question | Answer (verbatim) |
+|---|---|
+| Did Claude get it right (every kind of life groups up, and any line can reach intelligence) | "Yes, exactly" |
+| How many grouping steps | "option 1, every thing blows up to 100 ,, nutiorents, elements, species, the whoel kingdom philum class gensis species thing is all 100 tracking with the whole lengogy tree of life the circular type ones for the heretitary and the genr tree of lifee palnet or solor sytem or galaxy sortable" |
+| Can species mix | "1 yes just like real life, one species can subjegate another in ever way possible this is a 18 plus game because it has all type of things form sex to killing and murder" |
+
+### What these mean for the build
+- **Grouping ladder:** every kind of life climbs one 100-step ladder, from a lone creature to universe-spanning life. Each kind takes its own path (wolf → pack → horde → wolf-folk → cities).
+- **Any line can reach intelligence:** wolves, bees, birds, fish, plants and microbes, not just apes.
+- **100 of everything:** nutrients, species, and every rank of the tree of life (domain, kingdom, phylum, class, order, family, genus, species), each tracked to 100. That's real ones plus invented ones. Elements stay at all 118.
+- **Tree of life:** a circular family tree for heredity, plus a gene tree. Both can be sorted by planet, solar system or galaxy.
+- **Mixed species:** they can team up, tame, farm, live inside, rule, enslave or merge with each other.
+- **Rated 18+:** the game includes sex, killing and murder.
+
+---
+
 ## How we work (verbatim)
 
 These are the creator's working rules for this repo, each in his own words.
@@ -259,3 +279,4 @@ Everything the creator has said about this project, in order. Short process repl
 19. "you need to make the todo and docs all of them proper"
 20. **Review ask:** "then /unity so she(our in house special info handler codex) can make sure nothing waas left out in all the verbatium words and answers given and shew knows me best"
 21. **Style samples ask:** see "Round 6" above. Answers: "3 samples × 3 styles = 9 (Suggested)" / "not one thats too gpu intense and these will be living things in the environment moving and spreading as told before, so come up with the best options idk try a rimworld like and a, populous like, and a stardew like, idk figure it out, but we cant do em till you build tyhier egine and shit" / "Right after basic graphics (Suggested)"
+22. **All things flock together:** see "Round 7" above. Ask: "and all things flock togther meaning intigenct>tirbes>villages>towns>cities wolf>pack>horde>intelligence>humanoioidwolf but more steps with all things do you get what i mean by all things". Answers: "Yes, exactly" / "option 1, every thing blows up to 100 ,, nutiorents, elements, species, the whoel kingdom philum class gensis species thing is all 100 tracking with the whole lengogy tree of life the circular type ones for the heretitary and the genr tree of lifee palnet or solor sytem or galaxy sortable" / "1 yes just like real life, one species can subjegate another in ever way possible this is a 18 plus game because it has all type of things form sex to killing and murder"

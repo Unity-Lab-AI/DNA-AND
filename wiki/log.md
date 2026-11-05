@@ -21,3 +21,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Art style samples planned
 
 - Added R4.5: 3 samples × 3 styles for every subject before any style is locked in. The styles are RimWorld-like, Populous-like and Stardew-like, all light on the GPU.
+
+## 2026-11-05 — Flocking and tree of life
+
+- New player pages: groups-and-flocking.md (the 100-step grouping ladder) and tree-of-life.md. Life sim tasks added. The game is rated 18+.
