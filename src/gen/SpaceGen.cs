@@ -149,7 +149,7 @@ namespace DnaAnd.Gen
             public int Planets;
         }
 
-        public static StarSystem System(ContentLibrary content, StarKind kind, ulong seed)
+        public static StarSystem System(ContentLibrary content, StarKind kind, ulong seed, string layout = null)
         {
             var rng = new Rng(seed);
             var sys = new StarSystem { StarName = kind.Name, SR = kind.R, SG = kind.G, SB = kind.B };
@@ -165,7 +165,9 @@ namespace DnaAnd.Gen
 
             int count = 3 + rng.Int(8);
             double a = 0.3 * scale * rng.Range(0.6f, 1.4f), step = rng.Range(1.45f, 1.9f);
-            bool hotJupiter = rng.NextDouble() < 0.1;
+            if (layout == "compact") { count = 6 + rng.Int(3); a = 0.012 * rng.Range(0.8f, 1.2f); step = rng.Range(1.25f, 1.4f); } // packed close to a dim star (content: compact system)
+            if (layout == "hot-jupiter") count = 1 + rng.Int(3);                                                                  // few close neighbors (content: hot-Jupiter system)
+            bool hotJupiter = layout == "hot-jupiter" || (layout == null && rng.NextDouble() < 0.1);
             double lastRocky = 0, firstGiant = 0, outer = 0;
             for (int i = 0; i < count; i++, a *= step)
             {
@@ -244,6 +246,36 @@ namespace DnaAnd.Gen
                 double rad = inner + rng.NextDouble() * (outer - inner), t = rng.NextDouble() * Math.PI * 2;
                 list.Add(Star(new Vec3((float)(Math.Cos(t) * rad), (float)(rng.Gaussian() * rad * thick), (float)(Math.Sin(t) * rad)), 0, r, g, b, a));
             }
+        }
+
+        /// <summary>
+        /// Builds this frame's star, planet and moon billboards. Calm motion: a body whose on-screen turn would be faster
+        /// than <paramref name="maxTurnPerSecond"/> is drawn as a soft orbit trail instead of a moving dot.
+        /// </summary>
+        public static int BodyVerts(StarSystem sys, double simYears, double yearsPerSecond, double maxTurnPerSecond, StarVertex[] outV, int trailPoints)
+        {
+            var pos = new Vec3[sys.Bodies.Count];
+            int n = 0;
+            outV[n++] = Star(new Vec3(0, 0, 0), (float)sys.StarRadius, sys.SR, sys.SG, sys.SB, 1f);
+            for (int i = 0; i < sys.Bodies.Count; i++)
+            {
+                var b = sys.Bodies[i];
+                double period = Math.Max(1e-4, b.Period);
+                double turn = yearsPerSecond / period * Math.PI * 2;
+                double ang = b.Phase + simYears / period * Math.PI * 2;
+                Vec3 centre = b.Parent >= 0 ? pos[b.Parent] : new Vec3(0, 0, 0);
+                var p = centre + new Vec3((float)(Math.Cos(ang) * b.OrbitUnits), 0, (float)(Math.Sin(ang) * b.OrbitUnits));
+                pos[i] = p;
+                float bright = b.Parent >= 0 ? 0.6f : 1f;
+                if (turn <= maxTurnPerSecond) outV[n++] = Star(p, (float)b.RadiusUnits, b.R, b.G, b.B, bright);
+                else
+                    for (int k = 0; k < trailPoints; k++)
+                    {
+                        double t = k / (double)trailPoints * Math.PI * 2;
+                        outV[n++] = Star(centre + new Vec3((float)(Math.Cos(t) * b.OrbitUnits), 0, (float)(Math.Sin(t) * b.OrbitUnits)), (float)(b.RadiusUnits * 0.5), b.R, b.G, b.B, bright * 0.35f);
+                    }
+            }
+            return n;
         }
 
         public static StarVertex Star(Vec3 p, float size, float r, float g, float b, float bright)
