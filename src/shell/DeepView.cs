@@ -366,10 +366,12 @@ namespace DnaAnd.Shell
             if (_pendingStar >= 0) DrawTargetRing(view, right, up, w, h, time);
             if (_focusStar < 0)
             {
-                Draw(_coreBuf, _bh.Glow.Length, vp, right, up, 0f, 0.0016f, 0f, w, h, time);
-                Mat4 spin = Mat4.RotationY((float)(time * 0.3)) * vp;                             // the disk turns, gently (calm motion)
+                // the core sits at the galaxy's real centre, wherever the view is centred
+                Mat4 atCore = Mat4.Translation((float)-_fx, (float)-_fy, (float)-_fz) * vp;
+                Draw(_coreBuf, _bh.Glow.Length, atCore, right, up, 0f, 0.0016f, 0f, w, h, time);
+                Mat4 spin = Mat4.RotationY((float)(time * 0.3)) * atCore;                         // the disk turns, gently (calm motion)
                 Draw(_diskBuf, _bh.Disk.Length, spin, right, up, 1f, 0.0012f, 0f, w, h, time);
-                if (_bh.Jets.Length > 0) Draw(_jetBuf, _bh.Jets.Length, vp, right, up, 1f, 0.0012f, 0f, w, h, time);
+                if (_bh.Jets.Length > 0) Draw(_jetBuf, _bh.Jets.Length, atCore, right, up, 1f, 0.0012f, 0f, w, h, time);
             }
             else
             {
@@ -475,7 +477,10 @@ namespace DnaAnd.Shell
         {
             get
             {
-                string focus = _focusStar < 0
+                double fromCore = Math.Sqrt(_fx * _fx + _fy * _fy + _fz * _fz);
+                string focus = _focusStar < 0 && fromCore > _dist * 0.5
+                    ? "looking at a part of the galaxy " + Units.Describe(fromCore) + " from its centre" + (_pendingStar >= 0 ? " · flying to the star in the ring" : " · roll in to go there, or click a star")
+                    : _focusStar < 0
                     ? string.Format("focus: the core's supermassive black hole, {0:0.0e0} Sun masses{1} · {2} star clusters, {3} nebulas",
                         _bh.MassSol, _bh.Active ? ", feeding (jets on)" : ", quiet", _clusters, _nebulas)
                     : _focusBody >= 0 ? "focus: " + _system.Bodies[_focusBody].Kind + " (keep rolling the wheel in to fly down to it)"
