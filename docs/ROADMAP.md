@@ -87,7 +87,7 @@ Random generation from a seed, at full galaxy scale, with more than one galaxy.
 ### [ ] R6 — The planet: Earth and unlockable templates
 > "EARTH(but other templets too you can unlock after reaching certain points on Earth." / "full massive wolrd with everything(when i say everything i fucking mean everything) that a wrold has on it like earth"
 
-Ground, rock, plates, mountains, oceans, rivers, ice, air, weather, seasons, day and night, chemistry, minerals. "Everything" is the **top 100 of every category**, from `docs/LISTS.md` ("do top 100 for everything..."). Entries are "real and dynamic invented combo procedurally".
+Ground, rock, plates, mountains, oceans, rivers, ice, air, weather, seasons, day and night, chemistry, minerals. "Everything" is the **top 100 of every category**, from `docs/LISTS.md`: 10–20 real seeds each, with the rest invented live (round 14) ("do top 100 for everything..."). Entries are "real and dynamic invented combo procedurally".
 
 - All 118 elements. Lab-made ones (93+) unlock once a civilization creates them.
 - The surface is split into equal-size cells on a sphere.

@@ -242,7 +242,7 @@ Powers cost **Souls**. Cost = the power's **tier (T1–T100) × area × strength
 | **100** | stages of life | **100** | ages of civilization |
 | **100** | god powers | **100** | grouping steps |
 | **100** | planet templates | **118** | elements |
-| **10,000** | encyclopedia entries (100 × 100) | **6** | layers of mind |
+| **10,000** | encyclopedia entries (100 × 100), invented fresh each world | **6** | layers of mind |
 | **10,000** | milestones (100 per stage) | **100** | tech branches |
 | **100** | kinds of society | **100** | ways to nudge |
 | **100** | Dark Harvest methods | **100** | ways to earn souls |
