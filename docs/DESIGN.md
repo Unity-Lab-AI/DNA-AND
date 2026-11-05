@@ -617,3 +617,13 @@ Everything the creator has said about this project, in order. Short process repl
     - Left-click a planet in set 4 to fly down to it. The wheel sets the height from orbit to standing height, drag or W A S D moves, and Q and E turn.
     - The game can save its own picture (`--shot`), so the work can be checked.
 72. "that looks good" (said while the fly-down pictures were on screen).
+73. "okay thoses single tests u did worked but these test all have issues and i dont see atmospher and weather on any off them and most in this set dont zoom to sutrfacer/microbe scale they max out on zoom and water isnt figured and its like zooming beneeth the ground beneth water is fine but it should zome in too surface first before we go micro". Changes:
+    - Every planet has a glowing air shell, a moving cloud layer and weather near the ground (rain, snow, ash or dust).
+    - The water is see-through, catches the starlight, lies over a real sea floor, and can be gone under.
+    - The zoom lands on the surface first, then keeps going down to about a micrometre. The camera stays on finished ground, so it never ends up inside it.
+    - The ground is rough at every size.
+    - Each piece of ground now measures its distance from the real ground height, not sea level.
+74. "the gt clored planets wthey need lcosuds and stuff not just a orb" / "neptune and jupitor ones look blah the gas giants". Changes:
+    - The giants have wind-curled bands, many storms (a great red one, white ovals, dark ones on the ice giant) and a high cloud deck.
+    - Their puffy deep cloud tops can be flown down to. Giants have no ground.
+    - Lava worlds show glowing cracks and rivers.

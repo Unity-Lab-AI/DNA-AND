@@ -19,7 +19,8 @@ namespace DnaAnd.Render
         [UnmanagedFunctionPointer(CallingConvention.StdCall)] private delegate int CreateGraphicsPipelineStateFn(IntPtr self, IntPtr desc, ref Guid iid, out IntPtr pso); // 10
 
         // constants: c[0..15] viewProj, c[16..18] direction the starlight comes from, c[20..22] camera position,
-        // c[24] time, c[25] fog distance (0 = no fog), c[28..30] fog colour
+        // c[24] time, c[25] fog distance (0 = no fog), c[26] kind of surface (0 ground, 1 air glow, 2 clouds, 3 water),
+        // c[28..30] fog colour
         private const string Hlsl = @"
 cbuffer C : register(b0)
 {
@@ -50,18 +51,42 @@ float4 PS(VO i) : SV_Target
     float3 n = cl > 1e-30 ? cr / cl : light.xyz;      // a tiny or broken triangle: treat it as facing the light
     float3 toCam = cam.xyz - i.wp;
     if (dot(n, toCam) < 0) n = -n;
+    float3 v = normalize(toCam);
+    if (misc.z > 0.5 && misc.z < 1.5)
+    {
+        // the air: a glowing shell, brightest where you look through the most of it (the edge), only on the lit side
+        float3 up = normalize(i.wp);
+        float edge = 1 - saturate(abs(dot(up, v)));
+        float day = saturate(dot(up, light.xyz) * 1.6 + 0.35);
+        float a = (pow(edge, 3) * 1.1 + 0.08) * day;
+        return float4(i.col.rgb * a, 1);
+    }
     float lit = 0.06 + 0.94 * saturate(dot(n, light.xyz));
+    if (misc.z > 1.5 && misc.z < 2.5)
+    {
+        // clouds scatter light through themselves: lit from the star's side of the planet, glowing grey from below
+        lit = 0.45 + 0.55 * saturate(abs(dot(n, light.xyz)));
+    }
     float3 c = i.col.rgb * max(lit, i.glow);
+    float alpha = misc.z > 1.5 ? i.col.a : 1;
+    if (misc.z > 2.5)
+    {
+        // water: a sharp glint of starlight, and more see-through when looked at from straight above
+        float3 r = reflect(-light.xyz, n);
+        c += pow(saturate(dot(r, v)), 60) * 0.8 * saturate(dot(n, light.xyz) * 4);
+        alpha = lerp(alpha, 0.97, pow(1 - saturate(abs(dot(n, v))), 4));
+    }
     if (misc.y > 0)
     {
         float f = saturate(length(toCam) / misc.y);
         c = lerp(c, fog.rgb, f * f);
     }
-    return float4(c, 1);
+    return float4(c, alpha);
 }
 ";
 
-        public MeshPipeline(IntPtr device, IntPtr rootSignature)
+        /// <summary><paramref name="blend"/>: 0 solid, 1 adds light (glowing air), 2 see-through (clouds, water).</summary>
+        public MeshPipeline(IntPtr device, IntPtr rootSignature, int blend)
         {
             RootSignature = rootSignature;
             IntPtr vs = Compile("VS", "vs_5_0"), ps = Compile("PS", "ps_5_0");
@@ -76,13 +101,23 @@ float4 PS(VO i) : SV_Target
                 for (int k = 0; k < 8; k++)
                 {
                     int rt = 128 + k * 40;
+                    if (k == 0 && blend > 0)
+                    {
+                        Marshal.WriteInt32(p, rt, 1);
+                        Marshal.WriteInt32(p, rt + 8, blend == 1 ? 2 : 5);     // ONE or SRC_ALPHA
+                        Marshal.WriteInt32(p, rt + 12, blend == 1 ? 2 : 6);    // ONE or INV_SRC_ALPHA
+                        Marshal.WriteInt32(p, rt + 16, 1);
+                        Marshal.WriteInt32(p, rt + 20, 2); Marshal.WriteInt32(p, rt + 24, 2); Marshal.WriteInt32(p, rt + 28, 1);
+                        Marshal.WriteInt32(p, rt + 32, 4); Marshal.WriteByte(p, rt + 36, 0xF);
+                        continue;
+                    }
                     Marshal.WriteInt32(p, rt + 8, 2); Marshal.WriteInt32(p, rt + 12, 1); Marshal.WriteInt32(p, rt + 16, 1);
                     Marshal.WriteInt32(p, rt + 20, 2); Marshal.WriteInt32(p, rt + 24, 1); Marshal.WriteInt32(p, rt + 28, 1);
                     Marshal.WriteInt32(p, rt + 32, 4); Marshal.WriteByte(p, rt + 36, 0xF);
                 }
                 Marshal.WriteInt32(p, 448, -1);     // sample mask
                 Marshal.WriteInt32(p, 452, 3); Marshal.WriteInt32(p, 456, 1); Marshal.WriteInt32(p, 476, 1);   // solid, no culling, depth clip
-                Marshal.WriteInt32(p, 496, 1); Marshal.WriteInt32(p, 500, 1); Marshal.WriteInt32(p, 504, 2);   // depth on, write, nearer wins
+                Marshal.WriteInt32(p, 496, 1); Marshal.WriteInt32(p, 500, blend == 0 ? 1 : 0); Marshal.WriteInt32(p, 504, blend == 0 ? 2 : 4);   // depth on; only solid ground writes it
                 for (int f = 0; f < 2; f++) { int b = 516 + f * 16; Marshal.WriteInt32(p, b, 1); Marshal.WriteInt32(p, b + 4, 1); Marshal.WriteInt32(p, b + 8, 1); Marshal.WriteInt32(p, b + 12, 8); }
                 Marshal.WriteInt32(p, 572, 3);      // triangles
                 Marshal.WriteInt32(p, 576, 1);
@@ -113,6 +148,21 @@ float4 PS(VO i) : SV_Target
         private static UIntPtr BlobSize(IntPtr b) { return Com.Method<BlobSizeFn>(b, 4)(b); }
 
         public void Dispose() { Com.Release(ref Pipeline); }
+    }
+
+    /// <summary>The three kinds of triangle drawing, ready to record: solid ground, glowing air, see-through clouds and water.</summary>
+    internal sealed class MeshPipes : IDisposable
+    {
+        public readonly MeshPipeline SolidPipe, GlowPipe, ClearPipe;
+        public readonly MeshDrawer Solid, Glow, Clear;
+        public MeshPipes(Gpu gpu, IntPtr rootSignature)
+        {
+            SolidPipe = new MeshPipeline(gpu.Device, rootSignature, 0);
+            GlowPipe = new MeshPipeline(gpu.Device, rootSignature, 1);
+            ClearPipe = new MeshPipeline(gpu.Device, rootSignature, 2);
+            Solid = new MeshDrawer(gpu.CommandList, SolidPipe); Glow = new MeshDrawer(gpu.CommandList, GlowPipe); Clear = new MeshDrawer(gpu.CommandList, ClearPipe);
+        }
+        public void Dispose() { SolidPipe.Dispose(); GlowPipe.Dispose(); ClearPipe.Dispose(); }
     }
 
     /// <summary>Records solid triangle draws into the frame's command list.</summary>

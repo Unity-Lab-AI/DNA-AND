@@ -50,7 +50,7 @@ namespace DnaAnd.Shell
         private readonly PlanetTerrain[] _terrains = new PlanetTerrain[9];
         private readonly UploadBuffer[] _planetStatic = new UploadBuffer[9];
         private readonly int[] _planetStaticCount = new int[9];
-        private readonly MeshDrawer _meshDrawer;
+        private readonly MeshPipes _pipes;
         public PlanetTerrain TerrainAt(int i) { return _terrains[i]; }                                  // set 2 zooms from the whole system down to one planet
 
         public string Title
@@ -69,9 +69,9 @@ namespace DnaAnd.Shell
             }
         }
 
-        public SampleViewer(Gpu gpu, BillboardPipeline pipeline, MeshPipeline meshPipe, ContentLibrary content, ulong seed)
+        public SampleViewer(Gpu gpu, BillboardPipeline pipeline, MeshPipes pipes, ContentLibrary content, ulong seed)
         {
-            _meshDrawer = new MeshDrawer(gpu.CommandList, meshPipe);
+            _pipes = pipes;
             Set = 1;
             _frameBuf = new UploadBuffer(gpu.Device, (long)_frameVerts.Length * Marshal.SizeOf(typeof(StarVertex)));
             _drawer = new BillboardDrawer(gpu.CommandList, pipeline);
@@ -120,8 +120,8 @@ namespace DnaAnd.Shell
                 PlanetSurface surf;
                 StarVertex[] v = PlanetGen.Build(content, PlanetIds[i], seed * 37UL + (ulong)i, out _planetNames[i], out surf);
                 _terrains[i] = new PlanetTerrain(gpu.Device, PlanetIds[i], _planetNames[i], (uint)(seed * 41UL + (ulong)i));
-                // the air glow and rings, scaled to the planet's real size in km; solid ground now hides what is behind it
-                var all = new System.Collections.Generic.List<StarVertex>(v);
+                // the rings, scaled to the planet's real size in km (the air is now drawn as a glowing shell by the planet itself)
+                var all = new System.Collections.Generic.List<StarVertex>();
                 for (int k = 0; k < surf.Rings.Count; k++) all.Add(SpaceGen.Star(surf.Rings[k], 0.02f, 0.85f, 0.78f, 0.62f, surf.RingShade[k]));
                 float R = (float)_terrains[i].Radius;
                 var arr = all.ToArray();
@@ -276,7 +276,7 @@ namespace DnaAnd.Shell
                 Mat4 viewRot = Mat4.LookAt(new Vec3(0, 0, 0), new Vec3((float)-ex, (float)-ey, (float)-ez), new Vec3(0, 1, 0));
                 Mat4 proj = Mat4.Perspective(0.9f, tileW / (float)Math.Max(1, tileH), (float)(dist * 0.1), (float)(dist * 3));
                 int x = (i % 3) * tileW, y = (i / 3) * tileH;
-                t.Draw(_meshDrawer, camX, camY, camZ, viewRot, proj, 2.6, 0, 0, 0, 0, x, y, tileW, tileH, 64);
+                t.Draw(_pipes, camX, camY, camZ, viewRot, proj, time, 2.6, 0, 0, 0, 0, x, y, tileW, tileH, 64);
                 Mat4 vp = Mat4.Translation((float)-camX, (float)-camY, (float)-camZ) * viewRot * proj;
                 var right = new Vec3(viewRot.M11, viewRot.M21, viewRot.M31); var up = new Vec3(viewRot.M12, viewRot.M22, viewRot.M32);
                 DrawTile(_planetStatic[i], _planetStaticCount[i], vp, right, up, 1f, 0f, 2f, x, y, tileW, tileH, time);
