@@ -172,7 +172,7 @@ Every species that ever lived, on one **circular tree**: your first cell at the 
 |--|--|
 | 🌑 **Day one** | Lightning, heat, cold, water, spark of life, add genes, and add any element from the periodic table |
 | 🔓 **Unlocks** | New powers open as life reaches new stages, with stronger **+** versions later |
-| 🌋 **Examples** | Fire, flood, drought, volcano, plague, cure, miracle, prophet, solar flare, supernova, wormhole |
+| 🌋 **Examples** | Fire, flood, drought, volcano, plague, cure, miracle, prophet, stellar flare, supernova, wormhole |
 | 🧬 **Gene powers** | Radiation bursts, viral gene carry, spark of mind. Good outcomes and bad |
 | ⏳ **Cooldowns** | The biggest powers need time to recharge |
 

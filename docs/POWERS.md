@@ -14,7 +14,7 @@
 | 1 | ★ Fire | Raises the temperature of an area | Warms cold land, clears old growth for new life, gives early people fire | Burns life, dries soil, smoke |
 | 2 | ★ Cold | Lowers the temperature | Cools overheated areas, preserves water as ice | Freezes and kills life, shortens growing seasons |
 | 3 | ★ Water | Adds water, floods an area | Waters deserts, makes new lakes and wetlands | Drowns land life, washes away soil |
-| 4 | ★ Sun | Strong starlight, dries an area | Dries floods, boosts plant growth | Drought, sunburn, deserts spread |
+| 4 | ★ Starshine | Strong starlight, dries an area | Dries floods, boosts plant growth | Drought, burns, deserts spread |
 | 5 | Rain | Steady rainfall | Feeds plants and rivers | Mud, rot, mold |
 | 6 | Drought | Stops rain | Shrinks swamps, pushes adaptation | Crop failure, famine |
 | 7 | Wind | Strong winds | Spreads seeds, spores and pollen | Erosion, knocks down trees |
@@ -115,7 +115,7 @@
 ## Space powers
 | # | Power | What it does | Plus | Minus |
 |---|---|---|---|---|
-| 81 | ★ Solar flare | A burst from your star | Auroras, can boost some life | Fries technology and satellites |
+| 81 | ★ Stellar flare | A burst from your star | Auroras, can boost some life | Fries technology and satellites |
 | 82 | Meteor | Drops a rock | Delivers minerals and water | Impact, extinction |
 | 83 | Comet | Brings ice | Water and chemistry for a planet | Impact risk |
 | 84 | Genebank meteorite | Delivers a Genebank genome ("added to the oceans or land via meteorite") | New life from other players | Invasive species |
