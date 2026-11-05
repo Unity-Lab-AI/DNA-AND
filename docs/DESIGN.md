@@ -51,9 +51,9 @@ The workflow template (`.claude/`, the template docs and installers) is project 
 
 ---
 
-## OPEN questions (waiting on the creator)
+## Open questions
 
-These are tracked in `docs/TODO.md` under "Questions for the creator".
+None right now. Rounds 1–5 below answer everything asked so far. New questions go to the creator as multiple choice, and the answers get added here word for word.
 
 ---
 

@@ -2,7 +2,7 @@
 
 > "do top 100 for everything from viruse types, aminals, insects, fish, birds, environmets, senses, abilities, and not limited to thed bit to incluse the top one hundered top onehundreds"
 
-**Status: DRAFT, waiting for the creator's approval.** Below are 100 proposed categories. Once they're approved or changed, each one gets filled with its top 100 entries, for 10,000 entries in all. The categories you named yourself are marked ★.
+**Status: APPROVED** ("Use them as is"). Below are the 100 categories. Each one gets filled with its top 100 entries, real ones plus game-invented ones, for 10,000 entries in all. The categories you named yourself are marked ★.
 
 ## Life
 1. ★ Virus types
@@ -116,6 +116,5 @@
 99. Colors and patterns of life
 100. Genebank genome kinds
 
-## Questions on this list
-- Does this look right, or do you want to swap any out?
-- **Answered:** "real and dynamic invented combo procedurally". Real entries plus game-invented ones.
+## Decisions on this list
+- Entries: "real and dynamic invented combo procedurally". Real entries plus game-invented ones.

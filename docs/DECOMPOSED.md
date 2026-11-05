@@ -34,13 +34,91 @@ YOLO mode picks the next decomposed task in cascade order — current minor's pe
 
 ## In progress
 
-_(none — bootstrap state. First decomposed tasks added when YOLO mode picks up its first minor task.)_
+_(none. The R1 seed tasks below come next.)_
 
 ---
 
 ## Pending
 
-_(none yet)_
+Parent: **R1 — Our own build tools (Helix)**, first minor task. Do these in order.
+
+### [ ] Write down the exact Windows exe layout the loader must produce
+
+**Parent minor task (from `docs/TODO.md`, verbatim):**
+> "Design the tiny first tool, written directly as raw machine bytes, that can turn simple text instructions into machine code"
+
+**Decomposition rationale:** The loader's output has to be a valid Windows exe, so the layout comes first.
+
+**Files to touch:** `wiki/systems/r01-toolchain.md`
+
+**Verification step:** The layout page lists every required header field and its value, checked against how Windows loads programs.
+
+### [ ] Define the hex text input format
+
+**Parent minor task (from `docs/TODO.md`, verbatim):**
+> "Design the tiny first tool, written directly as raw machine bytes, that can turn simple text instructions into machine code"
+
+**Decomposition rationale:** Defines what the loader reads: hex digit pairs, with comments and whitespace ignored.
+
+**Files to touch:** `wiki/systems/r01-toolchain.md`, `docs/HOW-TO-BUILD.md`
+
+**Verification step:** A sample input file and its expected output bytes are written side by side.
+
+### [ ] Hand-write the loader as raw bytes, with every byte commented
+
+**Parent minor task (from `docs/TODO.md`, verbatim):**
+> "Design the tiny first tool, written directly as raw machine bytes, that can turn simple text instructions into machine code"
+
+**Decomposition rationale:** The seed itself. It's the only program ever typed in by hand.
+
+**Files to touch:** `src/toolchain/seed/` (new)
+
+**Verification step:** Every byte has a comment saying what it does, and the byte count matches the plan.
+
+### [ ] Create the seed exe file from those bytes
+
+**Parent minor task (from `docs/TODO.md`, verbatim):**
+> "Design the tiny first tool, written directly as raw machine bytes, that can turn simple text instructions into machine code"
+
+**Decomposition rationale:** Turns the commented bytes into the actual file on disk.
+
+**Files to touch:** `src/toolchain/seed/`
+
+**Verification step:** Windows starts the file without an error.
+
+### [ ] Run the loader on the sample file
+
+**Parent minor task (from `docs/TODO.md`, verbatim):**
+> "Design the tiny first tool, written directly as raw machine bytes, that can turn simple text instructions into machine code"
+
+**Decomposition rationale:** Proves that the loader works.
+
+**Files to touch:** `src/toolchain/seed/`
+
+**Verification step:** Its output matches the expected bytes exactly.
+
+### [ ] Make the loader rebuild itself
+
+**Parent minor task (from `docs/TODO.md`, verbatim):**
+> "Design the tiny first tool, written directly as raw machine bytes, that can turn simple text instructions into machine code"
+
+**Decomposition rationale:** Proves the seed is trustworthy: written as hex text, run through itself, it must produce a byte-identical copy of itself.
+
+**Files to touch:** `src/toolchain/seed/`
+
+**Verification step:** The new copy and the original are byte-identical.
+
+### [ ] Write the step 0 section of HOW-TO-BUILD
+
+**Parent minor task (from `docs/TODO.md`, verbatim):**
+> "Design the tiny first tool, written directly as raw machine bytes, that can turn simple text instructions into machine code"
+
+**Decomposition rationale:** Builders can repeat it.
+
+**Files to touch:** `docs/HOW-TO-BUILD.md`, `wiki/systems/r01-toolchain.md`
+
+**Verification step:** Following the written steps from scratch gives the same seed exe.
+
 
 ---
 

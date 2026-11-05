@@ -35,3 +35,38 @@ Round 2 answers, verbatim: "1.windows only for now 2. sure 3.it only thing allow
 
 Files touched: `docs/DESIGN.md`, `docs/TODO.md`, `docs/FINALIZED.md`.
 
+
+---
+
+## Session 2026-11-05 (continued): lists, powers, credits, docs
+
+**Top 100 categories list.** Verbatim ask: "do top 100 for everything from viruse types, aminals, insects, fish, birds, environmets, senses, abilities, and not limited to thed bit to incluse the top one hundered top onehundreds". Approved: "Use them as is". Files: `docs/LISTS.md`.
+
+**100 god powers.** Verbatim ask: "they all need their usesas and pluses and minuses in some cases raise temp with fire lower with cold add water to flood sun to dry it up solar flare to fuck with tech, ,ect ect ect ect ect ect ectr x100". Approved: "Use them as is". Files: `docs/POWERS.md`, `docs/wiki/god-powers.md`.
+
+**Builder wiki plus in-game wiki pages.** Verbatim: "both". Files: `wiki/` (builder) and `docs/wiki/` (player pages, which the in-game wiki will read; building the in-game wiki itself stays under R13).
+
+**Credits.** Verbatim: "this deserves the unity ai lab team credits and website .com with the git and github links". Plus: "Alfreddo is Mills but he goes by Alfreddo so use that." Files: `README.md`, `docs/wiki/credits.md`.
+
+**Release links first thing in the README.** Verbatim: "should be a release page on both with link to it in the readme first thing". Both release pages are linked at the top of `README.md`. Posting actual releases is under R16.
+
+**Setup guide and how-to guides.** Files: `docs/SETUP.md`, `docs/HOW-TO-BUILD.md` (plan; exact commands are added as tools exist, tracked under R1).
+
+**All 47 open suggestions decided and applied.** Verbatim: "you need to answer all the aBCD ..mds for best answers for everything based on beding A AAAA Game like nothing ever seen on earth before". Files: `docs/DESIGN.md` (round 5), all of `docs/wiki/`, `wiki/`, `docs/SETUP.md`, `docs/HOW-TO-BUILD.md`, `docs/img/README.md`, `docs/suggestions/`.
+
+Original TODO lines closed here, verbatim:
+- "Top 100 categories list, for approval: \"do top 100 for everything ...\" (`docs/LISTS.md`)"
+- "100 god powers, each with uses, pluses and minuses: \"they all need their usesas ...\" (`docs/POWERS.md`)"
+- "Builder wiki for us, plus the in-game wiki (\"both\")"
+- "Unity AI Lab team credits, website and git/GitHub links: \"this deserves the unity ai lab team credits and website .com with the git and github links\""
+- "Release pages on both git.unityailab.com and GitHub, linked first thing in the README"
+- "Setup guide"
+- "How-to guides"
+- "Builder wiki and in-game wiki"
+
+**TODO and docs made proper.** Verbatim: "you need to make the todo and docs all of them proper". Changes:
+- `docs/ROADMAP.md`: blocked markers removed, every decision added to its stage, and R17 marked in progress.
+- `docs/TODO.md`: finished tasks moved here, decisions added to every task, and superseded tasks tombstoned.
+- `docs/DECOMPOSED.md`: R1's first task broken into 7 steps.
+- `docs/LISTS.md` and `docs/POWERS.md`: marked approved.
+- `docs/DESIGN.md`: the open-questions section updated.
