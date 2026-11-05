@@ -1,0 +1,302 @@
+# DNA-AND content · galaxies
+# Real seeds for the galaxy generator: galaxy types, real examples, the parts
+# galaxies are built from, the structures between galaxies, and the rules.
+# Spec: docs/CONTENT-FORMAT.md · wiki/systems/r05-universe.md
+
+# ── Galaxy types (real) ──
+
+@galaxy spiral
+name: Spiral galaxy
+real: yes
+shape: flat disk with arms winding out from a bright central bulge
+parts: bulge, disk, spiral-arms, halo, central-black-hole
+stars: young blue stars in the arms, older stars in the bulge
+gas: rich
+star-forming: yes, in the arms
+example: Andromeda Galaxy
+
+@galaxy barred-spiral
+name: Barred spiral galaxy
+real: yes
+shape: spiral arms starting from the ends of a straight bar of stars through the center
+parts: bulge, bar, disk, spiral-arms, halo, central-black-hole
+gas: rich
+star-forming: yes
+example: the Milky Way
+
+@galaxy grand-design-spiral
+name: Grand-design spiral
+real: yes
+shape: two long, clear, well-defined arms
+parts: bulge, disk, spiral-arms, halo
+star-forming: yes
+
+@galaxy flocculent-spiral
+name: Flocculent spiral
+real: yes
+shape: many short, patchy arm pieces instead of a few long arms
+parts: bulge, disk, arm-patches, halo
+star-forming: yes
+
+@galaxy elliptical
+name: Elliptical galaxy
+real: yes
+shape: smooth ball or egg of stars, from round to stretched
+parts: body, halo, central-black-hole
+stars: mostly old and red
+gas: poor
+star-forming: little or none
+example: Messier 87
+
+@galaxy giant-elliptical
+name: Giant elliptical galaxy
+real: yes
+shape: huge smooth ball of stars at the heart of a galaxy cluster
+parts: body, halo, central-black-hole, globular-clusters
+gas: poor
+example: Messier 87
+
+@galaxy lenticular
+name: Lenticular galaxy
+real: yes
+shape: a disk and bulge with no spiral arms
+parts: bulge, disk, halo
+gas: poor
+star-forming: little
+example: Sombrero Galaxy
+
+@galaxy irregular
+name: Irregular galaxy
+real: yes
+shape: no clear shape
+parts: patches, gas-clouds
+gas: rich
+star-forming: yes
+
+@galaxy magellanic-spiral
+name: Magellanic spiral
+real: yes
+shape: a small lopsided galaxy with one main arm
+parts: bar, single-arm, gas-clouds
+example: Large Magellanic Cloud
+
+@galaxy dwarf-elliptical
+name: Dwarf elliptical galaxy
+real: yes
+shape: small smooth ball of old stars
+gas: poor
+
+@galaxy dwarf-spheroidal
+name: Dwarf spheroidal galaxy
+real: yes
+shape: faint, small, loose ball of stars, often circling a big galaxy
+gas: very poor
+
+@galaxy dwarf-irregular
+name: Dwarf irregular galaxy
+real: yes
+shape: small and shapeless, with gas and young stars
+gas: rich
+
+@galaxy ultra-diffuse
+name: Ultra-diffuse galaxy
+real: yes
+shape: as wide as a big galaxy but very faint, with few stars
+
+@galaxy ring
+name: Ring galaxy
+real: yes
+shape: a ring of stars around an empty center, made when one galaxy punches through another
+cause: collision
+example: Cartwheel Galaxy
+
+@galaxy polar-ring
+name: Polar-ring galaxy
+real: yes
+shape: a ring of gas and stars circling over the galaxy's poles
+cause: capturing another galaxy's material
+
+@galaxy starburst
+name: Starburst galaxy
+real: yes
+shape: any shape, forming stars far faster than normal
+cause: often a collision or close pass
+example: Messier 82
+
+@galaxy active
+name: Active galaxy
+real: yes
+shape: any shape, with a bright feeding black hole in its core
+
+@galaxy quasar-host
+name: Quasar host galaxy
+real: yes
+shape: a galaxy whose central black hole outshines all its stars
+
+@galaxy radio
+name: Radio galaxy
+real: yes
+shape: a galaxy firing huge jets from its central black hole, glowing in radio light
+
+@galaxy interacting
+name: Interacting galaxies
+real: yes
+shape: two galaxies pulling each other out of shape, with tails of stars between them
+cause: close pass or collision
+
+# ── Real examples ──
+
+@example milky-way
+name: The Milky Way
+real: yes
+type: barred-spiral
+width-ly: 100000
+stars: 1e11..4e11
+center: Sagittarius A*, a black hole of about 4 million Sun masses
+note: our home galaxy, the Sun is in one of its arms
+
+@example andromeda
+name: Andromeda Galaxy
+real: yes
+type: spiral
+note: the nearest big galaxy, heading toward the Milky Way
+
+@example large-magellanic-cloud
+name: Large Magellanic Cloud
+real: yes
+type: magellanic-spiral
+note: a satellite galaxy of the Milky Way
+
+@example messier-87
+name: Messier 87
+real: yes
+type: giant-elliptical
+note: home of the first black hole ever photographed
+
+# ── Parts a galaxy is built from ──
+
+@part bulge
+name: Central bulge
+real: yes
+says: a thick bright crowd of mostly old stars at the center
+
+@part bar
+name: Bar
+real: yes
+says: a straight band of stars through the center
+
+@part disk
+name: Disk
+real: yes
+says: the thin flat plane holding most stars, gas and dust
+
+@part spiral-arms
+name: Spiral arms
+real: yes
+says: bright bands of young stars and gas winding out from the center
+
+@part halo
+name: Halo
+real: yes
+says: a faint round cloud of old stars and globular clusters around the whole galaxy
+
+@part central-black-hole
+name: Central black hole
+real: yes
+says: a supermassive black hole at the heart of most big galaxies
+
+@part globular-clusters
+name: Globular clusters
+real: yes
+says: tight balls of ancient stars orbiting in the halo
+
+@part dust-lanes
+name: Dust lanes
+real: yes
+says: dark streaks of dust along the arms
+
+@part star-forming-regions
+name: Star-forming regions
+real: yes
+says: glowing nebulas where new stars are born, mostly in the arms
+
+@part tidal-tails
+name: Tidal tails
+real: yes
+says: long streams of stars pulled out by a passing galaxy
+
+# ── Structures between galaxies ──
+
+@structure galaxy-pair
+name: Galaxy pair
+real: yes
+says: two galaxies bound together by gravity
+
+@structure galaxy-group
+name: Galaxy group
+real: yes
+says: a few dozen galaxies bound together
+example: the Local Group, home of the Milky Way and Andromeda
+
+@structure galaxy-cluster
+name: Galaxy cluster
+real: yes
+says: hundreds to thousands of galaxies bound together, filled with hot gas
+
+@structure supercluster
+name: Supercluster
+real: yes
+says: groups and clusters strung together over vast distances
+
+@structure filament
+name: Cosmic filament
+real: yes
+says: long threads of galaxies and gas, the strands of the cosmic web
+
+@structure void
+name: Cosmic void
+real: yes
+says: huge nearly empty spaces between the filaments
+
+# ── Generator rules ──
+
+@rule galaxy-seed
+real: rule
+says: every galaxy is generated live from the world seed (LAW 14); nothing is pre-built
+
+@rule galaxy-size
+real: rule
+says: the player picks Small, Medium, Large or Massive; size sets how many stars and systems the galaxy holds
+open: the star count for each size is not decided yet, ask the creator before coding (LAW 3)
+
+@rule galaxy-type-pick
+real: rule
+says: the type decides which parts are used; spirals get arms, ellipticals don't, irregulars get patches
+
+@rule galaxy-gas
+real: rule
+says: gas-rich galaxies keep forming new stars; gas-poor galaxies hold mostly old stars
+
+@rule galaxy-arms
+real: rule
+says: young blue stars, nebulas and star-forming regions sit in the arms; old red stars sit in the bulge and halo
+
+@rule galaxy-center
+real: rule
+says: big galaxies get a supermassive black hole at the center; some feed it and become active
+
+@rule galaxy-neighbors
+real: rule
+says: a world can hold more than one galaxy; extra galaxies sit in pairs, groups or clusters along filaments, with voids between
+
+@rule galaxy-collisions
+real: rule
+says: galaxies that pass close pull out tidal tails, may trigger a starburst, and can merge into one
+
+@rule galaxy-satellites
+real: rule
+says: big galaxies are circled by dwarf and satellite galaxies
+
+@rule galaxy-name
+real: rule
+says: only our own galaxy is the Milky Way and only our own star is the Sun; generated ones get generated names
