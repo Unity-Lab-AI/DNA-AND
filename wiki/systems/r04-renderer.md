@@ -1,8 +1,8 @@
 ---
 title: R4 · Renderer
-status: draft
-sources: [docs/DESIGN.md (round 1, round 4), docs/ROADMAP.md#R4]
-last-verified: none (plan only)
+status: verified
+sources: [docs/DESIGN.md (round 1, round 4, items 62-76), docs/ROADMAP.md#R4, src/render/, src/gen/PlanetTerrain.cs, src/shell/PlanetView.cs]
+last-verified: 034010e
 ---
 
 # 🎨 R4 · Renderer
@@ -36,14 +36,13 @@ All icons and art come from the game's own generator: creatures from genomes, pl
 
 ## 🎨 Style samples come first
 
-No final art style is locked in until the creator compares samples (`docs/DESIGN.md`, round 6).
+The art style is locked: **Populous-like (faceted low-poly, tilted 3D god view), for everything** (`docs/DESIGN.md`, items 61, 65, 67). The other two styles were compared and dropped, and their code is gone.
 
 | | |
 |---|---|
-| 🖼️ **What** | 3 examples of each subject, each drawn in 3 styles: 9 pictures per subject |
-| 🎨 **Styles** | RimWorld-like (flat, top-down), Populous-like (low-poly 3D god view), Stardew-like (pixel art), all original |
+| 🖼️ **What** | Each sample set opens on its own (`--set2`, `--set3`, `--set4`); Keepers are ticked from the menu and saved in `picks.txt` |
+| ✅ **Approved** | Set 1 galaxies, set 2 solar systems, set 3 stars, set 4 planets and gas giants (pictures in `docs/samples/`) |
 | 🪶 **Rule** | Light on the graphics card. Thousands of living things move and spread at once |
-| ⏱️ **When** | Right after the basic renderer works |
 
 Subjects: microbes, viruses, intelligent creatures, a handful of other living things, galaxy and solar system layouts, planets, stars, gas giants, Dyson spheres, spaceships, space colonies, space stations, resource fields, and all 118 elements.
 
@@ -57,7 +56,18 @@ The renderer draws what the live generators build. Every asset is generated on t
 
 ## 🔨 Built so far
 
-See `src/` and the TODO for what exists. Display safety: windowed only, vsync, Alt+Enter blocked, an in-game watchdog, and timed test runs that are force-closed if they overrun.
+| Part | How it works | Where |
+|---|---|---|
+| 💡 Billboards | Glowing or faceted points for stars, gas, rings, weather; they test depth but never write it | `src/render/Pipeline.cs`, `Draw.cs` |
+| 🧱 Solid ground | Flat-shaded triangles lit by one star; three modes: solid, glowing air (adds light), see-through (clouds, water) | `src/render/MeshPipeline.cs` |
+| 🕳️ Depth | A depth buffer, so the ground hides what is behind it | `src/render/Gpu.cs` |
+| 🌍 Planets | A cube blown into a ball; each face splits into smaller pieces near the camera (up to 40 levels, about a micrometre). Pieces are made nearest first, a few milliseconds per frame. Layers: ground and sea floor, see-through sea, turning clouds, a glowing air shell | `src/gen/PlanetTerrain.cs` |
+| 🪂 Fly-down | Orbit to the surface, then on down to micrometres; the camera always lands on finished ground; rain, snow, ash or dust under clouds; under water it turns dark and murky | `src/shell/PlanetView.cs` |
+| 📷 Own pictures | `--shot <s> <file.bmp>` copies the finished frame off the graphics card; `--tour <name> <km,...>` takes one per height | `src/render/Gpu.cs`, `src/Program.cs` |
+
+Everything is drawn relative to the camera in double precision, so nothing shakes from galaxy size down to micrometres.
+
+Display safety: windowed only, vsync, Alt+Enter blocked, an in-game watchdog, a keep-or-revert pop-up on test runs, and timed test runs that are force-closed if they overrun.
 
 ## 🎨 Locked styles
 

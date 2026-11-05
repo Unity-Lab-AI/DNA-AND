@@ -51,6 +51,25 @@ And somewhere along the way, they start to wonder **who you are**.
 
 ## 📸 A look inside
 
+Straight from the game, drawn live by its own generators:
+
+<table>
+<tr>
+<td width="50%"><img src="docs/samples/set4-planets.png" alt="Nine kinds of planet and giant, each with its own air, clouds and storms" title="Nine kinds of planet and giant"><br><b>🪐 Every world is different.</b> Earth-like, ocean, desert, lava, snowball, tidally locked, and giants with rings and storms.</td>
+<td width="50%"><img src="docs/samples/planet-at-2-m.png" alt="Standing on bare rocky ground, two metres up" title="Two metres above the ground"><br><b>🔎 Zoom all the way down.</b> From orbit to standing on the ground, and on down to the size of a microbe.</td>
+</tr>
+<tr>
+<td><img src="docs/samples/planet-from-20-km.png" alt="A coastline and plains seen from 20 km up" title="20 km up"><br><b>🏔️ Real land.</b> Seas, coasts, soil, rock and snow, rough at every size.</td>
+<td><img src="docs/samples/gas-giant.png" alt="A banded gas giant with a great red storm" title="A gas giant"><br><b>🌀 Giants with weather.</b> Wind-curled bands, storms and high clouds you can fly down into.</td>
+</tr>
+<tr>
+<td><img src="docs/samples/set3-stars.png" alt="Nine kinds of star, each with moving plasma and a corona" title="Nine kinds of star"><br><b>⭐ Living stars.</b> Boiling plasma, spots and coronas, from red dwarfs to pulsars.</td>
+<td><img src="docs/samples/set1-galaxies.png" alt="A spiral, a barred spiral and an elliptical galaxy" title="Three galaxies"><br><b>🌌 Whole galaxies.</b> Click one and fly into it, down to a single star's planets.</td>
+</tr>
+</table>
+
+Still to come:
+
 <table>
 <tr>
 <td width="50%">

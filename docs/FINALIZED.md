@@ -141,3 +141,13 @@ Added LAW 15.
 - README, LISTS, ROADMAP, the generator list, glossary, FAQ, CONTENT-FORMAT and the builder index
 
 LAW 11 now includes a content-coverage check.
+
+## 2026-11-05 — Sample sets 1–4, style locked
+
+- [x] Lock in the chosen style, recorded verbatim in `docs/DESIGN.md`. Locked: Populous-like for everything, "yup same one the center one is the best, dont need to test them twice".
+- [x] Samples: Galaxy layouts (3 examples × 3 styles). Approved: "center column is all 100% go for all theri variations of galaxies".
+- [x] Samples: Solar system layouts (3 examples × 3 styles). Approved: "the center one is the best center row center column".
+- [x] Samples: Stars (3 examples × 3 styles). Approved: "okay thoise are good to be templetes for all the variatiosn and colors and sizes like real starts".
+- [x] Samples: Planets (3 examples × 3 styles). Approved: "okay marked em all they look good".
+- [x] Samples: Gas giants (3 examples × 3 styles). Approved with set 4: "okay marked em all they look good".
+- Clean-up: "only keep the keeps on all the images and stuff weve taken and push with out all the dead weight of failures". Test pictures were deleted, the rejected styles were removed from the code, and the keeper pictures were saved in `docs/samples/`.

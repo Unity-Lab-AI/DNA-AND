@@ -27,7 +27,7 @@ That's it. Nothing to download or install.
 
 🔭 **Samples:** run `build\DNA-AND.exe`, then click a galaxy to zoom deep into it. Scroll to zoom, drag to rotate, **Enter** visits the star in the middle, **H** goes to the core black hole, **1–5** set time speed, **Space** pauses, and **Esc** or **right-click** goes back.
 
-🧪 **Look-around test:** `test.cmd` opens the game and leaves it running. Every 2 minutes a countdown bar appears across the top; press **K** to keep it running. If you don't answer within 15 seconds, it closes itself safely.
+🧪 **Look-around test:** `test.cmd` opens the game and leaves it running. Every 2 minutes a pop-up asks whether to keep it running: **Yes** keeps going, **No** closes it safely, and no answer within 15 seconds closes it safely too. The menu bar has **Exit**, **Keep going or revert**, **Keepers** (tick the samples you like; they're saved in `picks.txt`) and **Legend** (what each sample is, and the controls).
 
 ⏱️ **Quick check:** `test.cmd 3000` runs for 3 seconds and closes.
 

@@ -593,3 +593,44 @@ Everything the creator has said about this project, in order. Short process repl
     - The set 1 pick is corrected to the center column (Populous-like).
 60. "middle row is 100% trash, center column are best". The barred spiral (middle row) was rebuilt with a thick oval bar, an inner ring and arms from the bar tips. Populous-like (center column) is confirmed.
 61. **Galaxy style locked:** "center column is all 100% go for all theri variations of galaxies"
+62. "thosae all had motion way way too fast" / "and they are still only appear for split seconds". Changes:
+    - Nothing on screen moves faster than 0.05 rad/s, one lap in about 2 minutes.
+    - The sample spin is 4× slower.
+    - The game is now launched properly, so it stays open.
+63. "why do the solar systems have ciclre sof planets on orbit thats not normal and in error the tests are opnly staying open for split seconds when they need a proper continue/revert option on tests with push button pop up and a exit button and selections to mark the good ones on tests" / "it needa legend and like i said the proepr safty buttons" / "and the selctions to mark keepers". Changes:
+    - The dotted orbit rings are gone, and each planet is a single slow dot.
+    - There's a Windows pop-up: Yes keeps going, No reverts, and no answer in 15 s reverts.
+    - The menu bar has Exit, Keep going or revert, Keepers and Legend. Keepers has a tick box for each sample, and right-click toggles a green frame.
+    - Picks are saved to picks.txt.
+64. "u have to open them up one at a time as u didnt design the tester well enough to not be fucking complicated". Each sample set now opens on its own, with no set switching.
+65. **Solar system style locked:** "middle column only thing is zoom isnt deep enough to planet level". Populous-like (center column). Added: click a planet to follow it, and the wheel zooms down to planet size.
+66. "the center one is the best center row center column". The best solar system sample is the compact red-dwarf system (center row) in Populous-like (center column).
+67. **Art style locked for everything:** "yup same one the center one is the best, dont need to test them twice". Populous-like is the game's art style. The sample sets that remain show only that style; there is no more style comparison.
+68. "they all look white those need the texture and color of stars tho not just white circles so like star texture of plasma, i like the coronas tho". Changes: only the facing side of each star is drawn, with points that just touch, so the colour no longer burns out to white. The surface is moving plasma (boiling cells, darker redder gaps, a darker edge). The coronas are unchanged.
+69. "bottom right doesnt look good but all the other variations are good". The other 8 stars are approved. The brown dwarf (bottom right) had no colour in content, so it showed white. It now has `color: magenta-red`, cloud bands with round storms, and a faint warm haze.
+70. **Stars approved as templates:** "okay thoise are good to be templetes for all the variatiosn and colors and sizes like real starts". The 9 set-3 stars are the templates. Every star kind in stars.dnat is to be generated from them, with real colours and real sizes.
+71. "something is wrong i dont see andy land and cant zoom to the serface to the full huge landscape of the planets with everything on them but life". Changes:
+    - Planets are now solid faceted ground: a depth buffer and a triangle pipeline.
+    - Each planet is a cube-sphere whose patches split near the camera, down to a few metres.
+    - Height and colour come from our own noise in double precision.
+    - The ground has no life: rock, soil, clay, gravel, sand, salt, snow, ice, water and lava.
+    - Left-click a planet in set 4 to fly down to it. The wheel sets the height from orbit to standing height, drag or W A S D moves, and Q and E turn.
+    - The game can save its own picture (`--shot`), so the work can be checked.
+72. "that looks good" (said while the fly-down pictures were on screen).
+73. "okay thoses single tests u did worked but these test all have issues and i dont see atmospher and weather on any off them and most in this set dont zoom to sutrfacer/microbe scale they max out on zoom and water isnt figured and its like zooming beneeth the ground beneth water is fine but it should zome in too surface first before we go micro". Changes:
+    - Every planet has a glowing air shell, a moving cloud layer and weather near the ground (rain, snow, ash or dust).
+    - The water is see-through, catches the starlight, lies over a real sea floor, and can be gone under.
+    - The zoom lands on the surface first, then keeps going down to about a micrometre. The camera stays on finished ground, so it never ends up inside it.
+    - The ground is rough at every size.
+    - Each piece of ground now measures its distance from the real ground height, not sea level.
+74. "the gt clored planets wthey need lcosuds and stuff not just a orb" / "neptune and jupitor ones look blah the gas giants". Changes:
+    - The giants have wind-curled bands, many storms (a great red one, white ovals, dark ones on the ice giant) and a high cloud deck.
+    - Their puffy deep cloud tops can be flown down to. Giants have no ground.
+    - Lava worlds show glowing cracks and rivers.
+75. "you grid of 9 is all fucked up when i zoom it it bairly even zooms in and the y all go toskeletons like im inside oall of them, but the single stests were all good, something is worng with the 9 grid semple test that its not propelry working like the single tests were, that were all good". Cause: the grid wheel moved every camera toward the planet centres with no surface check. Fix: the planet grid cameras stay fixed. Rolling the wheel over a planet (or clicking it) opens that planet's own fly-down from the same distance, and Esc returns to the grid.
+76. **Set 4 approved:** "okay marked em all they look good". All 9 planets and giants are keepers (picks.txt).
+77. "only keep the keeps on all the images and stuff weve taken and push with out all the dead weight of failures". Changes:
+    - All test pictures were deleted.
+    - The RimWorld-like and Stardew-like styles were removed from the code, including the shader and the sample grids. Sets 1 and 2 now show one Populous-like view per row.
+    - The old dotted-planet code was removed.
+    - Only the keepers were pictured again, into `docs/samples/`, then pushed.

@@ -29,7 +29,7 @@ cbuffer C : register(b0)
     row_major float4x4 viewProj;
     float4 right;   // xyz camera right
     float4 up;      // xyz camera up
-    float4 misc;    // x time, y size scale, z style, w pixel grid size
+    float4 misc;    // x time, y size scale, z style (0 glow, otherwise faceted)
     float4 screen;  // x width, y height (of this tile, in pixels), z minimum size per unit of distance
 };
 struct Star { float3 pos; float size; float4 color; };
@@ -47,18 +47,6 @@ VO VS(uint vid : SV_VertexID, uint iid : SV_InstanceID)
     float3 world = s.pos + (right.xyz * c.x + up.xyz * c.y) * size;
     VO o;
     o.pos = mul(float4(world, 1), viewProj);
-    if (misc.z > 2.5)
-    {
-        // pixel style: snap the star's centre and size to a coarse pixel grid
-        float g = misc.w;
-        float4 cc = mul(float4(s.pos, 1), viewProj);
-        float2 cn = cc.xy / cc.w;
-        float2 cpx = floor((cn * 0.5 + 0.5) * screen.xy / g) * g;
-        float2 ext = abs((o.pos.xy / o.pos.w - cn) * 0.5 * screen.xy);
-        float h = max(g * 0.5, floor(max(ext.x, ext.y) / g + 0.5) * g);
-        float2 px = cpx + c * h;
-        o.pos.xy = ((px / screen.xy) * 2 - 1) * o.pos.w;
-    }
     o.uv = c;
     o.col = s.color;
     return o;
@@ -69,21 +57,14 @@ float4 PS(VO i) : SV_Target
     float style = misc.z;
     float d = length(i.uv);
     float a;
-    if (style < 0.5)        { a = saturate(1 - d); a = a * a; }                     // smooth glow
-    else if (style < 1.5)   { a = d < 0.55 ? 1 : 0; }                               // flat, clean dots
-    else if (style < 2.5)                                                             // low-poly: faceted hexagon
+    if (style < 0.5) { a = saturate(1 - d); a = a * a; }                            // smooth glow: gas, clouds of stars, cores
+    else                                                                              // the game's look: faceted hexagons
     {
         float2 p = abs(i.uv);
         float hex = max(p.x * 0.866 + p.y * 0.5, p.y);
         a = hex < 0.7 ? 1 : 0;
         float facet = 0.75 + 0.25 * sign(i.uv.x) * sign(i.uv.y);
         return float4(i.col.rgb * facet * a, a);
-    }
-    else                                                                              // pixel art: hard square, few colours
-    {
-        a = 1;
-        float3 q = floor(i.col.rgb * 6 + 0.5) / 6;
-        return float4(q * 0.35 * a, a);
     }
     return float4(i.col.rgb * a, a);
 }
@@ -144,12 +125,13 @@ float4 PS(VO i) : SV_Target
                 Marshal.WriteInt32(p, 448, -1);     // sample mask
                 // rasterizer at 452: solid, no culling, depth clip on
                 Marshal.WriteInt32(p, 452, 3); Marshal.WriteInt32(p, 456, 1); Marshal.WriteInt32(p, 476, 1);
-                // depth/stencil at 496: depth off; valid compare funcs and stencil ops
-                Marshal.WriteInt32(p, 504, 2);
+                // depth/stencil at 496: test against depth (glows hide behind solid ground) but never write it
+                Marshal.WriteInt32(p, 496, 1); Marshal.WriteInt32(p, 500, 0); Marshal.WriteInt32(p, 504, 4);
                 for (int f = 0; f < 2; f++) { int b = 516 + f * 16; Marshal.WriteInt32(p, b, 1); Marshal.WriteInt32(p, b + 4, 1); Marshal.WriteInt32(p, b + 8, 1); Marshal.WriteInt32(p, b + 12, 8); }
                 Marshal.WriteInt32(p, 572, 3);      // triangles
                 Marshal.WriteInt32(p, 576, 1);      // one render target
                 Marshal.WriteInt32(p, 580, (int)D3D12.DXGI_FORMAT_R8G8B8A8_UNORM);
+                Marshal.WriteInt32(p, 612, (int)D3D12.DXGI_FORMAT_D32_FLOAT);   // depth format
                 Marshal.WriteInt32(p, 616, 1);      // sample count
                 Guid iid = D3D12.IID_ID3D12PipelineState;
                 Com.Check(Com.Method<CreateGraphicsPipelineStateFn>(device, 10)(device, p, ref iid, out Pipeline), "CreateGraphicsPipelineState");

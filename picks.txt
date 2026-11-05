@@ -1,0 +1,12 @@
+set 1 | Spiral galaxy | Populous-like
+set 1 | Barred spiral galaxy | Populous-like
+set 1 | Elliptical galaxy | Populous-like
+set 4 | Temperate planet | Populous-like
+set 4 | Ocean planet | Populous-like
+set 4 | Desert planet | Populous-like
+set 4 | Lava planet | Populous-like
+set 4 | Snowball planet | Populous-like
+set 4 | Tidally locked planet | Populous-like
+set 4 | Gas giant | Populous-like
+set 4 | Ice giant | Populous-like
+set 4 | Hot Jupiter | Populous-like

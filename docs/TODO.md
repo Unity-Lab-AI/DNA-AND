@@ -209,12 +209,13 @@ Order: galactic scale down, the same order as the sample sets.
 - [ ] Species-driven asset generation: cities, ships and stations built from the species' own genes and body plan: "ie insect species has insect spaceships ansd insect cities"
 **Spec:** `wiki/systems/r04-renderer.md#-style-samples-come-first`, `docs/DESIGN.md` round 6
 
-- [ ] Style samples, 3 samples × 3 styles: "remembr we arent using other peoples shit unless we absoulutley have to so plan on buiolding it all and things like ingame microbes viruses and intelligernt creature should all have samples 1,2,3 made in 3 diffeernt styles 1,2,3 for a hand ful of things in the game before we go with any one style and same for things like the galaxy layouts solarsystem layouts and planets and stars and dyson spheres and space ships and space colonires ands space stations and rouseource firleds and gas giants and athe whole periodic table of elements"
+- [~] Style samples, 3 samples × 3 styles: "remembr we arent using other peoples shit unless we absoulutley have to so plan on buiolding it all and things like ingame microbes viruses and intelligernt creature should all have samples 1,2,3 made in 3 diffeernt styles 1,2,3 for a hand ful of things in the game before we go with any one style and same for things like the galaxy layouts solarsystem layouts and planets and stars and dyson spheres and space ships and space colonires ands space stations and rouseource firleds and gas giants and athe whole periodic table of elements"
   - Styles: RimWorld-like, Populous-like, Stardew-like, all drawn originally by us: "try a rimworld like and a, populous like, and a stardew like".
   - Light on the GPU, built for living things that move and spread: "not one thats too gpu intense and these will be living things in the environment moving and spreading as told before".
   - Waits on R4's basic renderer: "we cant do em till you build tyhier egine and shit".
 - [ ] Side-by-side comparison sheet of every subject, for the creator to pick one style
-- [ ] Lock in the chosen style, recorded verbatim in `docs/DESIGN.md`
+- [x] Lock in the chosen style, recorded verbatim in `docs/DESIGN.md`
+  - Locked: Populous-like for everything, "yup same one the center one is the best, dont need to test them twice" (DESIGN.md item 67).
 
 ### R5 — Universe
 **Spec:** `wiki/systems/r05-universe.md`, `docs/wiki/space-and-dyson-spheres.md`
@@ -583,11 +584,11 @@ Order: galactic scale down, the same order as the sample sets.
   - Samples: Viruses (3 examples × 3 styles)
   - Samples: Intelligent creatures (3 examples × 3 styles)
   - Samples: A handful of other living things (plants, insects, animals, fish, birds) (3 examples × 3 styles)
-  - Samples: Galaxy layouts (3 examples × 3 styles)
-  - Samples: Solar system layouts (3 examples × 3 styles)
-  - Samples: Planets (3 examples × 3 styles)
-  - Samples: Stars (3 examples × 3 styles)
-  - Samples: Gas giants (3 examples × 3 styles)
+  - [x] Samples: Galaxy layouts (3 examples × 3 styles)
+  - [x] Samples: Solar system layouts (3 examples × 3 styles)
+  - [x] Samples: Planets (3 examples × 3 styles)
+  - [x] Samples: Stars (3 examples × 3 styles)
+  - [x] Samples: Gas giants (3 examples × 3 styles)
   - Samples: Dyson spheres (3 examples × 3 styles)
   - Samples: Space ships (3 examples × 3 styles)
   - Samples: Space colonies (3 examples × 3 styles)
@@ -596,3 +597,5 @@ Order: galactic scale down, the same order as the sample sets.
   - Samples: The whole periodic table of elements (all 118) (3 examples × 3 styles)
 - **"Combined score from all the categories"** (R15). Replaced by the creator's round 4 answer: "life in your galaxy and life \"havested\"". The new task is under R15.
 - **"Power list (`docs/POWERS.md`)"** (R11). The list itself is done (see FINALIZED). Replaced by "Build all 100 powers from the power list".
+- [ ] **Stars from the templates:** "okay thoise are good to be templetes for all the variatiosn and colors and sizes like real starts". Build every star kind in content/stars.dnat from the approved set-3 templates, with real colours and real sizes.
+- [ ] **Remaining sample sets in the locked style only:** "yup same one the center one is the best, dont need to test them twice". Sets 4–17 show only the Populous-like style.

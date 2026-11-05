@@ -137,6 +137,7 @@ name: Brown dwarf
 real: yes
 mass-jupiter: 13..80
 stage: too light to burn like a true star
+color: magenta-red
 tags: dim, failed star
 
 # ── Dead and strange stars ──
