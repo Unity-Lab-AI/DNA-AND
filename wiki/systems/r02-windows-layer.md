@@ -25,3 +25,7 @@ The only code we don't write is **Windows itself** and the **graphics card drive
 
 ## 🔮 Later
 Mac and Linux each get their own version of this layer. Everything above it stays the same.
+
+## 🔨 Built so far
+
+See `src/` and the TODO for what exists. Display safety: windowed only, vsync, Alt+Enter blocked, an in-game watchdog, and timed test runs that are force-closed if they overrun.
