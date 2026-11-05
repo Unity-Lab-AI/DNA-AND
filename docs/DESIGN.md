@@ -583,3 +583,4 @@ Everything the creator has said about this project, in order. Short process repl
     - The watchdog pauses while the window is moved or resized, and the stall limit is now 6 s.
     - New `play.cmd` with no timer.
     - The set 1 pick is corrected to the center column (Populous-like).
+60. "middle row is 100% trash, center column are best". The barred spiral (middle row) was rebuilt with a thick oval bar, an inner ring and arms from the bar tips. Populous-like (center column) is confirmed.
