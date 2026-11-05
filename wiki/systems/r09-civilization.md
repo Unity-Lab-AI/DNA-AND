@@ -45,3 +45,11 @@ Civilization is not only for apes. Any line that evolves intelligence climbs the
 - 100 tech branches in 10 families, and 100 harvest steps, one per age (`docs/wiki/tech-tree.md`).
 - 100 kinds of society in 5 groups: rule, trade, family, belief, law (`docs/wiki/society.md`).
 - 100 Dark Harvest methods, each gated by age (`docs/wiki/dark-harvest.md`).
+
+## 📦 Content (build from these)
+
+This system is built from these researched content files (`docs/CONTENT-FORMAT.md`). Every entry and every rule in them is part of the spec (WORK-LAWS LAW 1).
+
+- `content/cities.dnat`: 50 entries (Settlement sizes, Layouts, Districts, Infrastructure, in rough order of invention, Building materials by age) and 8 rules
+- `content/life/intelligent.dnat`: 29 entries (Real thinking animals (seeds), Signs of a mind, What pushes a line toward intelligence) and 5 rules
+- `content/resource-fields.dnat`: 26 entries (Made by magma, Made by hot fluids, Made by water and time, Made by weather, Fields in space) and 6 rules

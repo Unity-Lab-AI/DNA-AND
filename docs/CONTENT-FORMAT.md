@@ -84,6 +84,34 @@ The sample subjects come first (round 15): planets, stars, gas giants, Dyson sph
 
 ---
 
+### Current files
+
+- `content/black-holes.dnat`
+- `content/cities.dnat`
+- `content/elements.dnat`
+- `content/galaxies.dnat`
+- `content/gas-giants.dnat`
+- `content/life/animals.dnat`
+- `content/life/archaea.dnat`
+- `content/life/bacteria.dnat`
+- `content/life/extinct.dnat`
+- `content/life/fungi.dnat`
+- `content/life/intelligent.dnat`
+- `content/life/plants.dnat`
+- `content/life/protists.dnat`
+- `content/life/viruses.dnat`
+- `content/moons.dnat`
+- `content/nebulas.dnat`
+- `content/physics.dnat`
+- `content/planets.dnat`
+- `content/resource-fields.dnat`
+- `content/small-bodies.dnat`
+- `content/solar-systems.dnat`
+- `content/space-tech.dnat`
+- `content/stars.dnat`
+
+`real:` values in use: `yes`, `hypothetical`, `game` (for example hyperdrives and world grinders), and `rule`.
+
 ## ⚙️ Text to binary (later)
 
 Our own toolchain (R1) gets a content compiler. It reads every `.dnat` file, checks it against this page, and writes the binary the game loads. Until that exists, these text files are the content.

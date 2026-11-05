@@ -502,3 +502,12 @@ Everything the creator has said about this project, in order. Short process repl
 47. "dont forget the forces of nature weak and nuclear forces of atoms pysics electormagnatisim magma in plantes that arte tectonic with magnic fields and shit come one wwhat about gravity and atmosphers". Added `content/physics.dnat` (researched) and the public page `docs/wiki/forces-of-nature.md`.
 48. "okay hit it all in order and keep at it we dont have to push constantly we have local git so shit stop wasting some much time on house keeping but docs shall all ways saty uptoday and checked for stallness"
 49. "dont forget extinct animals" / "dinosars...ectectect". Added `content/life/extinct.dnat`.
+50. **Scope sync review:** "what all in the files insnt persisteeted where needed in other files i mean documents doumenting the gems work to be done. i think the orignal game scope has gotten deeeper which really has put the readme way out of date which means alot of filers potentioally are too" / "yes final fix and improvement plan of the todo and documents". Fixes:
+    - Every builder spec now lists its content files.
+    - 23 TODO build tasks were added, with every rule as a sub-task, plus 4 new generators.
+    - 6 new player pages: deep-sky, worlds-and-moons, lifes-kingdoms, lost-worlds, cities, riches-of-the-land.
+    - README: new sections and a numbers table.
+    - LISTS: a "Seeded in" column.
+    - ROADMAP: content lines.
+    - Glossary and FAQ: terms and questions swapped.
+    - LAW 11: a content-coverage check.

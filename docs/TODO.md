@@ -75,7 +75,7 @@ Order: galactic scale down, the same order as the sample sets.
 - [x] Content: Bacteria: every phylum down to species in `content/life/bacteria.dnat` (researched seeds; the game fills each rank to 100)
 - [x] Content: Viruses: every group down to type in `content/life/viruses.dnat` (researched seeds; the game fills each rank to 100)
 - [x] Content: Elements, all 118, in `content/elements.dnat`
-- [ ] Then: seeds and rules for the rest of the 100 categories
+- [ ] Then: seeds and rules for the rest of the 100 categories: 31 not seeded and 42 partly seeded (see "Seeded in" in `docs/LISTS.md`)
 - [x] Content: Extinct life, dinosaurs and mass extinctions in `content/life/extinct.dnat`: "dont forget extinct animals" / "dinosars...ectectect"
 - [x] Content: Physics, black holes, moons, small bodies, nebulas, resource fields, space tech, cities and elements (all researched)
 - [ ] Content compiler (part of R1): `.dnat` text → our binary
@@ -117,6 +117,21 @@ Order: galactic scale down, the same order as the sample sets.
 ### R3 — Engine core
 - [ ] Physics core: all four forces drive the sim (gravity, electromagnetism, strong, weak), per `content/physics.dnat`
 **Spec:** `wiki/systems/r03-engine-core.md`
+- [ ] Build from `content/elements.dnat`: all 118 entries (Main) and these rules:
+  - [ ] element-protons: an atom's proton count is its element number; neutrons give isotopes (content/physics.dnat)
+  - [ ] element-paint: any natural element can be painted into the world from the element tree; lab-made ones (93 and up) unlock once a civilization first creates them
+  - [ ] element-chemistry: elements combine by their chemistry into compounds, minerals, air and the molecules of life
+  - [ ] element-abundance: hydrogen and helium are by far the most common elements in stars and giants; rocky worlds are mostly oxygen, silicon, iron and magnesium
+  - [ ] element-heavy: heavy elements are made in stars and supernovas and spread by them; young galaxies have fewer of them
+- [ ] Build from `content/physics.dnat`: all 49 entries (The four forces of nature, Particles and atoms, Inside a planet, What moves inside a planet, Atmospheres) and these rules:
+  - [ ] physics-forces: all four forces run the simulation: gravity for orbits, tides, air and collapse; electromagnetism for light, chemistry and magnetism; the strong force for fusion and fission; the weak force for radioactive decay
+  - [ ] physics-elements: an atom's protons decide its element (all 118); neutrons decide its isotope; unstable isotopes decay over time
+  - [ ] physics-gravity-air: a planet keeps its air if its gravity is strong and its air is cold; small, hot worlds lose it
+  - [ ] physics-interior: every rocky planet gets layers (core, mantle, crust); heat from inside drives convection, then plate tectonics or a stagnant lid, then volcanoes
+  - [ ] physics-dynamo: a liquid metal core plus spin makes a magnetic field; it can switch off and back on; the field shapes auroras and radiation at the surface
+  - [ ] physics-tectonics: moving plates build mountains, trenches, volcano chains and quakes, recycle the crust, and help keep the climate steady
+  - [ ] physics-greenhouse: greenhouse gases warm a planet; too much can run away into a Venus-like world
+  - [ ] physics-tech: civilizations climb the forces in order: fire and chemistry (electromagnetism), electricity and magnetism, then fission and fusion (the strong force), then mastery of gravity for space travel
 
 - [ ] Math: vectors, matrices, noise, seeded random numbers
   - Our own seeded random generator. 64-bit positions with a moving origin.
@@ -160,6 +175,10 @@ Order: galactic scale down, the same order as the sample sets.
 - [ ] Element generator
 - [ ] Weather & effect generator
 - [ ] Sound generator
+- [ ] Black hole & active core generator
+- [ ] Nebula generator
+- [ ] Small body generator
+- [ ] Fossil & ruin generator
 
 ### R4.5 — Art style samples
 - [ ] Live sample viewer, its own window, moving and rotatable: "Live viewer, moving (Suggested)"
@@ -198,6 +217,60 @@ Order: galactic scale down, the same order as the sample sets.
 
 ### R5 — Universe
 **Spec:** `wiki/systems/r05-universe.md`, `docs/wiki/space-and-dyson-spheres.md`
+- [ ] Build from `content/small-bodies.dnat`: all 39 entries (Asteroids by makeup, Asteroids by orbit, Comets, Dwarf planets and far bodies, Meteors and meteorites) and these rules:
+  - [ ] small-seed: every asteroid, comet and dwarf planet is generated live from the world seed; nothing is pre-built
+  - [ ] small-makeup-by-distance: stony asteroids are more common close to the star, dark carbon-rich ones farther out, icy bodies beyond the frost line
+  - [ ] small-comet-source: short-period comets come from the Kuiper belt and scattered disk; long-period comets fall in from the Oort cloud
+  - [ ] small-comet-tails: comets grow a coma and two tails only near their star; the ion tail always points away from the star
+  - [ ] small-impacts: near-planet asteroids and falling comets can hit worlds; impact size and effect follow the 10 impact sizes on the space page
+  - [ ] small-meteorites: a meteorite's type follows the asteroid it came from; carbon-rich ones can deliver the chemistry of life
+  - [ ] small-resources: metal asteroids are mined for metals, icy bodies and comets for water and fuel, carbon-rich asteroids for life chemistry
+- [ ] Build from `content/nebulas.dnat`: all 12 entries (The five main kinds, Star-forming structures) and these rules:
+  - [ ] nebula-seed: every nebula is generated live from the world seed; nothing is pre-built
+  - [ ] nebula-light: a cloud glows red if hot stars light it from inside, blue if it reflects starlight, and black if there's no light behind it
+  - [ ] nebula-birth: molecular clouds and their globules and pillars collapse into new stars and solar systems over time
+  - [ ] nebula-death: dying Sun-like stars leave planetary nebulas; exploding heavy stars leave supernova remnants that seed new clouds with heavy elements
+  - [ ] nebula-place: star-forming nebulas sit mostly in a galaxy's spiral arms
+  - [ ] nebula-travel: thick nebulas block sight and slow travel; they are also rich in gas resources
+- [ ] Build from `content/black-holes.dnat`: all 35 entries (Kinds of black hole, Parts, Active galaxy cores (a feeding supermassive black hole), Events, Real examples) and these rules:
+  - [ ] bh-seed: every black hole is generated live from the world seed; nothing is pre-built
+  - [ ] bh-mass-kind: mass decides the kind: stellar from dead heavy stars, intermediate from mergers, supermassive at galaxy centers
+  - [ ] bh-feeding: a black hole with gas falling in grows a hot disk and may fire jets; a starved one stays dark
+  - [ ] bh-view-angle: one feeding core looks different from different angles: a blazar seen down the jet, a quasar or Seyfert 1 seen from above, a Seyfert 2 seen through the dust
+  - [ ] bh-spin-energy: energy can be drawn from a spinning black hole's ergosphere; advanced civilizations can tap it
+  - [ ] bh-danger: close in, tides tear apart stars, planets and ships; jets sterilize anything in their path
+  - [ ] bh-hypothetical: primordial black holes are hypothetical; the game may generate them, marked as such
+- [ ] Build from `content/stars.dnat`: all 34 entries (Main-sequence stars (the seven classic types), Giants and supergiants, Young and failed stars, Dead and strange stars, Luminosity classes (how bright for its type), Extra star types) and these rules:
+  - [ ] star-color: color follows surface temperature, from red (coolest) to blue (hottest)
+  - [ ] star-life: heavier stars burn hotter and die sooner, lighter stars burn cooler and live longer
+  - [ ] star-pick: when a galaxy is generated, red dwarfs are by far the most common and blue stars the rarest
+  - [ ] star-vary: every generated star picks its values from inside its type's ranges, from the world seed
+  - [ ] star-name: only our own star is called the Sun; every other star is a star
+- [ ] Build from `content/solar-systems.dnat`: all 31 entries (Kinds of systems (real), Real examples, Zones a system is built from) and these rules:
+  - [ ] system-resonance: young planets often drift into locked resonant chains; most chains later break apart
+  - [ ] system-hill-sphere: a moon can only stay with a planet inside that planet's sphere of pull; too far out and the star takes it
+  - [ ] system-seed: every system is generated live from the world seed; nothing is pre-built
+  - [ ] system-star-first: the star is picked first; its type sets where the habitable zone and frost line fall
+  - [ ] system-zones: rocky planets mostly form inside the frost line, giants outside it, belts sit in the gaps, and an Oort cloud surrounds it all
+  - [ ] system-migration: giant planets can wander inward after forming, making hot Jupiters and scattering smaller planets and comets
+  - [ ] system-moons: giants collect many moons; rocky planets have few or none; big impacts can make a large moon
+  - [ ] system-comets-fall: comets from the Oort cloud and Kuiper belt sometimes fall inward, and some hit planets
+  - [ ] system-multiple-stars: in two- and three-star systems, planets orbit one star or circle the whole group, never in between
+  - [ ] system-life-zone: life is most likely in the habitable zone, but ice-shell moons and other strange worlds can hold life too
+  - [ ] system-age: young systems still have dust disks and forming planets; old systems have settled orbits
+  - [ ] system-name: only our own system is the Solar System and only our own star is the Sun; generated ones get generated names
+- [ ] Build from `content/galaxies.dnat`: all 47 entries (Galaxy types (real), Extra galaxy types (from research), Real examples, Parts a galaxy is built from, Structures between galaxies) and these rules:
+  - [ ] galaxy-hubble-stage: galaxies run on a scale from smooth ellipticals, to lenticulars, to tight spirals, to loose spirals, to irregulars; any of them can be barred, ringed or peculiar
+  - [ ] galaxy-seed: every galaxy is generated live from the world seed (LAW 14); nothing is pre-built
+  - [ ] galaxy-size: the player picks Small, Medium, Large or Massive; size sets how many star systems the galaxy holds, every one fully simulated all the time
+  - [ ] galaxy-type-pick: the type decides which parts are used; spirals get arms, ellipticals don't, irregulars get patches
+  - [ ] galaxy-gas: gas-rich galaxies keep forming new stars; gas-poor galaxies hold mostly old stars
+  - [ ] galaxy-arms: young blue stars, nebulas and star-forming regions sit in the arms; old red stars sit in the bulge and halo
+  - [ ] galaxy-center: big galaxies get a supermassive black hole at the center; some feed it and become active
+  - [ ] galaxy-neighbors: a world can hold more than one galaxy; extra galaxies sit in pairs, groups or clusters along filaments, with voids between
+  - [ ] galaxy-collisions: galaxies that pass close pull out tidal tails, may trigger a starburst, and can merge into one
+  - [ ] galaxy-satellites: big galaxies are circled by dwarf and satellite galaxies
+  - [ ] galaxy-name: only our own galaxy is the Milky Way and only our own star is the Sun; generated ones get generated names
 
 - [ ] Galaxy generation from a seed
   - Sizes: Small 100, Medium 500, Large 2,000, Massive 10,000 star systems, every one fully simulated: "Fewer, every one detailed".
@@ -206,6 +279,35 @@ Order: galactic scale down, the same order as the sample sets.
 
 ### R6 — Planet
 **Spec:** `wiki/systems/r06-planet.md`, `docs/wiki/planets-and-templates.md`, `docs/wiki/elements.md`
+- [ ] Build from `content/resource-fields.dnat`: all 26 entries (Made by magma, Made by hot fluids, Made by water and time, Made by weather, Fields in space) and these rules:
+  - [ ] deposit-geology: deposits follow the planet's geology: magma bodies make magmatic deposits, plate edges and volcanoes make hydrothermal ones, seas and rivers make sedimentary ones, tropical weather makes laterites
+  - [ ] deposit-life: some resources need life to have existed first: banded iron needs oxygen makers, coal needs forests, oil and gas need ancient sea life
+  - [ ] deposit-tectonics: planets with plate tectonics make far more ore deposits than stagnant-lid worlds
+  - [ ] deposit-depth: deeper deposits need better mining tech; placers and surface ores come first
+  - [ ] field-space: space fields follow what the bodies are made of (small bodies, giants, nebulas, rings)
+  - [ ] field-deplete: every deposit and field can run out; civilizations that strip them must move on, as the endgame harvest says
+- [ ] Build from `content/moons.dnat`: all 18 entries (By how they formed, By surface and inside, By orbit) and these rules:
+  - [ ] moon-seed: every moon is generated live from the world seed; nothing is pre-built
+  - [ ] moon-count: giants collect many moons, both regular and captured; rocky planets have few or none
+  - [ ] moon-tides: tides from the planet and from neighboring moons heat moons from inside, powering volcanoes and keeping oceans liquid
+  - [ ] moon-hill-sphere: a moon only stays inside its planet's sphere of pull (content/solar-systems.dnat)
+  - [ ] moon-capture: passing asteroids and comets can be captured as irregular moons
+  - [ ] moon-life: ocean moons and thick-air moons can hold life; a moon's local conditions use the same 10-condition world matrix as planets
+- [ ] Build from `content/gas-giants.dnat`: all 30 entries (Kinds, Cloud classes (Sudarsky, by temperature), Layers, Features, Solar System examples) and these rules:
+  - [ ] giant-seed: every giant is generated live from the world seed; nothing is pre-built
+  - [ ] giant-zone: giants form beyond the frost line; some wander inward to become hot Jupiters and hot Neptunes
+  - [ ] giant-clouds: a giant's temperature picks its cloud class, from ammonia clouds when cold to rock clouds when hottest
+  - [ ] giant-layers: gas giants get clouds, molecular hydrogen, metallic hydrogen and a core; ice giants get clouds, an ice mantle and a core
+  - [ ] giant-weather: fast spin makes belts, zones and long-lived giant storms
+  - [ ] giant-moons-rings: giants collect many moons and often rings; some moons can hold life
+  - [ ] giant-resources: civilizations skim giants for hydrogen, helium-3 and deuterium fuel
+- [ ] Build from `content/planets.dnat`: all 27 entries (By size, By makeup, By heat and orbit, Earth-family examples) and these rules:
+  - [ ] planet-seed: every planet is generated live from the world seed; nothing is pre-built
+  - [ ] planet-size-air: bigger, colder planets keep more air; small hot ones lose it (content/physics.dnat)
+  - [ ] planet-zone: where a planet forms (inside or outside the frost line, in or out of the habitable zone) sets its makeup and temperature
+  - [ ] planet-interior: every rocky planet gets core, mantle and crust; heat decides tectonics or a stagnant lid, volcanoes, and a magnetic field
+  - [ ] planet-conditions: every planet is rated on the 10 world conditions (temperature, gravity, air pressure, air makeup, radiation, water, day length, surface, magnetic shield, local life)
+  - [ ] planet-hypothetical: hypothetical planet types can be generated but are rare, and they're marked as such
 
 - [ ] Earth template: the full "everything" list (top 100 lists)
   - Surface split into equal-size cells on a sphere.
@@ -230,6 +332,59 @@ Order: galactic scale down, the same order as the sample sets.
 
 ### R8 — Life
 **Spec:** `wiki/systems/r08-life-sim.md`, `docs/wiki/stages-of-life.md`, `docs/wiki/milestones.md`, `docs/wiki/groups-and-flocking.md`, `docs/wiki/tree-of-life.md`
+- [ ] Build from `content/life/intelligent.dnat`: all 29 entries (Real thinking animals (seeds), Signs of a mind, What pushes a line toward intelligence) and these rules:
+  - [ ] mind-any-line: any kingdom can reach intelligence if evolution builds the drivers: animals most often, but hive insects, fungal networks and even plants on other templates can climb the grouping ladder
+  - [ ] mind-signs-ladder: a species earns signs of a mind one by one (tool use, culture, language…); together they unlock the thinking steps (31+) on the grouping ladder
+  - [ ] mind-own-image: a thinking species' clothing, tools, cities and ships are generated from its own body plan (LAW 14)
+  - [ ] mind-ai-layers: thinking species get the species AI layer, and can later grow a galactic mind
+  - [ ] mind-spark: the Spark of Mind power pushes a species toward intelligence, but only works on one already close to it
+- [ ] Build from `content/life/extinct.dnat`: all 47 entries (Mass extinctions (the Big Five, and after), The first strange animals, Early fish and the walk onto land, Dinosaurs, Other Mesozoic giants, After the dinosaurs: the age of mammals, Extinct plants) and these rules:
+  - [ ] extinct-seeds: extinct real life is seed data: on Earth-like worlds, evolution can produce dinosaur-like, trilobite-like or mammoth-like life again, in new forms
+  - [ ] extinct-forever: once a line dies out it never returns as the same line; it stays greyed out on the Tree of Life
+  - [ ] extinct-triggers: mass extinctions follow real causes: impacts, supervolcanoes, warming, cooling, oxygen loss, and thinking species
+  - [ ] extinct-recovery: after a mass extinction, survivors spread fast into the emptied world and new groups rise
+  - [ ] extinct-fossils: extinct life leaves fossils; thinking species can dig them up and learn from them
+- [ ] Build from `content/life/animals.dnat`: all 84 entries (Body-plan traits, Phyla, Arthropod classes, Insect orders (seeds), Fish classes, Land vertebrate classes, Bird orders (seeds), Mammal orders (seeds)) and these rules:
+  - [ ] animal-body-plan: every animal's body comes from its genes: symmetry, layers, body cavity, segments, skeleton, limbs, eyes, skin
+  - [ ] animal-tree: new animals branch from real lines: phylum, then class, order, family, genus, species, each filling to 100 in play with invented ones
+  - [ ] animal-convergence: unrelated lines can evolve the same answer (wings, eyes, fins), because the same problems shape them
+  - [ ] animal-intelligence: any line can climb to intelligence: primates, wolves, crows, parrots, octopuses, whales, social insects (the grouping ladder)
+  - [ ] animal-extinction: lines die out; extinct groups like trilobites and dinosaurs stay greyed out on the tree forever
+- [ ] Build from `content/life/plants.dnat`: all 36 entries (Groups (phyla and lines), Big splits, Organs and tissues, How they make food, How they breed) and these rules:
+  - [ ] plant-land: plants climb onto land from green algae, with root-partner fungi helping; veins let them grow tall; seeds free them from water
+  - [ ] plant-climate: climate decides the kind: C3 in mild damp places, C4 in hot grasslands, CAM in deserts
+  - [ ] plant-forests: forests make soil and air, and when buried they become coal
+  - [ ] plant-partners: flowering plants and pollinators evolve together; fruit evolves with the animals that spread it
+  - [ ] plant-defense: plants fight back with thorns, poisons, bark and chemical warnings to their neighbors
+  - [ ] plant-farming: thinking species farm, breed and engineer plants (Farming, Selective Breeding, Genetic Engineering)
+- [ ] Build from `content/life/fungi.dnat`: all 16 entries (Phyla, Body parts, Ways of living) and these rules:
+  - [ ] fungi-recyclers: fungi rot what dies and return it to the soil; without them dead matter piles up
+  - [ ] fungi-networks: root-partner fungi link plants underground, sharing food and warnings (the root-network step on the grouping ladder)
+  - [ ] fungi-spread: fungi spread by spores on wind and water, and by growing their mycelium through soil and wood
+  - [ ] fungi-land: root-partner fungi help the first plants move onto land
+  - [ ] fungi-farming: fungi can be farmed: by ants and termites, and by thinking species for food, drugs and fermenting
+- [ ] Build from `content/life/protists.dnat`: all 25 entries (Supergroups, Protist groups (seeds), How they move) and these rules:
+  - [ ] protist-complex: protists are the first complex cells, with a nucleus and parts inside; they appear after the swallowed-partners stage
+  - [ ] protist-roots: protist lines lead on: green algae to land plants, choanoflagellate-like cells to animals, opisthokont cells to fungi
+  - [ ] protist-food: drifting protists are the base of the sea's food chain; their blooms feed everything, and some blooms poison it
+  - [ ] protist-rock: chalk and glass shells of dead protists pile up into rock on the sea floor
+- [ ] Build from `content/life/archaea.dnat`: all 12 entries (What makes them different, Extremophiles, Main groups (phyla)) and these rules:
+  - [ ] archaea-extremes: archaea fill the worst places first (vents, acid, salt, ice), so they're often the first life on hard worlds
+  - [ ] archaea-swallowed: an archaean swallowing a bacterium is one route to complex cells (the "swallowed partners" stage)
+  - [ ] archaea-methane: methane makers warm young planets by filling the air with methane
+- [ ] Build from `content/life/bacteria.dnat`: all 31 entries (Shapes, Cell parts, How they get energy and food, Main groups (phyla), Group life, Swapping genes) and these rules:
+  - [ ] bacteria-fast: bacteria split in two fast; populations explode when food is there and crash when it runs out
+  - [ ] bacteria-gene-swap: bacteria trade genes sideways, so useful traits like drug resistance spread fast between species
+  - [ ] bacteria-everywhere: bacteria live everywhere life can, from vents to guts, and recycle everything that dies
+  - [ ] bacteria-oxygen: cyanobacteria fill the air with oxygen over time, triggering the great oxidation and poisoning oxygen-hating life
+  - [ ] bacteria-partners: bacteria live inside other life as gut partners, root partners and parasites
+- [ ] Build from `content/life/viruses.dnat`: all 22 entries (Baltimore groups (how a virus's genes get read), Shapes and parts, Who they infect, Life cycles) and these rules:
+  - [ ] virus-not-alive: viruses have no cells and no metabolism; they only copy themselves inside a host
+  - [ ] virus-chemistry-ai: viruses run on the chemistry layer of the mini AI only: latch on, inject, copy, burst
+  - [ ] virus-mutation: RNA viruses mutate fastest; viruses jump between species when they mutate to fit a new host's cells
+  - [ ] virus-gene-carry: viruses can carry genes from one species into another (Viral Gene Carry power, and natural events)
+  - [ ] virus-host-range: a virus can only infect hosts whose cells its spikes can latch onto
+  - [ ] virus-plagues: dense populations let viruses spread fast; immunity, isolation and medicine slow them
 
 - [ ] Viruses
 - [ ] Microbes
@@ -262,6 +417,15 @@ Order: galactic scale down, the same order as the sample sets.
 
 ### R9 — Intelligent life
 **Spec:** `wiki/systems/r09-civilization.md`, `docs/wiki/ages-of-civilization.md`, `docs/wiki/tech-tree.md`, `docs/wiki/society.md`
+- [ ] Build from `content/cities.dnat`: all 50 entries (Settlement sizes, Layouts, Districts, Infrastructure, in rough order of invention, Building materials by age) and these rules:
+  - [ ] city-seed: every settlement, building and road is generated live; nothing is pre-built
+  - [ ] city-own-image: cities follow the builder species' body plan and genes: insect species build hive cities of segmented cells, burrowers build underground, fliers build tall towers and roosts, swimmers build reef and underwater cities, giants build huge, small species build dense
+  - [ ] city-grows: a settlement climbs the 100 grouping steps (camp, hamlet, village, town, city…), growing districts and infrastructure as it goes
+  - [ ] city-age: the civilization's age decides its materials and infrastructure, from mud and paths to composites and spaceports
+  - [ ] city-terrain: cities grow along rivers, coasts and trade routes; hills get defenses; layouts bend around the land
+  - [ ] city-society: the city's society shapes it: temples tower in theocracies, palaces in monarchies, factories in industrial economies (100 kinds of society)
+  - [ ] city-conditions: on hostile worlds cities need the tech for every world condition: domes, shielded roofs, floating platforms (the 10 × 10 world matrix)
+  - [ ] city-fall: collapsed civilizations leave ruins that decay and can be resettled
 
 - [ ] Tribes and culture
 - [ ] Politics
@@ -275,6 +439,14 @@ Order: galactic scale down, the same order as the sample sets.
 
 ### R10 — Space
 **Spec:** `wiki/systems/r10-space.md`, `docs/wiki/space-and-dyson-spheres.md`
+- [ ] Build from `content/space-tech.dnat`: all 44 entries (How big a civilization's power is (Kardashev scale), Megastructures, Space habitats and stations, Ships by job, Drives) and these rules:
+  - [ ] tech-seed: every station, ship and megastructure is generated live; nothing is pre-built
+  - [ ] tech-own-image: built things follow the builder species' genes and body plan: an insect species builds insect ships, stations and cities
+  - [ ] tech-ladder: what a civilization can build follows its place on the 100-step travel ladder and its tech branches
+  - [ ] tech-kardashev: Dyson swarms and spheres mark a stellar (Type II) civilization; galactic megastructures mark Type III
+  - [ ] tech-conditions: colonies need the tech for every condition of their new world (the 10 × 10 world matrix)
+  - [ ] tech-resources: every build costs resources from the 100 space resources; megastructures can strip whole planets
+  - [ ] tech-hypothetical: real-but-unbuilt designs are allowed in the game; they unlock late and are marked hypothetical in content
 
 - [ ] 100 kinds of space objects, generated live (Oort clouds, Kuiper belt, comets, asteroid belts, nebulas, moons and more): "remebr space has all kind sof things for ort clouds to comets and merots hitting planets and astorid belts and nebulas andplanets of all makes ups with temp ranges that need different techs and inter solarystem flt hyperdrives for glaaxy to galaxty ect ect all planed out in all docs"
 - [ ] Impacts: comets and meteorites hitting planets, 10 sizes

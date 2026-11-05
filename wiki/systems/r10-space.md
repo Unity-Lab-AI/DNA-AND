@@ -29,3 +29,12 @@ Civilizations from different worlds can meet, trade or fight across solar system
 - World-condition matrix: 10 conditions × 10 levels, each needing its own tech, rated per species.
 - 100-step travel ladder up to hyperdrives and intergalactic travel.
 - 100 space resources and 100 kinds of colony (mining outposts, prison colonies and more), all built by the space-tech generator in the builder species' own image.
+
+## 📦 Content (build from these)
+
+This system is built from these researched content files (`docs/CONTENT-FORMAT.md`). Every entry and every rule in them is part of the spec (WORK-LAWS LAW 1).
+
+- `content/space-tech.dnat`: 44 entries (How big a civilization's power is (Kardashev scale), Megastructures, Space habitats and stations, Ships by job, Drives) and 7 rules
+- `content/resource-fields.dnat`: 26 entries (Made by magma, Made by hot fluids, Made by water and time, Made by weather, Fields in space) and 6 rules
+- `content/small-bodies.dnat`: 39 entries (Asteroids by makeup, Asteroids by orbit, Comets, Dwarf planets and far bodies, Meteors and meteorites) and 7 rules
+- `content/black-holes.dnat`: 35 entries (Kinds of black hole, Parts, Active galaxy cores (a feeding supermassive black hole), Events, Real examples) and 7 rules

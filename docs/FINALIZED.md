@@ -133,3 +133,11 @@ New pages: `docs/wiki/society.md`, `docs/wiki/nudges.md`, `docs/wiki/dark-harves
 - links to internal docs, from the README, player wiki, SETUP and HOW-TO-BUILD
 
 Added LAW 15.
+
+**Scope sync after the content phase.** Verbatim: "what all in the files insnt persisteeted where needed in other files i mean documents doumenting the gems work to be done. i think the orignal game scope has gotten deeeper which really has put the readme way out of date which means alot of filers potentioally are too" / "yes final fix and improvement plan of the todo and documents". The content layer is now carried through:
+- specs (9 builder pages)
+- the TODO (23 build tasks, 153 rule sub-tasks)
+- player wiki (6 new pages)
+- README, LISTS, ROADMAP, the generator list, glossary, FAQ, CONTENT-FORMAT and the builder index
+
+LAW 11 now includes a content-coverage check.

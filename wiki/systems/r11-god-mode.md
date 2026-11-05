@@ -44,3 +44,11 @@ Gene powers have "differnt outcomes good and bad depending."
 - 100 powers. Each has one unlock stage (1–100) and one tier (T1–T100). The table is in `docs/wiki/god-powers.md`. T81–T100 have cooldowns. Cost = tier × area × strength. #4 is Starshine and #81 is Stellar Flare.
 - 100 nudges, each mapped to the powers that do it (`docs/wiki/nudges.md`).
 - 100 soul sources (`docs/wiki/souls-and-harvesting.md`). Milestones pay no souls.
+
+## 📦 Content (build from these)
+
+This system is built from these researched content files (`docs/CONTENT-FORMAT.md`). Every entry and every rule in them is part of the spec (WORK-LAWS LAW 1).
+
+- `content/physics.dnat`: 49 entries (The four forces of nature, Particles and atoms, Inside a planet, What moves inside a planet, Atmospheres) and 8 rules
+- `content/elements.dnat`: 118 entries (Main) and 5 rules
+- `content/life/extinct.dnat`: 47 entries (Mass extinctions (the Big Five, and after), The first strange animals, Early fish and the walk onto land, Dinosaurs, Other Mesozoic giants, After the dinosaurs: the age of mammals, Extinct plants) and 5 rules

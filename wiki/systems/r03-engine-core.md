@@ -37,3 +37,10 @@ Distances run from a virus to across galaxies.
 ## 📌 Decided specs (build from these)
 
 - Physics core from `content/physics.dnat`: four forces, particles and atoms, isotopes and decay, fusion and fission.
+
+## 📦 Content (build from these)
+
+This system is built from these researched content files (`docs/CONTENT-FORMAT.md`). Every entry and every rule in them is part of the spec (WORK-LAWS LAW 1).
+
+- `content/physics.dnat`: 49 entries (The four forces of nature, Particles and atoms, Inside a planet, What moves inside a planet, Atmospheres) and 8 rules
+- `content/elements.dnat`: 118 entries (Main) and 5 rules

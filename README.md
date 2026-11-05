@@ -86,6 +86,54 @@ And somewhere along the way, they start to wonder **who you are**.
 
 ---
 
+## 🌌 A universe in full
+
+| | |
+|--|--|
+| 🌀 **Galaxies** | Spirals, barred spirals, ellipticals, rings, starbursts, green peas, jellyfish galaxies, grouped into clusters, filaments and voids |
+| ⭐ **Stars** | Every real type, from red dwarfs to blue hypergiants, brown dwarfs, carbon stars, white dwarfs, pulsars and magnetars |
+| ⚫ **Black holes and quasars** | Stellar to ultramassive, spinning black holes, accretion disks and jets, quasars, blazars and Seyfert galaxies |
+| 🌫️ **Nebulas** | Star nurseries, pillars, dark clouds, planetary nebulas and supernova remnants |
+| 🪐 **Worlds** | Lava worlds, ocean worlds, super-Earths, mini-Neptunes, hot Jupiters, ice giants, rogue planets |
+| 🌙 **Moons** | Volcanic moons, ice-shell ocean moons with geysers, moons with thick air and hydrocarbon lakes |
+| ☄️ **Small bodies** | Asteroids by makeup, comets and their tails, dwarf planets, the Kuiper belt, the Oort cloud, meteorites |
+
+👉 [The Deep Sky](docs/wiki/deep-sky.md "Galaxies, stars, black holes, nebulas") · [Worlds & Moons](docs/wiki/worlds-and-moons.md "Planets, giants, moons, comets")
+
+---
+
+## 🧬 Every kingdom of life
+
+**Viruses · bacteria · archaea · protists · fungi · plants · animals**, each traced down through phylum, class, order, family, genus and species.
+
+| | |
+|--|--|
+| 🦠 **The tiny** | All seven virus groups, bacteria that swap genes and build stromatolites, archaea that live in boiling acid |
+| 🍄 **The hidden** | Fungal networks linking forests, lichens on bare rock, body-snatching fungi |
+| 🌿 **The green** | Mosses to conifers to flowering plants, desert and hot-climate photosynthesis, carnivorous plants |
+| 🐾 **The animals** | Every major phylum, from sponges to chordates; insects, birds and mammals order by order |
+| 🧠 **The minds** | Crows, octopuses, dolphins, elephants and hives show how a mind can rise in any kingdom |
+
+### 🦖 Lost worlds
+
+The **Big Five mass extinctions**, **dinosaurs** of every kind (and birds, the ones that survived), pterosaurs, sea reptiles, trilobites, giant insects, mammoths and saber-toothed cats. Your worlds can evolve their like again.
+
+👉 [Life's Kingdoms](docs/wiki/lifes-kingdoms.md "Every kingdom of life") · [Lost Worlds](docs/wiki/lost-worlds.md "Dinosaurs and extinctions")
+
+---
+
+## ⛏️ Built and mined
+
+| | |
+|--|--|
+| ⛏️ **Riches of the land** | Real ore deposits made by magma, hot water, seas and weather. Coal, oil and gas only exist where life lived first |
+| 🏙️ **Cities** | Camps to planet-cities, organic to grid to radial layouts, built in each species' own image |
+| 🚀 **Space tech** | Dyson swarms, bubbles and shells, Matrioshka brains, stellar engines, O'Neill cylinders, fusion and antimatter drives, hyperdrives |
+
+👉 [Riches of the Land](docs/wiki/riches-of-the-land.md "Ores, fuels, space resources") · [Cities](docs/wiki/cities.md "Camps to planet-cities")
+
+---
+
 ## 🧬 Real DNA in every living thing
 
 Every creature, plant, microbe and virus carries a **real-style genome**: strings of A, C, G and T that build its body and drive its behavior.
@@ -266,6 +314,8 @@ Powers cost **Souls**. Cost = the power's **tier (T1–T100) × area × strength
 | **100** | kinds of society | **100** | ways to nudge |
 | **100** | Dark Harvest methods | **100** | ways to earn souls |
 | **100** | power tiers (T1–T100) | **100** | ways civilizations end |
+| **1,000+** | researched real-world seeds for the generators | **6 + 1** | kingdoms of life, plus viruses |
+| **5** | great mass extinctions | **3** | domains of life |
 | **8** | players per world | **∞** | how long a galaxy lasts |
 
 ---
