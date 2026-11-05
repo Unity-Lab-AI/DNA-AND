@@ -6,6 +6,7 @@ How the game gets built, system by system, all from scratch. 🟡 = draft (plan 
 | | Page | What it covers |
 |---|---|---|
 | 🟡 | [R1 · Toolchain](systems/r01-toolchain.md "Our own assembler + compiler, bootstrapped from raw bytes") | Building our own compiler from nothing |
+| 🟡 | [R1 · Seed spec](systems/r01a-seed-spec.md "Exact spec for the hand-typed hex loader") | Step 0: what the seed does, the hex format, its exe layout, how it's proven |
 | 🟡 | [R2 · Windows layer](systems/r02-windows-layer.md "Talking to Windows directly") | Window, input, sound, files, clock, threads, network |
 | 🟡 | [R3 · Engine core](systems/r03-engine-core.md "Math, memory, giant arrays, threads, saves") | The base every system sits on |
 | 🟡 | [R4 · Renderer](systems/r04-renderer.md "AAA 3D graphics from scratch") | Graphics, zoom from microbe to galaxy, the 3D image generator |

@@ -412,6 +412,33 @@ The ask: "and we havent talked about the hud much but it should be intrusive so 
 
 ---
 
+## Round 19: how the toolchain starts (verbatim)
+
+| Question | Answer (verbatim) |
+|---|---|
+| How the toolchain starts, since hand-typed raw bytes kept getting blocked | "Start from PowerShell (Suggested)" |
+
+### What this means for the build
+- **Step 0 is now a PowerShell script** (`bootstrap/asm0.ps1`). PowerShell ships with Windows, so it counts as "Windows itself". The script is a small assembler: it turns readable assembly text into a real Windows exe.
+- From there our own tools take over: the assembler is rewritten in its own assembly and rebuilds itself, then the Helix compiler follows. PowerShell is not needed after that.
+- The hex seed spec (`wiki/systems/r01a-seed-spec.md`) stays as a reference for the exe layout, which the script follows.
+
+---
+
+## Round 20: how DNA-AND gets compiled (verbatim)
+
+| Question | Answer (verbatim) |
+|---|---|
+| How to compile, since Claude can't write an exe-making tool from scratch (blocked every time) | "Use C# built into Windows" |
+
+### What this means for the build
+- **The compiler is the C# compiler that ships with Windows** (`csc.exe`, from the .NET Framework 4.x built into Windows 10/11, which handles C# 5). It counts as "Windows itself".
+- **The game is written in C#.** Helix and the self-built toolchain (bootstrap, assemblers, own compiler) are retired. Round 19's PowerShell start is replaced.
+- **Rule 1 stays as tight as possible:** only the core .NET runtime that ships with Windows, plus direct calls into Windows' own system files (window, input, files, sound, Direct3D 12). No outside packages or libraries, and no Windows UI frameworks. Everything else is our own code.
+- **The build** is one command that runs Windows' `csc.exe` on our source.
+
+---
+
 ## How we work (verbatim)
 
 These are the creator's working rules for this repo, each in his own words.
@@ -511,3 +538,5 @@ Everything the creator has said about this project, in order. Short process repl
     - ROADMAP: content lines.
     - Glossary and FAQ: terms and questions swapped.
     - LAW 11: a content-coverage check.
+51. **Toolchain start:** "Start from PowerShell (Suggested)"
+52. **Compiler:** "Use C# built into Windows". The game is in C#, compiled by Windows' built-in csc.exe. Helix and the self-built toolchain are retired.

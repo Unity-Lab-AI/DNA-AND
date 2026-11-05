@@ -77,3 +77,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Scope sync
 
 - Every spec page lists its content files. Added 23 TODO build tasks, 6 new player pages, README scope sections, the LISTS "Seeded in" column and 4 generators.
+
+## 2026-11-05 — First code
+
+- Round 20: the game is written in C# and compiled by Windows' built-in csc.exe. build.cmd plus the first window (our own Windows calls) works. r01 is now verified.
