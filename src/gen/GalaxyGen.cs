@@ -113,23 +113,50 @@ namespace DnaAnd.Gen
                         else { float a = rng.Range(0, (float)Math.PI * 2), r = (float)Math.Abs(rng.Gaussian()) * 0.45f; x = (float)Math.Cos(a) * r; z = (float)Math.Sin(a) * r; y = rng.Gaussian() * 0.02f; hotBias = 0.5; }
                         break;
                     }
-                    default: // spiral family: spiral, barred-spiral, grand-design-spiral, flocculent-spiral
+                    case "barred-spiral":
                     {
-                        bool barred = type == "barred-spiral";
+                        // a real barred spiral: a thick glowing oval bar of old stars, an inner ring around it,
+                        // and two arms that sweep out from the bar's tips
+                        if (part < 0.12) { Bulge(rng, 0.09f, out x, out y, out z); hotBias = 0.3; }
+                        else if (part < 0.34)
+                        {
+                            float bx = rng.Gaussian() * barLen * 0.45f, bz = rng.Gaussian() * barLen * 0.13f;
+                            x = bx; z = bz; y = rng.Gaussian() * 0.025f; hotBias = 0.45;
+                        }
+                        else if (part < 0.44)
+                        {
+                            float a = rng.Range(0, (float)Math.PI * 2), r = barLen * 1.05f + rng.Gaussian() * 0.035f;
+                            x = (float)Math.Cos(a) * r; z = (float)Math.Sin(a) * r * 0.85f; y = rng.Gaussian() * 0.02f; hotBias = 2.2;
+                        }
+                        else if (part < 0.52)
+                        {
+                            float a = rng.Range(0, (float)Math.PI * 2), r = rng.Range(0.1f, 1f);
+                            x = (float)Math.Cos(a) * r; z = (float)Math.Sin(a) * r; y = rng.Gaussian() * 0.03f; hotBias = 0.8;
+                        }
+                        else
+                        {
+                            int arm = rng.Int(2);
+                            float r = barLen + (float)Math.Pow(rng.NextDouble(), 0.8) * (1f - barLen);
+                            float ang = arm * (float)Math.PI + (float)Math.Log(r / barLen) * twist * 0.9f;
+                            ang += rng.Gaussian() * armSpread * 0.55f * (0.6f + r);
+                            x = (float)Math.Cos(ang) * r; z = (float)Math.Sin(ang) * r; y = rng.Gaussian() * 0.025f;
+                            hotBias = 3.5; size = 1.1f;
+                        }
+                        break;
+                    }
+                    default: // spiral family: spiral, grand-design-spiral, flocculent-spiral
+                    {
                         int nArms = type == "grand-design-spiral" ? 2 : arms;
                         if (part < 0.18) { Bulge(rng, 0.10f, out x, out y, out z); hotBias = 0.3; }
-                        else if (barred && part < 0.28) { x = rng.Range(-barLen, barLen); z = rng.Gaussian() * 0.04f; y = rng.Gaussian() * 0.03f; hotBias = 0.6; }
                         else if (part < 0.35) { float a = rng.Range(0, (float)Math.PI * 2), r = rng.Range(0.05f, 1f); x = (float)Math.Cos(a) * r; z = (float)Math.Sin(a) * r; y = rng.Gaussian() * 0.03f; hotBias = 0.8; }
                         else
                         {
                             float r = (float)Math.Pow(rng.NextDouble(), 0.7) * 0.95f + 0.05f;
                             int arm = rng.Int(nArms);
-                            float start = barred ? barLen : 0.05f;
                             float spread = type == "flocculent-spiral" ? armSpread * 2.2f : armSpread;
-                            float ang = arm * (float)(Math.PI * 2 / nArms) + (float)Math.Log(Math.Max(r, start) / start + 1) * twist;
+                            float ang = arm * (float)(Math.PI * 2 / nArms) + (float)Math.Log(r / 0.05f + 1) * twist;
                             ang += rng.Gaussian() * spread * (1.2f - r * 0.5f);
                             x = (float)Math.Cos(ang) * r; z = (float)Math.Sin(ang) * r; y = rng.Gaussian() * 0.025f;
-                            if (barred && r < barLen) { x = rng.Range(-barLen, barLen); z = rng.Gaussian() * 0.04f; }
                             hotBias = 3.5; size = 1.1f;
                         }
                         break;
