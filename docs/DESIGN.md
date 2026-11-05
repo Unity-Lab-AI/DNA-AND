@@ -454,6 +454,22 @@ The feedback: "now the first set looked best but they have to be zoomable to the
 
 ---
 
+## Round 22: calm motion (verbatim)
+
+The concern: "we cant have real motion with speed uup time and shit" / "people would get dizzy"
+
+| Question | Answer (verbatim) |
+|---|---|
+| How fast motion looks when time is sped up | "Speed cap + trails (Suggested)" |
+
+### What this means for the build
+- **The simulation runs at full speed, but nothing on screen turns faster than a gentle limit.** It's about half a radian per second, roughly one full turn in 12 seconds.
+- **Faster bodies become a soft glowing orbit trail** instead of a whirling dot.
+- **Spinning things** (galaxies, black-hole disks) keep a slow, steady turn at any speed.
+- **The Accessibility setting "reduced motion"** can slow this further.
+
+---
+
 ## How we work (verbatim)
 
 These are the creator's working rules for this repo, each in his own words.
@@ -559,3 +575,4 @@ Everything the creator has said about this project, in order. Short process repl
 54. "its got to have full resolution scaling and range". Done so far: resize and DPI awareness. Render-scale and the zoom range are tasks.
 55. "superb, lets do that 1-5". Steps 1–5 are done. Shaders compile with Windows' own d3dcompiler_47.dll (round 20 reasoning: it ships with Windows).
 56. **Set 1 feedback:** see "Round 21".
+57. **Calm motion:** see "Round 22".

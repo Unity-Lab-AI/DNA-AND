@@ -89,3 +89,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Deep zoom
 
 - Click a sample galaxy to open it full-window. Zoom from the whole galaxy down to the core black hole (shadow, photon ring, disk, jets), clusters and nebulas, and any star's generated system. Positions are kept relative to the focus (moving origin).
+
+## 2026-11-05 — Calm motion
+
+- Round 22: on-screen motion is capped while the sim runs at full speed, and fast bodies become trails. Time controls are in the deep zoom.
