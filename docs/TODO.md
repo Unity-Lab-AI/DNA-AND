@@ -37,7 +37,8 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 - [x] Every TODO section names its **Spec:** pages
 - [x] `/super-review`: everything the creator said is properly done in every TODO and doc
   - First pass found 7 issues (2 high, 4 medium, 1 low). All 7 are fixed: the missing messages are recorded, the builder specs have decided-spec sections, the playthrough covers the new systems, Heat became Fire, the LISTS index is complete, and the README numbers and TODO milestone line are updated.
-- [ ] `/unity` check: nothing the creator said is left out, word for word
+- [x] `/unity` check: nothing the creator said is left out, word for word
+  - All 30 recent messages are checked and recorded verbatim in `docs/DESIGN.md`. One gap was fixed: the milestone answer is now quoted in its task. **Gate passed.**
 - [ ] Only after both pass: fill the top-100 lists (below)
 - [ ] Only after the lists: start R1 code, following `docs/WORK-LAWS.md`
 
@@ -236,6 +237,7 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
   - Pause plus 1×, 10×, 100×, 1,000× and max.
 - [ ] Automatic speed jumps at headline milestones only
 - [ ] Milestone generator: 100 milestones per stage, built from the top-100 lists (10 families × 10). Milestone 100 is the headline (`docs/wiki/milestones.md`)
+  - "Built from the 100 lists" / "Only each stage's big one (Suggested)"
   - Drops to 1× with a short cinematic. Can be turned off.
 - [ ] Balancing so a game reaches space in about 4 to 6 hours
   - Each stage has its own years-per-second.
