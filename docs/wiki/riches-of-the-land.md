@@ -9,6 +9,12 @@
 
 Everything here starts from real science and real life. The game builds every one of them **live**, and invents new ones on top as your worlds evolve.
 
+🗺️ **Every field sits where real geology would put it:** sulfur crusts at volcano vents, gold in mountain veins and river sands, salt in dried seas, iron in old continents, ice at the poles. You can see them on the ground, and the **resource view** lights every one up in its own colour, buried ones too.
+
+🤖 **Resources are for the species, not for you.** The living species find, dig and trade them. You are a god: you have no use for them.
+
+🌿 **Some need life first.** Coal, oil and gas form only from buried life, so a world has none until life has lived and died there.
+
 ---
 
 ## ⛏️ Deposits and fields

@@ -19,7 +19,7 @@
 | 6 | Drought | Stops rain | Shrinks swamps, pushes adaptation | Crop failure, famine |
 | 7 | Wind | Strong winds | Spreads seeds, spores and pollen | Erosion, knocks down trees |
 | 8 | Storm | Thunderstorm | Rain plus lightning | Floods, fires |
-| 9 | Lightning | One strike | Starts fire, can spark chemistry for first life | Kills, burns |
+| 9 | Lightning | One strike | Starts fire, can spark chemistry for first life; can start life again, anywhere, any number of times on one planet | Kills, burns |
 | 10 | Hurricane | Huge spinning ocean storm | Mixes oceans, spreads life to islands | Wrecks coasts |
 | 11 | Tornado | Narrow destructive wind | Clears land | Kills everything in its path |
 | 12 | Snow | Blankets land | Stores water for spring, insulates the ground | Starvation for grazers |
@@ -61,7 +61,7 @@
 ## Life nudges
 | # | Power | What it does | Plus | Minus |
 |---|---|---|---|---|
-| 39 | Spark of life | Seeds the first cells | Starts life ("life starts base on your first action") | Only works in fitting conditions |
+| 39 | Spark of life | Seeds the first cells | Starts life ("life starts base on your first action"); can be used again in other places on the same planet, each start its own family tree | Only works in fitting conditions |
 | 40 | Bloom | Burst of growth in an area | Food for everyone | Overgrowth, crash after |
 | 41 | Blight | Plant disease | Clears an overrun species | Famine for grazers |
 | 42 | Swarm | Burst of insect numbers | Pollination, food for birds | Crops eaten |

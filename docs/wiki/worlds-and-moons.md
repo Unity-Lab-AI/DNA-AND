@@ -13,6 +13,8 @@ Everything here starts from real science and real life. The game builds every on
 
 ## 🌍 Planets
 
+🌬️ **Every world has its own air**, made of real gases in real shares. A temperate world has about 78% nitrogen and 21% oxygen, like Earth. A desert world has thin carbon dioxide, like Mars. A snowball world has cold nitrogen and methane, like Titan. A gas giant is mostly hydrogen and helium.
+
 ### By size
 
 | | What it is |
