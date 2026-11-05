@@ -102,6 +102,26 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 - [ ] Top-down god camera
 - [ ] Visual gene map for every trait and skill
 
+### R4.4 — Live generators
+**Spec:** `wiki/systems/r04b-generators.md`
+
+- [ ] No pre-built assets: every asset built live from data arrays as life evolves: "and what about haveing a "crature" city" space tech" generator for everything full on like array dynamic content generation on the fly in the game so we dont pre build and assets but the games program builds them as they get living"
+- [ ] Shared generator core: data arrays in, shapes, surfaces, motion and sound out, cached and rebuilt when the data changes
+- [ ] Microbe & virus generator
+- [ ] Plant & fungus generator
+- [ ] Creature generator
+- [ ] Intelligent creature generator
+- [ ] City generator
+- [ ] Tech & machine generator
+- [ ] Space tech generator
+- [ ] Planet & moon generator
+- [ ] Star generator
+- [ ] Galaxy & system generator
+- [ ] Resource field generator
+- [ ] Element generator
+- [ ] Weather & effect generator
+- [ ] Sound generator
+
 ### R4.5 — Art style samples
 - [ ] Live sample viewer, its own window, moving and rotatable: "Live viewer, moving (Suggested)"
 - [ ] Every sample generated procedurally from a seed: "and remember thses things are get dynamic procedural generations"

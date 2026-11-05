@@ -63,10 +63,15 @@ Talking to the graphics card per system, lighting, shadows, water, sky, terrain,
 - Uses **Direct3D 12**, which is part of Windows.
 - Also covers our own **3D image generator** and the **auto-capture tool** (a mode of the game exe) that renders every image the docs need: "we will need to design the #D genrator and botting of them".
 
+### [ ] R4.4 — Live generators (no pre-built assets)
+> "and what about haveing a "crature" city" space tech" generator for everything full on like array dynamic content generation on the fly in the game so we dont pre build and assets but the games program builds them as they get living"
+
+Every asset is built live, on the fly, from data arrays, while life evolves: creatures, plants, microbes, cities, tech, space tech, planets, stars, galaxies, resources, elements, weather and sound. Nothing ships pre-made. Spec: `wiki/systems/r04b-generators.md`.
+
 ### [ ] R4.5 — Art style samples (before any final art)
 > "things like ingame microbes viruses and intelligernt creature should all have samples 1,2,3 made in 3 diffeernt styles 1,2,3 for a hand ful of things in the game before we go with any one style" / "try a rimworld like and a, populous like, and a stardew like"
 
-Our own 3D generator makes 3 examples of each subject, each drawn in all 3 styles (RimWorld-like, Populous-like, Stardew-like). That's 9 pictures per subject. The creator picks one style before any final art is made. The style has to stay light on the graphics card, because thousands of living things move and spread at once. This starts right after R4's basic renderer works.
+The live generators (R4.4) make 3 examples of each subject, each drawn in all 3 styles (RimWorld-like, Populous-like, Stardew-like). That's 9 pictures per subject. The creator picks one style before any final art is made. The style has to stay light on the graphics card, because thousands of living things move and spread at once. This starts right after R4's basic renderer works.
 
 - **Live viewer:** our own program in its own window. Pick a subject and see its 9 samples moving and rotatable ("Live viewer, moving (Suggested)").
 - **Direct3D 12** from day one ("Straight to Direct3D 12"), with our own shader-code generator.
