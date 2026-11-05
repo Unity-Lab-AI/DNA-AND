@@ -30,7 +30,7 @@ namespace DnaAnd.Shell
         private double _speed = 1; private bool _paused;
         private static readonly double[] Speeds = { 1, 10, 100, 1000, 100000 };
         private const double SecondsPerYearAt1x = 20.0;   // at 1x, one year takes 20 s
-        private const double MaxVisualTurnPerSecond = 0.5; // radians: nothing on screen turns faster than this
+        private const double MaxVisualTurnPerSecond = 0.05; // radians: nothing on screen turns faster than this
         private static readonly int Stride = Marshal.SizeOf(typeof(StarVertex));
 
         public DeepView(Gpu gpu, BillboardPipeline pipe, ContentLibrary content, string type, string name, ulong seed)

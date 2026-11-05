@@ -255,6 +255,7 @@ namespace DnaAnd.Gen
         public static int BodyVerts(StarSystem sys, double simYears, double yearsPerSecond, double maxTurnPerSecond, StarVertex[] outV, int trailPoints)
         {
             var pos = new Vec3[sys.Bodies.Count];
+            var ringed = new bool[sys.Bodies.Count];
             int n = 0;
             outV[n++] = Star(new Vec3(0, 0, 0), (float)sys.StarRadius, sys.SR, sys.SG, sys.SB, 1f);
             for (int i = 0; i < sys.Bodies.Count; i++)
@@ -263,17 +264,22 @@ namespace DnaAnd.Gen
                 double period = Math.Max(1e-4, b.Period);
                 double turn = yearsPerSecond / period * Math.PI * 2;
                 double ang = b.Phase + simYears / period * Math.PI * 2;
+                // a moon of a planet that is drawn as a ring would jump around with it: draw it as part of that ring
+                if (b.Parent >= 0 && ringed[b.Parent]) { ringed[i] = true; pos[i] = pos[b.Parent]; continue; }
                 Vec3 centre = b.Parent >= 0 ? pos[b.Parent] : new Vec3(0, 0, 0);
                 var p = centre + new Vec3((float)(Math.Cos(ang) * b.OrbitUnits), 0, (float)(Math.Sin(ang) * b.OrbitUnits));
                 pos[i] = p;
                 float bright = b.Parent >= 0 ? 0.6f : 1f;
                 if (turn <= maxTurnPerSecond) outV[n++] = Star(p, (float)b.RadiusUnits, b.R, b.G, b.B, bright);
                 else
+                {
+                    ringed[i] = true;
                     for (int k = 0; k < trailPoints; k++)
                     {
                         double t = k / (double)trailPoints * Math.PI * 2;
                         outV[n++] = Star(centre + new Vec3((float)(Math.Cos(t) * b.OrbitUnits), 0, (float)(Math.Sin(t) * b.OrbitUnits)), (float)(b.RadiusUnits * 0.5), b.R, b.G, b.B, bright * 0.35f);
                     }
+                }
             }
             return n;
         }

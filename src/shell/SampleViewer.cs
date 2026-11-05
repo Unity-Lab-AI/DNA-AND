@@ -84,7 +84,7 @@ namespace DnaAnd.Shell
         {
             if (input.WasPressed(0xDB)) Set = 1;   // [ key
             if (input.WasPressed(0xDD)) Set = 2;   // ] key
-            _yaw += (float)dt * 0.12f;
+            _yaw += (float)dt * 0.03f;
             if (input.Wheel != 0) _zoom = Math.Max(0.3f, Math.Min(4f, _zoom * (float)Math.Pow(1.15, input.Wheel)));
         }
 
@@ -123,7 +123,7 @@ namespace DnaAnd.Shell
             {
                 var sys = _systems[row];
                 double outer = 0; foreach (var b in sys.Bodies) if (b.Parent < 0) outer = Math.Max(outer, b.OrbitUnits);
-                _sysCount[row] = SpaceGen.BodyVerts(sys, time / 20.0, 1 / 20.0, 0.5, _sysVerts[row], TrailPoints);
+                _sysCount[row] = SpaceGen.BodyVerts(sys, time / 200.0, 1 / 200.0, 0.05, _sysVerts[row], TrailPoints);
                 _sysBodies[row].Write(_sysVerts[row], _sysCount[row]);
                 for (int col = 0; col < 3; col++)
                 {
