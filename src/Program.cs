@@ -113,7 +113,7 @@ namespace DnaAnd
                 {
                     viewer.Update(window.Input, clock.Delta);
                     if (window.Input.RightClicked) { viewer.ToggleMark(window.Input.MouseX, window.Input.MouseY, window.Width, window.Height); menuDirty = true; }
-                    else if (window.Input.LeftClicked && viewer.Set == 4)
+                    else if ((window.Input.LeftClicked || window.Input.Wheel > 0) && viewer.Set == 4)
                     {
                         int col = Math.Max(0, Math.Min(2, window.Input.MouseX / Math.Max(1, window.Width / 3)));
                         planet = new PlanetView(gpu, meshes, pipeline, viewer.TerrainAt(viewer.RowAt(window.Input.MouseY, window.Height) * 3 + col));

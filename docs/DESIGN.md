@@ -627,3 +627,4 @@ Everything the creator has said about this project, in order. Short process repl
     - The giants have wind-curled bands, many storms (a great red one, white ovals, dark ones on the ice giant) and a high cloud deck.
     - Their puffy deep cloud tops can be flown down to. Giants have no ground.
     - Lava worlds show glowing cracks and rivers.
+75. "you grid of 9 is all fucked up when i zoom it it bairly even zooms in and the y all go toskeletons like im inside oall of them, but the single stests were all good, something is worng with the 9 grid semple test that its not propelry working like the single tests were, that were all good". Cause: the grid wheel moved every camera toward the planet centres with no surface check. Fix: the planet grid cameras stay fixed. Rolling the wheel over a planet (or clicking it) opens that planet's own fly-down from the same distance, and Esc returns to the grid.

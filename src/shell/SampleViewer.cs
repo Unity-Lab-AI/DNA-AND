@@ -144,7 +144,8 @@ namespace DnaAnd.Shell
             if (!OneSet && input.WasPressed(0xDB)) Set = 1;   // [ key
             if (!OneSet && input.WasPressed(0xDD)) Set = 2;   // ] key
             _yaw += (float)dt * 0.03f;
-            if (input.Wheel != 0 && Set != 2) _zoom = Math.Max(0.3f, Math.Min(4f, _zoom * (float)Math.Pow(1.15, input.Wheel)));
+            // the planet grid never moves its cameras: the wheel there opens that planet's own fly-down instead
+            if (input.Wheel != 0 && Set != 2 && Set != 4) _zoom = Math.Max(0.3f, Math.Min(4f, _zoom * (float)Math.Pow(1.15, input.Wheel)));
             if (input.Wheel != 0 && Set == 2) _sysZoom = Math.Max(0.3f, Math.Min(1e9f, _sysZoom * (float)Math.Pow(1.25, input.Wheel)));
         }
 
@@ -266,7 +267,7 @@ namespace DnaAnd.Shell
             {
                 var t = _terrains[i];
                 bool ringed = PlanetIds[i] == "gas-giant" || PlanetIds[i] == "ice-giant";
-                double R = t.Radius, dist = (ringed ? 5.4 : 3.3) * R / _zoom;
+                double R = t.Radius, dist = (ringed ? 5.4 : 3.3) * R;
                 // look from the lit side, a little off the line to the star, swaying gently
                 double sway = Math.Sin(_yaw * 2f + i) * 0.35 - 0.75;
                 double sx = t.StarDir[0], sz = t.StarDir[2], cs = Math.Cos(sway), sn = Math.Sin(sway);
@@ -325,7 +326,7 @@ namespace DnaAnd.Shell
             {
                 var st = new System.Text.StringBuilder(Set == 3 ? "Set 3 of 17: stars, all in the game's style (Populous-like)\n\n" : "Set 4 of 17: planets and gas giants, all in the game's style (Populous-like)\n\n");
                 for (int i = 0; i < 9; i++) st.Append("  Row " + (i / 3 + 1) + ", column " + (i % 3 + 1) + ": " + (Set == 3 ? _starNames[i] : _planetNames[i]) + "\n");
-                if (Set == 4) st.Append("\n  Left-click a planet: fly down to it, all the way to the ground\n");
+                if (Set == 4) st.Append("\n  Left-click a planet, or roll the mouse wheel over it: fly down to it, all the way to the ground (Esc comes back here)\n");
                 st.Append("\nControls:\n  Right-click a sample: mark or unmark it as a keeper (green frame)\n  Keepers menu: the same, with tick boxes\n  Mouse wheel: zoom\n  Exit menu or Esc: close the game\n\nKeepers are saved in picks.txt in the game folder.");
                 return st.ToString();
             }

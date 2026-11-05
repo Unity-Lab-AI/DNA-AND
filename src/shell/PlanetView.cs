@@ -35,7 +35,7 @@ namespace DnaAnd.Shell
             _dots = new BillboardDrawer(gpu.CommandList, dots);
             _dropBuf = new UploadBuffer(gpu.Device, (long)Drops * Marshal.SizeOf(typeof(StarVertex)));
             for (int i = 0; i < Drops; i++) { _dx[i] = _rng.NextDouble() * 2 - 1; _dy[i] = _rng.NextDouble() * 2 - 1; _dz[i] = _rng.NextDouble() * 2 - 1; }
-            _alt = terrain.Radius * 2.2;
+            _alt = terrain.Radius * 2.3;   // the same distance the grid shows it from, so the zoom carries straight on
             // solid worlds: all the way down to about a millionth of a metre; giants have no ground, so the cloud tops are the floor
             _minAlt = terrain.Solid ? 1e-9 : 0.05;   // giants: down onto the puffy tops of the deep cloud deck
             terrain.StartPoint(out _lat, out _lon);
