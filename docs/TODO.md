@@ -135,6 +135,14 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 - [ ] Grouping crowds by area ("1 worm can be 4396 worms")
   - One group per cell and species. A group splits when its genes drift, and individuals appear when you zoom in.
 - [ ] Food chains, disease, extinction, new species
+- [ ] All things flock together, a 100-step grouping ladder for every kind of life: "and all things flock togther meaning intigenct>tirbes>villages>towns>cities wolf>pack>horde>intelligence>humanoioidwolf but more steps with all things do you get what i mean by all things"
+  - Steps listed in `docs/wiki/groups-and-flocking.md`. Each kind takes its own path, and groups merge and split.
+  - Any line of life can climb to intelligence, not just apes.
+- [ ] Mixed-species groups and subjugation: "1 yes just like real life, one species can subjegate another in ever way possible this is a 18 plus game because it has all type of things form sex to killing and murder"
+- [ ] Tree of life: "option 1, every thing blows up to 100 ,, nutiorents, elements, species, the whoel kingdom philum class gensis species thing is all 100 tracking with the whole lengogy tree of life the circular type ones for the heretitary and the genr tree of lifee palnet or solor sytem or galaxy sortable"
+  - A circular family tree (heredity) and a gene tree. Sortable by planet, solar system or galaxy. Extinct branches are kept.
+  - Every rank, from domain to species, is tracked to 100: real plus invented.
+- [ ] Top 100 nutrients list
 - [ ] Milestones for every stage of life
   - All 100 stages (`docs/wiki/stages-of-life.md`). Each stage unlocks the powers that fit it, with stronger "+" versions later.
 
@@ -175,6 +183,7 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
   - Each stage has its own years-per-second.
 
 ### R13 — Game shell
+- [ ] 18+ rating shown on the store/release page, installer and main menu: "this is a 18 plus game"
 - [ ] Open-ended play: "open ended till u resarts to get a new world and galaxy"
 - [ ] Main screen
   - New World, Continue/Load, Multiplayer, Genebank + Leaderboard, Wiki, Settings, Credits, Quit.
