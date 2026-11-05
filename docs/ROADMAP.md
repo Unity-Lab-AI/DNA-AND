@@ -89,7 +89,7 @@ Random generation from a seed, at full galaxy scale, with more than one galaxy.
 
 - 100 kinds of space objects: Oort clouds, the Kuiper belt, comets, asteroid belts, nebulas, moons, black holes and the rest. Comets and meteorites really hit planets (`docs/wiki/space-and-dyson-spheres.md`, round 16).
 
-- Galaxy sizes: Small, Medium, Large or Massive.
+- Galaxy sizes: Small 100, Medium 500, Large 2,000, Massive 10,000 star systems, every one fully simulated ("Fewer, every one detailed").
 
 ### [ ] R6 — The planet: Earth and unlockable templates
 > "EARTH(but other templets too you can unlock after reaching certain points on Earth." / "full massive wolrd with everything(when i say everything i fucking mean everything) that a wrold has on it like earth"
