@@ -1,8 +1,8 @@
 ---
 title: R5 · Universe
-status: draft
+status: partial
 sources: [docs/DESIGN.md (rounds 1-2), docs/ROADMAP.md#R5]
-last-verified: none (plan only)
+last-verified: fdaea69
 ---
 
 # 🌌 R5 · Universe
@@ -43,3 +43,16 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 - `content/nebulas.dnat`: 12 entries (The five main kinds, Star-forming structures) and 6 rules
 - `content/small-bodies.dnat`: 39 entries (Asteroids by makeup, Asteroids by orbit, Comets, Dwarf planets and far bodies, Meteors and meteorites) and 7 rules
 - `content/moons.dnat`: 18 entries (By how they formed, By surface and inside, By orbit) and 6 rules
+
+## 🔨 Built so far
+
+- **A universe of 36 galaxies** (`src/shell/UniverseView.cs`). The wheel zooms into the galaxy under the mouse.
+- **The galaxy** (`DeepView.cs`):
+  - 150,000 stars, clusters and nebulas, and the core black hole at the real centre.
+  - The wheel zooms where the mouse points. Clicking any star marks it with a ring and flies to it.
+- **Solar systems** (`src/gen/SpaceGen.cs`):
+  - Each star's own system opens whole. Click a planet or moon, or Tab to one.
+  - Star sizes are real, from `radius-sol` in content.
+  - The star is drawn as a coloured shine from far away and as its plasma and corona up close.
+  - The planet being approached is drawn as the real 3D planet.
+- **The Dyson sphere** (`src/gen/DysonGen.cs`, `PlanetTerrain.cs` in shell mode): an industrial hull outside and a terraformed inside-out world, with free flight.

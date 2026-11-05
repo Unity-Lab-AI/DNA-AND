@@ -10,16 +10,24 @@
 
 | Action | What it does |
 |---|---|
-| 🖱️ **Left-click** | Use the selected [power](god-powers.md "Your god abilities: fire, water, plague, meteor and 96 more") |
-| 🖱️ **Right-drag** | Rotate the camera |
-| 🖱️ **Scroll wheel** | Zoom — from a single microbe all the way out to a galaxy |
+| 🖱️ **Left-click** | Use the selected [power](god-powers.md "Your god abilities: fire, water, plague, meteor and 96 more"), or pick a galaxy, star, planet or moon to go to |
+| 🖱️ **Left-drag** | Rotate the camera in space; move across the ground on a world |
+| 🖱️ **Right-drag** | Turn the view |
+| 🖱️ **Scroll wheel** | Zoom where the mouse points, from a whole universe of galaxies down to a single microbe |
+| ⌨️🖱️ **Ctrl + scroll** | Zoom eight times as fast |
 | 🖱️ **Move to screen edge** | Pan the camera |
 
 ## ⌨️ Keyboard
 
 | Key | What it does |
 |---|---|
-| **W A S D** | Pan the camera |
+| **W A S D** | Pan the camera; on a world, move across the ground; inside a Dyson sphere, fly |
+| **Q E** | Turn left and right |
+| **Tab** | Step through the planets and moons of a solar system |
+| **R** | Resource view: every resource field lights up in its own colour |
+| **N** | Fly to the next kind of resource field |
+| **I** or **C** | Go inside a Dyson sphere, or back out |
+| **M** | Inside a Dyson sphere: the view from the middle, beside its star |
 | **Space** | Pause / unpause |
 | **1 – 5** | Time speeds (1×, 10×, 100×, 1,000×, max) |
 | **Esc** | Menu |
@@ -36,11 +44,13 @@
 
 ## 🔭 The zoom ladder
 
-One scroll wheel takes you through every scale of the game:
+One scroll wheel takes you through every scale of the game, in and out, with no loading screens:
 
 ```
-🦠 Microbe → 🐜 Creature → 🌳 Forest → 🗺️ Continent → 🌍 Planet → ☀️ Solar system → 🌌 Galaxy
+🌌 Universe → 🌀 Galaxy → ⭐ Star → ☀️ Solar system → 🌍 Planet → 🗺️ Continent → 🌳 Forest → 🐜 Creature → 🦠 Microbe
 ```
+
+Everything keeps its true size. A red supergiant can be over a thousand times wider than our star, and a planet stays a speck until you are close. In the sea, life shows at the size you are looking at, from great sharks down to amoebas. On land, the view fades into the dark of the soil before the microbes appear.
 
 > 💡 **Tip:** Powers work at the scale you're looking at. Zoom in to touch one tide pool. Zoom out to touch a whole continent.
 

@@ -619,6 +619,10 @@ When a civilization reaches the space age, everything changes. For the first tim
 
 A [Dyson sphere](glossary.md#dyson-sphere "A shell of machines built around a star to catch all its energy") is a giant shell of machines built around a star to catch its energy. It's the mark of a truly advanced civilization.
 
+🏭 **Outside**, it is an industrial megastructure: sectors split by deep trenches, machinery, towers and pipe runs, with docks for the ships that trade around it. Spaceships, docks and whole economies grow up around Dyson spheres.
+
+🌄 **Inside**, it is a world turned inside out. Its spin holds the air, seas and land onto the inner surface, terraformed into whole living worlds, with the star always overhead. Go in through the hull, fly over the land, and stand on it.
+
 <!-- IMG: docs/img/dyson-sphere.png | A star half-wrapped in a glowing lattice of panels, construction ships swarming the open half -->
 > 🖼️ *A Dyson sphere half-built around its star* — rendered by the game's own 3D generator
 

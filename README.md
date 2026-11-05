@@ -376,9 +376,10 @@ Powers cost **Souls**. Cost = the power's **tier (T1–T100) × area × strength
 | Key | |
 |--|--|
 | `W A S D` / screen edges | Pan |
-| `Scroll wheel` | Zoom, from one microbe to a whole galaxy |
+| `Scroll wheel` | Zoom where the mouse points, from a universe of galaxies to one microbe |
+| `Ctrl` + `Scroll wheel` | Zoom eight times as fast |
 | `Right-drag` | Rotate |
-| `Left-click` | Use the selected power |
+| `Left-click` | Use the selected power, or pick a galaxy, star or planet to go to |
 | `Space` | Pause |
 | `1 – 5` | Time speeds |
 | `F1` | In-game wiki |

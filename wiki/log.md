@@ -111,3 +111,8 @@ Append-only. Newest at the bottom.
 - Set 7: the elements as game icons, with melting and boiling points and temperature and pressure controls, plus the air of every world.
 - Set 8: a live microbe ecosystem.
 - The journey: one continuous zoom from galaxies to microbes and back. You can click any star and any planet. There are real sizes and no popping. Sea life is shown at true scale.
+
+## 2026-11-05 — Staleness check
+
+- The pages for the toolchain, Windows layer, engine core, universe, planet, life sim and god mode now record what is built. Status is partial where built, and verified against the current code.
+- The public docs are updated too: controls (Ctrl + wheel, zoom where the mouse points, Tab, R, N, I, C, M), powers (lightning restarts life), elements (heat and pressure, the icon looks), resource fields (the resource view, species use resources, life-made fuels), Dyson spheres (the world inside), and the air of each world.

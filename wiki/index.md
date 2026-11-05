@@ -11,13 +11,13 @@ How the game gets built, system by system, all from scratch. 🟡 = draft (plan 
 | 🟡 | [R3 · Engine core](systems/r03-engine-core.md "Math, memory, giant arrays, threads, saves") | The base every system sits on |
 | 🟡 | [R4 · Renderer](systems/r04-renderer.md "AAA 3D graphics from scratch") | Graphics, zoom from microbe to galaxy, the 3D image generator |
 | 🟡 | [R4.4 · Live generators](systems/r04b-generators.md "Every asset built on the fly, nothing pre-built") | Creature, city, space tech and 15 more generators (18 in all) |
-| 🟡 | [R4.5 · Style samples](systems/r04-renderer.md#-style-samples-come-first "The style is locked; sets 1-4 approved") | Locked: Populous-like for everything. Sets 1–4 approved, 5–17 to go |
+| 🟡 | [R4.5 · Style samples](systems/r04-renderer.md#-style-samples-come-first "The style is locked; sets 1-8 approved") | Locked: Populous-like for everything. Sets 1–8 approved (galaxies to microbes, elements, Dyson sphere), the journey built |
 
 ## 🌌 The world
 | | Page | What it covers |
 |---|---|---|
-| 🟡 | [R5 · Universe](systems/r05-universe.md "Stars, planets, solar systems, galaxies") | Seeded galaxy generation |
-| 🟡 | [R6 · Planet](systems/r06-planet.md "Earth + unlockable templates") | Ground, sea, air, weather, chemistry |
+| 🟡 | [R5 · Universe](systems/r05-universe.md "Stars, planets, solar systems, galaxies") | Built in part: universe of galaxies, galaxy, any star, its solar system, the Dyson sphere |
+| 🟡 | [R6 · Planet](systems/r06-planet.md "Earth + unlockable templates") | Built in part: ground to micrometres, sea, air, weather, resource fields, sea life at true scale |
 
 ## 🧬 Life
 | | Page | What it covers |

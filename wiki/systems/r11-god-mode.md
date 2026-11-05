@@ -1,8 +1,8 @@
 ---
 title: R11 · God mode + Souls
-status: draft
+status: partial
 sources: [docs/DESIGN.md (rounds 1-4), docs/POWERS.md, docs/ROADMAP.md#R11]
-last-verified: none (plan only)
+last-verified: fdaea69
 ---
 
 # ⚡ R11 · God Mode + Souls
@@ -52,3 +52,8 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 - `content/physics.dnat`: 49 entries (The four forces of nature, Particles and atoms, Inside a planet, What moves inside a planet, Atmospheres) and 8 rules
 - `content/elements.dnat`: 118 entries (Main) and 5 rules
 - `content/life/extinct.dnat`: 47 entries (Mass extinctions (the Big Five, and after), The first strange animals, Early fish and the walk onto land, Dinosaurs, Other Mesozoic giants, After the dinosaurs: the age of mammals, Extinct plants) and 5 rules
+
+## 🔨 Decided so far
+
+- Lightning, and Spark of Life, can start life again, anywhere and any number of times on one planet. Each start is its own family tree.
+- Resources are for the species. The god has no use for them.
