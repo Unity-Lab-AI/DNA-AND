@@ -185,6 +185,28 @@ Gee handed these choices over, so Claude picked the best AAA option for each. Ev
 
 ---
 
+## Round 6: art style samples (verbatim)
+
+The ask: "remembr we arent using other peoples shit unless we absoulutley have to so plan on buiolding it all and things like ingame microbes viruses and intelligernt creature should all have samples 1,2,3 made in 3 diffeernt styles 1,2,3 for a hand ful of things in the game before we go with any one style and same for things like the galaxy layouts solarsystem layouts and planets and stars and dyson spheres and space ships and space colonires ands space stations and rouseource firleds and gas giants and athe whole periodic table of elements"
+
+| Question | Answer (verbatim) |
+|---|---|
+| How many pictures per thing | "3 samples × 3 styles = 9 (Suggested)" |
+| Which 3 styles | "not one thats too gpu intense and these will be living things in the environment moving and spreading as told before, so come up with the best options idk try a rimworld like and a, populous like, and a stardew like, idk figure it out, but we cant do em till you build tyhier egine and shit" |
+| When | "Right after basic graphics (Suggested)" |
+
+### What these mean for the build
+- **No art style gets locked in until the samples are compared.** For each subject there are 3 examples, each drawn in all 3 styles, so 9 pictures per subject.
+- **The 3 styles,** all drawn originally by us and never copied:
+  1. **RimWorld-like:** clean, flat, top-down, readable shapes with simple shading.
+  2. **Populous-like:** low-poly 3D terrain seen from the god's view, with chunky sculpted land.
+  3. **Stardew-like:** warm pixel art, cozy and colorful.
+- **Light on the graphics card.** Thousands of living things move and spread on screen at once, so whichever style wins has to stay cheap to draw. "AAA" means the polish and the feel, not heavy graphics.
+- **Everything is built by us.** The samples come from our own 3D generator ("we cant do em till you build tyhier egine"), right after the basic renderer works.
+- **Subjects:** microbes, viruses, intelligent creatures, plus a handful of other living things, galaxy layouts, solar system layouts, planets, stars, gas giants, Dyson spheres, spaceships, space colonies, space stations, resource fields, and all 118 elements.
+
+---
+
 ## How we work (verbatim)
 
 These are the creator's working rules for this repo, each in his own words.
@@ -199,6 +221,7 @@ These are the creator's working rules for this repo, each in his own words.
 | Git over HTTPS | "u have to use https im signed in right now" / "try again use https im signed in now" |
 | Decisions stay in the main session | "stop u dont outsource importatn decistions to a fuucking agent thhat knows nothing of the project!" |
 | Suggestions as multiple choice | "option 2. but use this way to give me suggestions" |
+| Nothing from outside | "remembr we arent using other peoples shit unless we absoulutley have to so plan on buiolding it all" |
 | Everything is 100 | "i think i told you 100x everything, did you not properly understand what everything means and need to reassess what ive already told you?" |
 
 **In practice:**
@@ -235,3 +258,4 @@ Everything the creator has said about this project, in order. Short process repl
 18. "stop u dont outsource importatn decistions to a fuucking agent thhat knows nothing of the project!"
 19. "you need to make the todo and docs all of them proper"
 20. **Review ask:** "then /unity so she(our in house special info handler codex) can make sure nothing waas left out in all the verbatium words and answers given and shew knows me best"
+21. **Style samples ask:** see "Round 6" above. Answers: "3 samples × 3 styles = 9 (Suggested)" / "not one thats too gpu intense and these will be living things in the environment moving and spreading as told before, so come up with the best options idk try a rimworld like and a, populous like, and a stardew like, idk figure it out, but we cant do em till you build tyhier egine and shit" / "Right after basic graphics (Suggested)"

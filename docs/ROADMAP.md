@@ -58,6 +58,11 @@ Talking to the graphics card per system, lighting, shadows, water, sky, terrain,
 - Uses **Direct3D 12**, which is part of Windows.
 - Also covers our own **3D image generator** and the **auto-capture tool** (a mode of the game exe) that renders every image the docs need: "we will need to design the #D genrator and botting of them".
 
+### [ ] R4.5 — Art style samples (before any final art)
+> "things like ingame microbes viruses and intelligernt creature should all have samples 1,2,3 made in 3 diffeernt styles 1,2,3 for a hand ful of things in the game before we go with any one style" / "try a rimworld like and a, populous like, and a stardew like"
+
+Our own 3D generator makes 3 examples of each subject, each drawn in all 3 styles (RimWorld-like, Populous-like, Stardew-like). That's 9 pictures per subject. The creator picks one style before any final art is made. The style has to stay light on the graphics card, because thousands of living things move and spread at once. This starts right after R4's basic renderer works.
+
 ### [ ] R5 — The universe: stars, planets, solar systems, galaxies
 > "stars+planets>solar sytems> galaxys" / "obviously galaxy size to buidl dyson spheres and ingalactic war"
 

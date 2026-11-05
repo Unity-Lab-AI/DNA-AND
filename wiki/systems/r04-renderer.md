@@ -33,3 +33,16 @@ Scroll from a single microbe up to the whole galaxy with no loading screens. Eac
 > "we will need to design the #D genrator and botting of them"
 
 All icons and art come from the game's own generator: creatures from genomes, planets from seeds, icons from the same renderer. See [R17](r17-docs-and-capture.md).
+
+## 🎨 Style samples come first
+
+No final art style is locked in until the creator compares samples (`docs/DESIGN.md`, round 6).
+
+| | |
+|---|---|
+| 🖼️ **What** | 3 examples of each subject, each drawn in 3 styles: 9 pictures per subject |
+| 🎨 **Styles** | RimWorld-like (flat, top-down), Populous-like (low-poly 3D god view), Stardew-like (pixel art), all original |
+| 🪶 **Rule** | Light on the graphics card. Thousands of living things move and spread at once |
+| ⏱️ **When** | Right after the basic renderer works |
+
+Subjects: microbes, viruses, intelligent creatures, a handful of other living things, galaxy and solar system layouts, planets, stars, gas giants, Dyson spheres, spaceships, space colonies, space stations, resource fields, and all 118 elements.
