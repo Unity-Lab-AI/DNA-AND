@@ -121,7 +121,8 @@ Space travel, spreading life to other planets, colonies, Dyson spheres, war acro
 Powers that help or hurt life, unlocked over time with points. Gene powers unlocked later have good or bad outcomes. Life starts from your first action. "THIS IS NOT A MOBILE CLICKER".
 
 - 100 powers (`docs/POWERS.md`, approved: "Use them as is").
-- Paid in **Souls** ("Souls"). Cost = tier × area × strength. Tier 4–5 powers have cooldowns.
+- Paid in **Souls** ("Souls"). Cost = tier × area × strength, with 100 tiers (T1–T100, ranked weakest to strongest). T81–T100 have cooldowns.
+- 100 unlock points: the 100 stages of life. Every power unlocks at exactly one stage, and the 5 starters at stage 1.
 - Harvesting is slow and scares intelligent life if they see it. Disasters that kill many give lots of souls ("a volcano kicking off a city will make lots of souls").
 - Starting toolkit: lightning, heat (fire), cold, water, spark of life, add genes, and add elements from the full periodic table.
 

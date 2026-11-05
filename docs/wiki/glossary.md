@@ -12,7 +12,7 @@ Every highlighted word in the wiki links here.
 | <a id="asexual"></a>🧫 **Asexual** | Making young from one parent, by copying itself. |
 | <a id="biome"></a>🌳 **Biome** | A kind of environment, like desert, rainforest or tundra. |
 | <a id="civilization"></a>🏛️ **Civilization** | Intelligent life living together with culture, politics, technology and war. |
-| <a id="cooldown"></a>⏳ **Cooldown** | Wait time before a tier 4 or 5 power can be used again. |
+| <a id="cooldown"></a>⏳ **Cooldown** | Wait time before one of the 20 strongest powers (T81–T100) can be used again. |
 | <a id="dna"></a>🧬 **DNA** | The four-letter code (A, C, G, T) that builds every living thing. |
 | <a id="dyson-sphere"></a>🌞 **Dyson sphere** | A giant shell of machines built around a star to catch all its energy. |
 | <a id="element"></a>⚗️ **Element** | One of the 118 basic building blocks of matter. See [Elements](elements.md). |
