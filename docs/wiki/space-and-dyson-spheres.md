@@ -8,7 +8,7 @@
 
 ## 🔭 What's out there: 100 kinds of space objects
 
-Your galaxy is full of more than stars and planets. Every one of these is generated live (LAW 14), and each one matters: for mining, for travel, for danger, or for life.
+Your galaxy is full of more than stars and planets. Every one of these is generated live, and each one matters: for mining, for travel, for danger, or for life.
 
 ### 🪐 Planets (1–10)
 

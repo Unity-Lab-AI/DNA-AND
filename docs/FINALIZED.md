@@ -127,3 +127,9 @@ New pages: `docs/wiki/society.md`, `docs/wiki/nudges.md`, `docs/wiki/dark-harves
 - New law: LAW 14, no pre-built assets.
 - Updated: README, HOW-TO-BUILD (`src/gen/`), the genes page, the renderer page, the image README, and the builder index.
 - Correctness scan: fixed one stale line ("Tier 4–5 cooldowns" in POWERS). 64 files, 0 broken links, all lists at 100.
+
+**Public docs cleaned.** Verbatim: "the wiki is public facing so it doesnt have work note and no public document shall have work note and numbers and stuff in them". Removed:
+- creator quotes, "decided" and "LAW 14" notes, "read as" notes, and roadmap codes
+- links to internal docs, from the README, player wiki, SETUP and HOW-TO-BUILD
+
+Added LAW 15.

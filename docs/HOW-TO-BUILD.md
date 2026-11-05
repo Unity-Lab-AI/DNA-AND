@@ -1,12 +1,8 @@
 # 🛠️ How to Build DNA-AND from Source
 
-> ⚖️ **Read [the Work Laws](WORK-LAWS.md "The docs are the spec") first.** Every line of code is written from the docs.
-
 > 🟡 **This is the plan.** No game code or tools exist yet. This page describes how the build **will** work, and it gets updated as each step is built.
 
 ## 🚫 The one rule
-
-> "No dependancies!!!! WE DO NOT USE ANOYONE ELSE CODE< SCRIPTS< PROGERMAES< BINARIES <EXECULATEBLES< TANBLES< DATA< FILES< FOLDERS< DIRECTORES< OR COMPOLIERS"
 
 No outside compiler, no libraries, no build tools. The only outside things are **Windows itself** and the **graphics card driver**.
 
@@ -50,7 +46,7 @@ Each step builds the next. The first step is the only one that isn't built by a 
 1. Open the repo folder.
 2. Run the bootstrap. It builds steps 0 to 4 once and then reuses them.
 3. Build the game with `dnac.exe`.
-4. Build the installer, `DNA-AND-Setup.exe` ([R16](../wiki/systems/r16-packaging.md)).
+4. Build the installer, `DNA-AND-Setup.exe`.
 
 📝 The exact commands get written here once step 0 exists.
 

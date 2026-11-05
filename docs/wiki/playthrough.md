@@ -75,8 +75,6 @@ Bare rock. Boiling seas. Poison air. Nothing alive.
 
 Conditions look right: warm shallow water full of chemistry. Cast ✨ **Spark of Life**.
 
-> "life starts base on your first action"
-
 The first cells flicker in a tide pool. The game **slows down automatically** so you can watch this milestone happen.
 
 <!-- IMG: docs/img/first-cells.png | Close zoom into a tide pool, the first glowing single cells drifting in the water -->
@@ -151,8 +149,6 @@ One species starts using tools. In this run it's an ape, but it could be wolves,
 
 > 🧠 **Watch the minds stack up:** the tribe gets a group AI, then the whole species one. Every member still wants its own genes to win, so expect betrayal. See [How life thinks](groups-and-flocking.md#-how-life-thinks "Layered mini AIs, from chemistry to galactic mind").
 
-> "intelligent life has amazing ways of killing its self"
-
 > 🔞 **From here on it gets dark.** Thinking life hunts, enslaves, sacrifices and wages war. This is an 18+ game.
 
 From here on you **nudge** intelligent life. You never command it. You have the powers people credit God with.
@@ -212,8 +208,6 @@ Space powers open up: 🪐 **Orbit Nudge**, 🔆 **Star Brighten**, 🌀 **Wormh
 
 ## 10 · 🪐 Other worlds
 
-> "to get to other planbets intelligent life has to get there first"
-
 Your civilization lands on a new planet, and life can spread there. New [planet templates](planets-and-templates.md "Earth first, then other templates you unlock") unlock, with other worlds that evolve in other orders.
 
 - 🌱☄️ **Life Seed** sends life ahead by rock.
@@ -227,8 +221,6 @@ A civilization wraps its star in a shell of collectors. It's the biggest structu
 
 <!-- IMG: docs/img/dyson-sphere.png | A star half-enclosed by a lattice of glowing Dyson-sphere panels -->
 > 🖼️ *A star half-enclosed by a lattice of glowing Dyson-sphere panels* — rendered by the game's own 3D generator
-
-> "since all life is like a virus advanced forms seprad and use up avasil nutrientrs and resources and have to spread"
 
 Advanced life has used up what it has. It has to spread again.
 
@@ -249,8 +241,6 @@ Other civilizations, maybe your own split-off colonies, meet across the void. In
 ## 13 · ♾️ The open end
 
 There's no final screen. The galaxy goes on: life rises, falls and rises again.
-
-> "open ended till u resarts to get a new world and galaxy"
 
 When you're ready, go back to the main menu and start a **new world and galaxy**. Your score goes to the [Leaderboard](leaderboard-and-genebank.md "Top players and the Genebank"):
 

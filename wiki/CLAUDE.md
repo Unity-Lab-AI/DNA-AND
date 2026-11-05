@@ -41,3 +41,7 @@ After any significant change:
 ## ⚖️ Work laws
 
 These pages are the **spec** for the code (`docs/WORK-LAWS.md`, LAW 1–4). Code is written from these pages. When code matches a page, set `status: verified` and `last-verified: <commit>`. If code needs a detail that no page gives, ask the creator first and record the answer in `docs/DESIGN.md`.
+
+## 🚫 Public vs internal (LAW 15)
+
+This builder wiki is **internal**, so work notes belong here. The **public** docs (`README.md`, `docs/wiki/`, `docs/SETUP.md`, `docs/HOW-TO-BUILD.md`) never carry work notes: no round, law or roadmap numbers, no creator quotes, no "decided" notes, and no links to internal files. When a decision changes a public page, the quote and the reasoning go in `docs/DESIGN.md`, and the public page gets only clean player-facing text.

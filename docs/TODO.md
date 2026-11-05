@@ -372,6 +372,7 @@ Order: galactic scale down, the same order as the sample sets.
 
 - [ ] Fill all 55 image slots with the R4 capture tool
 - [ ] Keep README and DESIGN up to date
+- [ ] Every push: public docs (README, player wiki, SETUP, HOW-TO-BUILD) carry no work notes, per WORK-LAWS LAW 15: "the wiki is public facing so it doesnt have work note and no public document shall have work note and numbers and stuff in them" / "and make that a law and build it inbto the docs"
 - [ ] Keep every wiki page true as code lands: update `last-verified` and flip `status` from draft to verified
 
 ---
