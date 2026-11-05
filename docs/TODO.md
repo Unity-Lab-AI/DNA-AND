@@ -483,7 +483,8 @@ Order: galactic scale down, the same order as the sample sets.
 ### R12 — Time
 **Spec:** `wiki/systems/r12-time.md`, `docs/wiki/time.md`, `docs/wiki/milestones.md`
 
-- [ ] Pause and speed controls
+- [~] Pause and speed controls (in the deep zoom: Space and 1–5)
+- [x] Calm motion: on-screen motion capped, faster bodies shown as soft trails: "we cant have real motion with speed uup time and shit" / "people would get dizzy" / "Speed cap + trails (Suggested)"
   - Pause plus 1×, 10×, 100×, 1,000× and max.
 - [ ] Automatic speed jumps at headline milestones only
 - [ ] Milestone generator: 100 milestones per stage, built from the top-100 lists (10 families × 10). Milestone 100 is the headline (`docs/wiki/milestones.md`)

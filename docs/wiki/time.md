@@ -22,6 +22,14 @@
 
 ---
 
+## 🌀 Calm motion
+
+Speed time up all you like, and nothing on screen will whirl. The world keeps its full speed, but motion you see never goes faster than a gentle, comfortable pace. Planets racing around their stars turn into soft glowing orbit trails, and galaxies and black-hole disks keep a slow, steady turn.
+
+> ♿ Want it calmer still? Turn on **reduced motion** in Settings → Accessibility.
+
+---
+
 ## 🐢 Milestone slow-downs
 
 When something big happens — the first walk, the first fire, the first farm, the first rocket — the game **slows itself down** so you can see it.
