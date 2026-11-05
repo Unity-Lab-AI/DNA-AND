@@ -589,11 +589,11 @@ Order: galactic scale down, the same order as the sample sets.
   - [x] Samples: Planets (3 examples × 3 styles)
   - [x] Samples: Stars (3 examples × 3 styles)
   - [x] Samples: Gas giants (3 examples × 3 styles)
-  - Samples: Dyson spheres (3 examples × 3 styles)
+  - [x] Samples: Dyson spheres (3 examples × 3 styles)
   - Samples: Space ships (3 examples × 3 styles)
   - Samples: Space colonies (3 examples × 3 styles)
   - Samples: Space stations (3 examples × 3 styles)
-  - Samples: Resource fields (3 examples × 3 styles)
+  - [x] Samples: Resource fields (3 examples × 3 styles)
   - Samples: The whole periodic table of elements (all 118) (3 examples × 3 styles)
 - **"Combined score from all the categories"** (R15). Replaced by the creator's round 4 answer: "life in your galaxy and life \"havested\"". The new task is under R15.
 - **"Power list (`docs/POWERS.md`)"** (R11). The list itself is done (see FINALIZED). Replaced by "Build all 100 powers from the power list".
