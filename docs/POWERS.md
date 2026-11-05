@@ -6,6 +6,8 @@
 
 **Status: APPROVED** ("Use them as is"). The 100 powers are grouped by type. The ones you named yourself are marked ★. Costs, unlock points and cooldowns are on the [God Powers wiki page](wiki/god-powers.md).
 
+📖 Player wiki version, with costs, unlocks and cooldowns: [God Powers](wiki/god-powers.md)
+
 ## Heat, cold and weather
 | # | Power | What it does | Plus | Minus |
 |---|---|---|---|---|

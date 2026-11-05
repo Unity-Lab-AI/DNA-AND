@@ -264,6 +264,7 @@ These are the creator's working rules for this repo, each in his own words.
 | Decisions stay in the main session | "stop u dont outsource importatn decistions to a fuucking agent thhat knows nothing of the project!" |
 | Suggestions as multiple choice | "option 2. but use this way to give me suggestions" |
 | Nothing from outside | "remembr we arent using other peoples shit unless we absoulutley have to so plan on buiolding it all" |
+| Docs stay complete | "okay not check everyfucking document is writen for the full complete game with links and refrences to all the othe docsds where needed and constantly fix regress as you work to getting all docs and wiki updated to the game design as its been layed out" |
 | Everything is 100 | "i think i told you 100x everything, did you not properly understand what everything means and need to reassess what ive already told you?" |
 
 **In practice:**
@@ -273,6 +274,7 @@ These are the creator's working rules for this repo, each in his own words.
 - Design decisions are never handed off to helpers.
 - Questions come as multiple choice, with suggestions.
 - Every list has 100 entries.
+- Every change also updates every doc it touches, with cross-links, and regressions are checked and fixed as part of the same batch.
 
 ---
 
@@ -303,3 +305,4 @@ Everything the creator has said about this project, in order. Short process repl
 21. **Style samples ask:** see "Round 6" above. Answers: "3 samples × 3 styles = 9 (Suggested)" / "not one thats too gpu intense and these will be living things in the environment moving and spreading as told before, so come up with the best options idk try a rimworld like and a, populous like, and a stardew like, idk figure it out, but we cant do em till you build tyhier egine and shit" / "Right after basic graphics (Suggested)"
 22. **All things flock together:** see "Round 7" above. Ask: "and all things flock togther meaning intigenct>tirbes>villages>towns>cities wolf>pack>horde>intelligence>humanoioidwolf but more steps with all things do you get what i mean by all things". Answers: "Yes, exactly" / "option 1, every thing blows up to 100 ,, nutiorents, elements, species, the whoel kingdom philum class gensis species thing is all 100 tracking with the whole lengogy tree of life the circular type ones for the heretitary and the genr tree of lifee palnet or solor sytem or galaxy sortable" / "1 yes just like real life, one species can subjegate another in ever way possible this is a 18 plus game because it has all type of things form sex to killing and murder"
 23. **Mini AIs:** see "Round 8" above. Ask: "and we will have to make the mini ai's that are individual, species, hive, glactic mind like typ dynamic control ai of what they are suppose to so selfish gene like all life tries to get more and do more before death but life is life death comes". Answers: "Bigger steers smaller (Suggested)" / "option 2 but real life non brian things still do thing sin life do you need to research?"
+24. **Docs audit:** "okay not check everyfucking document is writen for the full complete game with links and refrences to all the othe docsds where needed and constantly fix regress as you work to getting all docs and wiki updated to the game design as its been layed out"

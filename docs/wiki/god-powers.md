@@ -1,5 +1,7 @@
 # ⚡ God Powers
 
+[🏠 Wiki home](README.md) · [📖 Glossary](glossary.md) · [❓ FAQ](faq.md)
+
 > *You don't build life. You make the world it has to survive in.*
 
 <!-- IMG: docs/img/powers-banner.png | A god's-eye view of a young planet: lightning striking a steaming ocean, a volcano glowing on the coast -->
@@ -242,8 +244,4 @@ On a dead planet, on day one, you have:
 
 ## 🔗 See also
 
-- [Souls & Harvesting](souls-and-harvesting.md "Where souls come from and what harvesting costs you")
-- [Full Playthrough](playthrough.md "One complete game from dead rock to Dyson sphere")
-- [Controls](controls.md "How to pan, zoom and cast powers")
-- [Genes & DNA](genes-and-dna.md "Real-style genomes")
-- [Elements](elements.md "All 118 elements")
+[Souls & Harvesting](souls-and-harvesting.md "The currency of a god") · [Getting Started](getting-started.md "Your first world, your first hour") · [Stages of Life](stages-of-life.md "100 stages, chemistry to the stars") · [Genes & DNA](genes-and-dna.md "How real-style genomes build life") · [Full Playthrough](playthrough.md "One full game, dead rock to intergalactic war") · [Controls](controls.md "Mouse, keys, and zooming from microbe to galaxy") · [Elements](elements.md "All 118 elements and what they do") · [🏠 Wiki home](README.md)

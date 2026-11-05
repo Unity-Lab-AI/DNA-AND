@@ -6,6 +6,8 @@
 
 ---
 
+> 🔞 **18+ only.** Life in DNA-AND does everything real life does, from sex to killing and murder.
+
 ## 1️⃣ Make a world
 
 From the main menu, pick **New World**.
@@ -82,3 +84,9 @@ You never control life directly. You **nudge** it.
 | 🦎 Life on land | Raise some land, keep it wet |
 
 Then the real journey starts. 👉 **[Full Playthrough](playthrough.md)**
+
+---
+
+## 🔗 See also
+
+[Controls](controls.md "Mouse, keys, and zooming from microbe to galaxy") · [God Powers](god-powers.md "All 100 powers, pluses and minuses") · [Souls & Harvesting](souls-and-harvesting.md "The currency of a god") · [Stages of Life](stages-of-life.md "100 stages, chemistry to the stars") · [Full Playthrough](playthrough.md "One full game, dead rock to intergalactic war") · [FAQ](faq.md "Common questions") · [🏠 Wiki home](README.md)

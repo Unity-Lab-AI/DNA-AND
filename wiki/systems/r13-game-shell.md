@@ -30,3 +30,7 @@ The in-game wiki covers everything in the game: every entry in the top-100 lists
 
 ## ♾️ No game over
 > "open ended till u resarts to get a new world and galaxy"
+
+## 🔞 Rating
+
+The game is 18+ ("this is a 18 plus game because it has all type of things form sex to killing and murder"). The rating shows on the main menu, the installer and the release pages.

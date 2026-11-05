@@ -30,3 +30,7 @@ Later in the game, intelligent life harvests life for you. In the endgame, it ha
 
 ## 🙏 You only nudge
 > "only every nudge evrything but u get the power of god to basicly do everything peopel attribute god doing."
+
+## 🐺 Any species
+
+Civilization is not only for apes. Any line that evolves intelligence climbs the 100 ages, steered by its species AI and in the end a galactic mind (`docs/DESIGN.md`, rounds 7–8). Species can team up with, tame, farm, rule or enslave each other. See `docs/wiki/groups-and-flocking.md`.

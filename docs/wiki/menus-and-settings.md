@@ -20,6 +20,8 @@
 | 💜 | **Credits** | The people who made it |
 | 🚪 | **Quit** | See you soon |
 
+🔞 The main menu shows the game's **18+** rating.
+
 ---
 
 ## 💾 Saving
@@ -46,3 +48,9 @@ Your world saves to save slots, so you can keep several galaxies going at once.
 ## ⏸️ In-game menu
 
 Press **Esc** any time to pause and open the menu: resume, save, load, wiki, settings, quit to main menu.
+
+---
+
+## 🔗 See also
+
+[Controls](controls.md "Mouse, keys, and zooming from microbe to galaxy") · [Multiplayer](multiplayer.md "Co-op, up to 8 players, shared cursors") · [Leaderboard & Genebank](leaderboard-and-genebank.md "Scores and Genome of the Week") · [Time](time.md "Pause, five speeds, milestone slow-downs") · [Credits](credits.md "The Unity AI Lab team") · [🏠 Wiki home](README.md)

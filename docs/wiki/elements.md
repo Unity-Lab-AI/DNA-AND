@@ -152,3 +152,9 @@ From your very first moment you can **add any element** to your world. What each
 > 🧪 **Lab-made elements** (93 and up, apart from traces) don't occur in nature. Late-game civilizations can make them.
 
 🔬 **Lab-made elements (93+)** unlock for you once a civilization first creates them.
+
+---
+
+## 🔗 See also
+
+[Planets & Templates](planets-and-templates.md "Earth, and the worlds you unlock") · [Genes & DNA](genes-and-dna.md "How real-style genomes build life") · [God Powers](god-powers.md "All 100 powers, pluses and minuses") · [Tech Tree](tech-tree.md "How every discovery connects") · [🏠 Wiki home](README.md)

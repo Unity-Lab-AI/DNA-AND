@@ -58,3 +58,9 @@ The camera looks down on your world like a god looking down from the sky. Rotate
 Every player's cursor shows on screen, each in its own color. You see where your friends are pointing — and what they're about to set on fire. 🔥
 
 👉 More in [Multiplayer](multiplayer.md).
+
+---
+
+## 🔗 See also
+
+[Getting Started](getting-started.md "Your first world, your first hour") · [Time](time.md "Pause, five speeds, milestone slow-downs") · [Menus & Settings](menus-and-settings.md "Main menu, saving and settings") · [God Powers](god-powers.md "All 100 powers, pluses and minuses") · [🏠 Wiki home](README.md)

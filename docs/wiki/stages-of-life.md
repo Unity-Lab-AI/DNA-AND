@@ -1,5 +1,7 @@
 # 🧬 Stages of Life
 
+[🏠 Wiki home](README.md) · [📖 Glossary](glossary.md) · [❓ FAQ](faq.md)
+
 > *From a puddle of chemistry to a species that leaves the planet. 100 stages, one long story, and you're the only one watching all of it.*
 
 <!-- IMG: docs/img/stages-hero.png | A timeline ribbon sweeping from a steaming young ocean to a rocket leaving orbit -->
@@ -157,6 +159,8 @@
 
 ## 🐘 Era 7 — The Age of Mammals *(Stages 76–85)*
 
+> 🐺 **Any line can get here.** On Earth the road to intelligence ran through primates and apes. In your world any kind of life can climb to a thinking mind: wolves, birds, octopuses, even bees. See [Groups & Flocking](groups-and-flocking.md "All things flock together").
+
 | # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks |
 |---|---|---|---|---|---|
 | 76 | 🦣 | Mammals Everywhere | Mammals fill the empty world | Mammals on every continent | Acid Rain (35) |
@@ -213,3 +217,9 @@
 | 🏛️ [Ages of Civilization](ages-of-civilization.md "Real-history ages from stone tools to intergalactic") | What intelligent life does after stage 94 |
 | 🌳 [Tech Tree](tech-tree.md "How every discovery connects") | How the discoveries connect |
 | ⚡ [God Powers](god-powers.md "All 100 god powers") | Everything you can do to help, or hurt |
+
+---
+
+## 🔗 See also
+
+[Groups & Flocking](groups-and-flocking.md "All things flock together: the 100-step grouping ladder") · [Tree of Life](tree-of-life.md "Circular family and gene trees of every species") · [Genes & DNA](genes-and-dna.md "How real-style genomes build life") · [Ages of Civilization](ages-of-civilization.md "100 ages, stone tools to intergalactic") · [Time](time.md "Pause, five speeds, milestone slow-downs") · [🏠 Wiki home](README.md)
