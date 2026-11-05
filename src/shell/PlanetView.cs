@@ -211,8 +211,8 @@ namespace DnaAnd.Shell
                 if (_terrain.Solid && _fieldHere >= 0 && !_terrain.Shell) where += " · field here: " + PlanetTerrain.Fields[_fieldHere].Name;
                 if (_centre) return "DNA-AND · " + _terrain.Name + " · THE VIEW FROM THE MIDDLE: the whole inner world wrapped around its star, the metal hull outside · drag to turn · C to go back";
                 if (_terrain.Shell)
-                    where += _inside ? " · INSIDE: the shell's spin holds you on its inner land, the star overhead (I to go back out)"
-                                     : (_terrain.Habitable ? " · outside the hull (I to go inside, C for the view from the middle)" : " · outside the hull");
+                    where += _inside ? " · INSIDE: the shell's spin holds you on its inner land, the star overhead (I or C to go back out, M for the view from the middle)"
+                                     : (_terrain.Habitable ? " · outside the hull (I or C to go inside, M for the view from the middle)" : " · outside the hull");
                 if (_terrain == _fields) where += " · RESOURCE VIEW (R to switch off, Legend for colours)";
                 string loading = _shown > _alt * 1.01 ? " (finer ground still forming: going down to " + Size(_alt) + ")" : "";
                 return "DNA-AND · " + _terrain.Name + " · " + Size(_shown) + loading + " above the " + (_terrain.Shell && !_inside ? "hull" : _terrain.Solid ? (_overSea ? "sea floor" : "ground") : "deep cloud tops") + where +
@@ -228,7 +228,7 @@ namespace DnaAnd.Shell
             if (input.WasPressed(Win32.VK_ESCAPE) || input.WasPressed(0x08)) return false;   // only Esc or Backspace leave; a mouse click never does
             if (input.WasPressed(0x52) && _terrain.Solid && !_terrain.Shell) _terrain = _terrain == _normal ? _fields : _normal;     // R: resource view on or off
             // I: in or out through the hull, from anywhere (even the view from the middle)
-            if (input.WasPressed(0x49) && _terrain.Shell && _terrain.Habitable)
+            if ((input.WasPressed(0x49) || input.WasPressed(0x43)) && _terrain.Shell && _terrain.Habitable)   // I or C
             {
                 if (_inside || _centre)
                 {
@@ -239,8 +239,8 @@ namespace DnaAnd.Shell
                 else { _inside = true; _terrain.StartPoint(out _lat, out _lon); _flyReady = false; _alt = 30; }
                 return true;
             }
-            // C: the view from the middle, and C again goes back to where you were
-            if (input.WasPressed(0x43) && _terrain.Shell && _terrain.Habitable) { _centre = !_centre; if (!_centre && !_inside) { _inside = true; _flyReady = false; } return true; }
+            // M: the view from the middle, and M again goes back to where you were
+            if (input.WasPressed(0x4D) && _terrain.Shell && _terrain.Habitable) { _centre = !_centre; if (!_centre && !_inside) { _inside = true; _flyReady = false; } return true; }
             if (_centre)
             {
                 // no automatic turning: only dragging turns the view
