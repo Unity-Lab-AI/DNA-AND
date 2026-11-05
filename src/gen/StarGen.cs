@@ -27,7 +27,12 @@ namespace DnaAnd.Gen
                 float cells = Noise.Fractal(q.X * Cell + t, q.Y * Cell - t * 0.7f, q.Z * Cell + 5, Seed, 3);
                 float fine = Noise.Fractal(q.X * Cell * 4 - t * 2, q.Y * Cell * 4, q.Z * Cell * 4 + t, Seed + 77, 2);
                 float heat;
-                if (Brown) heat = 0.5f + 0.32f * (float)Math.Sin(q.Y * 10 + cells * 4 + t);   // cloud bands
+                if (Brown)
+                {
+                    // cloud bands like a gas giant, with a few round storms; dim, it does not burn like a true star
+                    heat = 0.42f + 0.28f * (float)Math.Sin(q.Y * 11 + cells * 2.5f + t) + 0.12f * (fine - 0.5f);
+                    if (Noise.Fractal(q.X * 2.2f + 9, q.Y * 6, q.Z * 2.2f, Seed + 31, 2) > 0.74f) heat += 0.25f;
+                }
                 else heat = 0.25f + 1.1f * (cells - 0.5f) + 0.35f * (fine - 0.5f) + 0.45f;
                 if (Spotty && Noise.Fractal(q.X * 3 + 50, q.Y * 3, q.Z * 3, Seed + 9, 2) > 0.7f) heat *= 0.35f; // star spots
                 heat *= 0.45f + 0.55f * Math.Max(0f, facing);   // darker toward the edge, like a real star
@@ -77,7 +82,7 @@ namespace DnaAnd.Gen
             surfaceOut = surf;
 
             // the glow around it: a loose shell of dim points
-            int corona = brown ? 0 : compact ? 160 : 420;
+            int corona = brown ? 140 : compact ? 160 : 420;   // brown dwarfs: only a faint warm haze
             for (int i = 0; i < corona; i++)
             {
                 double u = rng.NextDouble() * 2 - 1, a = rng.NextDouble() * Math.PI * 2, rr = Math.Sqrt(1 - u * u);
