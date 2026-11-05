@@ -2,7 +2,7 @@
 
 > "we havent done any code yet and are still do ing docs and making the work laws to use the fucking docs to write code when we do write code"
 
-These 14 laws are binding for **every** piece of DNA-AND work: every code task, every doc change, every person, and every AI session. The docs are written first, and the code follows them.
+These 15 laws are binding for **every** piece of DNA-AND work: every code task, every doc change, every person, and every AI session. The docs are written first, and the code follows them.
 
 ---
 
@@ -55,6 +55,7 @@ Before every push:
 - every list still has 100 entries
 - no removed line loses information
 - no generic "sun"
+- no work notes in public docs (LAW 15)
 
 ### LAW 12 · Decisions stay in the main session
 > "stop u dont outsource importatn decistions to a fuucking agent thhat knows nothing of the project!"
@@ -66,6 +67,18 @@ Big phases end with a `/super-review` and a `/unity` check that everything the c
 > "and what about haveing a "crature" city" space tech" generator for everything full on like array dynamic content generation on the fly in the game so we dont pre build and assets but the games program builds them as they get living"
 
 No model, texture, sprite or sound is ever made by hand or shipped pre-made. The game's generators build every asset live from data. See `wiki/systems/r04b-generators.md`.
+
+
+### LAW 15 · Public docs carry no work notes
+> "the wiki is public facing so it doesnt have work note and no public document shall have work note and numbers and stuff in them"
+
+**Public docs:** `README.md`, the player wiki (`docs/wiki/`), `docs/SETUP.md` and `docs/HOW-TO-BUILD.md`. They're written for players and builders, so they never contain:
+- round numbers, law numbers, roadmap codes (R1…), or task numbers
+- quotes of the creator, or "decided" and "suggested" notes
+- notes about Claude, or "read as" notes
+- links to or paths of internal files (DESIGN, TODO, ROADMAP, FINALIZED, WORK-LAWS, LISTS, POWERS, CONTENT-FORMAT, the builder wiki)
+
+**Internal docs** (all the rest) keep every work note, word for word.
 
 ---
 
@@ -84,7 +97,7 @@ No model, texture, sprite or sound is ever made by hand or shipped pre-made. The
 | | Check |
 |:-:|---|
 | 1 | The docs match the code (LAW 4) |
-| 2 | The regression check passes (LAW 11) |
+| 2 | The regression check passes (LAW 11), and public docs have no work notes (LAW 15) |
 | 3 | Finished tasks are moved to `docs/FINALIZED.md`, word for word |
 | 4 | Pushed feature → develop → main, to both remotes |
 

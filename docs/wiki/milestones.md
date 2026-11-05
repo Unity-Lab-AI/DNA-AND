@@ -2,8 +2,6 @@
 
 [🏠 Wiki home](README.md) · [📖 Glossary](glossary.md) · [❓ FAQ](faq.md)
 
-> *"well for each stage of life all has its miles stones"*
-
 <!-- IMG: docs/img/milestones-banner.png | A four-legged creature hauling itself out of a swamp at dawn, a small milestone notice glowing in the corner -->
 > 🖼️ *A four-legged creature hauling itself out of a swamp at dawn* — rendered by the game's own 3D generator
 
@@ -15,7 +13,7 @@ Every one of the [100 stages of life](stages-of-life.md "Chemistry to the stars"
 
 | | |
 |--|--|
-| 🧩 **Built from the 100 lists** | Each stage's 100 milestones come from the [top-100 lists](../LISTS.md "The 100 categories"): 10 from each of 10 families (new kinds, body parts, senses, abilities, moving, eating, breathing and skin, defenses, behaviors and groups, places reached) |
+| 🧩 **Built from the 100 lists** | Each stage's 100 milestones come from the game's top-100 lists: 10 from each of 10 families (new kinds, body parts, senses, abilities, moving, eating, breathing and skin, defenses, behaviors and groups, places reached) |
 | 🎯 **Fitted to the stage** | Only entries that fit the stage are used. Fish milestones in the seas, flight milestones once something can fly |
 | 🧪 **Real plus invented** | Real-world firsts, plus new ones your world invents as it evolves |
 | 🏆 **The big one** | Milestone **100** is always the stage's headline milestone. Hitting it completes the stage and unlocks the stage's [power](god-powers.md "Each stage unlocks one power") |

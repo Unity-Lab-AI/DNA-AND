@@ -308,7 +308,7 @@ The weekly top three: Genome of the Week.
 Pick it from the Genebank. It arrives in your world by meteorite.
 
 **90. Can people cheat?**  
-The creator's answer: "no cheats will NOT work its fine."
+No. Cheats won't work.
 
 ---
 

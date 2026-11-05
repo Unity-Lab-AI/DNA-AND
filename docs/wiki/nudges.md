@@ -2,8 +2,6 @@
 
 [🏠 Wiki home](README.md) · [📖 Glossary](glossary.md) · [❓ FAQ](faq.md)
 
-> *"only every nudge evrything but u get the power of god to basicly do everything peopel attribute god doing."*
-
 <!-- IMG: docs/img/nudges-banner.png | A god's cursor glowing over a tribe gathered around a fire, an omen streaking across the night sky above them -->
 > 🖼️ *A god's cursor over a tribe at a fire, an omen streaking across the sky* — rendered by the game's own 3D generator
 

@@ -2,10 +2,6 @@
 
 [🏠 Wiki home](README.md) · [📖 Glossary](glossary.md) · [❓ FAQ](faq.md)
 
-> *"it should be intrusive so the game window is as big as possible and everthing is click to open and click hold drag to move"*
->
-> (Read as **non-intrusive**, since the goal is the biggest possible game window.)
-
 <!-- IMG: docs/img/hud-overview.png | The full game screen: a living planet filling the window, a slim header bar on top, an action bar at the bottom, one panel open and being dragged -->
 > 🖼️ *The full game screen: the world fills the window, with a slim header on top and the action bar below* — rendered by the game's own 3D generator
 

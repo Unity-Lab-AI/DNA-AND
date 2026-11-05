@@ -205,7 +205,7 @@ Kept up to date alongside every stage above.
 
 > "okay we need to write all the wikis and docs and readmes for the entire project in full to complete final endgame and play through completely in full no text wealls easy and fun to read beautifully written and well designed and formated with tool tips and everything like a AAA game using all the icons and images of the game in the docs with links and relseas link at top of readme and everything as if the game was full and complete wee will make everything but the geam itself yet"
 
-The full set is written: the player wiki, the builder wiki, setup, the build guide and the README. Still open: filling the 55 image slots (needs R4), and keeping every page true as real code lands.
+The full set is written: the player wiki, the builder wiki, setup, the build guide and the README. Public docs carry no work notes (WORK-LAWS LAW 15). Still open: filling the 55 image slots (needs R4), and keeping every page true as real code lands.
 
 ---
 

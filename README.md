@@ -338,7 +338,6 @@ The only outside pieces are Windows itself, your graphics card's driver, and the
 | ⚗️ [Elements](docs/wiki/elements.md "All 118") | The full periodic table, and what each element does |
 | ⚙️ [Menus & Settings](docs/wiki/menus-and-settings.md "Main menu, saving, settings") | Saving, settings and accessibility |
 | 📖 [Glossary](docs/wiki/glossary.md "Every term") · ❓ [FAQ](docs/wiki/faq.md "Common questions") · 💜 [Credits](docs/wiki/credits.md "The team") | Every term, every question, everyone who made it |
-| 🛠️ [Design Record](docs/DESIGN.md "Every decision, in the creator's words") · [Roadmap](docs/ROADMAP.md "The big stages") · [How we work](docs/DESIGN.md#how-we-work-verbatim "Branches and rules") · [Work Laws](docs/WORK-LAWS.md "The docs are the spec for all code") · [Content Format](docs/CONTENT-FORMAT.md "How game content is written") | For the team |
 
 ---
 
@@ -361,4 +360,3 @@ Made by the **Unity AI Lab** team · 🌐 <https://unityailab.com>
 
 <p align="center"><b><i>Every gene wants to live. You decide which ones do.</i></b></p>
 
-<sub>`.claude/`, `docs/UAL-ClaudeWorkflow-README.md`, `install-unity-globally.*` and the template docs are the Unity AI Lab workflow template: project tooling, not part of the game.</sub>
