@@ -19,13 +19,29 @@ A full 3D god game about life. You start on a randomly generated planet with eve
 2. Only what was asked for gets built, but everything needed to make it actually work does get built.
 3. Nothing is made up. Unknowns get asked, not guessed.
 
+**Platform:** Windows (Mac and Linux later).
+
 ## Where it lives
 
-- Main: <https://git.unityailab.com/GFourteen/DNA-AND>
-- Mirror: <https://github.com/Unity-Lab-AI/DNA-AND> (private)
+- Git: <https://git.unityailab.com/GFourteen/DNA-AND>
+- GitHub: <https://github.com/Unity-Lab-AI/DNA-AND>
 
 Branches: work happens on `feature/*`, merges into `develop`, then into `main`.
 
 ## Setup and how-to
 
 Not written yet. There is nothing to set up until the first tools exist. These guides get written as each piece gets built.
+
+## Credits
+
+Made by the **Unity AI Lab** team: <https://unityailab.com>
+
+| Who | Role |
+|---|---|
+| GFourteen (Gee) | Co-founder · engineer · financial advisor |
+| SpongeBong (Sponge / hackall360) | Co-founder · engineer · ethical hacker · sys admin |
+| Alfreddo | Engineer · agentic systems · researcher |
+| Red | Engineer · security · sys admin |
+
+- Unity AI Lab on Git: <https://git.unityailab.com>
+- Unity AI Lab on GitHub: <https://github.com/Unity-Lab-AI>

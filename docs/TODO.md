@@ -26,15 +26,14 @@ _(none)_
 
 ### Questions for the creator (nothing below gets guessed)
 
-- [ ] **Q1 — Build tools.** "we make it" means the very first tool gets written as raw machine bytes, then each tool builds the next one. OK to do it that way? Start on Windows (your machine) first, then Mac and Linux? Do you have a Mac and a Linux machine to test on?
-- [ ] **Q2 — The one thing we can't avoid.** Windows, Mac, Linux and the graphics card's driver are other people's software, and no program can run without them. Is it OK to use those, and only those?
-- [ ] **Q3 — jsonbin.** jsonbin is someone else's online service. Is it the only outside thing allowed? Connecting to it safely means writing our own encryption from scratch, which is a big job. Is that OK?
-- [ ] **Q4 — Gladiator.** Where is the Gladiator project, so I can see how its exe was made?
-- [ ] **Q5 — "Everything."** Should we build the full list of what an Earth needs (rock, water, air, weather, chemistry, and so on) together, item by item?
-- [ ] **Q6 — Multiplayer.** Does one player's computer host the shared world, or something else?
-- [ ] **Q7 — Losing.** Leave it open-ended for now ("i like it open ended")?
-- [ ] **Q8 — God powers.** You said "im sure youll figure it out", but rule 3 says I don't make things up. Should I draft a power list for you to approve or change?
-- [ ] **Q9 — Wikis.** Do you mean the in-game wiki only, or also a written wiki for us builders?
+_(Round 1 and 2 answered — see `docs/DESIGN.md` and `docs/FINALIZED.md`.)_
+
+### Lists and powers (from round 2 answers)
+- [ ] Top 100 categories list, for approval: "do top 100 for everything from viruse types, aminals, insects, fish, birds, environmets, senses, abilities, and not limited to thed bit to incluse the top one hundered top onehundreds" (`docs/LISTS.md`)
+- [ ] Fill each approved category with its top 100 entries
+- [ ] 100 god powers, each with uses, pluses and minuses: "they all need their usesas and pluses and minuses in some cases raise temp with fire lower with cold add water to flood sun to dry it up solar flare to fuck with tech, ,ect ect ect ect ect ect ectr x100" (`docs/POWERS.md`)
+- [ ] Builder wiki for us, plus the in-game wiki ("both")
+- [ ] Unity AI Lab team credits, website and git/GitHub links: "this deserves the unity ai lab team credits and website .com with the git and github links"
 
 ### R1 — Our own build tools
 - [ ] Design the tiny first tool, written directly as raw machine bytes, that can turn simple text instructions into machine code
@@ -43,14 +42,14 @@ _(none)_
 - [ ] Build the compiler for our language, written in our own assembler
 - [ ] Rebuild the compiler in our own language, so it builds itself
 - [ ] Teach it to make Windows exes
-- [ ] Teach it to make Mac programs
-- [ ] Teach it to make Linux programs
+- [ ] (Later) Teach it to make Mac programs — "windows only for now"
+- [ ] (Later) Teach it to make Linux programs — "windows only for now"
 - [ ] Write the how-to for building the game with our tools
 
 ### R2 — Talking to each system
 - [ ] Windows: window, keyboard, mouse, sound, files, clock, threads, network
-- [ ] Mac: same list
-- [ ] Linux: same list
+- [ ] (Later) Mac: same list
+- [ ] (Later) Linux: same list
 
 ### R3 — Engine core
 - [ ] Math: vectors, matrices, noise, seeded random numbers
@@ -72,7 +71,7 @@ _(none)_
 - [ ] Multiple galaxies
 
 ### R6 — Planet
-- [ ] Earth template: the full "everything" list (waits on Q5)
+- [ ] Earth template: the full "everything" list (top 100 lists)
 - [ ] Unlockable other planet templates and what unlocks them
 - [ ] Ground, plates, mountains, oceans, rivers, ice
 - [ ] Air, weather, climate, seasons, day and night
@@ -110,7 +109,7 @@ _(none)_
 - [ ] War across galaxies
 
 ### R11 — God mode
-- [ ] Power list (waits on Q8)
+- [ ] Power list (`docs/POWERS.md`)
 - [ ] Unlocking powers with points from the amount of life in your galaxies
 - [ ] Gene powers with good and bad outcomes
 - [ ] Life starting from the player's first action
@@ -121,6 +120,7 @@ _(none)_
 - [ ] Balancing so a game reaches space in about 4 to 6 hours
 
 ### R13 — Game shell
+- [ ] Open-ended play: "open ended till u resarts to get a new world and galaxy"
 - [ ] Main screen
 - [ ] In-game wiki of everything
 - [ ] Settings
@@ -128,11 +128,12 @@ _(none)_
 
 ### R14 — Multiplayer
 - [ ] Single player
-- [ ] Co-op and multiplayer in one shared world (waits on Q6)
+- [ ] Co-op and multiplayer in one shared world (one player's computer hosts)
 - [ ] Seeing each other's cursors
 
 ### R15 — Leaderboard and Genebank
-- [ ] Our own secure web connection code (waits on Q3)
+- [ ] Our own secure web connection code (approved)
+- [ ] Leaderboard service as a swappable side car: "lets keep it as a side car so if needed we can pop something else in there."
 - [ ] Sending scores to jsonbin
 - [ ] Combined score from all the categories
 - [ ] Top players uploading a genome to the Genebank
@@ -140,13 +141,13 @@ _(none)_
 
 ### R16 — Shipping
 - [ ] Windows exe
-- [ ] Mac program
-- [ ] Linux program
+- [ ] (Later) Mac program
+- [ ] (Later) Linux program
 
 ### R17 — Docs
 - [ ] Setup guide
 - [ ] How-to guides
-- [ ] Wiki (waits on Q9)
+- [ ] Builder wiki and in-game wiki
 - [ ] Keep README and DESIGN up to date
 
 ---
