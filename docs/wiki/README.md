@@ -28,6 +28,7 @@ Welcome, god. This is everything you need to know — from the first lightning b
 | 🏁 | [Milestones](milestones.md) | 100 per stage, 10,000 in all, and how they're built |
 | 🐺 | [Groups & Flocking](groups-and-flocking.md) | How every kind of life groups up, 100 steps to the stars |
 | 🌳 | [Tree of Life](tree-of-life.md) | The circular family and gene trees, sortable by planet, system or galaxy |
+| ⚛️ | [Forces of Nature](forces-of-nature.md) | Gravity, electromagnetism, the nuclear forces, planet interiors and atmospheres |
 | ⚗️ | [Elements](elements.md) | The full periodic table, and what each element does |
 | 🪐 | [Planets & Templates](planets-and-templates.md) | Earth, and the worlds you unlock after it |
 
