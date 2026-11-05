@@ -33,3 +33,4 @@ Earth comes first. Other templates (list 62, "Planet templates to unlock after E
 
 - 100 planet templates, listed in `docs/wiki/planets-and-templates.md`. Earth is first, then 2–8 unlock first. Life on a template never exists before the player's first action.
 - All 118 elements (`docs/wiki/elements.md`). Lab-made 93+ unlock once a civilization creates them.
+- Interiors, convection, tectonics or stagnant lid, volcanism, geodynamo, magnetosphere, auroras, atmosphere layers, greenhouse effect and air escape, from `content/physics.dnat`.
