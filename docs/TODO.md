@@ -39,15 +39,15 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
   - First pass found 7 issues (2 high, 4 medium, 1 low). All 7 are fixed: the missing messages are recorded, the builder specs have decided-spec sections, the playthrough covers the new systems, Heat became Fire, the LISTS index is complete, and the README numbers and TODO milestone line are updated.
 - [x] `/unity` check: nothing the creator said is left out, word for word
   - All 30 recent messages are checked and recorded verbatim in `docs/DESIGN.md`. One gap was fixed: the milestone answer is now quoted in its task. **Gate passed.**
-- [ ] Fill the top-100 lists (below). Moved after the samples: "Samples path now, lists later (Suggested)"
+- [ ] Write the real seed entries for the top-100 lists (below). Moved after the samples: "Samples path now, lists later (Suggested)"
 - [~] Start R1 code toward the sample viewer, following `docs/WORK-LAWS.md`: "okay now we need to do everything we need to do so you can get me those 9 none headless samples of everything from the planets to the microbes to the animals insects cities spaces stations stars and dyson spheres"
 
 ### Lists
 **Spec:** `docs/LISTS.md`
 
 - [ ] Fill each approved category with its top 100 entries — "real and dynamic invented combo procedurally"
-  - 100 categories × 100 entries = 10,000 entries (`docs/LISTS.md`, approved: "Use them as is").
-  - Real-world entries only. The invented ones come from the generator below.
+  - 10–20 real seed entries per category, written by hand: "Real seeds, game fills to 100 (Suggested)" (`docs/LISTS.md`).
+  - The live generators invent the rest, so each category reaches 100 in play.
 - [ ] Procedural generator that invents new entries on top of the real ones
 
 ### R1 — Our own build tools (Helix)

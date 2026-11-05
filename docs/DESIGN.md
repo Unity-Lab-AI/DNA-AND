@@ -333,6 +333,21 @@ The ask: "and what about haveing a "crature" city" space tech" generator for eve
 
 ---
 
+## Round 14: how big the top-100 lists are (verbatim)
+
+The ask: "okay wasnt there categories or something u said we need but do we really need 10000?"
+
+| Question | Answer (verbatim) |
+|---|---|
+| How many real entries to write by hand | "Real seeds, game fills to 100 (Suggested)" |
+
+### What this means for the build
+- **Real seeds:** each of the 100 categories gets **10–20 real seed entries** written by hand. These are strong real-world examples that teach its generator the rules.
+- **The game fills the rest:** the live generators invent the rest, so every category still reaches **100 in play**, and they're different in every world.
+- **The 100 rule still holds in the game** (LAW 8). The hand-written part is the seeds.
+
+---
+
 ## How we work (verbatim)
 
 These are the creator's working rules for this repo, each in his own words.
@@ -407,3 +422,4 @@ Everything the creator has said about this project, in order. Short process repl
 33. "make sure ther are no game regresions in the docs based on the game". Fixed: the gate order in the ROADMAP (lists now come after the samples), the R4.5 plan (live viewer, D3D12, procedural), and the species-driven assets now in README, Space, Ages, and Groups & Flocking.
 34. **Live generators:** see "Round 13". "and what about haveing a "crature" city" space tech" generator for everything full on like array dynamic content generation on the fly in the game so we dont pre build and assets but the games program builds them as they get living"
 35. "make sure all docs are correct"
+36. **List size:** "okay wasnt there categories or something u said we need but do we really need 10000?". Answer: "Real seeds, game fills to 100 (Suggested)"
