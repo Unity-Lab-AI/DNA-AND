@@ -576,3 +576,4 @@ Everything the creator has said about this project, in order. Short process repl
 55. "superb, lets do that 1-5". Steps 1–5 are done. Shaders compile with Windows' own d3dcompiler_47.dll (round 20 reasoning: it ships with Windows).
 56. **Set 1 feedback:** see "Round 21".
 57. **Calm motion:** see "Round 22".
+58. "well i cant reall use the tests because you never put a revert keep option with tine out they just have  a 3 sec timer out so i dont hev time to judge anything". Added the keep-or-revert prompt: `test.cmd` stays open, asks every 2 minutes, K keeps it running, no answer within 15 s closes it safely. `test.cmd 3000` stays a quick check. The exe on its own has no timer.

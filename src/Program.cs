@@ -13,7 +13,7 @@ namespace DnaAnd
         private static int Main(string[] args)
         {
             // --smoke <ms>: a timed test run that closes itself after <ms> milliseconds.
-            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int testSpeed = -1;
+            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int testSpeed = -1; double tryEvery = -1;
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i] == "--smoke" && i + 1 < args.Length) int.TryParse(args[i + 1], out smokeMs);
@@ -23,6 +23,7 @@ namespace DnaAnd
                 if (args[i] == "--visit") testVisit = true;  // visit the middle star
                 if (args[i] == "--core") testCore = true;    // zoom to the core black hole
                 if (args[i] == "--speed" && i + 1 < args.Length) int.TryParse(args[i + 1], out testSpeed); // 0-4
+                if (args[i] == "--try" && i + 1 < args.Length) double.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out tryEvery); // keep-or-revert prompt every N s
             }
 
             try { Win32.SetProcessDpiAwarenessContext(Win32.DPI_PER_MONITOR_AWARE_V2); } catch { }
@@ -44,6 +45,10 @@ namespace DnaAnd
             catch (Exception ex) { WriteLog("setup error · " + ex.Message); gpu.Dispose(); window.Close(); return 2; }
 
             double titleTimer = 0; int frames = 0; bool firstFrame = true;
+            const double KeepWindow = 15.0;          // seconds to answer the keep-or-revert prompt
+            double nextAsk = tryEvery > 0 ? tryEvery : double.MaxValue, askStarted = -1;
+            var bar = new KeepBar(gpu, pipeline);
+            string endReason = "closed normally";
             const ulong Seed = 20261105UL;
             DeepView deep = null;
             if (testDeep >= 0) deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(testDeep), viewer.NameOf(testDeep), Seed + (ulong)testDeep * 7919UL);
@@ -53,6 +58,18 @@ namespace DnaAnd
                 watchdog.Beat();
 
                 if (deep == null && window.Input.WasPressed(Win32.VK_ESCAPE)) window.Close();
+                // keep-or-revert: like a display-settings prompt. K keeps it running; no answer closes it safely.
+                double left = -1;
+                if (tryEvery > 0)
+                {
+                    if (askStarted < 0 && clock.Total >= nextAsk) askStarted = clock.Total;
+                    if (askStarted >= 0)
+                    {
+                        left = KeepWindow - (clock.Total - askStarted);
+                        if (window.Input.WasPressed(0x4B)) { askStarted = -1; nextAsk = clock.Total + tryEvery; left = -1; }
+                        else if (left <= 0) { endReason = "closed safely: no answer to the keep-or-revert prompt"; window.Close(); }
+                    }
+                }
                 if (testStall && clock.Total > 0.5) System.Threading.Thread.Sleep(10000);
 
                 if (window.Resized) { window.Resized = false; gpu.Resize(window.Width, window.Height); }
@@ -75,13 +92,15 @@ namespace DnaAnd
                 else if (!deep.Update(window.Input, clock.Delta, gpu.Width, gpu.Height)) { deep.Dispose(); deep = null; }
                 gpu.BeginFrame(0.005f, 0.006f, 0.012f);
                 if (deep == null) viewer.Draw(gpu.Width, gpu.Height, clock.Total); else deep.Draw(gpu.Width, gpu.Height, clock.Total);
+                if (left > 0) bar.Draw(left / KeepWindow, gpu.Width, gpu.Height);
                 gpu.EndFrame();
                 if (firstFrame) { firstFrame = false; watchdog.Running(); }
 
                 frames++; titleTimer += clock.Delta;
-                if (titleTimer >= 0.5)
+                if (titleTimer >= 0.5 || (left > 0 && titleTimer >= 0.2))
                 {
-                    window.SetTitle(string.Format("{0} · {1:0} fps", deep == null ? viewer.Title : deep.Title, frames / titleTimer));
+                    string head = left > 0 ? string.Format("⚠ Press K to keep it running · closes in {0:0} s · ", Math.Ceiling(left)) : "";
+                    window.SetTitle(string.Format("{0}{1} · {2:0} fps", head, deep == null ? viewer.Title : deep.Title, frames / titleTimer));
                     titleTimer = 0; frames = 0;
                 }
 
@@ -89,9 +108,10 @@ namespace DnaAnd
                 if (smokeMs >= 0 && clock.Total * 1000 >= smokeMs) { window.Close(); smokeMs = -1; }
             }
             if (deep != null) deep.Dispose();
+            bar.Dispose();
             viewer.Dispose(); pipeline.Dispose(); gpu.Dispose();
             watchdog.Stop();
-            WriteLog(string.Format("ok · {0} content entries from {1} files · ran {2:0.00} s · gpu {3}x{4}", content.Entries.Count, content.Files.Count, clock.Total, gpu.Width, gpu.Height));
+            WriteLog(string.Format("ok · {0} content entries from {1} files · ran {2:0.00} s · gpu {3}x{4} · {5}", content.Entries.Count, content.Files.Count, clock.Total, gpu.Width, gpu.Height, endReason));
             return 0;
         }
 
