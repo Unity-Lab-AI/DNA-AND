@@ -21,7 +21,7 @@ namespace DnaAnd.Gen
         private const int Grid = 16;            // quads along a patch edge
         // deepest split for each layer: the ground goes down to about a millionth of a metre (microbe size),
         // the sea surface to a few centimetres, the clouds to about a kilometre
-        private static readonly int[] MaxLevel = { 44, 26, 10, 12 };
+        private static readonly int[] MaxLevel = { 44, 26, 10, 44 };
         private const int MaxCached = 1600;
         private readonly Dictionary<PKey, Patch> _cache = new Dictionary<PKey, Patch>();
         public const int Ground = 0, Water = 1, Clouds = 2, Hull = 3;
@@ -636,7 +636,7 @@ namespace DnaAnd.Gen
             return level > 3 || Fbm(x, y, z, _seed + 8100u, 2.2, 3) > 0.47;                       // part-built: whole panels missing
         }
 
-        private bool _makingHull, _drawingHull;
+        private bool _makingHull, _drawingHull, _camInside;
         private int _makeLevel;
         /// <summary>Sample views only: cut away the part of a shell facing this direction, so the star inside shows.</summary>
         public double[] Cutaway;
@@ -795,16 +795,21 @@ namespace DnaAnd.Gen
             float fogDist, float fr, float fg, float fb, int x, int y, int w, int h, int newPatchBudget)
         {
             _frame++; _budget = newPatchBudget; _clock.Restart(); _msLimit = newPatchBudget >= 400 ? 10 : 30;
+            _camInside = Shell && Math.Sqrt(camX * camX + camY * camY + camZ * camZ) < Radius;
             ReadyStep = double.MaxValue;
             float lx = (float)StarDir[0], ly = (float)StarDir[1], lz = (float)StarDir[2];
             if (Shell)
             {
-                // a shell: the hull outside, the land inside, both lit by the star at the centre
-                Collect(Hull, camX, camY, camZ, splitFactor);
-                _drawingHull = true;
-                DrawList(pipes.Solid, 0, camX, camY, camZ, Mat4.Identity, viewRot, proj, lx, ly, lz, fogDist, fr, fg, fb, x, y, w, h);
-                _drawingHull = false;
-                if (!Habitable) { Trim(); return; }
+                // a shell: from outside you see only the metal hull; from inside only the land (the hull is behind it).
+                // Sample views cut the shell open, so they show both.
+                if (!_camInside || !Habitable)
+                {
+                    Collect(Hull, camX, camY, camZ, splitFactor);
+                    _drawingHull = true;
+                    DrawList(pipes.Solid, 0, camX, camY, camZ, Mat4.Identity, viewRot, proj, lx, ly, lz, fogDist, fr, fg, fb, x, y, w, h);
+                    _drawingHull = false;
+                }
+                if (!Habitable || !_camInside && Cutaway == null) { Trim(); return; }
             }
             // the ground (and the sea floor)
             Collect(Ground, camX, camY, camZ, splitFactor);
@@ -965,7 +970,8 @@ namespace DnaAnd.Gen
                     return;
                 }
             }
-            if ((layer == Ground || layer == Hull && !Habitable) && f == _camF)
+            // the finished piece under the camera: the hull when outside a shell, the land when inside (or on a planet)
+            if ((layer == Ground && (!Shell || _camInside) || layer == Hull && (!_camInside || !Habitable)) && f == _camF)
             {
                 double sz = 2.0 / Math.Pow(2, level), s0 = -1 + i * sz, t0 = -1 + j * sz;
                 if (_camS >= s0 && _camS <= s0 + sz && _camT >= t0 && _camT <= t0 + sz) ReadyStep = p.Edge / Grid;

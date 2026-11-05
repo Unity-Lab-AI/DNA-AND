@@ -50,7 +50,7 @@ namespace DnaAnd.Shell
             terrain.StartPoint(out _lat, out _lon);
             if (terrain.Shell)
             {
-                _alt = terrain.Radius * 1.3; _lat = 0.02; _lon = 0.4;
+                _alt = terrain.Radius * 1.6; _lat = 0.3; _lon = 0.4;     // start outside, the whole sphere in view
                 // the star at the centre: a bright glowing ball
                 var rng = new Rng(5);
                 // the star at the centre: a bright ball with a wide glowing halo, so it reads clearly from anywhere inside
@@ -152,7 +152,7 @@ namespace DnaAnd.Shell
                 if (_inside) _terrain.StartPoint(out _lat, out _lon);       // come in over dry land
             }
             if (input.WasPressed(0x4E) && _terrain.Solid) JumpToNextField();                                       // N: go to the next kind of field
-            double maxAlt = _inside ? _terrain.Radius * 0.9 : _terrain.Radius * 4;      // inside, you can rise almost to the star
+            double maxAlt = _inside ? _terrain.Radius * 0.95 : _terrain.Radius * 4;     // inside, you can rise almost to the star
             if (input.Wheel != 0) _alt = Math.Max(_minAlt, Math.Min(maxAlt, _alt * Math.Pow(0.7, input.Wheel)));
             double R = _terrain.Radius;
             double step = (_alt + 1e-9) / R;                               // ground speed grows with height
@@ -201,6 +201,7 @@ namespace DnaAnd.Shell
             double t = Math.Max(0, Math.Min(1, (Math.Log10(alt) - Math.Log10(2)) / (Math.Log10(R * 0.4) - Math.Log10(2))));
             double pitch = -(0.18 + (1.53 - 0.18) * t * t * (3 - 2 * t));
             if (alt < 2) pitch = -0.18 - 0.5 * Math.Max(0, Math.Min(1, (Math.Log10(2) - Math.Log10(alt)) / 6));  // tiny: look a bit more down at what is in front of you
+            if (_inside && alt > 2000) pitch = -0.25;     // high up inside: look out across the inner world, which curves up all around you
             var look = forward * (float)Math.Cos(pitch) + up * (float)Math.Sin(pitch);
             var lookUp = forward * (float)(-Math.Sin(pitch)) + up * (float)Math.Cos(pitch);
             Mat4 view = Mat4.LookAt(new Vec3(0, 0, 0), look, lookUp);
@@ -209,13 +210,13 @@ namespace DnaAnd.Shell
             float near = (float)Math.Max(1e-10, alt * 0.25);
             float far = (float)Math.Min(horizon * 1.3 + R * 0.05 + 50, alt * 2e5 + 1e-6);
             if (alt > R * 0.2 && !_inside) { near = (float)(alt * 0.2); far = (float)(alt + R * 2.2); }
-            if (_inside) far = (float)Math.Min(alt * 2e5 + 50, 2e6);    // inside, the far land is lost in the air's haze anyway
+            if (_inside) far = (float)(alt < 5000 ? Math.Min(alt * 2e5 + 50, 2e6) : R * 2.2);   // low: the far land is lost in haze; high: see the whole inner world
             Mat4 proj = Mat4.Perspective(1.0f, width / (float)Math.Max(1, height), near, far);
 
             // the sky: the air's colour near the ground, fading to black space higher up; under water, dark blue
             float sr = _terrain.AirR * 0.55f, sg = _terrain.AirG * 0.6f, sb = _terrain.AirB * 0.75f;
             float airT = (float)Math.Max(0, Math.Min(1, 1 - Math.Log10(Math.Max(1, camR - R)) / Math.Log10(Math.Max(10, _terrain.AirKm))));
-            if (_terrain.Shell) airT = _inside ? 1 : 0;           // the air is held inside the shell
+            if (_terrain.Shell) airT = _inside ? (float)Math.Max(0, Math.Min(1, 1 - Math.Log10(Math.Max(1, alt)) / 3.7)) : 0;   // the air is held near the inner land; high up it thins to clear
             float fogDist = airT > 0.01 ? (float)Math.Min(horizon * 1.25 + 5, far * 0.9) : 0;
             if (_underWater)
             {

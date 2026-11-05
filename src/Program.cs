@@ -82,6 +82,11 @@ namespace DnaAnd
             DeepView deep = null;
             PlanetView planet = null;
             if (openSet > 0) viewer.ShowSet(openSet);
+            if (openSet == 6 && testDyson < 0)
+            {
+                var one = viewer.DysonAt(5).Enterable;
+                planet = new PlanetView(gpu, meshes, pipeline, one, one, false); planet.Extras = viewer.DysonAt(5).Pieces;
+            }
             if (testDyson >= 0 && viewer.DysonAt(testDyson).Enterable != null)
             {
                 var sh = viewer.DysonAt(testDyson).Enterable;
