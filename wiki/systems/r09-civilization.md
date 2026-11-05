@@ -38,3 +38,10 @@ Civilization is not only for apes. Any line that evolves intelligence climbs the
 ## 🩸 Dark Harvest
 
 100 cruel harvest methods in 10 groups (madness and beasts, disease, war, politics and law, belief, labor and economy, environment, genes and bodies, machines and control, space). Each appears at a set age and is pushed by named powers, and each pays souls per death. The group × era matrix is in `docs/wiki/dark-harvest.md`. Methods can only appear in civilizations of that age or later.
+
+## 📌 Decided specs (build from these)
+
+- 100 ages (`docs/wiki/ages-of-civilization.md`), 100 ways civilizations end (same page).
+- 100 tech branches in 10 families, and 100 harvest steps, one per age (`docs/wiki/tech-tree.md`).
+- 100 kinds of society in 5 groups: rule, trade, family, belief, law (`docs/wiki/society.md`).
+- 100 Dark Harvest methods, each gated by age (`docs/wiki/dark-harvest.md`).

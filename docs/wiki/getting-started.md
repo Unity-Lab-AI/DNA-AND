@@ -41,7 +41,7 @@ You start above a young, lifeless world. Hot rock, raw oceans, a thin sky. Nothi
 | | Tool | Use it to… |
 |:-:|---|---|
 | ⚡ | [Lightning](god-powers.md) | Spark chemistry in the water |
-| 🔥 | [Heat](god-powers.md) | Warm up a frozen spot |
+| 🔥 | [Fire](god-powers.md) | Warm up a frozen spot |
 | ❄️ | [Cold](god-powers.md) | Cool a boiling one |
 | 💧 | [Water](god-powers.md) | Flood a basin into a sea |
 | ✨ | [Spark of Life](god-powers.md) | Seed the very first cells |

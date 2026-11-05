@@ -128,5 +128,22 @@ On top of the 100 categories, these also get a top 100 each: "every thing blows 
 - **Group steps:** the 100-step grouping ladder (`docs/wiki/groups-and-flocking.md`)
 - **Elements:** all 118. The full periodic table, as already decided, is kept at its real size.
 
+### Every 100-list in the game (round 9)
+
+| List | Page |
+|---|---|
+| 100 stages of life, 100 milestones each | `docs/wiki/stages-of-life.md, docs/wiki/milestones.md` |
+| 100 ages, 100 ways civilizations end | `docs/wiki/ages-of-civilization.md` |
+| 100 tech branches, 100 harvest steps | `docs/wiki/tech-tree.md` |
+| 100 kinds of society | `docs/wiki/society.md` |
+| 100 nudges | `docs/wiki/nudges.md` |
+| 100 Dark Harvest methods | `docs/wiki/dark-harvest.md` |
+| 100 powers, 100 tiers, 100 unlock points | `docs/wiki/god-powers.md` |
+| 100 soul sources | `docs/wiki/souls-and-harvesting.md` |
+| 100 grouping steps, 100 ways species mix | `docs/wiki/groups-and-flocking.md` |
+| 100 planet templates | `docs/wiki/planets-and-templates.md` |
+| 100 glossary terms | `docs/wiki/glossary.md` |
+| 100 FAQ questions | `docs/wiki/faq.md` |
+
 ## Decisions on this list
 - Entries: "real and dynamic invented combo procedurally". Real entries plus game-invented ones.
