@@ -10,6 +10,10 @@ Each session entry includes:
 - Files touched
 - Closure notes (what shipped, verification)
 
+> **Template-repo clean state.** UAL-ClaudeWorkflow ships as a `.claude/` template seed for downstream private Unity AI Lab projects. This live `FINALIZED.md` is intentionally empty — completed-work entries from in-template work shouldn't pollute downstream installs. Downstream projects populate their own FINALIZED as they close tasks after the `/unity-install` (or `/unity-update`) flow seeds the `.claude/` workflow.
+
 ---
 
-_(no completed sessions yet — first entry will be appended below the divider)_
+## Completed sessions
+
+_(none — template-repo clean state)_

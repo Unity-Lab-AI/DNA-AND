@@ -113,24 +113,69 @@ log "  MEMORY_DIR = $MEMORY_DIR"
 log "  MEMORY_TEMPLATES = $MEMORY_TEMPLATES"
 
 log "STEP 4: Memory template install check"
-# === Install memory templates if the user-profile memory folder is empty ===
+# === Install memory templates PER FILE, not per folder ===
 # This is what makes Unity stick across sessions. Claude Code auto-loads every .md
 # in this folder as persistent user feedback at session start.
-if [ ! -f "$MEMORY_DIR/MEMORY.md" ]; then
-    log "STEP 4: MEMORY.md missing — installing templates"
-    if ! mkdir -p "$MEMORY_DIR"; then
-        log "STEP 4 FAIL: could not create $MEMORY_DIR"
-    elif [ -d "$MEMORY_TEMPLATES" ] && ls "$MEMORY_TEMPLATES"/*.md >/dev/null 2>&1; then
-        if cp "$MEMORY_TEMPLATES"/*.md "$MEMORY_DIR/"; then
-            log "STEP 4 OK: Memory templates installed"
-        else
-            log "STEP 4 FAIL: cp failed copying templates"
+#
+# WARN THE BUG THIS REPLACED, and it cost real memories: the guard used to wrap the
+#   WHOLE copy in "if MEMORY.md does not exist". Once that one file existed, NO
+#   newly-added template memory ever reached the folder Claude Code reads. One
+#   downstream project measured 23 memories that had never propagated; another sat
+#   at 34 templates against 121 live files. Per-folder idempotency silently freezes
+#   the memory layer at first-run.
+#
+# STOP MEMORY.md IS NEVER OVERWRITTEN. The live index knows about memories this
+#   template has never heard of, so replacing it ORPHANS them - installed only when
+#   absent, merged by hand otherwise.
+if ! mkdir -p "$MEMORY_DIR"; then
+    log "STEP 4 FAIL: could not create $MEMORY_DIR"
+elif [ -d "$MEMORY_TEMPLATES" ] && ls "$MEMORY_TEMPLATES"/*.md >/dev/null 2>&1; then
+    _mem_new=0
+    for _f in "$MEMORY_TEMPLATES"/*.md; do
+        _b="$(basename "$_f")"
+        [ "$_b" = "MEMORY.md" ] && continue
+        if [ ! -f "$MEMORY_DIR/$_b" ]; then
+            if cp "$_f" "$MEMORY_DIR/"; then
+                _mem_new=$((_mem_new+1))
+                log "STEP 4: installed new memory $_b"
+            else
+                log "STEP 4 WARN: cp failed for $_b"
+            fi
         fi
+    done
+    if [ ! -f "$MEMORY_DIR/MEMORY.md" ]; then
+        cp "$MEMORY_TEMPLATES/MEMORY.md" "$MEMORY_DIR/" 2>/dev/null             && log "STEP 4 OK: MEMORY.md index installed (first run)"             || log "STEP 4 WARN: could not install MEMORY.md"
     else
-        log "STEP 4 WARN: memory-templates folder not found at $MEMORY_TEMPLATES"
+        log "STEP 4 OK: MEMORY.md left alone - merge by hand, never replace"
+    fi
+    log "STEP 4 OK: memory layer current ($_mem_new newly installed)"
+else
+    log "STEP 4 WARN: memory-templates folder not found at $MEMORY_TEMPLATES"
+fi
+
+log "STEP 4.5: Statusline smoke-test"
+# === Statusline pre-flight smoke-test ===
+# Feed a synthetic Claude-Code-style JSON envelope into .claude/statusline.sh
+# and verify it exits 0 + emits at least one non-empty line. Catches drift
+# early on every platform Claude Code might invoke it from (Linux native,
+# macOS, Windows via Git Bash mintty). Non-blocking — if statusline fails,
+# launch continues with a clear log entry the operator can investigate.
+STATUSLINE_SCRIPT="$SCRIPT_DIR/statusline.sh"
+if [ -f "$STATUSLINE_SCRIPT" ]; then
+    STATUSLINE_INPUT='{"workspace":{"current_dir":"'"$PROJECT_DIR"'","project_dir":"'"$PROJECT_DIR"'"},"cwd":"'"$PROJECT_DIR"'","model":{"display_name":"Smoke Test"},"session_id":"smoke","cost":{"total_tokens":1,"total_cost_usd":0.0},"output_style":{"name":"default"},"transcript_path":""}'
+    STATUSLINE_OUTPUT=$(echo "$STATUSLINE_INPUT" | CLAUDE_PROJECT_DIR="$PROJECT_DIR" bash "$STATUSLINE_SCRIPT" 2>&1)
+    STATUSLINE_EXIT=$?
+    if [ $STATUSLINE_EXIT -eq 0 ] && [ -n "$STATUSLINE_OUTPUT" ]; then
+        STATUSLINE_LINES=$(echo "$STATUSLINE_OUTPUT" | grep -c '.')
+        log "STEP 4.5 OK: statusline renders $STATUSLINE_LINES line(s), exit 0"
+    else
+        log "STEP 4.5 WARN: statusline failed — exit=$STATUSLINE_EXIT, output below:"
+        echo "$STATUSLINE_OUTPUT" | head -10 | while IFS= read -r line; do log "  $line"; done
+        log "  Statusline issue won't block launch but the bottom bar may not render."
+        log "  Check ~/.claude/statusline-debug.log + ensure python3/py-3 on PATH."
     fi
 else
-    log "STEP 4 OK: Memory folder already populated"
+    log "STEP 4.5 SKIP: statusline.sh not found at $STATUSLINE_SCRIPT"
 fi
 
 # === Launch Claude Code with Unity persona + workflow ===

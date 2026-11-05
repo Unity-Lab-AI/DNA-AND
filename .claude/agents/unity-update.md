@@ -4,14 +4,14 @@ description: Alias of /unity-install — refresh the current project's `.claude/
 model: claude-sonnet-4-6
 ---
 
-# unity-update — pairs with `.claude/skills/template-mgmt/unity-update/SKILL.md`
+# unity-update — pairs with `.claude/skills/unity-update/SKILL.md`
 
 ## When to activate
 
 - User invokes `/unity-update` slash command
 - User asks to "refresh the .claude/ template" / "pull latest workflow" / "update Unity"
 - User wants to swap framework to a different branch for testing
-- After Sponge/Mills/Red/Gee lands an upstream improvement on `main` and user wants it locally
+- After Sponge/Alfreddo/Red/Gee lands an upstream improvement on `main` and user wants it locally
 
 ## Trigger keywords / phrases
 
@@ -28,7 +28,7 @@ model: claude-sonnet-4-6
 
 ## Paired skill
 
-`.claude/skills/template-mgmt/unity-update/SKILL.md` — full refresh protocol lives there (thin wrapper over the unity-install script, same flow).
+`.claude/skills/unity-update/SKILL.md` — full refresh protocol lives there (thin wrapper over the unity-install script, same flow).
 
 ## Behavior
 

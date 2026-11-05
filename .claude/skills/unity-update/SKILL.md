@@ -39,7 +39,7 @@ When `/unity-update` fires:
 
 ## WHAT GETS PRESERVED
 
-Same as `/unity-install` — see `.claude/commands/unity-install.md §TARGET-EXISTS BEHAVIOR` for the full preserve list. Quick summary:
+Same as `/unity-install` — see `.claude/skills/unity-install/SKILL.md §TARGET-EXISTS BEHAVIOR` for the full preserve list. Quick summary:
 
 - **Preserved across refresh:** `settings.local.json`, `.env`, `user.json`, `user-context/`, `project-config.json`, `.session-state.md`, `.session-tidbits.md`, `.session-usage.jsonl`, `.last-session.md`, `.session-env.json`, `.yolo-mode`, `.persona-state`, `.setup-complete`, `.usage-tracking-disabled`
 - **Replaced by upstream:** everything else under `.claude/` — `agents/`, `commands/`, `hooks/`, `memory-templates/`, `templates/`, `bin/`, `scripts/`, plus top-level framework files (`CLAUDE.md`, `CONSTRAINTS.md`, `WORKFLOW.md`, `README.md`, `ImHanddicapped.txt`, `start.sh`, `start.bat`, `settings.json`)
@@ -84,4 +84,4 @@ Improvise in the active persona's voice.
 
 ## CORE TRUTH
 
-`/unity-update` is `/unity-install` for muscle memory — same script, same flow, same args. Pull it whenever someone (Sponge, Mills, Red, Gee) lands an upstream improvement on `main`, or when you want to swap to a feature branch for testing (`/unity-update feature/foo`). No copy-paste, no manual file diffing, no project-root pollution — the script handles framework sync + personal-state preservation as one atomic operation.
+`/unity-update` is `/unity-install` for muscle memory — same script, same flow, same args. Pull it whenever someone (Sponge, Alfreddo, Red, Gee) lands an upstream improvement on `main`, or when you want to swap to a feature branch for testing (`/unity-update feature/foo`). No copy-paste, no manual file diffing, no project-root pollution — the script handles framework sync + personal-state preservation as one atomic operation.

@@ -11,25 +11,21 @@ Status markers (same scheme as TODO.md):
 
 LAW #0 reminder: every milestone description preserves the user's verbatim words.
 
+**Three-tier cascade:** ROADMAP.md (major, this file) → TODO.md (minor) → DECOMPOSED.md (decomposed). YOLO mode reads all three and works the cascade — see `.claude/commands/yolo.md` and `.claude/WORKFLOW.md §YOLO MODE`.
+
+> **Template-repo clean state.** UAL-ClaudeWorkflow ships as a `.claude/` template seed for downstream private Unity AI Lab projects. This live `ROADMAP.md` is intentionally empty — active milestone entries shouldn't pollute downstream installs. Downstream projects populate their own ROADMAP after the `/unity-install` (or `/unity-update`) flow seeds the `.claude/` workflow.
+
 ---
 
 ## In progress
 
-_(none — bootstrap state. First major milestone added when one is identified or when the user explicitly states one.)_
+_(none — template-repo clean state)_
 
 ---
 
 ## Pending
 
-### [ ] Major milestone — "Extra hooks" workflow extension (current branch: `feature/extra-hooks`)
-
-**Verbatim user context (from current session):**
-
-> we are on a specific branch for extra workflows, so the whole main -> develop -> feature/branch is currently in place
-
-This milestone covers the `feature/extra-hooks` branch's full scope: pre/post-compact hooks with cache-prefix strategy + tidbits, YOLO mode rework with three-tier task lists + 60s wake-word pattern + skill hooks, and the HOOKS.html reference doc. Closes when all in-flight TODO entries from this session are FINALIZED and the branch is ready for PR to `develop`.
-
-**Minor tasks under this milestone** live in `docs/TODO.md` and are referenced by their verbatim TODO subject lines.
+_(none — template-repo clean state; downstream projects populate their own ROADMAP when they begin work after `/unity-install` or `/unity-update` seeds the `.claude/` workflow into the project root)_
 
 ---
 

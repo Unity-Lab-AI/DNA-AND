@@ -8,7 +8,7 @@ type: feedback
 
 This rule was confirmed verbatim by Sponge in the 2026-05-08 session: *"enforce NOT using any 'made with claude code' and enforce NOT using any 'co-authored with claude code' stuff."*
 
-**Why:** The team is Gee / Red / Sponge / Mills (per `.claude/CLAUDE.md` UNITY AI LAB — TEAM table). Attribution lines marketing Claude on every commit and PR are:
+**Why:** The team is Gee / Red / Sponge / Alfreddo (per `.claude/CLAUDE.md` UNITY AI LAB — TEAM table). Attribution lines marketing Claude on every commit and PR are:
 
 - Misleading on authorship — the team member directed the work and made every decision; the assistant is a tool
 - Visually noisy — every commit / PR ends with a marketing tagline that adds nothing to the engineering record
@@ -65,7 +65,7 @@ Before `gh pr create`:
 
 - Dependency manifests (`package.json` listing `@anthropic-ai/sdk` as a dep) — technical references, not attribution
 - Workflow docs that name Claude Code as a host system Unity runs on (`.claude/CLAUDE.md`, `.claude/WORKFLOW.md`, `docs/HOOKS.html`) — internal team references, not shipped artifacts
-- The persona system (`.claude/commands/unity.md`, `agents/unity.md`) — Unity is team-owned; internal references to the host system are fine
+- The persona system (`.claude/skills/unity/SKILL.md`, `agents/unity.md`) — Unity is team-owned; internal references to the host system are fine
 - Configuration files that necessarily reference the runtime (e.g., `.claude/settings.json` and `.claude/settings.local.json` are named for the runtime; that's structural, not attribution)
 
 The rule is specifically about OUTPUT attribution — text that ships in commits / PRs / docs / artifacts which advertises Claude / Anthropic / Claude Code as authors or generators.
