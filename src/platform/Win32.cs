@@ -123,5 +123,19 @@ namespace DnaAnd.Platform
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         public static extern bool SetWindowText(IntPtr hWnd, string text);
+
+        // menu bar and pop-up boxes, all from Windows itself
+        public const uint WM_COMMAND = 0x0111, MF_STRING = 0, MF_POPUP = 0x10;
+        public const uint MB_YESNO = 4, MB_OK = 0, MB_ICONQUESTION = 0x20, MB_ICONINFORMATION = 0x40, MB_TOPMOST = 0x40000;
+        public const int IDYES = 6, MB_TIMEDOUT = 32000;
+        public const uint MF_CHECKED = 0x8, MF_SEPARATOR = 0x800;
+        [DllImport("user32.dll")] public static extern IntPtr CreateMenu();
+        [DllImport("user32.dll")] public static extern IntPtr CreatePopupMenu();
+        [DllImport("user32.dll")] public static extern bool DestroyMenu(IntPtr menu);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern bool AppendMenu(IntPtr menu, uint flags, IntPtr id, string text);
+        [DllImport("user32.dll")] public static extern bool SetMenu(IntPtr hWnd, IntPtr menu);
+        [DllImport("user32.dll")] public static extern bool DrawMenuBar(IntPtr hWnd);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode, EntryPoint = "MessageBoxTimeoutW")]
+        public static extern int MessageBoxTimeout(IntPtr hWnd, string text, string caption, uint type, ushort language, uint ms);
     }
 }

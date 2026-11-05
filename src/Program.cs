@@ -50,9 +50,8 @@ namespace DnaAnd
             catch (Exception ex) { WriteLog("setup error · " + ex.Message); gpu.Dispose(); window.Close(); return 2; }
 
             double titleTimer = 0; int frames = 0; bool firstFrame = true;
-            const double KeepWindow = 15.0;          // seconds to answer the keep-or-revert prompt
-            double nextAsk = tryEvery > 0 ? tryEvery : double.MaxValue, askStarted = -1;
-            var bar = new KeepBar(gpu, pipeline);
+            double nextAsk = tryEvery > 0 ? tryEvery : double.MaxValue;
+            int menuSet = -1; bool menuDirty = true;
             string endReason = "closed normally";
             const ulong Seed = 20261105UL;
             DeepView deep = null;
@@ -63,19 +62,22 @@ namespace DnaAnd
                 clock.Tick();
                 watchdog.Beat();
 
-                bool cameBack = false;
-                if (deep == null && !cameBack && window.Input.WasPressed(Win32.VK_ESCAPE)) window.Close();
-                // keep-or-revert: like a display-settings prompt. K keeps it running; no answer closes it safely.
-                double left = -1;
-                if (tryEvery > 0)
+                if (deep == null && window.Input.WasPressed(Win32.VK_ESCAPE)) window.Close();
+                // the review menu: rebuilt whenever the set or the keepers change
+                if (viewer.Set != menuSet || menuDirty) { window.SetReviewMenu(viewer.KeeperLabels(), viewer.KeeperTicks()); menuSet = viewer.Set; menuDirty = false; }
+                int cmd = window.MenuCommand; window.MenuCommand = 0;
+                bool askNow = false;
+                if (cmd == Window.CmdExit) { endReason = "closed with the Exit button"; window.Close(); }
+                else if (cmd == Window.CmdAskNow) askNow = true;
+                else if (cmd == Window.CmdLegend) window.Tell(viewer.Legend(), "DNA-AND · Legend");
+                else if (cmd == Window.CmdClearMarks) { viewer.ClearMarks(); menuDirty = true; }
+                else if (cmd >= Window.CmdKeeperBase && cmd < Window.CmdKeeperBase + 9) { viewer.ToggleMark(cmd - Window.CmdKeeperBase); menuDirty = true; }
+                // keep-or-revert safety pop-up: Yes keeps the test going, No or no answer in 15 s closes it safely
+                if (askNow || (tryEvery > 0 && clock.Total >= nextAsk))
                 {
-                    if (askStarted < 0 && clock.Total >= nextAsk) askStarted = clock.Total;
-                    if (askStarted >= 0)
-                    {
-                        left = KeepWindow - (clock.Total - askStarted);
-                        if (window.Input.WasPressed(0x4B)) { askStarted = -1; nextAsk = clock.Total + tryEvery; left = -1; }
-                        else if (left <= 0) { endReason = "closed safely: no answer to the keep-or-revert prompt"; window.Close(); }
-                    }
+                    int answer = window.Ask("Keep this test running?\n\nYes = keep going\nNo = revert (close the game safely)\n\nNo answer in 15 seconds = revert.", "DNA-AND · Keep or revert", 15);
+                    if (answer == Win32.IDYES) nextAsk = tryEvery > 0 ? clock.Total + tryEvery : double.MaxValue;
+                    else { endReason = answer == Win32.MB_TIMEDOUT ? "closed safely: no answer to the keep-or-revert pop-up" : "reverted with the No button"; window.Close(); }
                 }
                 if (testStall && clock.Total > 0.5) System.Threading.Thread.Sleep(10000);
 
@@ -90,24 +92,23 @@ namespace DnaAnd
                 if (deep == null)
                 {
                     viewer.Update(window.Input, clock.Delta);
-                    if (window.Input.LeftClicked && viewer.Set == 1)
+                    if (window.Input.RightClicked) { viewer.ToggleMark(window.Input.MouseX, window.Input.MouseY, window.Width, window.Height); menuDirty = true; }
+                    else if (window.Input.LeftClicked && viewer.Set == 1)
                     {
                         int row = viewer.RowAt(window.Input.MouseY, window.Height);
                         deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(row), viewer.NameOf(row), Seed + (ulong)row * 7919UL);
                     }
                 }
-                else if (!deep.Update(window.Input, clock.Delta, gpu.Width, gpu.Height)) { deep.Dispose(); deep = null; cameBack = true; }
+                else if (!deep.Update(window.Input, clock.Delta, gpu.Width, gpu.Height)) { deep.Dispose(); deep = null; }
                 gpu.BeginFrame(0.005f, 0.006f, 0.012f);
                 if (deep == null) viewer.Draw(gpu.Width, gpu.Height, clock.Total); else deep.Draw(gpu.Width, gpu.Height, clock.Total);
-                if (left > 0) bar.Draw(left / KeepWindow, gpu.Width, gpu.Height);
                 gpu.EndFrame();
                 if (firstFrame) { firstFrame = false; watchdog.Running(); }
 
                 frames++; titleTimer += clock.Delta;
-                if (titleTimer >= 0.5 || (left > 0 && titleTimer >= 0.2))
+                if (titleTimer >= 0.5)
                 {
-                    string head = left > 0 ? string.Format("⚠ Press K to keep it running · closes in {0:0} s · ", Math.Ceiling(left)) : "";
-                    window.SetTitle(string.Format("{0}{1} · {2:0} fps", head, deep == null ? viewer.Title : deep.Title, frames / titleTimer));
+                    window.SetTitle(string.Format("{0} · {1:0} fps", deep == null ? viewer.Title : deep.Title, frames / titleTimer));
                     titleTimer = 0; frames = 0;
                 }
 
@@ -115,7 +116,6 @@ namespace DnaAnd
                 if (smokeMs >= 0 && clock.Total * 1000 >= smokeMs) { window.Close(); smokeMs = -1; }
             }
             if (deep != null) deep.Dispose();
-            bar.Dispose();
             viewer.Dispose(); pipeline.Dispose(); gpu.Dispose();
             watchdog.Stop();
             WriteLog(string.Format("ok · {0} content entries from {1} files · ran {2:0.00} s · gpu {3}x{4} · {5}", content.Entries.Count, content.Files.Count, clock.Total, gpu.Width, gpu.Height, endReason));
