@@ -26,9 +26,9 @@ All 100 powers are listed in [docs/POWERS.md](../../docs/POWERS.md "Each with us
 Lightning, heat, cold, water and spark of life, plus **add genes** and **add any of the 118 elements**.
 
 ## 💸 Cost and unlocks
-- Powers cost **Souls**: base tier (💠 to 💠💠💠💠💠) × area × strength.
-- Tier 4 and 5 powers have cooldowns. Smaller powers don't.
-- Powers unlock at six points (Start, Life, Land, Mind, Civ, Space) and as stages of life are reached, with stronger "+" versions later.
+- Powers cost **Souls**: tier (T1–T100, every power ranked weakest to strongest) × area × strength.
+- T81–T100 have cooldowns. Lower tiers don't.
+- 100 unlock points = the 100 stages of life. Every power unlocks at exactly one stage, and the 5 starters at stage 1.
 
 ## 🚫 No direct editing
 > "no direct edit besids using powers to influence things to happen"

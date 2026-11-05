@@ -171,10 +171,10 @@ Every species that ever lived, on one **circular tree**: your first cell at the 
 | | |
 |--|--|
 | 🌑 **Day one** | Lightning, heat, cold, water, spark of life, add genes, and add any element from the periodic table |
-| 🔓 **Unlocks** | New powers open as life reaches new stages, with stronger **+** versions later |
+| 🔓 **100 unlock points** | Each of the 100 stages of life unlocks its own power. Nothing is missing, nothing doubled |
 | 🌋 **Examples** | Fire, flood, drought, volcano, plague, cure, miracle, prophet, stellar flare, supernova, wormhole |
 | 🧬 **Gene powers** | Radiation bursts, viral gene carry, spark of mind. Good outcomes and bad |
-| ⏳ **Cooldowns** | The biggest powers need time to recharge |
+| 🏷️ **100 tiers** | Every power is ranked T1 (weakest) to T100 (strongest). The top 20 have cooldowns |
 
 👉 [100 God Powers](docs/wiki/god-powers.md "Every power, its pluses and minuses")
 
@@ -182,7 +182,7 @@ Every species that ever lived, on one **circular tree**: your first cell at the 
 
 ## 👻 Souls: the price of being a god
 
-Powers cost **Souls**. Cost = the power's **tier × area × strength**.
+Powers cost **Souls**. Cost = the power's **tier (T1–T100) × area × strength**.
 
 | | |
 |--|--|
