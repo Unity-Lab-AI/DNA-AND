@@ -126,6 +126,14 @@ family: weathering
 gives: farmland
 says: broken rock plus the remains of life; grows food
 
+@field ocean-water
+name: Ocean water
+real: yes
+family: water
+gives: water, salt, dissolved metals
+where: seas and oceans
+says: the biggest field on a wet world; salt and metals are dissolved in it
+
 # ── Fields in space ──
 
 @field asteroid-metal

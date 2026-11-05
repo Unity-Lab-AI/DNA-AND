@@ -589,13 +589,14 @@ Order: galactic scale down, the same order as the sample sets.
   - [x] Samples: Planets (3 examples × 3 styles)
   - [x] Samples: Stars (3 examples × 3 styles)
   - [x] Samples: Gas giants (3 examples × 3 styles)
-  - Samples: Dyson spheres (3 examples × 3 styles)
+  - [x] Samples: Dyson spheres (3 examples × 3 styles)
   - Samples: Space ships (3 examples × 3 styles)
   - Samples: Space colonies (3 examples × 3 styles)
   - Samples: Space stations (3 examples × 3 styles)
-  - Samples: Resource fields (3 examples × 3 styles)
+  - [x] Samples: Resource fields (3 examples × 3 styles)
   - Samples: The whole periodic table of elements (all 118) (3 examples × 3 styles)
 - **"Combined score from all the categories"** (R15). Replaced by the creator's round 4 answer: "life in your galaxy and life \"havested\"". The new task is under R15.
 - **"Power list (`docs/POWERS.md`)"** (R11). The list itself is done (see FINALIZED). Replaced by "Build all 100 powers from the power list".
 - [ ] **Stars from the templates:** "okay thoise are good to be templetes for all the variatiosn and colors and sizes like real starts". Build every star kind in content/stars.dnat from the approved set-3 templates, with real colours and real sizes.
 - [ ] **Remaining sample sets in the locked style only:** "yup same one the center one is the best, dont need to test them twice". Sets 4–17 show only the Populous-like style.
+- [ ] **Stuck at the deepest zoom inside the Dyson sphere:** "when i zommed all all the way in to the ground as close as i could get, i got stuck in the ground and couldnt back back up(but that can be solved when we do micorscopic)". Fix with the microscopic set.

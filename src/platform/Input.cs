@@ -12,6 +12,9 @@ namespace DnaAnd.Platform
         public bool LeftDown, RightDown, LeftClicked, RightClicked;
         private int _lastX, _lastY; private bool _haveLast;
 
+        /// <summary>For test runs: act as if the key was just pressed.</summary>
+        public void Press(int key) { if (key >= 0 && key < 256) _pressed[key] = true; }
+
         public bool IsDown(int key) { return key >= 0 && key < 256 && _down[key]; }
         public bool WasPressed(int key) { return key >= 0 && key < 256 && _pressed[key]; }
 

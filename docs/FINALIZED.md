@@ -151,3 +151,8 @@ LAW 11 now includes a content-coverage check.
 - [x] Samples: Planets (3 examples × 3 styles). Approved: "okay marked em all they look good".
 - [x] Samples: Gas giants (3 examples × 3 styles). Approved with set 4: "okay marked em all they look good".
 - Clean-up: "only keep the keeps on all the images and stuff weve taken and push with out all the dead weight of failures". Test pictures were deleted, the rejected styles were removed from the code, and the keeper pictures were saved in `docs/samples/`.
+
+## 2026-11-05 — Sample sets 5 and 6
+
+- [x] Samples: Resource fields (3 examples × 3 styles). Meaning: "when i said fields i meant areas like water in an ocean ore in rock chemicals near volcanos, for everything". Approved: "looks good".
+- [x] Samples: Dyson spheres (3 examples × 3 styles). One sphere, done right: "should be able to go inside of them where centrifical graveity lets you focus on the shell of te inside like a hallow inside out planet". Approved: "okay its working now".

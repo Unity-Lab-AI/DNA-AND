@@ -52,6 +52,14 @@ float4 PS(VO i) : SV_Target
     float3 toCam = cam.xyz - i.wp;
     if (dot(n, toCam) < 0) n = -n;
     float3 v = normalize(toCam);
+    if (misc.w > 0.5)
+    {
+        // shells: the inner land shows only from inside, the hull only from outside, so the two never fight on screen
+        float3 radial = float3(light.w, cam.w, fog.w);
+        float outward = dot(v, radial);
+        if (misc.w < 1.5 && outward > 0.02) discard;
+        if (misc.w > 1.5 && outward < -0.02) discard;
+    }
     if (misc.z > 0.5 && misc.z < 1.5)
     {
         // the air: a glowing shell, brightest where you look through the most of it (the edge), only on the lit side

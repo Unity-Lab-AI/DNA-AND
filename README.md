@@ -63,6 +63,10 @@ Straight from the game, drawn live by its own generators:
 <td><img src="docs/samples/gas-giant.png" alt="A banded gas giant with a great red storm" title="A gas giant"><br><b>🌀 Giants with weather.</b> Wind-curled bands, storms and high clouds you can fly down into.</td>
 </tr>
 <tr>
+<td><img src="docs/samples/dyson-shell-outside.png" alt="A Dyson sphere: an industrial megastructure of steel and rust around a star" title="A Dyson sphere, outside"><br><b>🏭 Dyson spheres.</b> A metal megastructure wrapped around a whole star.</td>
+<td><img src="docs/samples/dyson-shell-inside-30-km.png" alt="Mountains, valleys and lakes on the inner surface of a Dyson sphere" title="Inside a Dyson sphere"><br><b>🌄 A world inside out.</b> Go inside: land, seas and mountains on the inner surface, the star overhead.</td>
+</tr>
+<tr>
 <td><img src="docs/samples/set3-stars.png" alt="Nine kinds of star, each with moving plasma and a corona" title="Nine kinds of star"><br><b>⭐ Living stars.</b> Boiling plasma, spots and coronas, from red dwarfs to pulsars.</td>
 <td><img src="docs/samples/set1-galaxies.png" alt="A spiral, a barred spiral and an elliptical galaxy" title="Three galaxies"><br><b>🌌 Whole galaxies.</b> Click one and fly into it, down to a single star's planets.</td>
 </tr>

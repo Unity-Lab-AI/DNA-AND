@@ -57,7 +57,9 @@ namespace DnaAnd.Platform
         }
         public static volatile bool InSizeMove; // the game is held still on purpose: window moved or resized, or a pop-up is open
 
-        public Window(string title, int width, int height)
+        /// <summary><paramref name="quiet"/>: a short automatic check. It opens small in the bottom-right corner and does not
+        /// take the keyboard, so it never gets in the way of the window the player is using.</summary>
+        public Window(string title, int width, int height, bool quiet = false)
         {
             _proc = OnMessage;
             IntPtr instance = Win32.GetModuleHandle(null);
@@ -73,13 +75,19 @@ namespace DnaAnd.Platform
             if (Win32.RegisterClassEx(ref wc) == 0)
                 throw new InvalidOperationException("RegisterClassEx failed: " + Marshal.GetLastWin32Error());
 
-            Handle = Win32.CreateWindowEx(0, ClassName, title, Win32.WS_OVERLAPPEDWINDOW | Win32.WS_VISIBLE,
-                Win32.CW_USEDEFAULT, Win32.CW_USEDEFAULT, width, height,
+            int x = Win32.CW_USEDEFAULT, y = Win32.CW_USEDEFAULT;
+            if (quiet)
+            {
+                int sw = Win32.GetSystemMetrics(0), sh = Win32.GetSystemMetrics(1);   // the screen size
+                width = 640; height = 360; x = sw - width - 8; y = sh - height - 56;
+            }
+            Handle = Win32.CreateWindowEx(quiet ? Win32.WS_EX_NOACTIVATE : 0u, ClassName, title, Win32.WS_OVERLAPPEDWINDOW | (quiet ? 0u : Win32.WS_VISIBLE),
+                x, y, width, height,
                 IntPtr.Zero, IntPtr.Zero, instance, IntPtr.Zero);
             if (Handle == IntPtr.Zero)
                 throw new InvalidOperationException("CreateWindowEx failed: " + Marshal.GetLastWin32Error());
 
-            Win32.ShowWindow(Handle, Win32.SW_SHOW);
+            Win32.ShowWindow(Handle, quiet ? Win32.SW_SHOWNOACTIVATE : Win32.SW_SHOW);
             IsOpen = true;
         }
 

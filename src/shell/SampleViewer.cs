@@ -19,7 +19,7 @@ namespace DnaAnd.Shell
         private readonly BillboardDrawer _drawer;
         private float _yaw, _zoom = 1f;
         public int Set { get; private set; }
-        private readonly bool[,] _marks = new bool[5, 9];   // [set, row*3+col]: the samples marked good
+        private readonly bool[,] _marks = new bool[7, 9];   // [set, row*3+col]: the samples marked good
         private static readonly string[] StyleNames = { "", "Populous-like", "" };   // only the middle place is used: the earlier picks were made there
         private const int FrameDots = 48;
         private UploadBuffer _frameBuf;
@@ -51,12 +51,23 @@ namespace DnaAnd.Shell
         private readonly UploadBuffer[] _planetStatic = new UploadBuffer[9];
         private readonly int[] _planetStaticCount = new int[9];
         private readonly MeshPipes _pipes;
-        public PlanetTerrain TerrainAt(int i) { return _terrains[i]; }                                  // set 2 zooms from the whole system down to one planet
+        private readonly PlanetTerrain[] _fieldTerrains = new PlanetTerrain[9];
+        // set 6: nine Dyson structures around a star like ours
+        private readonly DysonStructure[] _dyson = new DysonStructure[9];
+        private readonly UploadBuffer[] _dysonBufs = new UploadBuffer[9];
+        private UploadBuffer _dysonStar; private int _dysonStarCount;
+        public DysonStructure DysonAt(int i) { return _dyson[i]; }
+        public PlanetTerrain TerrainAt(int i) { return _terrains[i]; }
+        public PlanetTerrain FieldTerrainAt(int i) { return _fieldTerrains[i]; }                                  // set 2 zooms from the whole system down to one planet
 
         public string Title
         {
             get
             {
+                if (Set == 6)
+                    return "DNA-AND samples · Set 6: Dyson structures (Populous-like) · click a shell or ring to fly to it, then I goes inside · Legend for which is which · right-click marks a keeper";
+                if (Set == 5)
+                    return "DNA-AND samples · Set 5: Resource fields (every field lit in its own colour) · click or roll the wheel on a world to fly down · Legend for colours · right-click marks a keeper";
                 if (Set == 4)
                     return "DNA-AND samples · Set 4: Planets and gas giants (Populous-like) · see the Legend menu for which is which · right-click marks a keeper";
                 if (Set == 3)
@@ -119,6 +130,7 @@ namespace DnaAnd.Shell
             {
                 PlanetRings surf = PlanetGen.Build(content, PlanetIds[i], seed * 37UL + (ulong)i, out _planetNames[i]);
                 _terrains[i] = new PlanetTerrain(gpu.Device, PlanetIds[i], _planetNames[i], (uint)(seed * 41UL + (ulong)i));
+                _fieldTerrains[i] = new PlanetTerrain(gpu.Device, PlanetIds[i], _planetNames[i], (uint)(seed * 41UL + (ulong)i), true);
                 // the rings, scaled to the planet's real size in km (the air is now drawn as a glowing shell by the planet itself)
                 var all = new System.Collections.Generic.List<StarVertex>();
                 for (int k = 0; k < surf.Points.Count; k++) all.Add(SpaceGen.Star(surf.Points[k], 0.02f, 0.85f, 0.78f, 0.62f, surf.Shade[k]));
@@ -128,6 +140,25 @@ namespace DnaAnd.Shell
                 _planetStaticCount[i] = arr.Length;
                 _planetStatic[i] = new UploadBuffer(gpu.Device, (long)Math.Max(1, arr.Length) * stride);
                 _planetStatic[i].Write(arr, arr.Length);
+            }
+            for (int i = 0; i < 9; i++)
+            {
+                _dyson[i] = DysonGen.Build(gpu.Device, content, DysonGen.Ids[i], seed * 43UL + (ulong)i);
+                var pc = _dyson[i].Pieces;
+                _dysonBufs[i] = new UploadBuffer(gpu.Device, (long)Math.Max(1, pc.Length) * stride);
+                _dysonBufs[i].Write(pc, pc.Length);
+            }
+            {
+                // the star at the centre: a glowing ball the size of the Sun's
+                var rng = new Rng(9); var sv = new StarVertex[1500];
+                for (int i = 0; i < sv.Length; i++)
+                {
+                    double u = rng.NextDouble() * 2 - 1, a = rng.NextDouble() * Math.PI * 2, rr = Math.Sqrt(1 - u * u), d = 696000 * (i < 1200 ? 1 : rng.Range(1.05f, 1.8f));
+                    sv[i] = SpaceGen.Star(new Vec3((float)(Math.Cos(a) * rr * d), (float)(u * d), (float)(Math.Sin(a) * rr * d)), i < 1200 ? 150000 : 300000, 1f, 0.92f, 0.7f, i < 1200 ? 0.6f : 0.08f);
+                }
+                _dysonStarCount = sv.Length;
+                _dysonStar = new UploadBuffer(gpu.Device, (long)sv.Length * stride);
+                _dysonStar.Write(sv, sv.Length);
             }
             LoadMarks(); // after every sample has its name
         }
@@ -152,7 +183,8 @@ namespace DnaAnd.Shell
         {
             if (Set == 2) { DrawSystems(width, height, time); DrawMarks(width, height); return; }
             if (Set == 3) { DrawStars(width, height, time); DrawMarks(width, height); return; }
-            if (Set == 4) { DrawPlanets(width, height, time); DrawMarks(width, height); return; }
+            if (Set == 4 || Set == 5) { DrawPlanets(width, height, time); DrawMarks(width, height); return; }
+            if (Set == 6) { DrawDyson(width, height, time); DrawMarks(width, height); return; }
             int tileH = height / 3;
             for (int row = 0; row < 3; row++)
             {
@@ -252,7 +284,7 @@ namespace DnaAnd.Shell
             int tileW = width / 3, tileH = height / 3;
             for (int i = 0; i < 9; i++)
             {
-                var t = _terrains[i];
+                var t = Set == 5 ? _fieldTerrains[i] : _terrains[i];
                 bool ringed = PlanetIds[i] == "gas-giant" || PlanetIds[i] == "ice-giant";
                 double R = t.Radius, dist = (ringed ? 5.4 : 3.3) * R;
                 // look from the lit side, a little off the line to the star, swaying gently
@@ -268,6 +300,31 @@ namespace DnaAnd.Shell
                 Mat4 vp = Mat4.Translation((float)-camX, (float)-camY, (float)-camZ) * viewRot * proj;
                 var right = new Vec3(viewRot.M11, viewRot.M21, viewRot.M31); var up = new Vec3(viewRot.M12, viewRot.M22, viewRot.M32);
                 DrawTile(_planetStatic[i], _planetStaticCount[i], vp, right, up, 1f, 0f, 2f, x, y, tileW, tileH, time);
+            }
+        }
+
+        private void DrawDyson(int width, int height, double time)
+        {
+            int tileW = width / 3, tileH = height / 3;
+            for (int i = 0; i < 9; i++)
+            {
+                var d = _dyson[i];
+                double dist = d.Outer * 3.1;
+                double yaw = _yaw * 1.5 + i * 0.7, pitch = 0.42;
+                double ex = Math.Cos(yaw) * Math.Cos(pitch), ey = Math.Sin(pitch), ez = Math.Sin(yaw) * Math.Cos(pitch);
+                double camX = ex * dist, camY = ey * dist, camZ = ez * dist;
+                Mat4 viewRot = Mat4.LookAt(new Vec3(0, 0, 0), new Vec3((float)-ex, (float)-ey, (float)-ez), new Vec3(0, 1, 0));
+                Mat4 proj = Mat4.Perspective(0.9f, tileW / (float)Math.Max(1, tileH), (float)(dist * 0.05), (float)(dist * 3));
+                int x = (i % 3) * tileW, y = (i / 3) * tileH;
+                foreach (var sh in d.Shells)
+                {
+                    sh.Cutaway = d.Id == "star-ring" || d.Id == "stellar-engine" ? null : new[] { ex, ey, ez };   // open toward the camera, so the star inside shows
+                    sh.Draw(_pipes, camX, camY, camZ, viewRot, proj, time, 2.4, 0, 0, 0, 0, x, y, tileW, tileH, 48);
+                }
+                Mat4 vp = Mat4.Translation((float)-camX, (float)-camY, (float)-camZ) * viewRot * proj;
+                var right = new Vec3(viewRot.M11, viewRot.M21, viewRot.M31); var up = new Vec3(viewRot.M12, viewRot.M22, viewRot.M32);
+                DrawTile(_dysonStar, _dysonStarCount, vp, right, up, 1f, 0.012f * Math.Max(0.35f, d.StarBright), 0f, x, y, tileW, tileH, time);
+                DrawTile(_dysonBufs[i], d.Pieces.Length, vp, right, up, 1f, 0.0015f, 2f, x, y, tileW, tileH, time);
             }
         }
 
@@ -308,7 +365,7 @@ namespace DnaAnd.Shell
                 for (int r = 0; r < 3; r++) rows[r] = "Row " + (r + 1) + ": " + RowName(Set, r);
                 return rows;
             }
-            for (int i = 0; i < 9; i++) l[i] = Set >= 3 ? "Row " + (i / 3 + 1) + ", column " + (i % 3 + 1) + ": " + (Set == 3 ? _starNames[i] : _planetNames[i]) : "Row " + (i / 3 + 1) + ": " + RowName(Set, i / 3) + "  ·  column " + (i % 3 + 1) + ": " + StyleNames[i % 3];
+            for (int i = 0; i < 9; i++) l[i] = Set >= 3 ? "Row " + (i / 3 + 1) + ", column " + (i % 3 + 1) + ": " + (Set == 3 ? _starNames[i] : Set == 6 ? _dyson[i].Name : Set == 5 ? _planetNames[i] + " (fields)" : _planetNames[i]) : "Row " + (i / 3 + 1) + ": " + RowName(Set, i / 3) + "  ·  column " + (i % 3 + 1) + ": " + StyleNames[i % 3];
             return l;
         }
 
@@ -320,6 +377,28 @@ namespace DnaAnd.Shell
 
         public string Legend()
         {
+            if (Set == 6)
+            {
+                var ds = new System.Text.StringBuilder("Set 6 of 17: Dyson structures around a star like ours, from the first mirrors to a finished shell\n\n");
+                for (int k = 0; k < 9; k++)
+                    ds.Append("  Row " + (k / 3 + 1) + ", column " + (k % 3 + 1) + ": " + _dyson[k].Name + (_dyson[k].Enterable != null ? " (can be gone inside)" : "") + "\n");
+                ds.Append("\nShells and rings are hollow worlds: dark hull plates outside, land, seas and clouds inside. The spin's centrifugal gravity holds everything onto the inner surface, with the star always overhead.\n");
+                ds.Append("Docks sit on the hulls, and ships fly between them: spaceships, docks and economies are built around Dyson spheres.\n");
+                ds.Append("\nControls:\n  Left-click a shell or ring, or roll the wheel over it: fly to it (Esc comes back here)\n  There: I goes through the hull, inside or back out; the wheel goes closer and further\n  Right-click a sample: mark or unmark it as a keeper\n  Exit menu or Esc: close the game");
+                return ds.ToString();
+            }
+            if (Set == 5)
+            {
+                var fs = new System.Text.StringBuilder("Set 5 of 17: resource fields, on the same nine worlds\n\nThe AI species find and use resources. You are a god: you have no use for them.\n\nColours:\n");
+                string[] cn = { "blue", "yellow", "orange", "mint green", "gold", "purple", "pink", "pale gold", "white", "rust red", "dark red", "sky blue", "olive", "grey", "magenta", "green", "ice blue" };
+                for (int k = 0; k < PlanetTerrain.Fields.Count; k++)
+                {
+                    var f = PlanetTerrain.Fields[k];
+                    fs.Append("  [" + (k < cn.Length ? cn[k] : "?") + "] " + f.Name + (f.Buried ? " (buried)" : "") + (f.Id == "coal" || f.Id == "oil-gas" ? " (made from buried life: none until life has lived here)" : "") + (f.Where.Length > 0 ? ": " + f.Where : "") + "\n");
+                }
+                fs.Append("\nDim grey: no field.\n\nControls:\n  Left-click a world, or roll the wheel over it: fly down to it (Esc comes back here)\n  In the fly-down: R switches the resource view, N flies to the next kind of field\n  Right-click a sample: mark or unmark it as a keeper\n  Exit menu or Esc: close the game");
+                return fs.ToString();
+            }
             if (Set >= 3)
             {
                 var st = new System.Text.StringBuilder(Set == 3 ? "Set 3 of 17: stars, all in the game's style (Populous-like)\n\n" : "Set 4 of 17: planets and gas giants, all in the game's style (Populous-like)\n\n");
@@ -347,6 +426,8 @@ namespace DnaAnd.Shell
         {
             if (set == 3) return _starNames[i] + " | Populous-like";
             if (set == 4) return _planetNames[i] + " | Populous-like";
+            if (set == 5) return _planetNames[i] + " fields | Populous-like";
+            if (set == 6) return _dyson[i].Name + " | Populous-like";
             return RowName(set, i / 3) + " | " + StyleNames[i % 3];
         }
 
@@ -356,7 +437,7 @@ namespace DnaAnd.Shell
             try
             {
                 var lines = new System.Collections.Generic.List<string>();
-                for (int set = 1; set <= 4; set++)
+                for (int set = 1; set <= 6; set++)
                     for (int i = 0; i < 9; i++)
                         if (_marks[set, i]) lines.Add("set " + set + " | " + SampleName(set, i));
                 System.IO.File.WriteAllLines("picks.txt", lines.ToArray());
@@ -373,7 +454,7 @@ namespace DnaAnd.Shell
                 {
                     var parts = line.Split('|');
                     if (parts.Length != 3) continue;
-                    int set; if (!int.TryParse(parts[0].Trim().Replace("set ", ""), out set) || set < 1 || set > 4) continue;
+                    int set; if (!int.TryParse(parts[0].Trim().Replace("set ", ""), out set) || set < 1 || set > 6) continue;
                     for (int i = 0; i < 9; i++)
                         if (SampleName(set, i) == parts[1].Trim() + " | " + parts[2].Trim()) _marks[set, i] = true;
                 }
@@ -419,6 +500,10 @@ namespace DnaAnd.Shell
             foreach (var b in _surfBufs) if (b != null) b.Dispose();
             foreach (var b in _planetStatic) if (b != null) b.Dispose();
             foreach (var t in _terrains) if (t != null) t.Dispose();
+            foreach (var t in _fieldTerrains) if (t != null) t.Dispose();
+            foreach (var d in _dyson) if (d != null) foreach (var sh in d.Shells) sh.Dispose();
+            foreach (var b in _dysonBufs) if (b != null) b.Dispose();
+            if (_dysonStar != null) _dysonStar.Dispose();
         }
     }
 }
