@@ -78,7 +78,7 @@ Order: galactic scale down, the same order as the sample sets.
 - [ ] Then: seeds and rules for the rest of the 100 categories: 31 not seeded and 42 partly seeded (see "Seeded in" in `docs/LISTS.md`)
 - [x] Content: Extinct life, dinosaurs and mass extinctions in `content/life/extinct.dnat`: "dont forget extinct animals" / "dinosars...ectectect"
 - [x] Content: Physics, black holes, moons, small bodies, nebulas, resource fields, space tech, cities and elements (all researched)
-- [ ] Content compiler (part of R1): `.dnat` text → our binary
+- [ ] Content loader (R1): read `.dnat` text at start-up. Binary packing, if ever needed, is done by our own C# code
 
 ### Lists
 **Spec:** `docs/LISTS.md`
@@ -88,30 +88,19 @@ Order: galactic scale down, the same order as the sample sets.
   - The live generators invent the rest, so each category reaches 100 in play.
 - [ ] Procedural generator that invents new entries on top of the real ones
 
-### R1 — Our own build tools (Helix)
-**Spec:** `wiki/systems/r01-toolchain.md`, `wiki/systems/r01a-seed-spec.md`, `docs/HOW-TO-BUILD.md`, `docs/DECOMPOSED.md`
+### R1 — Build setup (C# built into Windows)
+**Spec:** `wiki/systems/r01-toolchain.md`, `docs/HOW-TO-BUILD.md`
 
-- [ ] Design the tiny first tool, written directly as raw machine bytes, that can turn simple text instructions into machine code
-  - Changed: the first tool is a PowerShell assembler (`bootstrap/asm0.ps1`): "Start from PowerShell (Suggested)"
-  - Decided: a **hex loader** typed in as raw bytes. It turns a text file of hex digits into a Windows exe. Broken down in `docs/DECOMPOSED.md`.
-  - [x] Exact spec written: `wiki/systems/r01a-seed-spec.md` (exe layout, hex format, imports, proofs)
-- [ ] Use it to build a fuller machine-code writer (an "assembler")
-- [ ] Design our own programming language for the game
-  - Decided: **Helix**. Low-level and C-like, with manual memory and no garbage collector.
-- [ ] Build the compiler for our language, written in our own assembler
-  - The first Helix compiler (`dnac0.exe`).
-- [ ] Rebuild the compiler in our own language, so it builds itself
-  - `dnac.exe`, written in Helix. It has to build itself twice and come out byte-identical.
-- [ ] Teach it to make Windows exes
-- [ ] (Later) Teach it to make Mac programs — "windows only for now"
-- [ ] (Later) Teach it to make Linux programs — "windows only for now"
-- [ ] Write the how-to for building the game with our tools
-  - `docs/HOW-TO-BUILD.md` has the plan. Exact commands get added as each step exists.
+- [x] `build.cmd`: run Windows' own `csc.exe` over `src/` and write `build/DNA-AND.exe`: "Use C# built into Windows". Builds clean with warnings treated as errors
+- [~] Source layout: `src/platform`, `src/core`, `src/render`, `src/gen` and the rest, one folder per system (started: `src/Program.cs`, `src/platform/`)
+- [x] First proof: the exe opens its own window and closes cleanly (`DNA-AND.exe --smoke 1500` exits 0)
+- [ ] Content loader: read the `content/*.dnat` text files at start-up (replaces the planned binary content compiler)
 
 ### R2 — Talking to Windows
 **Spec:** `wiki/systems/r02-windows-layer.md`
 
-- [ ] Windows: window, keyboard, mouse, sound, files, clock, threads, network
+- [~] Windows: window, keyboard, mouse, sound, files, clock, threads, network
+  - [x] Window: our own Windows calls (`src/platform/Win32.cs`, `src/platform/Window.cs`)
   - Only Windows itself and the graphics card driver may be used ("sure").
 - [ ] (Later) Mac: same list
 - [ ] (Later) Linux: same list
@@ -561,6 +550,23 @@ Order: galactic scale down, the same order as the sample sets.
 
 ## TOMBSTONES
 
+- **The self-built Helix toolchain (R1)** was retired in round 20 ("Use C# built into Windows"). The original tasks, verbatim:
+  - [ ] Design the tiny first tool, written directly as raw machine bytes, that can turn simple text instructions into machine code
+  - Changed: the first tool is a PowerShell assembler (`bootstrap/asm0.ps1`): "Start from PowerShell (Suggested)"
+  - Decided: a **hex loader** typed in as raw bytes. It turns a text file of hex digits into a Windows exe. Broken down in `docs/DECOMPOSED.md`.
+  - [x] Exact spec written: `wiki/systems/r01a-seed-spec.md` (exe layout, hex format, imports, proofs)
+  - [ ] Use it to build a fuller machine-code writer (an "assembler")
+  - [ ] Design our own programming language for the game
+  - Decided: **Helix**. Low-level and C-like, with manual memory and no garbage collector.
+  - [ ] Build the compiler for our language, written in our own assembler
+  - The first Helix compiler (`dnac0.exe`).
+  - [ ] Rebuild the compiler in our own language, so it builds itself
+  - `dnac.exe`, written in Helix. It has to build itself twice and come out byte-identical.
+  - [ ] Teach it to make Windows exes
+  - [ ] (Later) Teach it to make Mac programs — "windows only for now"
+  - [ ] (Later) Teach it to make Linux programs — "windows only for now"
+  - [ ] Write the how-to for building the game with our tools
+  - `docs/HOW-TO-BUILD.md` has the plan. Exact commands get added as each step exists.
 - **Old per-subject sample tasks (round 6)** were replaced by the ordered "Sample sets" list (galactic scale down, full tree of life). Original text, verbatim:
   - Samples: Microbes (3 examples × 3 styles)
   - Samples: Viruses (3 examples × 3 styles)

@@ -27,8 +27,8 @@ Any change in behavior updates its docs **in the same batch**. When a system's c
 ### LAW 5 · No dependencies
 > "No dependancies!!!! WE DO NOT USE ANOYONE ELSE CODE< SCRIPTS< PROGERMAES< BINARIES <EXECULATEBLES< TANBLES< DATA< FILES< FOLDERS< DIRECTORES< OR COMPOLIERS"
 
-Everything is built from scratch in **Helix**, starting from the hand-typed hex loader. The only outside pieces allowed:
-- Windows itself (including the PowerShell it ships with, for the first toolchain step only)
+Everything is our own C# code, compiled by the C# compiler that ships with Windows (round 20: "Use C# built into Windows"). The only outside pieces allowed:
+- Windows itself, including its built-in C# compiler (`csc.exe`), core .NET runtime and system files (no Windows UI frameworks)
 - the graphics card driver
 - jsonbin, behind the swappable side car
 

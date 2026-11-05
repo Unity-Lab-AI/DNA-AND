@@ -62,14 +62,10 @@ Produced (researched, 1,000+ entries):
 
 The content the live generators work from: seeds, ranges, parts and rules, written now in our own text format (`docs/CONTENT-FORMAT.md`) and compiled to our own binary by our toolchain later. Sample subjects first, then the rest.
 
-### [ ] R1 — Our own build tools (language + compiler), from nothing
-> "we make it" / "No dependancies!!!! ... OR COMPOLIERS"
+### [ ] R1 — Build setup: C# with the compiler built into Windows
+> "Use C# built into Windows"
 
-Nothing else can be built until this exists. The first piece has to be written directly as raw machine bytes, because there is no outside tool to translate it. Each later tool gets built with the one before it, until we have our own language, **Helix**, and a compiler that makes Windows exes.
-
-- **Windows only for now** ("windows only for now"). Mac and Linux come later.
-- The chain: a hex loader typed as raw bytes → assembler → first Helix compiler → Helix compiler written in Helix, which builds itself.
-- Helix is low-level and C-like, with manual memory and no garbage collector.
+The game is written in C# and compiled by `csc.exe`, the C# compiler that ships with Windows (.NET Framework 4.x, C# 5). Only the core runtime and Windows' own system files are used, called directly from our code. A single `build.cmd` makes `DNA-AND.exe`. The earlier self-built Helix toolchain is retired (rounds 19–20).
 
 ### [ ] R2 — Talking to Windows directly (Mac and Linux later)
 > "all three" / "nothing of this game runs in a html its its own system and program"

@@ -40,6 +40,8 @@ _(none. The R1 seed tasks below come next.)_
 
 ## Pending
 
+> 🔴 **Retired (round 20).** The seed steps below were replaced by the C# build. They are kept for history.
+
 Parent: **R1 — Our own build tools (Helix)**, first minor task. Do these in order.
 
 ### [x] Write down the exact Windows exe layout the loader must produce. Done: `wiki/systems/r01a-seed-spec.md`

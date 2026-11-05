@@ -1,11 +1,13 @@
 ---
 title: R1 · Step 0 spec — the seed (hex loader)
-status: draft
+status: stale
 sources: [wiki/systems/r01-toolchain.md, docs/DECOMPOSED.md, Microsoft PE/COFF specification (format facts only)]
 last-verified: none (plan only)
 ---
 
 # 🌱 The seed: exact spec
+
+> 🔴 **Retired (round 20).** DNA-AND is compiled with the C# compiler that ships with Windows. This page is kept for reference only.
 
 The seed is the **only program typed in by hand**. It reads a text file of hex digits and writes the bytes they spell out to a new file. Every later tool is written as hex text and turned into a real program by the seed. After that, each tool builds the next.
 

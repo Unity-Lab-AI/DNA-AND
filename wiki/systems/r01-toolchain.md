@@ -1,37 +1,40 @@
 ---
-title: R1 · Toolchain — our own compiler from raw bytes
-status: draft
-sources: [docs/DESIGN.md, docs/ROADMAP.md#R1, docs/TODO.md#R1]
-last-verified: none (plan only)
+title: R1 · Toolchain — Windows' built-in C# compiler
+status: verified
+sources: [docs/DESIGN.md (rounds 19–20), docs/WORK-LAWS.md]
+last-verified: build.cmd and src/ at the first C# commit
 ---
 
 # 🛠️ R1 · Toolchain
 
-> "we make it" · "No dependancies!!!! ... OR COMPOLIERS" · "windows only for now"
+> "Use C# built into Windows"
 
-Nothing else gets built until this exists. There's no outside tool to lean on, so the chain starts with a tiny assembler script on the PowerShell that ships with Windows, and each step builds the next.
+DNA-AND is written in **C#** and compiled by the **C# compiler that ships with Windows** (`csc.exe`, from the .NET Framework 4.x built into Windows 10/11; C# 5).
 
-## 🪜 The bootstrap ladder
+## 🧱 What we use, and nothing else
 
-| Step | Built with | Produces | What it can do |
-|---|---|---|---|
-| 0️⃣ Mini-assembler | A PowerShell script (PowerShell ships with Windows) | `asm0.ps1` | Turns readable assembly text into a Windows exe |
-| 1️⃣ Assembler v1 | Our assembly, built by `asm0.ps1` | `asm1.exe` | The same assembler, now a real exe; it rebuilds itself identically |
-| 2️⃣ Assembler | `asm1` | `asm.exe` | Full assembler: labels, macros, data, PE output |
-| 3️⃣ Compiler v1 | `asm` | `dnac0.exe` | Compiles our own language |
-| 4️⃣ Compiler v2 | `dnac0` (written in Helix) | `dnac.exe` | Self-hosting: the compiler builds itself |
-| 5️⃣ Game | `dnac` | `DNA-AND.exe` | The game |
+| Allowed | Why |
+|---|---|
+| `csc.exe` | The compiler that comes with Windows |
+| The core .NET runtime (`mscorlib`, `System`) | Ships with Windows; basic types, files, threads, math |
+| Windows system files (`kernel32`, `user32`, `gdi32`, `d3d12`, `dxgi`, `winmm` and similar) | Called directly from our code for the window, input, sound, timing and graphics |
 
-✅ Step 0 is a small assembler written in PowerShell, which comes with Windows ("Start from PowerShell (Suggested)"). After the assembler rebuilds itself, PowerShell is no longer needed. The exe layout follows [the seed spec](r01a-seed-spec.md).
+**Not used:** NuGet packages, outside libraries, game engines, Windows UI frameworks, or any code we didn't write. Every interop declaration (the code that talks to Windows and Direct3D 12) is our own.
 
-## 🪟 Windows exe format
-Windows only runs programs in its own **PE** exe layout. That's a Windows requirement, not a choice. From step 0 on, our assembler writes PE files itself.
+## 🪜 The build
 
-## 🧾 Helix, our language
-✅ Low-level and C-like: manual memory, no garbage collector. Built for a simulation with billions of things.
-✅ The language is called **Helix**.
+```
+build.cmd  →  csc.exe (Windows)  →  DNA-AND.exe
+```
 
-## ✅ Proof each step works
-The rebuilt compiler must compile itself and produce a **byte-identical** copy. Any difference means a bug in the chain.
+One build script calls Windows' `csc.exe` on everything in `src/` and writes `build/DNA-AND.exe`.
+
+## ✅ Proof it works
+1. `build.cmd` produces an exe with no errors or warnings.
+2. The exe opens its own window and closes cleanly.
+3. The same source always builds the same way.
+
+## 🗃️ Retired
+Helix, the hex seed and the self-built assembler chain are retired (rounds 19–20). The exe-layout spec stays as a reference only: [r01a-seed-spec.md](r01a-seed-spec.md) (stale).
 
 See also: [How to build](../../docs/HOW-TO-BUILD.md) · [R2 Windows layer](r02-windows-layer.md) · [R16 Packaging](r16-packaging.md)
