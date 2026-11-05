@@ -45,3 +45,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Live generators
 
 - Added R4.4: live generators, no pre-built assets (new page r04b-generators.md). Full docs correctness scan passed.
+
+## 2026-11-05 — Content first
+
+- Round 15: content comes before code. Added docs/CONTENT-FORMAT.md (our own text format, compiled to our own binary later). First content file: content/stars.dnat (20 real seeds, 5 rules).

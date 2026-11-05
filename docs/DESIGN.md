@@ -348,6 +348,25 @@ The ask: "okay wasnt there categories or something u said we need but do we real
 
 ---
 
+## Round 15: content first (verbatim)
+
+The ask: "well i thought we needed to write the games content before we could have something to generate in the game engine"
+
+| Question | Answer (verbatim) |
+|---|---|
+| Order | "Content first, then code (Suggested)" |
+| Which content first | "Sample subjects first, then the rest (Suggested)" |
+| Format | "Our own binary format" |
+| How to make binary without a tool | "option one and and whats the most dynamic code to use? rust or type script?" |
+
+### What these mean for the build
+- **Content comes before code.** This replaces round 12's "Samples path now, lists later". The order is now: content data, then the toolchain and engine, then the samples.
+- **Sample subjects first:** planets, stars, gas giants, Dyson spheres, stations, colonies, ships, galaxy and system layouts, resource fields, cities, microbes, viruses, insects, animals, intelligent creatures and elements. Then the other categories.
+- **Format:** content is written now as **our own text format** (`docs/CONTENT-FORMAT.md`). Our own toolchain later compiles it into **our own binary format**, and the game reads only the binary.
+- **Rust or TypeScript:** neither. Both need outside compilers, which rule 1 forbids. All game code is **Helix**.
+
+---
+
 ## How we work (verbatim)
 
 These are the creator's working rules for this repo, each in his own words.
@@ -423,3 +442,4 @@ Everything the creator has said about this project, in order. Short process repl
 34. **Live generators:** see "Round 13". "and what about haveing a "crature" city" space tech" generator for everything full on like array dynamic content generation on the fly in the game so we dont pre build and assets but the games program builds them as they get living"
 35. "make sure all docs are correct"
 36. **List size:** "okay wasnt there categories or something u said we need but do we really need 10000?". Answer: "Real seeds, game fills to 100 (Suggested)"
+37. **Content first:** see "Round 15". "well i thought we needed to write the games content before we could have something to generate in the game engine" / "option one and and whats the most dynamic code to use? rust or type script?"

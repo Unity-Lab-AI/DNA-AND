@@ -1,0 +1,194 @@
+# DNA-AND content · stars
+# Real seeds for the star generator, plus its rules.
+# Values are typical ranges from real astronomy. Spec: docs/CONTENT-FORMAT.md
+
+# ── Main-sequence stars (the seven classic types) ──
+
+@star o-type
+name: O-type blue star
+real: yes
+color: blue
+temp-k: 30000..50000
+mass-sol: 16..90
+life-years: 1e6..1e7
+share-of-stars: rarest
+death: supernova
+tags: hot, bright, short-lived, ultraviolet
+
+@star b-type
+name: B-type blue-white star
+real: yes
+color: blue-white
+temp-k: 10000..30000
+mass-sol: 2.1..16
+life-years: 1e7..3e8
+share-of-stars: rare
+death: supernova at the heavy end, white dwarf at the light end
+tags: hot, bright
+
+@star a-type
+name: A-type white star
+real: yes
+color: white
+temp-k: 7500..10000
+mass-sol: 1.4..2.1
+life-years: 4e8..3e9
+share-of-stars: uncommon
+death: white dwarf
+example: Sirius A
+tags: bright
+
+@star f-type
+name: F-type yellow-white star
+real: yes
+color: yellow-white
+temp-k: 6000..7500
+mass-sol: 1.04..1.4
+life-years: 3e9..7e9
+share-of-stars: uncommon
+death: white dwarf
+tags: stable, life-friendly
+
+@star g-type
+name: G-type yellow star
+real: yes
+color: yellow
+temp-k: 5200..6000
+mass-sol: 0.8..1.04
+life-years: 1e10
+share-of-stars: common
+death: red giant, then white dwarf
+example: the Sun
+tags: stable, life-friendly
+
+@star k-type
+name: K-type orange star
+real: yes
+color: orange
+temp-k: 3700..5200
+mass-sol: 0.45..0.8
+life-years: 1.5e10..4.5e10
+share-of-stars: common
+death: white dwarf
+tags: stable, long-lived, life-friendly
+
+@star m-type
+name: M-type red dwarf
+real: yes
+color: red
+temp-k: 2400..3700
+mass-sol: 0.08..0.45
+life-years: 1e11..1e13
+share-of-stars: most common
+death: white dwarf, far in the future
+example: Proxima Centauri
+tags: dim, long-lived, flares
+
+# ── Giants and supergiants ──
+
+@star red-giant
+name: Red giant
+real: yes
+color: red-orange
+stage: late life of a Sun-like star
+tags: swollen, cool surface
+
+@star red-supergiant
+name: Red supergiant
+real: yes
+color: red
+stage: late life of a heavy star
+example: Betelgeuse
+death: supernova
+tags: huge, cool surface
+
+@star blue-supergiant
+name: Blue supergiant
+real: yes
+color: blue
+example: Rigel
+death: supernova
+tags: huge, very bright
+
+@star wolf-rayet
+name: Wolf-Rayet star
+real: yes
+color: blue
+stage: heavy star blowing off its outer layers
+tags: very hot, strong winds
+
+# ── Young and failed stars ──
+
+@star protostar
+name: Protostar
+real: yes
+stage: a star still forming inside a gas cloud
+tags: young, hidden in dust
+
+@star t-tauri
+name: T Tauri star
+real: yes
+stage: a young Sun-like star, not yet steady
+tags: young, flaring, variable
+
+@star brown-dwarf
+name: Brown dwarf
+real: yes
+mass-jupiter: 13..80
+stage: too light to burn like a true star
+tags: dim, failed star
+
+# ── Dead and strange stars ──
+
+@star white-dwarf
+name: White dwarf
+real: yes
+color: white
+stage: the leftover core of a Sun-like star
+tags: small, dense, cooling
+
+@star neutron-star
+name: Neutron star
+real: yes
+stage: the crushed core left by a supernova
+tags: tiny, extremely dense
+
+@star pulsar
+name: Pulsar
+real: yes
+stage: a spinning neutron star sweeping beams through space
+tags: spinning, beams, radiation
+
+@star magnetar
+name: Magnetar
+real: yes
+stage: a neutron star with an enormous magnetic field
+tags: magnetic, star-quakes
+
+@star black-hole
+name: Stellar black hole
+real: yes
+stage: the collapsed core of a very heavy star
+tags: no light, swallows matter
+
+# ── Generator rules ──
+
+@rule star-color
+real: rule
+says: color follows surface temperature, from red (coolest) to blue (hottest)
+
+@rule star-life
+real: rule
+says: heavier stars burn hotter and die sooner, lighter stars burn cooler and live longer
+
+@rule star-pick
+real: rule
+says: when a galaxy is generated, red dwarfs are by far the most common and blue stars the rarest
+
+@rule star-vary
+real: rule
+says: every generated star picks its values from inside its type's ranges, from the world seed
+
+@rule star-name
+real: rule
+says: only our own star is called the Sun; every other star is a star
