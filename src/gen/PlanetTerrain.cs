@@ -547,6 +547,12 @@ namespace DnaAnd.Gen
         private static double Smooth(double a, double b, double v) { double t = Math.Max(0, Math.Min(1, (v - a) / (b - a))); return t * t * (3 - 2 * t); }
 
         /// <summary>Ground height in km (below 0 is the sea floor) under a unit direction, with every detail: keeps the camera on top of the ground.</summary>
+        /// <summary>The colour of the ground under a unit direction (what you see when you push into it).</summary>
+        public void GroundColourAt(double x, double y, double z, out float r, out float g, out float b)
+        {
+            float gl; Height(x, y, z, 30, out r, out g, out b, out gl);
+        }
+
         public double GroundAt(double x, double y, double z)
         {
             float r, g, b, gl;

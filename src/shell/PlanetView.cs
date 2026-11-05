@@ -23,6 +23,7 @@ namespace DnaAnd.Shell
         private double _alt;                       // km above the solid ground (or sea floor) under the camera
         private readonly double _minAlt;
         private double _time;
+        private double _intoGround;               // km pushed into the ground (0 = on or above it)
         /// <summary>Part of the one journey from the galaxy: zooming out past the planet goes back up to its solar system.</summary>
         public bool Journey; public bool Ascend;
         private DnaAnd.Sim.MicrobeWorld _microbes; private double _mx, _my, _mz;      // the living microbes on the spot below, once you are small enough
@@ -217,6 +218,8 @@ namespace DnaAnd.Shell
             get
             {
                 string where = _underWater ? " · under water, " + Size(_waterDepth) + " below the surface" : "";
+                if (_intoGround > 0) where += " · INSIDE THE GROUND, " + Size(_intoGround) + " in (wheel back out to come up)";
+                if (_microbes != null) where += " · " + _microbes.Microbes.Count + " microbes in " + _microbes.Families + " families around you, " + _microbes.Viruses.Count + " viruses";
                 if (_terrain.Solid && _fieldHere >= 0 && !_terrain.Shell) where += " · field here: " + PlanetTerrain.Fields[_fieldHere].Name;
                 if (_centre) return "DNA-AND · " + _terrain.Name + " · THE VIEW FROM THE MIDDLE: the whole inner world wrapped around its star, the metal hull outside · drag to turn · C to go back";
                 if (_terrain.Shell)
@@ -270,7 +273,10 @@ namespace DnaAnd.Shell
             double maxAlt = _inside ? _terrain.Radius * 0.95 : _terrain.Radius * 4;     // inside, you can rise almost to the star
             double perNotch = _inside && _alt > 10 ? 0.4 : 0.7;      // inside a sphere the heights are huge: bigger steps down
             if (Journey && !_inside && input.Wheel < 0 && _alt >= maxAlt * 0.99) { Ascend = true; return false; }   // out past the planet: back to its solar system
-            if (input.Wheel != 0) _alt = Math.Max(_minAlt, Math.Min(maxAlt, _alt * Math.Pow(perNotch, input.Wheel)));
+            // into the ground: at the bottom, the wheel keeps going in; out again brings you back up through it
+            if (_terrain.Solid && !_terrain.Shell && input.Wheel > 0 && _alt <= _minAlt * 1.01 && !_underWater) _intoGround = Math.Min(10, Math.Max(1e-9, _intoGround * Math.Pow(1 / 0.6, input.Wheel)));   // up to 10 km down
+            else if (_intoGround > 0 && input.Wheel < 0) { _intoGround *= Math.Pow(0.6, -input.Wheel); if (_intoGround < 1.5e-9) _intoGround = 0; }
+            else if (input.Wheel != 0 && _intoGround == 0) _alt = Math.Max(_minAlt, Math.Min(maxAlt, _alt * Math.Pow(perNotch, input.Wheel)));
             if (_microbes != null) { _microbeAccum += dt; var sw = System.Diagnostics.Stopwatch.StartNew(); while (_microbeAccum > 0.05 && sw.Elapsed.TotalMilliseconds < 6) { _microbes.Step(0.05); _microbeAccum -= 0.05; } if (_microbeAccum > 1) _microbeAccum = 0; }
             double R = _terrain.Radius;
             double step = (_alt + 1e-9) / R;                               // ground speed grows with height
@@ -340,8 +346,19 @@ namespace DnaAnd.Shell
             float fogDist = airT > 0.01 ? (float)Math.Min(horizon * 1.25 + 5, far * 0.9) : 0;
             if (_underWater)
             {
-                sr = 0.02f; sg = 0.10f; sb = 0.2f; airT = 1;
-                fogDist = (float)Math.Min(0.06 + alt * 50, far * 0.9);   // you can see only a few tens of metres through water
+                // sunlight reaches down only so far: bright blue near the surface, dark by about 200 metres
+                double light = Math.Exp(-_waterDepth / 0.05);
+                float wl = (float)Math.Max(0.02, light);
+                sr = 0.06f * wl; sg = 0.3f * wl; sb = 0.5f * wl; airT = 1;
+                fogDist = (float)Math.Min(0.03 + alt * 30, far * 0.9);
+            }
+            if (_intoGround > 0)
+            {
+                // inside the ground: nothing but its own colour, darker the deeper you push
+                float gr, gg, gb; _terrain.GroundColourAt(ux, uy, uz, out gr, out gg, out gb);
+                float dark = (float)Math.Max(0.03, 1 - Math.Log10(_intoGround / 1e-9 + 1) / 6);
+                gpu.ClearNow(gr * dark * 0.7f, gg * dark * 0.7f, gb * dark * 0.7f);
+                return;
             }
             gpu.ClearNow(sr * airT, sg * airT, sb * airT);
             _terrain.Draw(_pipes, cx, cy, cz, view, proj, _time, 3.0, fogDist, sr, sg, sb, 0, 0, width, height, 400);
@@ -393,8 +410,7 @@ namespace DnaAnd.Shell
                 // a patch here: its own seed from the place, so each spot has its own life
                 ulong seed = (ulong)(Math.Abs(ux * 1e7) + Math.Abs(uy * 3e7) + Math.Abs(uz * 7e7)) + 17;
                 _microbes = new DnaAnd.Sim.MicrobeWorld(seed);
-                double R = _terrain.Radius + Math.Max(0, ground);
-                _mx = ux * R; _my = uy * R; _mz = uz * R; _mEast = east; _mNorth = north; _mUp = up;
+                _mx = cx; _my = cy; _mz = cz; _mEast = east; _mNorth = north; _mUp = up;   // around the camera, at its own height
                 _microbeVerts = new StarVertex[DnaAnd.Sim.MicrobeWorld.MaxMicrobes * 6 + DnaAnd.Sim.MicrobeWorld.MaxViruses + 16];
                 if (_microbeBuf == null) _microbeBuf = new UploadBuffer(gpu.Device, (long)_microbeVerts.Length * Marshal.SizeOf(typeof(StarVertex)));
             }
@@ -405,7 +421,9 @@ namespace DnaAnd.Shell
             {
                 if (n > _microbeVerts.Length - 6) break;
                 double lx = (m.X - DnaAnd.Sim.MicrobeWorld.Width / 2) * Um, ly = (m.Y - DnaAnd.Sim.MicrobeWorld.Height / 2) * Um;
-                var p = new Vec3(ox, oy, oz) + _mEast * (float)lx + _mNorth * (float)ly + _mUp * (float)(m.G.Size * 1.2 * Um);
+                // spread out ahead of you and to the sides; in water they float at many depths, on land they keep to the wet film
+                double lift = (_underWater ? ((m.Family * 37 % 100) / 100.0 - 0.5) * 40 : ((m.Family * 37 % 100) / 100.0) * 1.5) * Um;
+                var p = new Vec3(ox, oy, oz) + _mEast * (float)lx + _mNorth * (float)(ly + 60 * Um) + _mUp * (float)lift;
                 var g = m.G;
                 _microbeVerts[n++] = SpaceGen.Star(p, (float)(g.Size * Um), g.R, g.G, g.B, 0.9f);
                 if (g.Shape != 0)
