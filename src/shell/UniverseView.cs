@@ -88,12 +88,20 @@ namespace DnaAnd.Shell
             if (input.LeftDown) { _yaw += input.MouseDX * 0.005; _pitch = Math.Max(-1.4, Math.Min(1.4, _pitch + input.MouseDY * 0.005)); }
             if (input.WasPressed(0x09)) { Centre((_focus + 1) % Galaxies.Count); _dist = Math.Max(_dist, 12); }
             if (input.LeftClicked) Click(input.MouseX, input.MouseY, w, h);
+            if (input.Wheel > 0) ZoomToward(input.MouseX, input.MouseY, w, h);      // zoom into the galaxy under the mouse
             if (input.Wheel != 0) _dist = Math.Max(3.5, Math.Min(400, _dist * Math.Pow(0.8, input.Wheel)));
             if (input.Wheel > 0 && _dist <= 4.0) HandOff = _focus;            // close enough: fly into it
             return true;
         }
 
         private Mat4 _vp;
+
+        private void ZoomToward(int mx, int my, int w, int h)
+        {
+            int keep = _focus; double keepDist = _dist;
+            Click(mx, my, w, h);
+            if (_focus != keep) _dist = Math.Min(keepDist, Math.Max(12, keepDist));   // a new galaxy: keep the distance, carry on in toward it
+        }
 
         private void Click(int mx, int my, int w, int h)
         {

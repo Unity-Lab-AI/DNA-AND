@@ -203,7 +203,7 @@ namespace DnaAnd
                     {
                         var g = universe.Focus;
                         deep = new DeepView(gpu, pipeline, content, g.Type, g.Name, g.Seed) { Meshes = meshes };
-                        deep.AimForJourney();
+                        // no target is forced: the wheel zooms where the mouse points, or click a star to fly to it
                         universe.HandOff = -1;
                     }
                 }

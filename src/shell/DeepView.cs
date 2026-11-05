@@ -33,7 +33,7 @@ namespace DnaAnd.Shell
         /// <summary>The 3D planet being approached (made when a planet is picked; the planet view carries on with this same one).</summary>
         public PlanetTerrain FocusTerrain, FocusFields;
         private StarSurface _starSurface; private StarVertex[] _starCorona, _starSurfVerts; private UploadBuffer _starCoronaBuf, _starSurfBuf, _shineBuf;
-        private double _glideFromX, _glideFromY, _glideFromZ; private bool _gliding; private double _glideStartDist = 3.5;
+        // the target star is reached one wheel notch at a time (see Update)
         private int _pendingStar = -1;              // the journey: the star being flown toward, opened once close enough
 
         /// <summary>The journey: aim at a Sun-like star out in the disc, so rolling the wheel in flies to it.</summary>
@@ -49,8 +49,32 @@ namespace DnaAnd.Shell
             }
             if (best < 0) return;
             _pendingStar = best;
-            _glideFromX = 0; _glideFromY = 0; _glideFromZ = 0; _gliding = true; _glideStartDist = 3.5;   // start on the whole galaxy, glide toward the star as you zoom
+            // start on the whole galaxy; each notch in moves toward the star
             _dist = 3.5;
+        }
+
+        // keep the point under the mouse fixed on screen while zooming by factor z
+        private void ZoomAtMouse(int mx, int my, int w, int h, double z)
+        {
+            double nx = mx / (double)Math.Max(1, w) * 2 - 1, ny = 1 - my / (double)Math.Max(1, h) * 2;
+            Mat4 view = OrbitView();
+            var right = new Vec3(view.M11, view.M21, view.M31); var up = new Vec3(view.M12, view.M22, view.M32);
+            double t = Math.Tan(0.45), aspect = w / (double)Math.Max(1, h);
+            double px = right.X * nx * t * aspect * _dist + up.X * ny * t * _dist, py = right.Y * nx * t * aspect * _dist + up.Y * ny * t * _dist, pz = right.Z * nx * t * aspect * _dist + up.Z * ny * t * _dist;
+            // the focus moves toward that point by the same share the distance shrinks
+            double k = 1 - z;
+            SetFocus(_fx + px * k, _fy + py * k, _fz + pz * k);
+        }
+
+        private int NearestStarToFocus()
+        {
+            int best = -1; double bd = double.MaxValue;
+            for (int i = 0; i < _stars.Length; i++)
+            {
+                double dx = _stars[i].X - _fx, dy = _stars[i].Y - _fy, dz = _stars[i].Z - _fz, d = dx * dx + dy * dy + dz * dz;
+                if (d < bd) { bd = d; best = i; }
+            }
+            return best;
         }
 
         /// <summary>In the galaxy: the star nearest the mouse becomes the one you fly to; the view glides toward it as you zoom in.</summary>
@@ -76,8 +100,7 @@ namespace DnaAnd.Shell
                 if (_sysBodies != null) { _sysBodies.Dispose(); _sysBodies = null; }
                 _dist = Math.Max(_dist, 0.002);
             }
-            _pendingStar = best; _glideFromX = _fx; _glideFromY = _fy; _glideFromZ = _fz; _gliding = true;
-            _glideStartDist = _dist;
+            _pendingStar = best;
         }
 
         private void OpenStar(int best)
@@ -170,20 +193,26 @@ namespace DnaAnd.Shell
                 if (_focusBody >= 0 && _dist > outer * 1.5) { _focusBody = -1; }
                 else if (_focusBody < 0 && _dist > outer * 40) { GoCore(); _dist = Math.Max(_dist, outer * 40); return true; }
             }
-            if (_pendingStar >= 0 && input.Wheel < 0 && _dist > Math.Max(0.5, _glideStartDist)) _pendingStar = -1;      // backing away from the target star: let it go
+            if (_pendingStar >= 0 && input.Wheel < 0 && _dist > 3.0) _pendingStar = -1;      // backed right out to the whole galaxy: let the target go
+            // the wheel zooms toward where the mouse points: the spot under the mouse stays under it (unless a star was clicked)
+            if (input.Wheel != 0 && _system == null && _pendingStar < 0) ZoomAtMouse(input.MouseX, input.MouseY, w, h, Math.Pow(0.82, input.Wheel));
             if (input.Wheel != 0) _dist *= Math.Pow(0.82, input.Wheel);
-            if (_pendingStar >= 0 && _gliding)
+            if (_pendingStar >= 0 && input.Wheel > 0)
             {
-                // how far the zoom has come from the whole galaxy (3.5) to near the star (0.002): the view's centre slides the same share of the way
-                double t = Math.Max(0, Math.Min(1, (Math.Log(_glideStartDist) - Math.Log(Math.Max(_dist, 1e-9))) / (Math.Log(_glideStartDist) - Math.Log(Math.Min(0.002, _glideStartDist * 0.5)))));
-                t = t * t * (3 - 2 * t);
+                // each notch in moves the view's centre a share of the way to the target, so you fly toward where you pointed
                 var s0 = _stars[_pendingStar];
-                double nx = _glideFromX + (s0.X - _glideFromX) * t, ny = _glideFromY + (s0.Y - _glideFromY) * t, nz = _glideFromZ + (s0.Z - _glideFromZ) * t;
-                double moved = Math.Abs(nx - _fx) + Math.Abs(ny - _fy) + Math.Abs(nz - _fz);
-                if (moved > _dist * 0.01 || t >= 1) SetFocus(nx, ny, nz);
-                if (t >= 1) _gliding = false;
+                double k = 1 - Math.Pow(0.62, input.Wheel);
+                double nx = _fx + (s0.X - _fx) * k, ny = _fy + (s0.Y - _fy) * k, nz = _fz + (s0.Z - _fz) * k;
+                double gap = Math.Sqrt((s0.X - nx) * (s0.X - nx) + (s0.Y - ny) * (s0.Y - ny) + (s0.Z - nz) * (s0.Z - nz));
+                if (gap < _dist * 0.05) { nx = s0.X; ny = s0.Y; nz = s0.Z; }
+                SetFocus(nx, ny, nz);
             }
-            if (_pendingStar >= 0 && _dist < 2e-6) OpenStar(_pendingStar);                 // close enough to the star: open its solar system
+            if (_pendingStar < 0 && _system == null && _dist < 2e-6) _pendingStar = NearestStarToFocus();   // arrived among the stars: the nearest one opens
+            if (_pendingStar >= 0 && _dist < 2e-6)
+            {
+                var s1 = _stars[_pendingStar];
+                if (Math.Abs(s1.X - _fx) + Math.Abs(s1.Y - _fy) + Math.Abs(s1.Z - _fz) < 1e-6) OpenStar(_pendingStar); else _dist = 2e-6;
+            }                 // close enough to the star: open its solar system
             double minDist = _focusStar >= 0 ? _system.StarRadius * 1.5 : _pendingStar >= 0 ? 1e-6 : _bh.HorizonUnits * 3;
             if (_focusBody >= 0) minDist = _system.Bodies[_focusBody].RadiusUnits * 1.05;
             _dist = Math.Max(minDist, Math.Min(4.0, _dist));
