@@ -30,7 +30,7 @@ namespace DnaAnd.Shell
         private double _speed = 1; private bool _paused;
         private static readonly double[] Speeds = { 1, 10, 100, 1000, 100000 };
         private const double SecondsPerYearAt1x = 20.0;   // at 1x, one year takes 20 s
-        private const double MaxVisualTurnPerSecond = 0.5; // radians: nothing on screen turns faster than this
+        private const double MaxVisualTurnPerSecond = 0.05; // radians: nothing on screen turns faster than this
         private static readonly int Stride = Marshal.SizeOf(typeof(StarVertex));
 
         public DeepView(Gpu gpu, BillboardPipeline pipe, ContentLibrary content, string type, string name, ulong seed)
@@ -167,35 +167,8 @@ namespace DnaAnd.Shell
 
         private void UpdateBodies(double time)
         {
-            // Calm motion: the simulation keeps full speed, but nothing on screen turns faster than
-            // MaxVisualTurnPerSecond. Faster bodies are shown as a soft glowing orbit trail instead of a whirling dot.
-            var pos = new Vec3[_system.Bodies.Count];
-            int n = 0;
-            _bodyVerts[n++] = SpaceGen.Star(new Vec3(0, 0, 0), (float)_system.StarRadius, _system.SR, _system.SG, _system.SB, 1f);
-            double speedFactor = _paused ? 0 : _speed / SecondsPerYearAt1x; // years per real second
-            for (int i = 0; i < _system.Bodies.Count; i++)
-            {
-                var b = _system.Bodies[i];
-                double period = Math.Max(1e-4, b.Period);
-                double visualTurn = speedFactor / period * Math.PI * 2;           // radians per real second on screen
-                double ang = b.Phase + _simYears / period * Math.PI * 2;
-                var p = new Vec3((float)(Math.Cos(ang) * b.OrbitUnits), 0, (float)(Math.Sin(ang) * b.OrbitUnits));
-                Vec3 centre = b.Parent >= 0 ? pos[b.Parent] : new Vec3(0, 0, 0);
-                p = p + centre;
-                pos[i] = p;
-                float bright = b.Parent >= 0 ? 0.6f : 1f;
-                if (visualTurn <= MaxVisualTurnPerSecond)
-                    _bodyVerts[n++] = SpaceGen.Star(p, (float)b.RadiusUnits, b.R, b.G, b.B, bright);
-                else
-                    for (int k = 0; k < TrailPoints; k++)
-                    {
-                        double t = k / (double)TrailPoints * Math.PI * 2;
-                        var q = centre + new Vec3((float)(Math.Cos(t) * b.OrbitUnits), 0, (float)(Math.Sin(t) * b.OrbitUnits));
-                        _bodyVerts[n++] = SpaceGen.Star(q, (float)(b.RadiusUnits * 0.5), b.R, b.G, b.B, bright * 0.35f);
-                    }
-            }
-            _bodyCount = n;
-            _sysBodies.Write(_bodyVerts, n);
+            _bodyCount = SpaceGen.BodyVerts(_system, _simYears, _paused ? 0 : _speed / SecondsPerYearAt1x, MaxVisualTurnPerSecond, _bodyVerts, TrailPoints);
+            _sysBodies.Write(_bodyVerts, _bodyCount);
         }
 
         private void Draw(UploadBuffer buf, int count, Mat4 vp, Vec3 right, Vec3 up, float sizeScale, float minSize, float style, int w, int h, double time)

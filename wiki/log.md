@@ -93,3 +93,10 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Calm motion
 
 - Round 22: on-screen motion is capped while the sim runs at full speed, and fast bodies become trails. Time controls are in the deep zoom.
+
+## 2026-11-05 — Sample sets 1–4 approved, art style locked
+
+- Populous-like is the art style for everything. The RimWorld-like and Stardew-like styles were dropped, and their code removed.
+- Sets 1–4 (galaxies, solar systems, stars, planets with gas giants) are approved. The keeper pictures are in `docs/samples/`.
+- The renderer now has depth, solid faceted ground, glowing air, see-through clouds and water, and planets with detail from orbit down to micrometres.
+- `r04-renderer.md` is verified against the code.

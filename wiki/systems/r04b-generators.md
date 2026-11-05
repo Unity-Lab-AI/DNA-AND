@@ -55,7 +55,7 @@ last-verified: none (plan only)
 
 ## 🧪 First job: the samples
 
-The style samples (R4.5) are the generators' first output: 3 examples × 3 styles for each subject, generated live in the sample viewer.
+The style samples (R4.5) are the generators' first output, generated live in the sample viewer. The style is locked to Populous-like, so the sets that remain show that style only. Built so far: galaxies (`GalaxyGen`), solar systems (`SpaceGen`), stars (`StarGen`), planets and giants (`PlanetTerrain`, rings from `PlanetGen`).
 
 ## 🔗 Depends on
 [R3 · Engine core](r03-engine-core.md) (arrays, seeded random, threads) · [R4 · Renderer](r04-renderer.md) (Direct3D 12 and our shader generator) · [R7 · Genome](r07-genome.md) (the data creatures are built from)

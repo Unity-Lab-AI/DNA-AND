@@ -55,4 +55,4 @@ Every doc image is rendered from the game's own live generators (`wiki/systems/r
 
 ## 🎨 Style comes first
 
-Doc images can only be rendered after the creator picks one of the 3 sample styles (RimWorld-like, Populous-like or Stardew-like). See `docs/DESIGN.md`, round 6.
+The art style is locked: Populous-like, for everything (`docs/DESIGN.md`, item 67). The game saves its own picture with `--shot <seconds> <file.bmp>`, and `--tour <name> <km,km,...>` takes one picture per height in a planet fly-down. Approved sample pictures live in `docs/samples/`.

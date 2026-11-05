@@ -37,7 +37,7 @@ namespace DnaAnd.Gen
             }
         }
 
-        private static void ColorOf(string c, out float r, out float g, out float b)
+        public static void ColorOf(string c, out float r, out float g, out float b)
         {
             switch (c.Trim())
             {
@@ -48,6 +48,7 @@ namespace DnaAnd.Gen
                 case "yellow": r = 1f; g = 0.90f; b = 0.62f; break;
                 case "orange": r = 1f; g = 0.70f; b = 0.40f; break;
                 case "red": r = 1f; g = 0.45f; b = 0.30f; break;
+                case "magenta-red": r = 0.85f; g = 0.28f; b = 0.38f; break;   // brown dwarfs: dim deep red-magenta
                 default: r = g = b = 1f; break;
             }
         }

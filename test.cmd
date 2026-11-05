@@ -1,7 +1,7 @@
 @echo off
 rem DNA-AND safe test runner.
-rem   test.cmd          Look-around test: the game stays open. Every 2 minutes it asks you to press K to keep it
-rem                     running; if you don't answer within 15 seconds it closes itself safely.
+rem   test.cmd          Look-around test: the game stays open. Every 2 minutes a pop-up asks: Yes keeps it
+rem                     going, No reverts (closes safely), no answer in 15 s reverts. Menu bar: Exit, Keep going or revert, Keepers, Legend.
 rem   test.cmd 3000     Quick timed check: runs 3000 ms, then closes.
 rem Either way, if the game is still running past its hard limit it is force-closed, which releases the window
 rem and the graphics card. The game never changes display settings, so closing it is a full revert.

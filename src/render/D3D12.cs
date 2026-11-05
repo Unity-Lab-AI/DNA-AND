@@ -22,13 +22,32 @@ namespace DnaAnd.Render
         // ── Constants ──
         public const int D3D_FEATURE_LEVEL_11_0 = 0xb000;
         public const int COMMAND_LIST_TYPE_DIRECT = 0;
-        public const int DESCRIPTOR_HEAP_TYPE_RTV = 2;
+        public const int DESCRIPTOR_HEAP_TYPE_RTV = 2, DESCRIPTOR_HEAP_TYPE_DSV = 3;
+        public const uint DXGI_FORMAT_D32_FLOAT = 40;
+        public const int RESOURCE_STATE_DEPTH_WRITE = 0x10;
         public const uint DXGI_FORMAT_R8G8B8A8_UNORM = 28;
         public const uint DXGI_USAGE_RENDER_TARGET_OUTPUT = 0x20;
         public const uint DXGI_SWAP_EFFECT_FLIP_DISCARD = 4;
         public const uint DXGI_MWA_NO_ALT_ENTER = 2;
         public const int RESOURCE_STATE_PRESENT = 0;
         public const int RESOURCE_STATE_RENDER_TARGET = 0x4;
+        public const int RESOURCE_STATE_COPY_DEST = 0x400, RESOURCE_STATE_COPY_SOURCE = 0x800;
+
+        // where a texture copy reads from or writes to: a texture's sub-picture (type 0) or rows in a buffer (type 1)
+        [StructLayout(LayoutKind.Explicit, Size = 48)]
+        public struct TextureCopyLocation
+        {
+            [FieldOffset(0)] public IntPtr Resource;
+            [FieldOffset(8)] public int Type;
+            [FieldOffset(16)] public uint SubresourceIndex;      // type 0
+            [FieldOffset(16)] public ulong Offset;               // type 1 ...
+            [FieldOffset(24)] public uint Format;
+            [FieldOffset(28)] public uint Width;
+            [FieldOffset(32)] public uint Height;
+            [FieldOffset(36)] public uint Depth;
+            [FieldOffset(40)] public uint RowPitch;
+        }
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)] public delegate void CopyTextureRegionFn(IntPtr self, ref TextureCopyLocation dst, uint x, uint y, uint z, ref TextureCopyLocation src, IntPtr box); // 16
 
         // ── Structs ──
         [StructLayout(LayoutKind.Sequential)]
@@ -94,7 +113,9 @@ namespace DnaAnd.Render
         [UnmanagedFunctionPointer(CallingConvention.StdCall)] public delegate int CloseFn(IntPtr self);                                                        // 9
         [UnmanagedFunctionPointer(CallingConvention.StdCall)] public delegate int ListResetFn(IntPtr self, IntPtr alloc, IntPtr pso);                           // 10
         [UnmanagedFunctionPointer(CallingConvention.StdCall)] public delegate void ResourceBarrierFn(IntPtr self, uint count, ref TransitionBarrier barrier);     // 26
-        [UnmanagedFunctionPointer(CallingConvention.StdCall)] public delegate void OMSetRenderTargetsFn(IntPtr self, uint count, ref IntPtr handles, int single, IntPtr depth); // 46
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)] public delegate void OMSetRenderTargetsFn(IntPtr self, uint count, ref IntPtr handles, int single, ref IntPtr depth); // 46
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)] public delegate void ClearDepthStencilViewFn(IntPtr self, IntPtr handle, int flags, float depth, byte stencil, uint rects, IntPtr rectList); // 47
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)] public delegate void CreateDepthStencilViewFn(IntPtr self, IntPtr resource, IntPtr desc, IntPtr handle); // 21
         [UnmanagedFunctionPointer(CallingConvention.StdCall)] public delegate void ClearRenderTargetViewFn(IntPtr self, IntPtr handle, float[] color, uint rects, IntPtr rectList); // 48
     }
 }
