@@ -1,8 +1,8 @@
 ---
 title: R4.4 · Live generators — every asset built on the fly
-status: draft
+status: partial
 sources: [docs/DESIGN.md#round-13-live-generators-verbatim, docs/ROADMAP.md, docs/TODO.md]
-last-verified: none (plan only)
+last-verified: 62c3cf6
 ---
 
 # 🏭 R4.4 · Live generators
@@ -56,6 +56,17 @@ last-verified: none (plan only)
 ## 🧪 First job: the samples
 
 The style samples (R4.5) are the generators' first output, generated live in the sample viewer. The style is locked to Populous-like, so the sets that remain show that style only. Built so far: galaxies (`GalaxyGen`), solar systems (`SpaceGen`), stars (`StarGen`), planets and giants (`PlanetTerrain`, rings from `PlanetGen`).
+
+**Living and built things** use one body builder, in the smooth look:
+- `src/gen/BodyGen.cs`: puts bodies together from blobs, boxes and cones. It can draw them smooth, chunky or blocky; smooth is the one used.
+- `src/gen/GeneBody.cs`: builds a body from a genome. The stage of life decides the kind of thing it grows into (virus, cell, plant, fungus, jelly or animal), and the body-plan genes decide its shape: segments, legs, neck, tail, fins, wings, head, eyes, armour, poison, jaws, standing upright and branching. Intelligent creatures carry a tool and wear cloth.
+- `src/gen/CivGen.cs`: builds everything an intelligent species makes, from its own genes: a tribe camp, village, town, city, spaceship, hyperdrive ship, space station and colony. The builders' body plan sets their way of building:
+  - insect-like: mounds and hive spires
+  - armoured: spiked forts
+  - at home in water: stilts
+  - round: domes
+  - the rest: walls with pointed roofs
+- Samples: `--style` (the three looks), `--family` (families of seven kinds of life; keys 1 to 7, E evolves, N new) and `--civ` (one species and all it builds; E evolves, N new).
 
 ## 🔗 Depends on
 [R3 · Engine core](r03-engine-core.md) (arrays, seeded random, threads) · [R4 · Renderer](r04-renderer.md) (Direct3D 12 and our shader generator) · [R7 · Genome](r07-genome.md) (the data creatures are built from)

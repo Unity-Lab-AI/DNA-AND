@@ -702,3 +702,36 @@ Everything the creator has said about this project, in order. Short process repl
 127. "wtf its still chesed i went to ta totaly random galaxy click a random star and zoomed in and it was the generic earth not a random solar system". Causes: opening a system auto-picked its Earth-like world, and every planet got its kind's standard size. Fix: a system opens showing the whole of it with nothing picked, and you click (or Tab to) a planet or moon. Each planet gets its own real size from its own system.
 128. "push it we are good to go". Sets 7 and 8 and the journey are pushed to both remotes.
 129. **Life can start more than once:** "ur lighning bolt can start life again too u can start life in more than one place on one planet". The lightning-bolt power can start life again, and life can be started in more than one place on one planet. Each start is its own first cell with its own family tree, and they can meet, compete and mix.
+130. "not as many times as you like powers take life souls". Starting life again is not free. Every strike of Lightning or use of Spark of Life costs Souls, like every power, so the number of starts is limited by the Souls you have.
+131. **Starting Souls:** the creator chose "First spark is free". The first Lightning strike (or Spark of Life) that starts life on a planet costs nothing. Every strike after that costs Souls like any power. Living things then give off Souls.
+132. The planet's life runs at 20,000 years a second while you watch, and living things give off 0.00002 Souls a year for each crowd of life. Both are starting values, to be balanced.
+133. "and ytou cant go boom theres a shark has to start out with viruses the cells and multi cell then neurves then brains then communitcation and so on and so forth". Life climbs a ladder of stages, one step at a time:
+    0. replicators (virus-like)
+    1. single cells
+    2. many-celled life
+    3. nerves
+    4. brains
+    5. big-brained hunters
+    6. communication
+    The first spark makes only replicators. A new species occasionally climbs one step. What you see up close follows the stage reached at that spot: viruses first, then cells, and sea animals only once nerves and brains have evolved there.
+134. "dozen there are ike 10 million on earth idk 12 seems light". There are 6,144 regions with up to 40 species each, so up to about 245,000 at once on a planet. Each simulated species stands for a group of close real species, because simulating 10 million one by one every frame is not possible.
+135. **100 rule for planet life:** the creator chose "100 regions, 100 species each". Each planet has 100 regions spread evenly over the sphere, each holding up to 100 species groups, so up to 10,000 on a planet at once.
+136. "200 million years in 100sec how is it suppose to last 6 hhours till integence gets to space?". Pacing (starting values, to be balanced): each stage runs its own clock, so it takes about as long as on Earth, played over the playthrough's chapter times:
+    | Stage | Earth time to the next step | Play time |
+    |---|---|---|
+    | replicators | 200 million years | 15 min |
+    | single cells | 3 billion years | 40 min |
+    | many-celled life | 100 million years | 20 min |
+    | nerves | 80 million years | 20 min |
+    | brains | 500 million years | 45 min |
+    | big-brained hunters | 2 million years | 30 min |
+    | communication | (civilization) | 60 min |
+    That is about 3 hours to communication and 4 to 6 hours to space. Souls come in at about 1.5 a second on a living planet.
+137. "yeah we are in no way ready to test it we havent even build the asset builder and done those examples for all the creatures life villages tiebes towns cities space stuff ect ect". Planet life waits; the asset builder comes first.
+138. "all of the above but we need to find a set style first". Before any set of living or built things, one style sample compares three body looks: "Smooth, chunky, blocky (Recommended)". The same nine subjects (virus, bacterium, archaeon, amoeba, mushroom, tree, four-legged animal, village, spaceship) are built from seeds by one body builder (`src/gen/BodyGen.cs`) and drawn smooth, chunky or blocky. Open it with `--style` (`--look 1`, `2` or `3`).
+139. "those will work the smooth and remmebr what i said about them probecedurally generated and dynamic to the life in the geame". **LOCKED: the smooth look** for every living and built thing. Nothing is a fixed model: each body is built live from the genes of the species it belongs to in the running game, and changes as that species evolves. Villages, towns, cities and ships are built from the genes and body plan of the species that builds them.
+140. "get to it". Body-plan genes are added to every genome: segments, legs, leg length, neck, tail, fins, wings, head, eyes, armour, standing upright and branching. The body builder reads them (`src/gen/GeneBody.cs`): the stage of life decides what a genome grows into (virus, cell, plant, fungus, jelly or animal), and the genes decide the shape. The first life sample is a family of nine animals, each a descendant of the one before (`--family`). E evolves them all a generation, and N makes a new family.
+141. "get to work, i dont need to sign off on everything just get it done". The planned sets are built back to back, without stopping for approval between them.
+    - Families of seven kinds of life, all from genes (`--family`, keys 1 to 7): viruses, single cells, plants, fungi, jellies, animals and intelligent creatures.
+    - What an intelligent species builds, from its own genes (`--civ`): tribe camp, village, town, city, spaceship, hyperdrive ship, space station and colony. The builders' body plan sets the way they build: insect-like species raise mounds and hive spires, armoured ones spiked forts, water-dwellers build on stilts, round ones domes, and the rest walls with pointed roofs. Ships follow the builders' bodies: their segments, wings or fins, and spikes.
+142. "i told you dont wait on me to sign off just o do it". The planet's own life now shows on land: near the ground, its plants, fungi and animals stand at true size, built from that region's evolved species. Where an intelligent species lives, its village stands there too. Each stage of life competes for room only with its own kind, so new kinds of life find room beside the old. This is what lets life climb: on a test planet, cells came after about 300 million years, nerves and brains between 3.4 and 4 billion, and communication at about 4.8 billion. Test switch: `--evolve <years>`.

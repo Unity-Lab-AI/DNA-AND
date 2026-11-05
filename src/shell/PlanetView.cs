@@ -4,6 +4,7 @@
 // Mouse wheel: closer and further. Drag with the left button, or W A S D / arrow keys: move. Q and E: turn.
 // Esc, Backspace or right-click: back to the samples.
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using DnaAnd.Core;
 using DnaAnd.Gen;
@@ -24,6 +25,13 @@ namespace DnaAnd.Shell
         private readonly double _minAlt;
         private double _time;
         private double _intoGround;
+        // the planet's own life, kept for the whole game on each planet
+        private static readonly Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetLife> Lives = new Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetLife>();
+        private DnaAnd.Sim.PlanetLife _life;
+        private LandLife _land;
+        /// <summary>Test runs: start life and run it this many years forward at once.</summary>
+        public double TestEvolveYears;
+        private string _lifeNote = ""; private double _lifeNoteUntil;
         private bool _wasUnderWater;
         private readonly DnaAnd.Sim.SeaLife _sea = new DnaAnd.Sim.SeaLife();
         private UploadBuffer _seaBuf, _veilBuf; private StarVertex[] _seaVerts = new StarVertex[2400];
@@ -237,11 +245,19 @@ namespace DnaAnd.Shell
             {
                 string where = _underWater ? " · under water, " + Size(_waterDepth) + " below the surface" : "";
                 if (_intoGround > 0) where += " · INSIDE THE GROUND, " + Size(_intoGround) + " in (wheel back out to come up)";
+                if (!_underWater && _land != null && _land.Here.Length > 0) where += " · living here: " + _land.Here;
                 if (_underWater && _sea.Animals.Count > 0)
                 {
                     var names = new System.Collections.Generic.List<string>();
                     foreach (var an in _sea.Animals) { string nm = DnaAnd.Sim.SeaLife.Kinds[an.Kind].Name; if (!names.Contains(nm)) names.Add(nm); }
                     where += " · in the water around you: " + string.Join(", ", names.ToArray());
+                }
+                if (_life != null)
+                {
+                    where += " · LIFE: " + (_life.Sparks == 0 ? "none yet (L: lightning, the first spark is free)" :
+                        _life.Alive + " species alive (" + _life.EverLived + " ever) in " + _life.RegionsWithLife() + " of " + _life.RegionCount + " regions, from " + _life.Sparks + " spark" + (_life.Sparks == 1 ? "" : "s") + ", " + (_life.Years / 1e6).ToString("0.0") + " million years, most advanced: " + DnaAnd.Sim.PlanetLife.StageNames[_life.TopStage]) +
+                        " · souls " + _life.Souls.ToString("0.0");
+                    if (_time < _lifeNoteUntil) where += " · " + _lifeNote;
                 }
                 if (_microbes != null) where += " · " + _microbes.Microbes.Count + " microbes in " + _microbes.Families + " families around you, " + _microbes.Viruses.Count + " viruses";
                 if (_terrain.Solid && _fieldHere >= 0 && !_terrain.Shell) where += " · field here: " + PlanetTerrain.Fields[_fieldHere].Name;
@@ -263,6 +279,25 @@ namespace DnaAnd.Shell
         public bool Update(Input input, double dt)
         {
             _time += dt; _frameDt = dt;
+            if (_life == null && _terrain.Solid && !_terrain.Shell)
+            {
+                if (!Lives.TryGetValue(_normal, out _life)) { var tt = _normal; _life = new DnaAnd.Sim.PlanetLife((x, y, z) => tt.GroundAt(x, y, z), 77); Lives[_normal] = _life; }
+            }
+            if (_life != null && TestEvolveYears > 0)
+            {
+                // test runs: start life (somewhere it can live) and run it forward fast, to see later stages without hours of play
+                var rr = new Rng(5);
+                for (int k = 0; k < 200 && _life.Sparks == 0; k++) { var d = new Vec3(rr.Gaussian(), rr.Gaussian(), rr.Gaussian()).Normalized; _life.Strike(d.X, d.Y, d.Z); }
+                var sw = System.Diagnostics.Stopwatch.StartNew();                        // a little each frame, so the window keeps answering
+                while (_life.Years < TestEvolveYears && sw.ElapsedMilliseconds < 120) _life.Step(1e6);
+                if (_life.Years >= TestEvolveYears) TestEvolveYears = 0;
+            }
+            if (_life != null) _life.Step(dt * _life.YearsPerSecond);
+            if (_life != null && input.WasPressed(0x4C))                                      // L: a lightning strike on the spot below
+            {
+                double lx = Math.Cos(_lat) * Math.Cos(_lon), ly = Math.Sin(_lat), lz = Math.Cos(_lat) * Math.Sin(_lon);
+                _lifeNote = _life.Strike(lx, ly, lz); _lifeNoteUntil = _time + 6; _microbes = null;
+            }
             if (input.WasPressed(Win32.VK_ESCAPE) || input.WasPressed(0x08)) return false;   // only Esc or Backspace leave; a mouse click never does
             if (input.WasPressed(0x52) && _terrain.Solid && !_terrain.Shell) _terrain = _terrain == _normal ? _fields : _normal;     // R: resource view on or off
             // I: in or out through the hull, from anywhere (even the view from the middle)
@@ -394,6 +429,13 @@ namespace DnaAnd.Shell
             if (_terrain.Shell) DrawStructure(gpu, view, proj, cx, cy, cz, width, height);
             DrawWeather(view, proj, up, northV, eastV, width, height);
             if (_underWater) DrawSea(gpu, view, proj, cx, cy, cz, up, width, height);
+            else if (_life != null && _terrain.Solid && !_terrain.Shell)
+            {
+                // the planet's own plants, fungi and animals of this region on land, built from their genes, at true size
+                if (_land == null) _land = new LandLife(gpu.Device);
+                _land.Update(_life, _terrain, cx, cy, cz, _shown, _time);
+                _land.Draw(_pipes, view, proj, _terrain.StarDir, cx, cy, cz, width, height);
+            }
             // on land, below about 5 mm, the view fades to black (down into the soil) before the microbes show
             if (!_underWater && _terrain.Solid && !_terrain.Shell && _shown < 5e-6)
                 Veil(gpu, view, proj, (float)Math.Max(0, Math.Min(0.97, (Math.Log10(5e-6) - Math.Log10(_shown)) / 1.4)), width, height);
@@ -435,6 +477,8 @@ namespace DnaAnd.Shell
         // life in the sea at the size you are looking at: sharks, fish, minnows, krill, drifting animals, amoebas
         private void DrawSea(Gpu gpu, Mat4 view, Mat4 proj, double cx, double cy, double cz, Vec3 up, int width, int height)
         {
+            // only the animals the planet's own life has evolved into, in this water
+            if (_life != null) { double rr = Math.Sqrt(cx * cx + cy * cy + cz * cz); _sea.StageHere = _life.StageAt(cx / rr, cy / rr, cz / rr); }
             _sea.Update(Math.Max(1e-9, Math.Min(_shown, 0.03)), cx, cy, cz, up, new Vec3(view.M13, view.M23, view.M33), _frameDt);   // in water you see only a few tens of metres
             float light = (float)Math.Max(0.15, Math.Exp(-_waterDepth / 0.05));
             int n = _sea.Write(_seaVerts, cx, cy, cz, up, light);
@@ -481,7 +525,14 @@ namespace DnaAnd.Shell
             {
                 // a patch here: its own seed from the place, so each spot has its own life
                 ulong seed = (ulong)(Math.Abs(ux * 1e7) + Math.Abs(uy * 3e7) + Math.Abs(uz * 7e7)) + 17;
-                _microbes = new DnaAnd.Sim.MicrobeWorld(seed);
+                // the planet's own species of this spot; where life has not reached, nothing lives
+                if (_life == null) _microbes = new DnaAnd.Sim.MicrobeWorld(seed);
+                else
+                {
+                    var local = _life.At(ux, uy, uz);
+                    if (local.Count == 0) return;
+                    _microbes = new DnaAnd.Sim.MicrobeWorld(seed, local);
+                }
                 _mx = cx; _my = cy; _mz = cz; _mEast = east; _mNorth = north; _mUp = up;   // around the camera, at its own height
                 _microbeVerts = new StarVertex[DnaAnd.Sim.MicrobeWorld.MaxMicrobes * 6 + DnaAnd.Sim.MicrobeWorld.MaxViruses + 16];
                 if (_microbeBuf == null) _microbeBuf = new UploadBuffer(gpu.Device, (long)_microbeVerts.Length * Marshal.SizeOf(typeof(StarVertex)));
@@ -564,6 +615,6 @@ namespace DnaAnd.Shell
             _dots.Draw(_dropBuf, n, c, 0, 0, width, height);
         }
 
-        public void Dispose() { if (_seaBuf != null) _seaBuf.Dispose(); if (_veilBuf != null) _veilBuf.Dispose(); if (_microbeBuf != null) _microbeBuf.Dispose(); _dropBuf.Dispose(); if (_starBuf != null) _starBuf.Dispose(); if (_extraBuf != null) _extraBuf.Dispose(); }
+        public void Dispose() { if (_land != null) _land.Dispose(); if (_seaBuf != null) _seaBuf.Dispose(); if (_veilBuf != null) _veilBuf.Dispose(); if (_microbeBuf != null) _microbeBuf.Dispose(); _dropBuf.Dispose(); if (_starBuf != null) _starBuf.Dispose(); if (_extraBuf != null) _extraBuf.Dispose(); }
     }
 }

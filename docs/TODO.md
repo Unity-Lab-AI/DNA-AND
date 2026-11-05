@@ -206,6 +206,15 @@ Order: galactic scale down, the same order as the sample sets.
 - [x] Samples rendered with Direct3D 12: "Straight to Direct3D 12"
 - [ ] Our own shader-code generator for Direct3D 12 (no outside shader compiler)
   - Changed: shaders are compiled by `d3dcompiler_47.dll`, which ships with Windows (same reasoning as round 20)
+- [ ] The asset builder and its examples come before any play-testing of planet life: "yeah we are in no way ready to test it we havent even build the asset builder and done those examples for all the creatures life villages tiebes towns cities space stuff ect ect"
+  - [x] Style sample first, three body looks: "all of the above but we need to find a set style first". **Smooth chosen**: "those will work the smooth and remmebr what i said about them probecedurally generated and dynamic to the life in the geame"
+  - [x] Bodies built from the genes of the species in the running game, changing as they evolve: body-plan genes, the gene body builder, and the planet's own land life drawn from its evolved species (`src/shell/LandLife.cs`)
+  - [~] Creatures and the rest of life (every kingdom): families of viruses, cells, plants, fungi, jellies, animals and intelligent creatures, all from genes (`--family`)
+  - [~] Villages: from the builder species' genes (`--civ`)
+  - [~] Tribes: a tribe camp from the builder species' genes (`--civ`)
+  - [~] Towns: from the builder species' genes (`--civ`)
+  - [~] Cities: from the builder species' genes (`--civ`)
+  - [~] Space stuff (stations, colonies, ships and the rest): spaceship, hyperdrive ship, space station and colony from the builder species' genes (`--civ`)
 - [ ] Species-driven asset generation: cities, ships and stations built from the species' own genes and body plan: "ie insect species has insect spaceships ansd insect cities"
 **Spec:** `wiki/systems/r04-renderer.md#-style-samples-come-first`, `docs/DESIGN.md` round 6
 
@@ -604,4 +613,4 @@ Order: galactic scale down, the same order as the sample sets.
 - [ ] **Elements into the in-game wiki:** "looks good that can go in the wiki once we flush it out with tool tips throughought and propelry gate it all off for balanced play and leveling". This needs tooltips throughout, and gating of everything for balanced play and levelling.
 - [x] **One journey, starting among the galaxies:** "and its starts in the mix of glaxixies" / "no that started above a planet". A view of many galaxies, then zoom into one, then its solar system, a planet, the surface, and the microbes.
 - [ ] **A 10-second clip of the journey:** "make it a 10sec clip" / "save it".
-- [ ] **Life from more than one start:** "ur lighning bolt can start life again too u can start life in more than one place on one planet". The lightning-bolt power can start life again, at any spot, any number of times on one planet. Each start is its own lineage in the planet's life simulation and on the tree of life.
+- [ ] **Life from more than one start:** "ur lighning bolt can start life again too u can start life in more than one place on one planet". The lightning-bolt power can start life again at other spots on one planet, each strike costing Souls ("not as many times as you like powers take life souls"). Each start is its own lineage in the planet's life simulation and on the tree of life.

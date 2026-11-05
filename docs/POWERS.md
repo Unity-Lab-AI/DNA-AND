@@ -19,7 +19,7 @@
 | 6 | Drought | Stops rain | Shrinks swamps, pushes adaptation | Crop failure, famine |
 | 7 | Wind | Strong winds | Spreads seeds, spores and pollen | Erosion, knocks down trees |
 | 8 | Storm | Thunderstorm | Rain plus lightning | Floods, fires |
-| 9 | Lightning | One strike | Starts fire, can spark chemistry for first life; can start life again, anywhere, any number of times on one planet | Kills, burns |
+| 9 | Lightning | One strike | Starts fire, can spark chemistry for first life; can start life again in more places on one planet, each strike paid for in Souls | Kills, burns |
 | 10 | Hurricane | Huge spinning ocean storm | Mixes oceans, spreads life to islands | Wrecks coasts |
 | 11 | Tornado | Narrow destructive wind | Clears land | Kills everything in its path |
 | 12 | Snow | Blankets land | Stores water for spring, insulates the ground | Starvation for grazers |
