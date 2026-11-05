@@ -85,3 +85,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Engine steps 1–5
 
 - Input, clock, watchdog, test runner, math/RNG/noise, content loader, Direct3D 12, billboard pipeline, galaxy generator and the live sample viewer (set 1, galaxies).
+
+## 2026-11-05 — Deep zoom
+
+- Click a sample galaxy to open it full-window. Zoom from the whole galaxy down to the core black hole (shadow, photon ring, disk, jets), clusters and nebulas, and any star's generated system. Positions are kept relative to the focus (moving origin).

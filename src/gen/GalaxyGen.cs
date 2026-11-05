@@ -69,7 +69,7 @@ namespace DnaAnd.Gen
         }
 
         /// <summary>Generates <paramref name="count"/> stars for the given galaxy type, from <paramref name="seed"/>.</summary>
-        public static StarVertex[] Generate(string type, ulong seed, int count, List<StarKind> kinds)
+        public static StarVertex[] Generate(string type, ulong seed, int count, List<StarKind> kinds, int[] kindOut = null)
         {
             var rng = new Rng(seed);
             var stars = new StarVertex[count];
@@ -136,6 +136,7 @@ namespace DnaAnd.Gen
                     }
                 }
                 StarKind k = Pick(kinds, rng, hotBias);
+                if (kindOut != null) kindOut[i] = kinds.IndexOf(k);
                 float bright = rng.Range(0.12f, 0.45f); // additive glow: keep each star dim so crowds don't blow out
                 stars[i] = new StarVertex { X = x, Y = y, Z = z, Size = size * rng.Range(0.6f, 1.4f), R = k.R * bright, G = k.G * bright, B = k.B * bright, A = 1 };
             }
