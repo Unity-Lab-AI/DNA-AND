@@ -87,7 +87,7 @@ On a dead planet, on day one, you have:
 | 1 | 🔥 **Fire** | Raises an area's temperature | Warms cold land, clears old growth, gives early people fire | Burns life, dries soil, smoke | 💠 | 🌑 Start |
 | 2 | ❄️ **Cold** | Lowers the temperature | Cools hot areas, stores water as ice | Freezes and kills life, shorter growing seasons | 💠 | 🌑 Start |
 | 3 | 🌊 **Water** | Adds water, floods an area | Waters deserts, makes lakes and wetlands | Drowns land life, washes soil away | 💠 | 🌑 Start |
-| 4 | ☀️ **Sun** | Strong starlight dries an area | Dries floods, boosts plants | Drought, sunburn, spreading deserts | 💠 | 🌑 Start |
+| 4 | ☀️ **Starshine** | Strong starlight dries an area | Dries floods, boosts plants | Drought, burns, spreading deserts | 💠 | 🌑 Start |
 | 5 | 🌧️ **Rain** | Steady rainfall | Feeds plants and rivers | Mud, rot, mold | 💠 | 🦠 Life |
 | 6 | 🏜️ **Drought** | Stops rain | Shrinks swamps, forces adaptation | Crop failure, famine | 💠💠 | 🦠 Life |
 | 7 | 🌬️ **Wind** | Strong winds | Spreads seeds, spores, pollen | Erosion, fallen trees | 💠 | 🦠 Life |
@@ -210,7 +210,7 @@ On a dead planet, on day one, you have:
 
 | # | Power | What it does | ➕ Plus | ➖ Minus | Tier | Unlocks |
 |---|---|---|---|---|---|---|
-| 81 | 🌞 **Solar Flare** | A burst from your star | Auroras, can boost some life | Fries technology and satellites | 💠💠💠 | 🏛️ Civ |
+| 81 | 🌞 **Stellar Flare** | A burst from your star | Auroras, can boost some life | Fries technology and satellites | 💠💠💠 | 🏛️ Civ |
 | 82 | ☄️ **Meteor** | Drops a rock | Delivers minerals and water | Impact, extinction | 💠💠💠 | 🌑 Start |
 | 83 | 🧊 **Comet** | Brings ice | Water and chemistry | Impact risk | 💠💠💠 | 🌑 Start |
 | 84 | 🧬☄️ **Genebank Meteorite** | Delivers a Genebank genome to ocean or land | New life from other players | Invasive species | 💠💠💠 | 🦠 Life |

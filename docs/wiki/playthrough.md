@@ -193,7 +193,7 @@ The first rocket leaves the planet. **Milestone.** The game slows to let you wat
 
 Space powers open up: 🪐 **Orbit Nudge**, 🔆 **Star Brighten**, 🌀 **Wormhole**.
 
-> ⚠️ **What can go wrong:** a 🌞 **Solar Flare** fries satellites and tech. Your own power can knock a young space age back down.
+> ⚠️ **What can go wrong:** a 🌞 **Stellar Flare** fries satellites and tech. Your own power can knock a young space age back down.
 
 ---
 

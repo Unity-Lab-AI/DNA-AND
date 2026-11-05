@@ -12,7 +12,7 @@ last-verified: none (plan only)
 ## 🪜 Steps outward
 | Step | Unlocks |
 |---|---|
-| 🛰️ Orbit | Satellites. From here on, solar flares can wreck technology ("fuck with tech") |
+| 🛰️ Orbit | Satellites. From here on, stellar flares can wreck technology ("fuck with tech") |
 | 🌙 Moons and planets | First colonies, and spreading life to new worlds |
 | ☀️ Dyson sphere | Using a star's full energy |
 | 🌀 Galaxy | Many solar systems settled |
