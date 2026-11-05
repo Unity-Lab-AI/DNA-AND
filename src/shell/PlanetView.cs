@@ -24,6 +24,11 @@ namespace DnaAnd.Shell
         private readonly double _minAlt;
         private double _time;
         private bool _inside;
+        // free flight inside a sphere: a real position and a look direction. W/S fly along the look, A/D step sideways,
+        // drag with the left button to look around, the wheel flies forward and back. You stop at the surface.
+        private double _px, _py, _pz;            // km, star at 0
+        private Vec3 _look = new Vec3(1, 0, 0);
+        private bool _flyReady;
         private bool _centre; private double _centreTurn;   // floating near the star, looking out at the whole inner world                      // inside a Dyson shell: standing on the inner land, the star overhead
         private UploadBuffer _starBuf; private int _starCount;
         public StarVertex[] Extras;                // the structure's own pieces (docks, ships, collectors), in km around the star; set by the sample viewer
@@ -71,7 +76,85 @@ namespace DnaAnd.Shell
 
         public void SetAltitude(double km) { _alt = Math.Max(_minAlt, km); }
         public void Centre() { _centre = true; }
-        public void GoInside() { if (_terrain.Shell && _terrain.Habitable) { _inside = true; _alt = 30; _terrain.StartPoint(out _lat, out _lon); } }
+        public void GoInside() { if (_terrain.Shell && _terrain.Habitable) { _inside = true; _alt = 30; _terrain.StartPoint(out _lat, out _lon); _flyReady = false; } }
+
+        private void PlaceFlyer()
+        {
+            double R = _terrain.Radius;
+            double ux = Math.Cos(_lat) * Math.Cos(_lon), uy = Math.Sin(_lat), uz = Math.Cos(_lat) * Math.Sin(_lon);
+            double r = R - _terrain.GroundAt(ux, uy, uz) - _alt;
+            _px = ux * r; _py = uy * r; _pz = uz * r;
+            var up = new Vec3((float)-ux, (float)-uy, (float)-uz);
+            var north = new Vec3((float)(-Math.Sin(_lat) * Math.Cos(_lon)), (float)Math.Cos(_lat), (float)(-Math.Sin(_lat) * Math.Sin(_lon)));
+            _look = (north + up * -0.35f).Normalized;            // along the land, a little down toward it
+            _flyReady = true;
+        }
+
+        /// <summary>Height above the land under the camera (km), and the land's distance from the star there.</summary>
+        private double FlyHeight(out double surfR)
+        {
+            double r = Math.Sqrt(_px * _px + _py * _py + _pz * _pz);
+            double g = _terrain.GroundAt(_px / r, _py / r, _pz / r);
+            surfR = _terrain.Radius - g;
+            return surfR - r;
+        }
+
+        private bool Fly(Input input, double dt)
+        {
+            if (!_flyReady) PlaceFlyer();
+            double surfR; double h = Math.Max(1e-9, FlyHeight(out surfR));
+            double r = Math.Sqrt(_px * _px + _py * _py + _pz * _pz);
+            var up = new Vec3((float)(-_px / r), (float)(-_py / r), (float)(-_pz / r));       // up points toward the star
+            var side = Vec3.Cross(up, _look).Normalized;                                     // to your right
+            // look around: drag left and right turns, up and down tilts
+            if (input.LeftDown && (input.MouseDX != 0 || input.MouseDY != 0))
+            {
+                float yaw = input.MouseDX * 0.004f, tilt = -input.MouseDY * 0.004f;
+                _look = (_look * (float)Math.Cos(yaw) + side * (float)Math.Sin(yaw)).Normalized;
+                side = Vec3.Cross(up, _look).Normalized;
+                var nl = (_look * (float)Math.Cos(tilt) + Vec3.Cross(_look, side) * (float)Math.Sin(tilt)).Normalized;
+                if (Math.Abs(Vec3.Dot(nl, up)) < 0.98f) _look = nl;
+            }
+            if (input.IsDown(0x51)) { _look = (_look * (float)Math.Cos(-dt) + side * (float)Math.Sin(-dt)).Normalized; }   // Q: turn left
+            if (input.IsDown(0x45)) { _look = (_look * (float)Math.Cos(dt) + side * (float)Math.Sin(dt)).Normalized; }     // E: turn right
+            side = Vec3.Cross(up, _look).Normalized;
+            // move: in a straight line, faster the higher you are
+            double speed = h * 1.2 + 1e-9;
+            double fwd = 0, step = 0;
+            if (input.IsDown(0x57) || input.IsDown(Win32.VK_UP)) fwd += 1;
+            if (input.IsDown(0x53) || input.IsDown(Win32.VK_DOWN)) fwd -= 1;
+            if (input.IsDown(0x44) || input.IsDown(Win32.VK_RIGHT)) step += 1;
+            if (input.IsDown(0x41) || input.IsDown(Win32.VK_LEFT)) step -= 1;
+            double dx = (_look.X * fwd + side.X * step) * speed * dt, dy = (_look.Y * fwd + side.Y * step) * speed * dt, dz = (_look.Z * fwd + side.Z * step) * speed * dt;
+            if (input.Wheel != 0) { double w = input.Wheel * h * 0.5; dx += _look.X * w; dy += _look.Y * w; dz += _look.Z * w; }
+            _px += dx; _py += dy; _pz += dz;
+            // never through the land: stop just above it (and never into the star)
+            double h2 = FlyHeight(out surfR);
+            double r2 = Math.Sqrt(_px * _px + _py * _py + _pz * _pz), minH = 1e-9;
+            if (h2 < minH) { double k = (surfR - minH) / r2; _px *= k; _py *= k; _pz *= k; }
+            if (r2 < 2e6) { double k = 2e6 / r2; _px *= k; _py *= k; _pz *= k; }
+            _alt = Math.Max(minH, FlyHeight(out surfR));
+            return true;
+        }
+
+        private void DrawFly(Gpu gpu, int width, int height)
+        {
+            double R = _terrain.Radius, surfR;
+            double h = Math.Max(1e-9, FlyHeight(out surfR));
+            _alt = h; _shown = h; _underWater = false; _overSea = false; _fieldHere = -1;
+            double r = Math.Sqrt(_px * _px + _py * _py + _pz * _pz);
+            var up = new Vec3((float)(-_px / r), (float)(-_py / r), (float)(-_pz / r));
+            Mat4 view = Mat4.LookAt(new Vec3(0, 0, 0), _look, up);
+            float near = (float)Math.Max(1e-10, h * 0.2);
+            float far = (float)Math.Min(R * 2.2, Math.Max(h * 3e4, 1e-4));
+            Mat4 proj = Mat4.Perspective(1.0f, width / (float)Math.Max(1, height), near, far);
+            float airT = (float)Math.Max(0, Math.Min(1, 1 - Math.Log10(Math.Max(1, h)) / 3.7));
+            float sr = _terrain.AirR * 0.55f, sg = _terrain.AirG * 0.6f, sb = _terrain.AirB * 0.75f;
+            float fogDist = airT > 0.01 ? (float)(far * 0.9) : 0;
+            gpu.ClearNow(sr * airT, sg * airT, sb * airT);
+            _terrain.Draw(_pipes, _px, _py, _pz, view, proj, _time, 3.0, fogDist, sr, sg, sb, 0, 0, width, height, 400);
+            DrawStructure(gpu, view, proj, _px, _py, _pz, width, height);
+        }
 
         /// <summary>Flies to an example of the next kind of resource field, 2 km above it.</summary>
         public void JumpToNextField()
@@ -133,7 +216,8 @@ namespace DnaAnd.Shell
                 if (_terrain == _fields) where += " · RESOURCE VIEW (R to switch off, Legend for colours)";
                 string loading = _shown > _alt * 1.01 ? " (finer ground still forming: going down to " + Size(_alt) + ")" : "";
                 return "DNA-AND · " + _terrain.Name + " · " + Size(_shown) + loading + " above the " + (_terrain.Shell && !_inside ? "hull" : _terrain.Solid ? (_overSea ? "sea floor" : "ground") : "deep cloud tops") + where +
-                       (_terrain.Solid ? "" : " (a giant has no ground)") + " · wheel: closer and further · drag or W A S D: move · Q E: turn · R: resource view · N: next field · Esc: back";
+                       (_terrain.Solid ? "" : " (a giant has no ground)") + (_inside ? " · W S: fly forward and back · A D: step sideways · drag: look around · wheel: fly forward and back · Esc: back"
+                            : " · wheel: closer and further · drag or W A S D: move · Q E: turn · R: resource view · N: next field · Esc: back");
             }
         }
 
@@ -149,14 +233,22 @@ namespace DnaAnd.Shell
                 // no automatic turning: only dragging turns the view
                 if (input.LeftDown) _centreTurn += input.MouseDX * 0.004;
                 // the wheel flies you down from the middle onto the inner surface, and on down from there
-                if (input.Wheel > 0) { _centre = false; _inside = true; _alt = _terrain.Radius * 0.4; _terrain.StartPoint(out _lat, out _lon); }
+                if (input.Wheel > 0)
+                {
+                    // from the middle, fly straight out the way you are looking, toward the land
+                    _centre = false; _inside = true;
+                    double sR = _terrain.Radius, a = _centreTurn;
+                    _px = Math.Cos(a) * sR * 0.45; _py = sR * 0.1; _pz = Math.Sin(a) * sR * 0.45;
+                    _look = new Vec3((float)-Math.Cos(a + 0.35), -0.22f, (float)-Math.Sin(a + 0.35)).Normalized; _flyReady = true;
+                }
                 else return true;
             }
+            if (_inside && !_centre && !input.WasPressed(0x49) && !input.WasPressed(0x43)) return Fly(input, dt);
             if (input.WasPressed(0x49) && _terrain.Shell && _terrain.Habitable)                                       // I: go through the hull, in or out
             {
                 _inside = !_inside;
                 _alt = _inside ? 30 : 2000;
-                if (_inside) _terrain.StartPoint(out _lat, out _lon);       // come in over dry land
+                if (_inside) { _terrain.StartPoint(out _lat, out _lon); _flyReady = false; }       // come in over dry land
             }
             if (input.WasPressed(0x4E) && _terrain.Solid) JumpToNextField();                                       // N: go to the next kind of field
             double maxAlt = _inside ? _terrain.Radius * 0.95 : _terrain.Radius * 4;     // inside, you can rise almost to the star
@@ -187,6 +279,7 @@ namespace DnaAnd.Shell
         public void Draw(Gpu gpu, int width, int height)
         {
             if (_centre) { DrawCentre(gpu, width, height); return; }
+            if (_inside) { DrawFly(gpu, width, height); return; }
             double R = _terrain.Radius;
             double ux = Math.Cos(_lat) * Math.Cos(_lon), uy = Math.Sin(_lat), uz = Math.Cos(_lat) * Math.Sin(_lon);
             // the camera always sits on top of the solid ground (the sea floor under water): it lands, it never sinks in
