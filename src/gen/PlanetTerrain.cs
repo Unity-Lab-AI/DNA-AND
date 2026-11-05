@@ -626,6 +626,30 @@ namespace DnaAnd.Gen
             return Radius;
         }
 
+        /// <summary>How tall the hull's machinery stands (km above the bare hull) at a unit direction: the same shapes the hull is built from.</summary>
+        public double HullHeightAt(double x, double y, double z)
+        {
+            double ax2 = Math.Abs(x), ay2 = Math.Abs(y), az2 = Math.Abs(z), pu, pv;
+            if (ax2 >= ay2 && ax2 >= az2) { pu = y / ax2; pv = z / ax2; } else if (ay2 >= az2) { pu = x / ay2; pv = z / ay2; } else { pu = x / az2; pv = y / az2; }
+            long face = ax2 >= ay2 && ax2 >= az2 ? (x > 0 ? 1 : 2) : ay2 >= az2 ? (y > 0 ? 3 : 4) : (z > 0 ? 5 : 6);
+            double h = 0, bn = 5;
+            for (int sc = 0; sc < 6; sc++, bn *= 6)
+            {
+                double cu = pu * bn, cv = pv * bn;
+                long iu = (long)Math.Floor(cu), iv = (long)Math.Floor(cv);
+                double fu = cu - iu, fv = cv - iv, edge = Math.Min(Math.Min(fu, 1 - fu), Math.Min(fv, 1 - fv));
+                double width = Radius * 2 / bn;
+                float hsh = (float)Hash(iu, iv, face * 16 + sc, _seed + 8400u);
+                if (sc == 0 && edge < 0.015) { h -= width * 0.02; break; }
+                if (edge < 0.06 || hsh < 0.35) continue;
+                double tall = hsh * hsh * width * 0.035;
+                if (hsh > 0.93) tall *= 3;
+                if (hsh > 0.8 && hsh < 0.9) { double pf = Math.Abs(Math.Sin(fu * Math.PI * 6)); tall = pf > 0.6 ? width * 0.012 : 0; }
+                h += tall;
+            }
+            return h;
+        }
+
         /// <summary>Whether this part of a shell has been built (rings, part-built shells and mirror caps have gaps).</summary>
         private bool Built(double x, double y, double z, int level, double angle)
         {
@@ -663,27 +687,41 @@ namespace DnaAnd.Gen
                     {
                         // hull plates: a grid of panels with seams, some lit by docks and windows
                         h = 0; gl = HullGlow; al = 1;
-                        // high-tech armour: hexagon panels laid on the faces of a cube (no globe lines, no pinched poles),
-                        // each panel its own kind (dark collector glass, gunmetal, light armour), glowing seams, lit vents and docks
+                        // industrial megastructure: real built shapes, not a painted skin. Square sectors split by deep
+                        // trenches, filled with blocks of machinery at many sizes (each one taller the bigger it is), long
+                        // pipe runs and radiator ridges; steel, dark iron and rust, with only small warm work lights
                         double ax2 = Math.Abs(x), ay2 = Math.Abs(y), az2 = Math.Abs(z), pu, pv;
                         if (ax2 >= ay2 && ax2 >= az2) { pu = y / ax2; pv = z / ax2; } else if (ay2 >= az2) { pu = x / ay2; pv = z / ay2; } else { pu = x / az2; pv = y / az2; }
                         long face = ax2 >= ay2 && ax2 >= az2 ? (x > 0 ? 1 : 2) : ay2 >= az2 ? (y > 0 ? 3 : 4) : (z > 0 ? 5 : 6);
-                        long hi, hj; double he, hcen;
-                        Hex(pu * 14, pv * 14, out hi, out hj, out he, out hcen);                 // great panels
-                        long fi2, fj2; double fe, fc;
-                        Hex(pu * 420, pv * 420, out fi2, out fj2, out fe, out fc);               // plates inside each panel
-                        float cell = (float)Hash(hi, hj, face, _seed + 8200u), sub = (float)Hash(fi2, fj2, face, _seed + 8300u);
-                        int kind = cell < 0.55f ? 0 : cell < 0.85f ? 1 : 2;
-                        if (kind == 0) { r = 0.05f; g = 0.08f; bl = 0.16f; }              // collector glass, nearly black blue
-                        else if (kind == 1) { r = 0.2f; g = 0.21f; bl = 0.24f; }          // gunmetal
-                        else { r = 0.5f; g = 0.52f; bl = 0.56f; }                         // light armour
-                        float tone = 0.85f + 0.3f * sub; r *= tone; g *= tone; bl *= tone; gl = 0.2f;
-                        bool near = _makeLevel >= 10;
-                        if (near && fe < 0.06) { r *= 0.55f; g *= 0.55f; bl *= 0.55f; }                              // plate lines, up close
-                        double seamW = near ? 0.035 : 0.09;                                                         // seams drawn wider from far away
-                        if (he < seamW) { r = 0.25f; g = 0.85f; bl = 1f; gl = 0.9f; }                               // glowing seams between panels
-                        if (kind == 1 && hcen < 0.12) { r = 1f; g = 0.55f; bl = 0.15f; gl = 0.95f; }                 // a glowing vent at each gunmetal panel's heart
-                        if (near && sub > 0.985) { r = 1f; g = 0.85f; bl = 0.5f; gl = 0.95f; }                       // lit windows, ports and docks
+                        h = 0; gl = 0.12f;                                       // faint light from the rest of the galaxy, so the dark side still shows its shapes
+                        float tone = 1f; int metal = 0; bool trench = false;
+                        int scales = Math.Min(6, 1 + _makeLevel / 3);              // finer machinery appears as you come closer
+                        double bn = 5;
+                        for (int sc = 0; sc < scales; sc++, bn *= 6)
+                        {
+                            double cu = pu * bn, cv = pv * bn;
+                            long iu = (long)Math.Floor(cu), iv = (long)Math.Floor(cv);
+                            double fu = cu - iu, fv = cv - iv, edge = Math.Min(Math.Min(fu, 1 - fu), Math.Min(fv, 1 - fv));
+                            double width = Radius * 2 / bn;                          // km across one block at this size
+                            float hsh = (float)Hash(iu, iv, face * 16 + sc, _seed + 8400u);
+                            if (sc == 0 && edge < 0.015) { h -= width * 0.02; trench = true; break; }       // the deep trenches between sectors
+                            if (edge < 0.06) continue;                                                    // a street: no block here at this size
+                            if (hsh < 0.35) continue;                                                     // open deck
+                            double tall = hsh * hsh * width * 0.035;
+                            if (hsh > 0.93) tall *= 3;                                                    // a tower
+                            bool pipe = hsh > 0.8 && hsh < 0.9;                                           // pipe runs: long ridges along one side
+                            if (pipe) { double pf = Math.Abs(Math.Sin(fu * Math.PI * 6)); tall = pf > 0.6 ? width * 0.012 : 0; }
+                            h += tall;
+                            if (tall > 0) { metal = (int)(hsh * 997) % 4; tone = 0.8f + 0.4f * (float)Hash(iu, iv, sc, _seed + 8500u); }
+                        }
+                        if (metal == 0) { r = 0.36f; g = 0.37f; bl = 0.39f; }        // steel
+                        else if (metal == 1) { r = 0.2f; g = 0.2f; bl = 0.21f; }     // dark iron
+                        else if (metal == 2) { r = 0.42f; g = 0.27f; bl = 0.18f; }   // rust
+                        else { r = 0.5f; g = 0.49f; bl = 0.46f; }                    // weathered plate
+                        r *= tone; g *= tone; bl *= tone;
+                        if (trench) { r = 0.08f; g = 0.08f; bl = 0.09f; }
+                        // small warm work lights, only close enough to see them
+                        if (_makeLevel >= 12 && Hash((long)Math.Floor(pu * 40000), (long)Math.Floor(pv * 40000), face, _seed + 8600u) > 0.992) { r = 1f; g = 0.78f; bl = 0.45f; gl = 0.8f; }
                     }
                     else if (layer == Ground) h = Height(x, y, z, layers, out r, out g, out bl, out gl);
                     else if (layer == Water)
@@ -869,7 +907,7 @@ namespace DnaAnd.Gen
                 Mat4 vp = Mat4.Translation(ox, oy, oz) * rest;
                 var c = Pack(vp);
                 c[16] = lx; c[17] = ly; c[18] = lz;
-                if (Shell)
+                if (Shell && !_drawingHull)
                 {
                     // inside a shell the star is at the centre: light comes from the centre toward each piece
                     double pl = Math.Sqrt(p.Cx * p.Cx + p.Cy * p.Cy + p.Cz * p.Cz);

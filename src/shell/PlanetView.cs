@@ -283,7 +283,7 @@ namespace DnaAnd.Shell
             double R = _terrain.Radius;
             double ux = Math.Cos(_lat) * Math.Cos(_lon), uy = Math.Sin(_lat), uz = Math.Cos(_lat) * Math.Sin(_lon);
             // the camera always sits on top of the solid ground (the sea floor under water): it lands, it never sinks in
-            double ground = _terrain.Shell ? (_inside ? _terrain.GroundAt(ux, uy, uz) : _terrain.HullKm) : _terrain.GroundAt(ux, uy, uz);
+            double ground = _terrain.Shell ? (_inside ? _terrain.GroundAt(ux, uy, uz) : _terrain.HullKm + Math.Max(0, _terrain.HullHeightAt(ux, uy, uz))) : _terrain.GroundAt(ux, uy, uz);
             _fieldHere = _terrain.Solid ? _terrain.LastField : -1;
             // land on finished ground: while finer ground is still being made, stay a few of its steps above it
             if (_terrain.ReadyStep < double.MaxValue) _shown = Math.Max(_alt, _terrain.ReadyStep * 3); else _shown = _alt;
