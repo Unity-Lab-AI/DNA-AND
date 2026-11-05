@@ -97,3 +97,31 @@ These are tracked in `docs/TODO.md` under "Questions for the creator".
 - **Entries are a mix:** real-world things, plus new ones the game invents as it runs.
 - **Powers are paid for by harvesting life.** Later, intelligent life uses its own powers to harvest life for you. In the endgame, intelligent life harvests life for its own needs. Like a virus, advanced life spreads, uses up nutrients and resources, and has to keep spreading.
 - **Credits:** Alfreddo stays as Alfreddo (he is also Mills).
+
+---
+
+## Answers, round 4 (verbatim)
+
+The ask: "okay we need to write all the wikis and docs and readmes for the entire project in full to complete final endgame and play through completely in full no text wealls easy and fun to read beautifully written and well designed and formated with tool tips and everything like a AAA game using all the icons and images of the game in the docs with links and relseas link at top of readme and everything as if the game was full and complete wee will make everything but the geam itself yet"
+
+| Question | Answer (verbatim) |
+|---|---|
+| Undecided details | "option 2. but use this way to give me suggestions" (ask first, using multiple-choice suggestions) |
+| Images | "well obviousle we will need to design the #D genrator and botting of them". Confirmed: "Yes, exactly". Image slots now, filled later by our own 3D generator and an auto-capture tool. |
+| Release link | "should be a release page on both with link to it in the readme first thing" |
+| Lists and powers | "Use them as is" |
+| Controls | "Mouse + keys (Suggested)": WASD or screen edges to pan, scroll wheel to zoom from microbe to galaxy, right-drag to rotate, left-click to use a power |
+| Time | "Pause + 5 speeds (Suggested)": pause, 1x, 10x, 100x, 1,000x and max, with an automatic slow-down at each milestone |
+| Main menu | "all of the above and wiki and settings, i already told you this and credits": New World, Continue/Load, Multiplayer, Genebank + Leaderboard, Wiki, Settings, Credits, Quit |
+| Stages of life | "More, smaller stages", then "option two, but i think i told you 100x everything, did you not properly understand what everything means and need to reassess what ive already told you?" (100 stages; Earth follows them, and other planet templates can evolve in other orders) |
+| Civilization ages | "Real history, fine-grained", then "see prvious answer" (100 ages) |
+| Harvesting | "option 1 but harvet has negatives like its slow and freaks out intelligent life if seen but things like a volcano kicking off a city will make lots of souls" |
+| Starting powers | "option one but things like add genes add elements ect ect real life so full perioditic table of elements" |
+| Currency | "Souls" |
+| Leaderboard score | "life in your galaxy and life \"havested\"" |
+
+### What these mean for the build
+- **Every list has 100 entries:** stages of life, civilization ages, powers, and every category.
+- **Souls are the currency.** Living things slowly give them off. Harvesting by hand is slow and scares intelligent life if they see it. Disasters that kill many, like a volcano hitting a city, give lots of souls.
+- **Starting tools:** a few starter powers (lightning, heat, cold, water, spark of life), plus adding genes and adding any element from the full periodic table (all 118).
+- **Leaderboard score** = life in your galaxy + life harvested.
