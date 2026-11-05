@@ -16,7 +16,8 @@
 | 🌍 **Earth follows this order** | Life on an Earth world climbs these 100 stages in the same order real life did. |
 | 🪐 **Other worlds don't have to** | Other [planet templates](glossary.md#template "Unlockable world types beyond Earth") can evolve in other orders. |
 | 🏁 **Every stage ends in a milestone** | When life hits it, the stage is done and the next one opens. |
-| ⏱️ **The game slows down for you** | At every milestone, time drops to 1× and a short cinematic shows what happened. You can turn this off in Settings. |
+| 🏁 **100 milestones each** | Every stage has 100 [milestones](milestones.md "100 per stage"). The one shown here is the headline milestone that completes the stage |
+| ⏱️ **The game slows down for you** | At each headline milestone, time drops to 1× and a short cinematic shows what happened. You can turn this off in Settings. |
 | 👻 **Life pays you** | Living things slowly give off [Souls](glossary.md#souls "The energy you spend on god powers"). The further life gets, the more there is to harvest. |
 
 > 🔓 Each stage opens the god powers that fit it (numbers match [God Powers](god-powers.md "All 100 god powers")). Every power unlocks at exactly one stage, so each of the 100 stages is one of the 100 unlock points.

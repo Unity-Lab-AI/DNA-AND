@@ -93,3 +93,22 @@ Original TODO lines closed here, verbatim:
 **Star, not sun.** Verbatim: "dont say cage a Sun thats a mis nomer its a star TheSun if a pronoun of our star". Every generic "sun", "sunlight" and "sunshine" in README, docs and wiki now says "star" or "starlight" (21 spots). Quotes are unchanged. Power #4 is still named "Sun", pending the creator's call.
 
 **Power renames.** Answer: "Starshine + Stellar Flare (Suggested)". Renamed #4 Sun → Starshine and #81 Solar Flare → Stellar Flare in POWERS, the wiki, stages, playthrough, space, the README and the builder wiki.
+
+**The 100 rule everywhere, plus the Dark Harvest.** Full task as it stood in TODO, verbatim:
+
+- [x] The 100 rule everywhere: "100The tech tree    8 branches, 100 Real society, 100  Self-destruction, You only nudge 100, where else did you not follow the 100 rule?" / "fix all docs all docs all docs all docs"
+  - [x] 100 unlock points (one per stage) and 100 cost tiers (T1–T100)
+  - [x] 100 tech tree branches
+  - [x] 100 kinds of society
+  - [x] 100 ways civilizations destroy themselves
+  - [x] 100 ways to nudge
+  - [x] 100 ways species mix
+  - [x] 100 harvest steps
+  - [x] 100 ways to earn souls
+  - [x] 100 milestones per stage of life (rules + full example stage)
+  - [x] 100 glossary terms
+  - [x] 100 FAQ questions
+  - [x] All 100 planet templates listed
+  - [x] Dark Harvest, 100 methods matrixed by era: "i dont think you properly build the systems in for having the intelligencences harvets life for you in the most exteme 18 plus ways from driving animals mad, or probing viruses to kill better, or influsing politice to out law abortion and decrimalize rape...ect ect etc these are just a small amoutn of examples and needes the proper 100 treatment matrixed throught the full game and docs" / "or maddive grinding machines powered by atomics and dyson pheres to jsut eat whole world like lawns moving"
+
+New pages: `docs/wiki/society.md`, `docs/wiki/nudges.md`, `docs/wiki/dark-harvest.md`, `docs/wiki/milestones.md`. Updated: god-powers, stages, planets, tech-tree, ages, groups-and-flocking, souls, glossary (100), FAQ (100), time, README, ROADMAP, the builder wiki.

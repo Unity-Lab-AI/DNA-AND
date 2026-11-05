@@ -253,7 +253,7 @@ Yes, with Space.
 Pause plus 1×, 10×, 100×, 1,000× and max.
 
 **73. Why does time slow down by itself?**  
-At every milestone, time drops to 1× and a short cinematic plays.
+At each stage's headline milestone, time drops to 1× and a short cinematic plays. The other 99 milestones in a stage just show a notice.
 
 **74. Can I turn the cinematics off?**  
 Yes, in Settings → Gameplay.
@@ -324,7 +324,7 @@ From the release pages on [Unity AI Lab Git](https://git.unityailab.com/GFourtee
 Minimum 4 cores, 8 GB RAM and a Direct3D 12 card with 4 GB. See [Setup](../SETUP.md).
 
 **94. How does it save?**  
-Autosave every 10 minutes and at every milestone, plus unlimited save slots.
+Autosave every 10 minutes and at every headline milestone, plus unlimited save slots.
 
 **95. Does updating delete my saves?**  
 No. A newer setup updates the game and keeps your saves.

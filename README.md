@@ -215,7 +215,7 @@ Powers cost **Souls**. Cost = the power's **tier (T1–T100) × area × strength
 | | |
 |--|--|
 | ⏸️ **Pause + 5 speeds** | 1×, 10×, 100×, 1,000× and max |
-| 🎬 **Milestones** | At every big moment (first walk, first fire, first farm, first rocket) time drops to 1× and you watch it happen |
+| 🏁 **10,000 milestones** | 100 in every stage. Each stage's big one (first walk, first fire, first farm, first rocket) drops time to 1× and you watch it happen |
 | ⚖️ **Balanced** | Billions of years fly by early, and history slows to decades late |
 
 ---

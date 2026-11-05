@@ -283,6 +283,21 @@ The asks:
 
 ---
 
+## Round 11: milestones (verbatim)
+
+| Question | Answer (verbatim) |
+|---|---|
+| How to write 10,000 milestones (100 per stage) | "Built from the 100 lists" |
+| Which milestones slow time | "Only each stage's big one (Suggested)" |
+
+### What these mean for the build
+- Each stage gets 100 milestones, built by the game from the top-100 lists, 10 from each of 10 families. Milestone 100 is the stage's headline milestone. It completes the stage and unlocks its power.
+- Only the headline milestone drops time to 1× and plays the cinematic. The other 99 show a small notice.
+- Autosave also triggers on headline milestones only, so the game isn't saving every few seconds.
+- `docs/wiki/milestones.md` explains the rules and shows a full 100-milestone example (stage 58, Four Legs).
+
+---
+
 ## How we work (verbatim)
 
 These are the creator's working rules for this repo, each in his own words.
@@ -345,3 +360,4 @@ Everything the creator has said about this project, in order. Short process repl
 26. **Power names:** "Starshine + Stellar Flare (Suggested)". Power #4 is now Starshine, and #81 is now Stellar Flare.
 27. **The 100 rule, everywhere:** see "Round 9" above. "100The tech tree    8 branches, 100 Real society, 100  Self-destruction, You only nudge 100, where else did you not follow the 100 rule?" / "fix all docs all docs all docs all docs"
 28. **Dark Harvest:** see "Round 10" above. "i dont think you properly build the systems in for having the intelligencences harvets life for you in the most exteme 18 plus ways from driving animals mad, or probing viruses to kill better, or influsing politice to out law abortion and decrimalize rape...ect ect etc these are just a small amoutn of examples and needes the proper 100 treatment matrixed throught the full game and docs" / "or maddive grinding machines powered by atomics and dyson pheres to jsut eat whole world like lawns moving" / "we can go mad with it, you ever seen expanse"
+29. **Milestones:** see "Round 11" above. "Built from the 100 lists" / "Only each stage's big one (Suggested)"

@@ -28,7 +28,7 @@
 
 Your world saves to save slots, so you can keep several galaxies going at once.
 
-⏱️ **Autosave** runs every 10 minutes and at every milestone. Save slots are unlimited.
+⏱️ **Autosave** runs every 10 minutes and at every headline milestone. Save slots are unlimited.
 
 ---
 

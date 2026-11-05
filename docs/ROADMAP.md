@@ -133,7 +133,7 @@ Powers that help or hurt life, unlocked over time with points. Gene powers unloc
 Milestones for every stage of life. Balance so a game reaches space in about 4 to 6 hours.
 
 - Pause plus 5 speeds: 1×, 10×, 100×, 1,000× and max.
-- At each milestone, time drops to 1× and a short cinematic plays (can be turned off).
+- 100 milestones per stage (10,000 in all), built from the top-100 lists ("Built from the 100 lists"). Only each stage's headline milestone drops time to 1× and plays a cinematic ("Only each stage's big one (Suggested)"). The cinematic can be turned off.
 - Each stage has its own years-per-second.
 
 ### [ ] R13 — Game shell: menus, wiki, settings, saving
@@ -142,7 +142,7 @@ Milestones for every stage of life. Balance so a game reaches space in about 4 t
 Main screen, an in-game wiki of everything in the game, settings, quit, save and load.
 
 - Main menu: New World, Continue/Load, Multiplayer, Genebank + Leaderboard, Wiki, Settings, Credits, Quit ("all of the above and wiki and settings, i already told you this and credits").
-- Autosave every 10 minutes and at every milestone. Unlimited slots.
+- Autosave every 10 minutes and at every headline milestone. Unlimited slots.
 - Settings groups: Graphics, Sound, Controls, Gameplay, Online, Accessibility.
 - The in-game wiki reads the same pages as `docs/wiki/`.
 - Open-ended: "open ended till u resarts to get a new world and galaxy".

@@ -24,21 +24,6 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
   - ✅ All 47 open questions decided and applied (`docs/DESIGN.md` round 5).
   - ⏳ Left: fill the 55 image slots once R4's 3D generator and capture tool exist.
 
-- [~] The 100 rule everywhere: "100The tech tree    8 branches, 100 Real society, 100  Self-destruction, You only nudge 100, where else did you not follow the 100 rule?" / "fix all docs all docs all docs all docs"
-  - [x] 100 unlock points (one per stage) and 100 cost tiers (T1–T100)
-  - [x] 100 tech tree branches
-  - [x] 100 kinds of society
-  - [x] 100 ways civilizations destroy themselves
-  - [x] 100 ways to nudge
-  - [x] 100 ways species mix
-  - [x] 100 harvest steps
-  - [x] 100 ways to earn souls
-  - [ ] 100 milestones per stage of life
-  - [x] 100 glossary terms
-  - [x] 100 FAQ questions
-  - [x] All 100 planet templates listed
-  - [x] Dark Harvest, 100 methods matrixed by era: "i dont think you properly build the systems in for having the intelligencences harvets life for you in the most exteme 18 plus ways from driving animals mad, or probing viruses to kill better, or influsing politice to out law abortion and decrimalize rape...ect ect etc these are just a small amoutn of examples and needes the proper 100 treatment matrixed throught the full game and docs" / "or maddive grinding machines powered by atomics and dyson pheres to jsut eat whole world like lawns moving"
-
 ---
 
 ## Pending
@@ -202,7 +187,8 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 ### R12 — Time
 - [ ] Pause and speed controls
   - Pause plus 1×, 10×, 100×, 1,000× and max.
-- [ ] Automatic speed jumps at milestones
+- [ ] Automatic speed jumps at headline milestones only
+- [ ] Milestone generator: 100 milestones per stage, built from the top-100 lists (10 families × 10). Milestone 100 is the headline (`docs/wiki/milestones.md`)
   - Drops to 1× with a short cinematic. Can be turned off.
 - [ ] Balancing so a game reaches space in about 4 to 6 hours
   - Each stage has its own years-per-second.
@@ -217,7 +203,7 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 - [ ] Settings
   - Graphics, Sound, Controls (every key can be rebound), Gameplay, Online, Accessibility.
 - [ ] Save, load and quit
-  - Autosave every 10 minutes and at every milestone. Unlimited slots.
+  - Autosave every 10 minutes and at every headline milestone. Unlimited slots.
 - [ ] Controls: mouse + keys
   - WASD/edge pan, scroll-wheel zoom, right-drag rotate, left-click power, Space pause, 1–5 speeds, Esc menu, F1 wiki.
 
