@@ -56,9 +56,9 @@ Order: galactic scale down, the same order as the sample sets.
 - [x] Content: Physics (4 forces, particles and atoms, planet interiors, tectonics, magnetic fields, atmospheres) in `content/physics.dnat`, researched: "dont forget the forces of nature weak and nuclear forces of atoms pysics electormagnatisim magma in plantes that arte tectonic with magnic fields and shit come one wwhat about gravity and atmosphers"
 - [x] Content: Planets in `content/planets.dnat` (researched: 23 types, 4 examples, 6 rules)
 - [x] Content: Gas giants in `content/gas-giants.dnat` (researched: 9 kinds, 5 cloud classes, 6 layers, 6 features, 4 examples, 7 rules)
-- [ ] Content: Moons (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Small bodies, belts and clouds: comets, asteroids, dwarf planets, Kuiper belt, Oort clouds (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Nebulas and gas clouds (seeds, ranges, parts, rules) in `content/`
+- [x] Content: Moons in `content/moons.dnat` (researched)
+- [x] Content: Small bodies in `content/small-bodies.dnat` (researched: asteroids, comets, dwarf planets, Kuiper belt, Oort cloud, meteors, meteorites)
+- [x] Content: Nebulas in `content/nebulas.dnat` (researched)
 - [ ] Content: Resource fields (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Space resources and colonies (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Dyson spheres (seeds, ranges, parts, rules) in `content/`
