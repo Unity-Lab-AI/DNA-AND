@@ -169,7 +169,7 @@
 | 83 | 🌐 | The Network | The whole world online | Internet |
 | 84 | 🧬 | Reading DNA | The code of life laid bare | Gene sequencing |
 | 85 | ✂️ | Writing DNA | Life gets edited | Genetic engineering |
-| 86 | 🌞 | Clean Power | Sun and wind feed the grid | Solar, wind |
+| 86 | 🌞 | Clean Power | Starlight and wind feed the grid | Solar, wind |
 | 87 | 🤖 | Thinking Machines | Machines that learn | Artificial intelligence |
 | 88 | 🦾 | Robots | Machines that do the work | Robotics |
 | 89 | ⚛️ | Fusion | A star in a bottle | Fusion power |

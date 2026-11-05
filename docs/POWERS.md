@@ -14,7 +14,7 @@
 | 1 | ★ Fire | Raises the temperature of an area | Warms cold land, clears old growth for new life, gives early people fire | Burns life, dries soil, smoke |
 | 2 | ★ Cold | Lowers the temperature | Cools overheated areas, preserves water as ice | Freezes and kills life, shortens growing seasons |
 | 3 | ★ Water | Adds water, floods an area | Waters deserts, makes new lakes and wetlands | Drowns land life, washes away soil |
-| 4 | ★ Sun | Strong sunshine, dries an area | Dries floods, boosts plant growth | Drought, sunburn, deserts spread |
+| 4 | ★ Sun | Strong starlight, dries an area | Dries floods, boosts plant growth | Drought, sunburn, deserts spread |
 | 5 | Rain | Steady rainfall | Feeds plants and rivers | Mud, rot, mold |
 | 6 | Drought | Stops rain | Shrinks swamps, pushes adaptation | Crop failure, famine |
 | 7 | Wind | Strong winds | Spreads seeds, spores and pollen | Erosion, knocks down trees |
@@ -23,7 +23,7 @@
 | 10 | Hurricane | Huge spinning ocean storm | Mixes oceans, spreads life to islands | Wrecks coasts |
 | 11 | Tornado | Narrow destructive wind | Clears land | Kills everything in its path |
 | 12 | Snow | Blankets land | Stores water for spring, insulates the ground | Starvation for grazers |
-| 13 | Fog | Thick mist | Waters plants in dry coastal areas | Blocks sunlight |
+| 13 | Fog | Thick mist | Waters plants in dry coastal areas | Blocks starlight |
 | 14 | Season shift | Makes a season longer or shorter | Tunes growing time | Breaks migration and breeding timing |
 | 15 | Climate nudge | Slowly warms or cools a region | Long-term habitat shaping | Mass extinction if pushed too far |
 
@@ -56,7 +56,7 @@
 | 35 | Acid rain | Acidic rain | Breaks rock into soil | Kills plants and water life |
 | 36 | Primordial soup | Rich chemistry in water | Can start first life | Only works in the right conditions |
 | 37 | Salt | Changes how salty water is | Shapes sea vs. fresh life | Kills the wrong kind |
-| 38 | Ozone | Thickens or thins the sun shield | Protects land life | Too thin means radiation damage |
+| 38 | Ozone | Thickens or thins the shield against starlight | Protects land life | Too thin means radiation damage |
 
 ## Life nudges
 | # | Power | What it does | Plus | Minus |
@@ -115,7 +115,7 @@
 ## Space powers
 | # | Power | What it does | Plus | Minus |
 |---|---|---|---|---|
-| 81 | ★ Solar flare | Burst from the sun | Auroras, can boost some life | Fries technology and satellites |
+| 81 | ★ Solar flare | A burst from your star | Auroras, can boost some life | Fries technology and satellites |
 | 82 | Meteor | Drops a rock | Delivers minerals and water | Impact, extinction |
 | 83 | Comet | Brings ice | Water and chemistry for a planet | Impact risk |
 | 84 | Genebank meteorite | Delivers a Genebank genome ("added to the oceans or land via meteorite") | New life from other players | Invasive species |

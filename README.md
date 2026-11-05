@@ -23,7 +23,7 @@ A dead rock. A young star. Lightning in a poisoned sky.
 
 Strike the shallow seas with lightning and the first chemistry stirs. Warm them, feed them the right elements, and something **copies itself**. That's life. It's yours, and it won't do what you tell it.
 
-Because every living thing in DNA-AND carries a **real genome**, and every gene in it is **selfish**. Microbes swarm, viruses steal genes, fish crawl onto land, wolves form packs, packs form hordes. One day the hordes start to **think**. They build fires, then cities, then rockets, then a shell of machines around their sun.
+Because every living thing in DNA-AND carries a **real genome**, and every gene in it is **selfish**. Microbes swarm, viruses steal genes, fish crawl onto land, wolves form packs, packs form hordes. One day the hordes start to **think**. They build fires, then cities, then rockets, then a shell of machines around their star.
 
 And somewhere along the way, they start to wonder **who you are**.
 
@@ -79,7 +79,7 @@ And somewhere along the way, they start to wonder **who you are**.
 </td>
 <td>
 <!-- IMG: docs/img/shot-dyson-sphere.png | A Dyson sphere under construction around a yellow star -->
-🖼️ <i>A Dyson sphere under construction</i><br><b>☀️ The endgame.</b> They've learned to cage a sun. Next comes the rest of the galaxy.
+🖼️ <i>A Dyson sphere under construction</i><br><b>☀️ The endgame.</b> They've learned to wrap a star. Next comes the rest of the galaxy.
 </td>
 </tr>
 </table>
