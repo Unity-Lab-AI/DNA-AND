@@ -13,11 +13,15 @@ namespace DnaAnd
         private static int Main(string[] args)
         {
             // --smoke <ms>: a timed test run that closes itself after <ms> milliseconds.
-            int smokeMs = -1; bool testStall = false;
+            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false;
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i] == "--smoke" && i + 1 < args.Length) int.TryParse(args[i + 1], out smokeMs);
                 if (args[i] == "--test-stall") testStall = true; // proves the watchdog fires
+                if (args[i] == "--deep" && i + 1 < args.Length) int.TryParse(args[i + 1], out testDeep);       // open deep zoom on a row
+                if (args[i] == "--zoom" && i + 1 < args.Length) double.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out testZoom);
+                if (args[i] == "--visit") testVisit = true;  // visit the middle star
+                if (args[i] == "--core") testCore = true;    // zoom to the core black hole
             }
 
             try { Win32.SetProcessDpiAwarenessContext(Win32.DPI_PER_MONITOR_AWARE_V2); } catch { }
@@ -39,31 +43,50 @@ namespace DnaAnd
             catch (Exception ex) { WriteLog("setup error · " + ex.Message); gpu.Dispose(); window.Close(); return 2; }
 
             double titleTimer = 0; int frames = 0; bool firstFrame = true;
+            const ulong Seed = 20261105UL;
+            DeepView deep = null;
+            if (testDeep >= 0) deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(testDeep), viewer.NameOf(testDeep), Seed + (ulong)testDeep * 7919UL);
             while (window.Pump())
             {
                 clock.Tick();
                 watchdog.Beat();
 
-                if (window.Input.WasPressed(Win32.VK_ESCAPE)) window.Close();
+                if (deep == null && window.Input.WasPressed(Win32.VK_ESCAPE)) window.Close();
                 if (testStall && clock.Total > 0.5) System.Threading.Thread.Sleep(10000);
 
                 if (window.Resized) { window.Resized = false; gpu.Resize(window.Width, window.Height); }
-                viewer.Update(window.Input, clock.Delta);
+                if (deep != null && testDeep >= 0 && frames == 2)
+                {
+                    if (testCore) deep.TestCore(); if (testVisit) deep.TestVisit(gpu.Width, gpu.Height);
+                    if (testZoom > 0) deep.TestZoom(testZoom);
+                    testDeep = -1;
+                }
+                if (deep == null)
+                {
+                    viewer.Update(window.Input, clock.Delta);
+                    if (window.Input.LeftClicked)
+                    {
+                        int row = viewer.RowAt(window.Input.MouseY, window.Height);
+                        deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(row), viewer.NameOf(row), Seed + (ulong)row * 7919UL);
+                    }
+                }
+                else if (!deep.Update(window.Input, clock.Delta, gpu.Width, gpu.Height)) { deep.Dispose(); deep = null; }
                 gpu.BeginFrame(0.005f, 0.006f, 0.012f);
-                viewer.Draw(gpu.Width, gpu.Height, clock.Total);
+                if (deep == null) viewer.Draw(gpu.Width, gpu.Height, clock.Total); else deep.Draw(gpu.Width, gpu.Height, clock.Total);
                 gpu.EndFrame();
                 if (firstFrame) { firstFrame = false; watchdog.Running(); }
 
                 frames++; titleTimer += clock.Delta;
                 if (titleTimer >= 0.5)
                 {
-                    window.SetTitle(string.Format("{0} · {1:0} fps", viewer.Title, frames / titleTimer));
+                    window.SetTitle(string.Format("{0} · {1:0} fps", deep == null ? viewer.Title : deep.Title, frames / titleTimer));
                     titleTimer = 0; frames = 0;
                 }
 
                 window.Input.EndFrame();
                 if (smokeMs >= 0 && clock.Total * 1000 >= smokeMs) { window.Close(); smokeMs = -1; }
             }
+            if (deep != null) deep.Dispose();
             viewer.Dispose(); pipeline.Dispose(); gpu.Dispose();
             watchdog.Stop();
             WriteLog(string.Format("ok · {0} content entries from {1} files · ran {2:0.00} s · gpu {3}x{4}", content.Entries.Count, content.Files.Count, clock.Total, gpu.Width, gpu.Height));

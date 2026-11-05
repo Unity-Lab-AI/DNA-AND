@@ -23,7 +23,7 @@ namespace DnaAnd.Shell
             get
             {
                 return "DNA-AND samples · Set 1: Galaxies · rows: " + string.Join(", ", _typeNames) +
-                       " · columns: RimWorld-like, Populous-like, Stardew-like · drag to rotate, wheel to zoom, Esc to quit";
+                       " · columns: RimWorld-like, Populous-like, Stardew-like · click a galaxy to zoom deep into it, wheel to zoom, Esc to quit";
             }
         }
 
@@ -48,10 +48,13 @@ namespace DnaAnd.Shell
             }
         }
 
+        public int RowAt(int y, int height) { return Math.Max(0, Math.Min(2, y / Math.Max(1, height / 3))); }
+        public string TypeOf(int row) { return _types[row]; }
+        public string NameOf(int row) { return _typeNames[row]; }
+
         public void Update(Input input, double dt)
         {
             _yaw += (float)dt * 0.12f;
-            if (input.LeftDown) _yaw += input.MouseDX * 0.01f;
             if (input.Wheel != 0) _zoom = Math.Max(0.3f, Math.Min(4f, _zoom * (float)Math.Pow(1.15, input.Wheel)));
         }
 

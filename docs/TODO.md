@@ -182,7 +182,8 @@ Order: galactic scale down, the same order as the sample sets.
 - [x] Live sample viewer, its own window, moving and rotatable: "Live viewer, moving (Suggested)"
 - [ ] Sample sets, galactic scale down, one set at a time, waiting for the creator's input before the next: "and when we do the dsamples we show the non headless and do them galactic scale down one set of samples at a time to take input before doing the next set"
   - Life sets follow the full tree (`docs/wiki/tree-of-life.md`): "and what the fuck we are still doing docs u ments as this:" ... Animals / Insects / Microbes and viruses ..." IS NOT ALL LIVING THINGS IN THE FULL KINDOM PHILUM CLASS GENIUS SPECIES and the full kindom thing in full"
-  - [~] Set 1: Galaxy layouts. Live in the viewer (`src/shell/SampleViewer.cs`), waiting for the creator's input
+  - [x] Set 1: Galaxy layouts. Pick: "Column 1: RimWorld-like"
+  - [x] Deep zoom built (`src/shell/DeepView.cs`, `src/gen/SpaceGen.cs`): galaxy (150,000 stars, clusters, nebulas) → core supermassive black hole (shadow, photon ring, accretion disk, jets) → any star's full system (planets, moons, belt, Kuiper belt, Oort cloud), with a moving origin. Deep zoom: "now the first set looked best but they have to be zoomable to the star sytems and i suppose this is just asa sammple and not the true game but i dont know how zoom and all of that works but how and where do i see the supermassive black holses at the centrter and all the space systems and environment of objects and systems and clusters and things" / "Yes, build deep zoom now (Suggested)"
   - [ ] Set 2: Solar system layouts, with moons, asteroid belts, the Kuiper belt and Oort clouds
   - [ ] Set 3: Stars
   - [ ] Set 4: Planets and gas giants
