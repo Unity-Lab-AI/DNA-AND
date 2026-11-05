@@ -14,7 +14,7 @@ Every highlighted word in the wiki links here. **100 terms**, A to Z.
 | <a id="ancestor"></a>👴 **Ancestor** | A living thing that later species came from. Your first cell is the ancestor of everything. |
 | <a id="asexual"></a>🧫 **Asexual** | Making young from one parent, by copying itself. |
 | <a id="asteroid"></a>🪨 **Asteroid** | A rock circling a star. Good for mining, bad when it hits. |
-| <a id="autosave"></a>💾 **Autosave** | The game saves itself every 10 minutes and at every milestone. |
+| <a id="autosave"></a>💾 **Autosave** | The game saves itself every 10 minutes and at every headline milestone. |
 | <a id="bacteria"></a>🦠 **Bacteria** | Single cells without a nucleus. Among the first life, and still everywhere. |
 | <a id="biome"></a>🌳 **Biome** | A kind of environment, like desert, rainforest or tundra. |
 | <a id="black-hole"></a>⚫ **Black hole** | A collapsed star whose pull nothing escapes. |
@@ -61,7 +61,7 @@ Every highlighted word in the wiki links here. **100 terms**, A to Z.
 | <a id="lightning"></a>⚡ **Lightning** | A starter power. One strike can spark the chemistry of life. |
 | <a id="meteorite"></a>☄️ **Meteorite** | A space rock that lands. It's also how Genebank genomes arrive in your world. |
 | <a id="microbe"></a>🔬 **Microbe** | Any living thing too small to see. |
-| <a id="milestone"></a>🏁 **Milestone** | A big step in evolution or history, like the first walk or the first fire. Time slows down so you can see it. |
+| <a id="milestone"></a>🏁 **Milestone** | A step in evolution or history. Every stage has 100, and its headline one completes the stage, like the first walk or the first fire. Time slows down so you can see it. |
 | <a id="mini-ai"></a>🧠 **Mini AI** | The little mind every living thing runs, in layers: chemistry, individual, group, hive, species, galactic mind. |
 | <a id="moon"></a>🌙 **Moon** | A world circling a planet. Its pull makes tides. |
 | <a id="mutation"></a>🎲 **Mutation** | A random change in DNA. |
