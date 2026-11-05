@@ -50,3 +50,9 @@ The early ages fly by in billions of years. History slows down to centuries, the
 No. Your galaxy keeps going — until **you** restart and roll a new world and a new galaxy.
 
 > 💀 Even if all life dies, the game doesn't force you out. Start again on the same rock, or roll a new one.
+
+---
+
+## 🔗 See also
+
+[Stages of Life](stages-of-life.md "100 stages, chemistry to the stars") · [Ages of Civilization](ages-of-civilization.md "100 ages, stone tools to intergalactic") · [Controls](controls.md "Mouse, keys, and zooming from microbe to galaxy") · [Full Playthrough](playthrough.md "One full game, dead rock to intergalactic war") · [🏠 Wiki home](README.md)

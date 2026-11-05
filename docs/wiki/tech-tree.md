@@ -1,5 +1,7 @@
 # 🌳 The Tech Tree
 
+[🏠 Wiki home](README.md) · [📖 Glossary](glossary.md) · [❓ FAQ](faq.md)
+
 > *Every spear leads to a sword. Every sword leads to a rifle. Every rifle leads to the bomb. Follow the branches, and watch where your people are heading.*
 
 <!-- IMG: docs/img/tech-tree-hero.png | A glowing tree whose roots are stone tools and whose top branches hold starships -->
@@ -134,3 +136,9 @@ Tamed wolves (13) ─ Farming (14) ─ Herding (15) ─ Irrigation (19)
 | 🏛️ [Ages of Civilization](ages-of-civilization.md "Real-history ages from stone tools to intergalactic") | Every age in order |
 | 🧬 [Stages of Life](stages-of-life.md "100 stages from chemistry to spacefaring") | Before civilization |
 | ⚡ [God Powers](god-powers.md "All 100 god powers") | Inspiration, Dark Age and the rest |
+
+---
+
+## 🔗 See also
+
+[Ages of Civilization](ages-of-civilization.md "100 ages, stone tools to intergalactic") · [Souls & Harvesting](souls-and-harvesting.md "The currency of a god") · [Groups & Flocking](groups-and-flocking.md "All things flock together: the 100-step grouping ladder") · [Elements](elements.md "All 118 elements and what they do") · [🏠 Wiki home](README.md)

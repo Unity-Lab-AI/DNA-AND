@@ -59,7 +59,9 @@ You don't need to see every single worm. Creatures of the same kind living in th
 
 > 🪱 *One worm on screen can stand for 4,396 worms.*
 
-Each group still breeds, mutates, gets sick and evolves.
+Each group still breeds, mutates, gets sick and evolves. Groups also climb the 100-step [grouping ladder](groups-and-flocking.md "Lone creature to universe-spanning life"), from pack to horde to civilization.
+
+> 😈 **Every gene is selfish.** All life tries to get more and do more before death. And death always comes. Every species and every gene line is tracked in the [Tree of Life](tree-of-life.md "Circular family and gene trees").
 
 ---
 
@@ -71,3 +73,9 @@ You're a god, not a lab tech. You **nudge**:
 - ☢️ Later **gene powers** push evolution — with good *and* bad results
 
 👉 See the gene powers in [God Powers](god-powers.md).
+
+---
+
+## 🔗 See also
+
+[Tree of Life](tree-of-life.md "Circular family and gene trees of every species") · [Groups & Flocking](groups-and-flocking.md "All things flock together: the 100-step grouping ladder") · [Stages of Life](stages-of-life.md "100 stages, chemistry to the stars") · [Elements](elements.md "All 118 elements and what they do") · [God Powers](god-powers.md "All 100 powers, pluses and minuses") · [🏠 Wiki home](README.md)

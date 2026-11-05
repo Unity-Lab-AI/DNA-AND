@@ -60,3 +60,9 @@ Your [leaderboard](leaderboard-and-genebank.md) score is:
 So a thriving galaxy *and* a ruthless harvest both count.
 
 🧠 **Intelligent deaths give the most souls.** And harvesting shows as a **visible glow**: if intelligent life nearby spots it, they get scared.
+
+---
+
+## 🔗 See also
+
+[God Powers](god-powers.md "All 100 powers, pluses and minuses") · [Tech Tree](tech-tree.md "How every discovery connects") · [Leaderboard & Genebank](leaderboard-and-genebank.md "Scores and Genome of the Week") · [Groups & Flocking](groups-and-flocking.md "All things flock together: the 100-step grouping ladder") · [🏠 Wiki home](README.md)

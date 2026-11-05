@@ -42,3 +42,9 @@ You see every player's cursor in real time, each in its own color.
 ## 🎯 One goal
 
 Everyone works toward the same galaxy. Life you all grow, and life you all harvest, builds one shared story.
+
+---
+
+## 🔗 See also
+
+[Menus & Settings](menus-and-settings.md "Main menu, saving and settings") · [Leaderboard & Genebank](leaderboard-and-genebank.md "Scores and Genome of the Week") · [Controls](controls.md "Mouse, keys, and zooming from microbe to galaxy") · [FAQ](faq.md "Common questions") · [🏠 Wiki home](README.md)

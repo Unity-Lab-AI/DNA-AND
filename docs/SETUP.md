@@ -1,5 +1,7 @@
 # 🧬 DNA-AND — Setup Guide
 
+> 🔞 **DNA-AND is an 18+ game.** It includes sex, killing and murder.
+
 Get from download to your first living cell in a few minutes.
 
 <!-- IMG: docs/img/setup-banner.png | A young blue planet with the first glowing cells in a shallow sea -->

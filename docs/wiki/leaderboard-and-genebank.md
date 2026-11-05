@@ -52,3 +52,9 @@ Pick a genome from the Genebank and it arrives in your world by **[meteorite](gl
 ## 🌐 Being online
 
 The leaderboard and Genebank need an internet connection. The rest of the game doesn't.
+
+---
+
+## 🔗 See also
+
+[Souls & Harvesting](souls-and-harvesting.md "The currency of a god") · [Tree of Life](tree-of-life.md "Circular family and gene trees of every species") · [Space & Dyson Spheres](space-and-dyson-spheres.md "Leaving home, Dyson spheres, galactic war") · [Multiplayer](multiplayer.md "Co-op, up to 8 players, shared cursors") · [🏠 Wiki home](README.md)

@@ -29,3 +29,9 @@
 ---
 
 > 🛠️ **Built from scratch.** No outside code, engines, libraries or tools. Every line of DNA-AND, and every tool that builds it, was made by the team.
+
+---
+
+## 🔗 See also
+
+[FAQ](faq.md "Common questions") · [Getting Started](getting-started.md "Your first world, your first hour") · [🏠 Wiki home](README.md)

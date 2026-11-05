@@ -1,5 +1,7 @@
 # 🎮 Full Playthrough: Dead Rock to Dyson Sphere
 
+[🏠 Wiki home](README.md) · [📖 Glossary](glossary.md) · [❓ FAQ](faq.md)
+
 > *One complete game, start to finish. Your game will go differently. Life always does.*
 
 <!-- IMG: docs/img/playthrough-banner.png | A single planet seen from orbit, half barren rock and half green, with a ring of Dyson-sphere panels catching the sun behind it -->
@@ -141,7 +143,9 @@ Plants creep onto the shore. Insects follow. Fish grow legs and breathe air. Eac
 
 ## 7 · 🧠 A mind awakens
 
-One species starts using tools. Cast 🧠 **Spark of Mind**, the biggest gamble in the game.
+One species starts using tools. In this run it's an ape, but it could be wolves, crows or octopuses ([all things flock together](groups-and-flocking.md "Any line of life can climb to intelligence")). Cast 🧠 **Spark of Mind**, the biggest gamble in the game.
+
+> 🧠 **Watch the minds stack up:** the tribe gets a group AI, then the whole species one. Every member still wants its own genes to win, so expect betrayal. See [How life thinks](groups-and-flocking.md#-how-life-thinks "Layered mini AIs, from chemistry to galactic mind").
 
 > "intelligent life has amazing ways of killing its self"
 
@@ -244,4 +248,4 @@ Finish in the weekly top three and you can upload a genome to the **Genebank**, 
 
 ## 🔗 See also
 
-[God Powers](god-powers.md "All 100 powers") · [Controls](controls.md "Pan, zoom, cast") · [Time](time.md "Pause and speeds") · [Stages of Life](stages-of-life.md "100 stages") · [Ages of Civilization](ages-of-civilization.md "100 ages") · [Multiplayer](multiplayer.md "Play together")
+[Getting Started](getting-started.md "Your first world, your first hour") · [Stages of Life](stages-of-life.md "100 stages, chemistry to the stars") · [Groups & Flocking](groups-and-flocking.md "All things flock together: the 100-step grouping ladder") · [Ages of Civilization](ages-of-civilization.md "100 ages, stone tools to intergalactic") · [God Powers](god-powers.md "All 100 powers, pluses and minuses") · [Space & Dyson Spheres](space-and-dyson-spheres.md "Leaving home, Dyson spheres, galactic war") · [Controls](controls.md "Mouse, keys, and zooming from microbe to galaxy") · [Time](time.md "Pause, five speeds, milestone slow-downs") · [🏠 Wiki home](README.md)

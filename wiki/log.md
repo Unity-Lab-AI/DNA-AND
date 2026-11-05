@@ -29,3 +29,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Layered mini AIs
 
 - Added the selfish-gene layered AI (chemical, individual, group, hive, species, galactic mind) to the life sim plan and the player page.
+
+## 2026-11-05 — Full docs audit
+
+- Cross-linked every player page, added glossary terms, and brought older pages up to rounds 6–8. Link and count checks pass.
