@@ -83,15 +83,16 @@ namespace DnaAnd.Shell
             }
         }
 
-        public void ShowSet(int set) { Set = set; }
+        public bool OneSet; // opened for a single set: [ and ] do nothing
+        public void ShowSet(int set) { Set = set; OneSet = true; }
         public int RowAt(int y, int height) { return Math.Max(0, Math.Min(2, y / Math.Max(1, height / 3))); }
         public string TypeOf(int row) { return _types[row]; }
         public string NameOf(int row) { return _typeNames[row]; }
 
         public void Update(Input input, double dt)
         {
-            if (input.WasPressed(0xDB)) Set = 1;   // [ key
-            if (input.WasPressed(0xDD)) Set = 2;   // ] key
+            if (!OneSet && input.WasPressed(0xDB)) Set = 1;   // [ key
+            if (!OneSet && input.WasPressed(0xDD)) Set = 2;   // ] key
             _yaw += (float)dt * 0.03f;
             if (input.Wheel != 0) _zoom = Math.Max(0.3f, Math.Min(4f, _zoom * (float)Math.Pow(1.15, input.Wheel)));
         }
