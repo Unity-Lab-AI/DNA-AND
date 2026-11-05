@@ -23,6 +23,10 @@ namespace DnaAnd.Shell
         private double _alt;                       // km above the solid ground (or sea floor) under the camera
         private readonly double _minAlt;
         private double _time;
+        private bool _inside;                      // inside a Dyson shell: standing on the inner land, the star overhead
+        private UploadBuffer _starBuf; private int _starCount;
+        public StarVertex[] Extras;                // the structure's own pieces (docks, ships, collectors), in km around the star; set by the sample viewer
+        private UploadBuffer _extraBuf;
 
         // weather near the camera: rain, snow, ash or dust, falling through a box around the camera
         private const int Drops = 900;
@@ -43,9 +47,25 @@ namespace DnaAnd.Shell
             // solid worlds: all the way down to about a millionth of a metre; giants have no ground, so the cloud tops are the floor
             _minAlt = terrain.Solid ? 1e-9 : 0.05;   // giants: down onto the puffy tops of the deep cloud deck
             terrain.StartPoint(out _lat, out _lon);
+            if (terrain.Shell)
+            {
+                _alt = terrain.Radius * 1.3; _lat = 0.02; _lon = 0.4;
+                // the star at the centre: a bright glowing ball
+                var rng = new Rng(5);
+                var sv = new StarVertex[3000];
+                for (int i = 0; i < sv.Length; i++)
+                {
+                    double u = rng.NextDouble() * 2 - 1, a = rng.NextDouble() * Math.PI * 2, rr = Math.Sqrt(1 - u * u), d = 696000 * (i < 2400 ? 1 : rng.Range(1.05f, 1.6f));
+                    sv[i] = SpaceGen.Star(new Vec3((float)(Math.Cos(a) * rr * d), (float)(u * d), (float)(Math.Sin(a) * rr * d)), i < 2400 ? 120000 : 260000, 1f, 0.92f, 0.7f, i < 2400 ? 0.5f : 0.06f);
+                }
+                _starCount = sv.Length;
+                _starBuf = new UploadBuffer(gpu.Device, (long)sv.Length * Marshal.SizeOf(typeof(StarVertex)));
+                _starBuf.Write(sv, sv.Length);
+            }
         }
 
         public void SetAltitude(double km) { _alt = Math.Max(_minAlt, km); }
+        public void GoInside() { if (_terrain.Shell && _terrain.Habitable) { _inside = true; _alt = 30; } }
 
         /// <summary>Flies to an example of the next kind of resource field, 2 km above it.</summary>
         public void JumpToNextField()
@@ -99,10 +119,13 @@ namespace DnaAnd.Shell
             get
             {
                 string where = _underWater ? " · under water, " + Size(_waterDepth) + " below the surface" : "";
-                if (_terrain.Solid && _fieldHere >= 0) where += " · field here: " + PlanetTerrain.Fields[_fieldHere].Name;
+                if (_terrain.Solid && _fieldHere >= 0 && !_terrain.Shell) where += " · field here: " + PlanetTerrain.Fields[_fieldHere].Name;
+                if (_terrain.Shell)
+                    where += _inside ? " · INSIDE: the shell's spin holds you on its inner land, the star overhead (I to go back out)"
+                                     : (_terrain.Habitable ? " · outside the hull (I to go inside)" : " · outside the hull");
                 if (_terrain == _fields) where += " · RESOURCE VIEW (R to switch off, Legend for colours)";
                 string loading = _shown > _alt * 1.01 ? " (finer ground still forming: going down to " + Size(_alt) + ")" : "";
-                return "DNA-AND · " + _terrain.Name + " · " + Size(_shown) + loading + " above the " + (_terrain.Solid ? (_overSea ? "sea floor" : "ground") : "deep cloud tops") + where +
+                return "DNA-AND · " + _terrain.Name + " · " + Size(_shown) + loading + " above the " + (_terrain.Shell && !_inside ? "hull" : _terrain.Solid ? (_overSea ? "sea floor" : "ground") : "deep cloud tops") + where +
                        (_terrain.Solid ? "" : " (a giant has no ground)") + " · wheel: closer and further · drag or W A S D: move · Q E: turn · R: resource view · N: next field · Esc: back";
             }
         }
@@ -112,9 +135,15 @@ namespace DnaAnd.Shell
         {
             _time += dt;
             if (input.WasPressed(Win32.VK_ESCAPE) || input.WasPressed(0x08) || input.RightClicked) return false;
-            if (input.WasPressed(0x52) && _terrain.Solid) _terrain = _terrain == _normal ? _fields : _normal;     // R: resource view on or off
+            if (input.WasPressed(0x52) && _terrain.Solid && !_terrain.Shell) _terrain = _terrain == _normal ? _fields : _normal;     // R: resource view on or off
+            if (input.WasPressed(0x49) && _terrain.Shell && _terrain.Habitable)                                       // I: go through the hull, in or out
+            {
+                _inside = !_inside;
+                _alt = _inside ? 30 : 2000;
+            }
             if (input.WasPressed(0x4E) && _terrain.Solid) JumpToNextField();                                       // N: go to the next kind of field
-            if (input.Wheel != 0) _alt = Math.Max(_minAlt, Math.Min(_terrain.Radius * 4, _alt * Math.Pow(0.7, input.Wheel)));
+            double maxAlt = _inside ? _terrain.Radius * 0.9 : _terrain.Radius * 4;      // inside, you can rise almost to the star
+            if (input.Wheel != 0) _alt = Math.Max(_minAlt, Math.Min(maxAlt, _alt * Math.Pow(0.7, input.Wheel)));
             double R = _terrain.Radius;
             double step = (_alt + 1e-9) / R;                               // ground speed grows with height
             double fwd = 0, side = 0;
@@ -142,17 +171,17 @@ namespace DnaAnd.Shell
             double R = _terrain.Radius;
             double ux = Math.Cos(_lat) * Math.Cos(_lon), uy = Math.Sin(_lat), uz = Math.Cos(_lat) * Math.Sin(_lon);
             // the camera always sits on top of the solid ground (the sea floor under water): it lands, it never sinks in
-            double ground = _terrain.GroundAt(ux, uy, uz);
+            double ground = _terrain.Shell ? (_inside ? _terrain.GroundAt(ux, uy, uz) : _terrain.HullKm) : _terrain.GroundAt(ux, uy, uz);
             _fieldHere = _terrain.Solid ? _terrain.LastField : -1;
             // land on finished ground: while finer ground is still being made, stay a few of its steps above it
             if (_terrain.ReadyStep < double.MaxValue) _shown = Math.Max(_alt, _terrain.ReadyStep * 3); else _shown = _alt;
-            double camR = R + ground + _shown;
-            _overSea = _terrain.HasWater && ground < 0;
-            _underWater = _terrain.HasWater && camR < R;
-            _waterDepth = R - camR;
+            double camR = _inside ? R - ground - _shown : R + ground + _shown;   // inside a shell, "up" points toward the star
+            _overSea = _terrain.HasWater && ground < 0 && (_inside || !_terrain.Shell);
+            _underWater = _terrain.HasWater && (_inside ? camR > R : camR < R && !_terrain.Shell);
+            _waterDepth = Math.Abs(R - camR);
             double cx = ux * camR, cy = uy * camR, cz = uz * camR;
             // which way it looks: straight down from high up, toward the horizon near the ground
-            var up = new Vec3((float)ux, (float)uy, (float)uz);
+            var up = _inside ? new Vec3((float)-ux, (float)-uy, (float)-uz) : new Vec3((float)ux, (float)uy, (float)uz);
             var northV = new Vec3((float)(-Math.Sin(_lat) * Math.Cos(_lon)), (float)Math.Cos(_lat), (float)(-Math.Sin(_lat) * Math.Sin(_lon)));
             var eastV = Vec3.Cross(up, northV);
             float ch = (float)Math.Cos(_heading), sh = (float)Math.Sin(_heading);
@@ -165,15 +194,17 @@ namespace DnaAnd.Shell
             var lookUp = forward * (float)(-Math.Sin(pitch)) + up * (float)Math.Cos(pitch);
             Mat4 view = Mat4.LookAt(new Vec3(0, 0, 0), look, lookUp);
 
-            double horizon = Math.Sqrt(Math.Max(0, camR * camR - R * R));
+            double horizon = _inside ? Math.Min(R * 2, 3000 + _shown * 400) : Math.Sqrt(Math.Max(0, camR * camR - R * R));
             float near = (float)Math.Max(1e-10, alt * 0.25);
             float far = (float)Math.Min(horizon * 1.3 + R * 0.05 + 50, alt * 2e5 + 1e-6);
-            if (alt > R * 0.2) { near = (float)(alt * 0.2); far = (float)(alt + R * 2.2); }
+            if (alt > R * 0.2 && !_inside) { near = (float)(alt * 0.2); far = (float)(alt + R * 2.2); }
+            if (_inside) far = (float)Math.Min(alt * 2e5 + 50, 2e6);    // inside, the far land is lost in the air's haze anyway
             Mat4 proj = Mat4.Perspective(1.0f, width / (float)Math.Max(1, height), near, far);
 
             // the sky: the air's colour near the ground, fading to black space higher up; under water, dark blue
             float sr = _terrain.AirR * 0.55f, sg = _terrain.AirG * 0.6f, sb = _terrain.AirB * 0.75f;
             float airT = (float)Math.Max(0, Math.Min(1, 1 - Math.Log10(Math.Max(1, camR - R)) / Math.Log10(Math.Max(10, _terrain.AirKm))));
+            if (_terrain.Shell) airT = _inside ? 1 : 0;           // the air is held inside the shell
             float fogDist = airT > 0.01 ? (float)Math.Min(horizon * 1.25 + 5, far * 0.9) : 0;
             if (_underWater)
             {
@@ -182,7 +213,26 @@ namespace DnaAnd.Shell
             }
             gpu.ClearNow(sr * airT, sg * airT, sb * airT);
             _terrain.Draw(_pipes, cx, cy, cz, view, proj, _time, 3.0, fogDist, sr, sg, sb, 0, 0, width, height, 400);
+            if (_terrain.Shell) DrawStructure(gpu, view, proj, cx, cy, cz, width, height);
             DrawWeather(view, proj, up, northV, eastV, width, height);
+        }
+
+        // the star in the middle, and the structure's docks, ships and collectors, all drawn relative to the camera
+        private void DrawStructure(Gpu gpu, Mat4 view, Mat4 proj, double cx, double cy, double cz, int width, int height)
+        {
+            Mat4 vp = Mat4.Translation((float)-cx, (float)-cy, (float)-cz) * view * proj;
+            var c = new float[BillboardPipeline.ConstantCount];
+            c[0] = vp.M11; c[1] = vp.M12; c[2] = vp.M13; c[3] = vp.M14; c[4] = vp.M21; c[5] = vp.M22; c[6] = vp.M23; c[7] = vp.M24;
+            c[8] = vp.M31; c[9] = vp.M32; c[10] = vp.M33; c[11] = vp.M34; c[12] = vp.M41; c[13] = vp.M42; c[14] = vp.M43; c[15] = vp.M44;
+            c[16] = view.M11; c[17] = view.M21; c[18] = view.M31; c[20] = view.M12; c[21] = view.M22; c[22] = view.M32;
+            c[25] = 1; c[26] = 0; c[28] = width; c[29] = height; c[30] = 0.004f;
+            _dots.Draw(_starBuf, _starCount, c, 0, 0, width, height);
+            if (Extras != null && Extras.Length > 0)
+            {
+                if (_extraBuf == null) { _extraBuf = new UploadBuffer(gpu.Device, (long)Extras.Length * Marshal.SizeOf(typeof(StarVertex))); _extraBuf.Write(Extras, Extras.Length); }
+                c[26] = 2; c[30] = 0.0015f;
+                _dots.Draw(_extraBuf, Extras.Length, c, 0, 0, width, height);
+            }
         }
 
         // rain, snow, ash or dust falling around the camera when it is low and under a cloud
@@ -222,6 +272,6 @@ namespace DnaAnd.Shell
             _dots.Draw(_dropBuf, n, c, 0, 0, width, height);
         }
 
-        public void Dispose() { _dropBuf.Dispose(); }
+        public void Dispose() { _dropBuf.Dispose(); if (_starBuf != null) _starBuf.Dispose(); if (_extraBuf != null) _extraBuf.Dispose(); }
     }
 }

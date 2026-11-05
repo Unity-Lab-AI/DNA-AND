@@ -21,10 +21,27 @@ namespace DnaAnd.Gen
         private const int Grid = 16;            // quads along a patch edge
         // deepest split for each layer: the ground goes down to about a millionth of a metre (microbe size),
         // the sea surface to a few centimetres, the clouds to about a kilometre
-        private static readonly int[] MaxLevel = { 40, 26, 10 };
+        private static readonly int[] MaxLevel = { 44, 26, 10, 12 };
         private const int MaxCached = 1600;
         private readonly Dictionary<PKey, Patch> _cache = new Dictionary<PKey, Patch>();
-        public const int Ground = 0, Water = 1, Clouds = 2;
+        public const int Ground = 0, Water = 1, Clouds = 2, Hull = 3;
+
+        // ── Dyson shells: a hollow world turned inside out ──
+        /// <summary>True for a Dyson shell or ring: the land is on the inside, facing the star at the centre;
+        /// the spin's centrifugal gravity holds everything onto the inner surface.</summary>
+        public bool Shell { get; private set; }
+        public bool Habitable { get; private set; }     // a landscape inside (land, seas, clouds)
+        public int Mask;                                // 0 whole, 1 a ring band, 2 part-built, 3 a curved mirror cap (stellar engine)
+        public double HullKm = 40;                      // the engineered hull, outside the land
+        public float HullR = 0.3f, HullG = 0.31f, HullB = 0.35f, HullGlow = 0.35f;
+
+        /// <summary>A Dyson shell (or ring, or partial shell) around a star, radius in km.</summary>
+        public static PlanetTerrain MakeShell(IntPtr device, string name, uint seed, double radiusKm, bool habitable, int mask)
+        {
+            var t = new PlanetTerrain(device, habitable ? "dyson-shell" : "dyson-hull", name, seed, false, radiusKm);
+            t.Shell = true; t.Habitable = habitable; t.Mask = mask;
+            return t;
+        }
         public readonly bool HasWater, HasClouds;
         public readonly double CloudKm, AirKm;
         public readonly float AirR, AirG, AirB;
@@ -55,7 +72,7 @@ namespace DnaAnd.Gen
             public double Cx, Cy, Cz, Edge; public UploadBuffer Buffer; public int Count; public int LastUsed; public int Level;
         }
 
-        public PlanetTerrain(IntPtr device, string kind, string name, uint seed, bool resourceView = false)
+        public PlanetTerrain(IntPtr device, string kind, string name, uint seed, bool resourceView = false, double radiusKm = 0)
         {
             _device = device; Kind = kind; Name = name; _seed = seed; ResourceView = resourceView;
             switch (kind)
@@ -70,9 +87,10 @@ namespace DnaAnd.Gen
                 case "hot-jupiter": Radius = 95000; break;
                 default: Radius = 6371; break;
             }
-            Solid = kind != "gas-giant" && kind != "ice-giant" && kind != "hot-jupiter";
-            HasWater = kind == "temperate" || kind == "ocean";
-            HasClouds = true;   // giants get a high haze deck over their deep clouds
+            if (radiusKm > 0) Radius = radiusKm;
+            Solid = kind != "gas-giant" && kind != "ice-giant" && kind != "hot-jupiter" && kind != "dyson-hull";
+            HasWater = kind == "temperate" || kind == "ocean" || kind == "dyson-shell";
+            HasClouds = kind != "dyson-hull";   // giants get a high haze deck over their deep clouds
             // how high the clouds float and how thick the air is (km), and the air's colour
             switch (kind)
             {
@@ -134,7 +152,7 @@ namespace DnaAnd.Gen
             double sum = 0, f = 48 * Math.Pow(2, from);
             for (int i = from; i < to; i++)
             {
-                double width = Radius / f;                           // km across one bump at this layer
+                double width = (Kind == "dyson-shell" ? 6371 : Radius) / f;   // km across one bump at this layer
                 sum += (Value(x * f + i * 3.1, y * f - i * 5.3, z * f + i * 2.9, seed + (uint)i * 13u) * 2 - 1) * width * 0.18;
                 f *= 2;
             }
@@ -156,6 +174,28 @@ namespace DnaAnd.Gen
         /// <paramref name="layers"/> is how much fine detail to add (more when the camera is close).</summary>
         public double Height(double x, double y, double z, int layers, out float r, out float g, out float b, out float glow)
         {
+            if (Kind == "dyson-shell")
+            {
+                // the inner land has planet-sized features (continents thousands of km across, mountains a few km high):
+                // the shell is just far bigger, so it holds the land of millions of Earths
+                double sc = Radius / 6371.0;
+                int shift = (int)Math.Round(Math.Log(sc, 2));
+                _latOverride = Math.Abs(y) * 0.5;              // the shell has no frozen poles: its star is overhead everywhere
+                double hs = HeightBase(x * sc, y * sc, z * sc, Math.Max(6, layers - shift), out r, out g, out b, out glow);
+                _latOverride = -1;
+                if (Mask == 1)
+                {
+                    // a ring world: tall walls along both edges hold the air in
+                    double edge = Math.Abs(y) / 0.045;
+                    if (edge > 0.82)
+                    {
+                        double t = Math.Min(1, (edge - 0.82) / 0.1);
+                        hs = Math.Max(hs, t * t * 1500);
+                        if (t > 0.3) { float tone = (float)(0.7 + 0.2 * Hash((long)(x * 2e5), (long)(z * 2e5), 0, _seed)); r = 0.42f * tone; g = 0.43f * tone; b = 0.47f * tone; glow = 0; }
+                    }
+                }
+                LastField = -1; return hs;
+            }
             double h = HeightBase(x, y, z, layers, out r, out g, out b, out glow);
             if (!Solid) { LastField = -1; return h; }
             h = Landforms(x, y, z, h, layers, ref r, ref g, ref b, ref glow);
@@ -167,7 +207,7 @@ namespace DnaAnd.Gen
         private double HeightBase(double x, double y, double z, int layers, out float r, out float g, out float b, out float glow)
         {
             glow = 0;
-            double lat = Math.Abs(y);
+            double lat = _latOverride >= 0 ? _latOverride : Math.Abs(y);
             if (!Solid)
             {
                 // a giant's "surface" is its deep cloud deck: billowing tops tens of km high, rough down to the smallest puff
@@ -293,7 +333,7 @@ namespace DnaAnd.Gen
 
         // ── volcanoes, rivers and resource fields ───────────────────────
 
-        private double _land, _mtn, _tint;
+        private double _land, _mtn, _tint, _latOverride = -1;
         /// <summary>The resource field at the last point asked about (index into <see cref="Fields"/>), or -1.</summary>
         public int LastField { get; private set; }
         /// <summary>True: every field lights up in its own colour, buried ones too (the resource view).</summary>
@@ -533,9 +573,24 @@ namespace DnaAnd.Gen
             double l = Math.Sqrt(x * x + y * y + z * z); x /= l; y /= l; z /= l;
         }
 
-        private static PKey Key(int layer, int f, int level, long i, long j) { return new PKey { A = i | ((long)level << 42) | ((long)f << 50) | ((long)layer << 54), B = j }; }
+        private static PKey Key(int layer, int f, int level, long i, long j) { return new PKey { A = i | ((long)level << 45) | ((long)f << 51) | ((long)layer << 55), B = j }; }
 
-        private double LayerRadius(int layer) { return layer == Clouds ? Radius + CloudKm : Radius; }
+        private double LayerRadius(int layer)
+        {
+            if (layer == Hull) return Radius + HullKm;
+            if (layer == Clouds) return Shell ? Radius - CloudKm : Radius + CloudKm;
+            return Radius;
+        }
+
+        /// <summary>Whether this part of a shell has been built (rings, part-built shells and mirror caps have gaps).</summary>
+        private bool Built(double x, double y, double z, int level, double angle)
+        {
+            if (Mask == 0 || level < 1) return true;
+            if (Mask == 1) return Math.Abs(y) < 0.045 + angle;                                    // a band around the middle
+            if (Mask == 3) return y > 0.25 - angle;                                               // a curved mirror on one side
+            if (level < 3) return true;
+            return level > 3 || Fbm(x, y, z, _seed + 8100u, 2.2, 3) > 0.47;                       // part-built: whole panels missing
+        }
 
         private Patch Make(int layer, int f, int level, long i, long j)
         {
@@ -554,7 +609,23 @@ namespace DnaAnd.Gen
                     double x, y, z; Dir(f, s0 + size * a / Grid, t0 + size * b / Grid, out x, out y, out z);
                     float r, g, bl, gl, al = 1;
                     double h;
-                    if (layer == Ground) h = Height(x, y, z, layers, out r, out g, out bl, out gl);
+                    if (layer == Hull)
+                    {
+                        // hull plates: a grid of panels with seams, some lit by docks and windows
+                        h = 0; gl = HullGlow; al = 1;
+                        // plates: each square of the hull grid has its own shade; thin dark seams between them, at two sizes
+                        double k1 = Radius / 40000.0, k2 = k1 * 40;
+                        double px = x * k1, py = y * k1, pz = z * k1;
+                        double fx = px - Math.Floor(px), fy = py - Math.Floor(py), fz = pz - Math.Floor(pz);
+                        double qx = x * k2 - Math.Floor(x * k2), qy = y * k2 - Math.Floor(y * k2), qz = z * k2 - Math.Floor(z * k2);
+                        double edge = Math.Min(Math.Min(Math.Min(fx, 1 - fx), Math.Min(fy, 1 - fy)), Math.Min(fz, 1 - fz));
+                        double edge2 = Math.Min(Math.Min(Math.Min(qx, 1 - qx), Math.Min(qy, 1 - qy)), Math.Min(qz, 1 - qz));
+                        bool seam = edge < 0.02 || edge2 < 0.03;
+                        float tone = (float)(0.75 + 0.5 * Hash((long)Math.Floor(px), (long)Math.Floor(py), (long)Math.Floor(pz), _seed + 8200u));
+                        r = HullR * tone; g = HullG * tone; bl = HullB * tone;
+                        if (seam) { r *= 0.55f; g *= 0.55f; bl *= 0.55f; }
+                    }
+                    else if (layer == Ground) h = Height(x, y, z, layers, out r, out g, out bl, out gl);
                     else if (layer == Water) { h = 0; r = 0.04f; g = 0.18f; bl = 0.34f; gl = 0; al = 0.72f; }
                     else
                     {
@@ -566,12 +637,12 @@ namespace DnaAnd.Gen
                         else if (Kind == "gas-giant") { r = 0.98f; g = 0.95f; bl = 0.88f; }     // ammonia ice clouds
                         else if (Kind == "desert") { r = 0.82f; g = 0.62f; bl = 0.42f; al *= 0.4f; }  // thin dust
                     }
-                    double rad = baseR + h;
+                    double rad = Shell && layer != Hull ? baseR - h : baseR + h;   // a shell's land rises inward, toward the star
                     int k = b * (Grid + 1) + a;
                     _hx[k] = x * rad - p.Cx; _hy[k] = y * rad - p.Cy; _hz[k] = z * rad - p.Cz;
                     _cr[k] = r; _cg[k] = g; _cb[k] = bl; _cgl[k] = gl; _hh[k] = h; _ca[k] = al;
                 }
-            if (Solid && layer == Ground)
+            if (Solid && layer == Ground && !Shell)
             {
                 double spacing = p.Edge / Grid;
                 for (int b = 0; b <= Grid; b++)
@@ -598,7 +669,7 @@ namespace DnaAnd.Gen
                 }
             // skirts: short walls hanging down from the patch edges, so no cracks show where detail levels meet
             double drop = p.Edge / Grid * 4;
-            for (int e = 0; e < (layer == Ground ? 4 : 0); e++)
+            for (int e = 0; e < (layer == Ground || layer == Hull ? 4 : 0); e++)
                 for (int q = 0; q < Grid; q++)
                 {
                     int ka, kb;
@@ -629,6 +700,7 @@ namespace DnaAnd.Gen
         {
             // straight down toward the planet's centre
             double ax = _hx[a] + p.Cx, ay = _hy[a] + p.Cy, az = _hz[a] + p.Cz, al = Math.Sqrt(ax * ax + ay * ay + az * az);
+            if (Shell) drop = -drop;                              // inside a shell, "down" is outward, away from the star
             double bx = _hx[b] + p.Cx, by = _hy[b] + p.Cy, bz = _hz[b] + p.Cz, bl = Math.Sqrt(bx * bx + by * by + bz * bz);
             var A = new StarVertex { X = (float)_hx[a], Y = (float)_hy[a], Z = (float)_hz[a], Size = _cgl[a], R = _cr[a], G = _cg[a], B = _cb[a], A = 1 };
             var B = new StarVertex { X = (float)_hx[b], Y = (float)_hy[b], Z = (float)_hz[b], Size = _cgl[b], R = _cr[a], G = _cg[a], B = _cb[a], A = 1 };
@@ -662,6 +734,13 @@ namespace DnaAnd.Gen
             _frame++; _budget = newPatchBudget; _clock.Restart(); _msLimit = newPatchBudget >= 400 ? 10 : 30;
             ReadyStep = double.MaxValue;
             float lx = (float)StarDir[0], ly = (float)StarDir[1], lz = (float)StarDir[2];
+            if (Shell)
+            {
+                // a shell: the hull outside, the land inside, both lit by the star at the centre
+                Collect(Hull, camX, camY, camZ, splitFactor);
+                DrawList(pipes.Solid, 0, camX, camY, camZ, Mat4.Identity, viewRot, proj, lx, ly, lz, fogDist, fr, fg, fb, x, y, w, h);
+                if (!Habitable) { Trim(); return; }
+            }
             // the ground (and the sea floor)
             Collect(Ground, camX, camY, camZ, splitFactor);
             DrawList(pipes.Solid, 0, camX, camY, camZ, Mat4.Identity, viewRot, proj, lx, ly, lz, fogDist, fr, fg, fb, x, y, w, h);
@@ -680,7 +759,7 @@ namespace DnaAnd.Gen
                 Collect(Clouds, kx, camY, kz, splitFactor);
                 DrawList(pipes.Clear, 2, kx, camY, kz, Mat4.RotationY((float)ang), viewRot, proj, clx, ly, clz, fogDist, fr, fg, fb, x, y, w, h);
             }
-            DrawAir(pipes.Glow, camX, camY, camZ, viewRot, proj, lx, ly, lz, x, y, w, h);
+            if (!Shell) DrawAir(pipes.Glow, camX, camY, camZ, viewRot, proj, lx, ly, lz, x, y, w, h);
             Trim();
         }
 
@@ -715,6 +794,12 @@ namespace DnaAnd.Gen
                 Mat4 vp = Mat4.Translation(ox, oy, oz) * rest;
                 var c = Pack(vp);
                 c[16] = lx; c[17] = ly; c[18] = lz;
+                if (Shell)
+                {
+                    // inside a shell the star is at the centre: light comes from the centre toward each piece
+                    double pl = Math.Sqrt(p.Cx * p.Cx + p.Cy * p.Cy + p.Cz * p.Cz);
+                    c[16] = (float)(-p.Cx / pl); c[17] = (float)(-p.Cy / pl); c[18] = (float)(-p.Cz / pl);
+                }
                 c[20] = -ox; c[21] = -oy; c[22] = -oz;          // the camera, in the patch's own frame
                 c[25] = fogDist; c[26] = surface; c[28] = fr; c[29] = fg; c[30] = fb;
                 drawer.Draw(p.Buffer, p.Count, c, x, y, w, h);
@@ -772,12 +857,19 @@ namespace DnaAnd.Gen
             double dx = p.Cx - camX, dy = p.Cy - camY, dz = p.Cz - camZ, dist = Math.Sqrt(dx * dx + dy * dy + dz * dz);
             // past the horizon: hidden by the planet itself
             double camDist = Math.Sqrt(camX * camX + camY * camY + camZ * camZ), r = LayerRadius(layer);
-            if (level >= 2 && camDist > r)
+            // gaps in a ring, a part-built shell or a mirror cap
+            if (Shell)
+            {
+                double pl = Math.Sqrt(p.Cx * p.Cx + p.Cy * p.Cy + p.Cz * p.Cz);
+                if (!Built(p.Cx / pl, p.Cy / pl, p.Cz / pl, level, p.Edge / Radius * 0.8)) return;
+            }
+            if (level >= 2 && camDist > r && !Shell)
             {
                 double horizon = Math.Sqrt(camDist * camDist - Radius * Radius) + Math.Sqrt(Math.Max(0, r * r - Radius * Radius));
                 if (dist > horizon + p.Edge * 1.6 + 12) return;
             }
-            if (level < MaxLevel[layer] && dist < p.Edge * splitFactor)
+            bool mustSplit = Shell && Mask != 0 && level < 4;     // rings and gaps show only once the shell is cut into small enough pieces
+            if (level < MaxLevel[layer] && (dist < p.Edge * splitFactor || mustSplit))
             {
                 // the four smaller pieces, nearest to the camera first, so detail fills in where you are looking from
                 long[] ci = { i * 2, i * 2 + 1, i * 2, i * 2 + 1 }, cj = { j * 2, j * 2, j * 2 + 1, j * 2 + 1 };
@@ -798,7 +890,7 @@ namespace DnaAnd.Gen
                     return;
                 }
             }
-            if (layer == Ground && f == _camF)
+            if ((layer == Ground || layer == Hull && !Habitable) && f == _camF)
             {
                 double sz = 2.0 / Math.Pow(2, level), s0 = -1 + i * sz, t0 = -1 + j * sz;
                 if (_camS >= s0 && _camS <= s0 + sz && _camT >= t0 && _camT <= t0 + sz) ReadyStep = p.Edge / Grid;

@@ -642,3 +642,7 @@ Everything the creator has said about this project, in order. Short process repl
     - Automatic checks open small in the bottom-right corner and don't take the keyboard.
     - `test.cmd` with no number stays open until closed.
 82. **Set 5 approved:** "looks good" (resource fields) and "good" (test windows stay open).
+83. **Inside Dyson structures:** "should be able to go inside of them where centrifical graveity lets you focus on the shell of te inside like a hallow inside out planet". Shell structures can be entered. The spin's centrifugal gravity holds you on the inner surface, a hollow inside-out planet with the star overhead.
+84. "spacehsipts and docks and economies are built  around dyson spheres" / "get to it". Dyson structures carry docks on their hulls and ship traffic around them. Economies are run by the AI species.
+85. "like halo rings get it". The Dyson ring is a ring world: a band of land on the inside of a spinning ring, with tall walls along both edges holding the air in. It is built our own way, not a copy of any game.
+86. "some orbs". Some Dyson structures are orbs (the full shell, the part-built shell, the Matrioshka brain, the light-sail bubble) and some are rings.
