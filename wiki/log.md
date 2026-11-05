@@ -17,3 +17,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Task ledger made proper
 
 - `docs/ROADMAP.md`, `docs/TODO.md`, `docs/DECOMPOSED.md` and `docs/FINALIZED.md` now reflect every decision. Finished tasks moved to FINALIZED word for word. R1's first task is broken into 7 steps.
+
+## 2026-11-05 — Art style samples planned
+
+- Added R4.5: 3 samples × 3 styles for every subject before any style is locked in. The styles are RimWorld-like, Populous-like and Stardew-like, all light on the GPU.

@@ -78,6 +78,29 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 - [ ] Top-down god camera
 - [ ] Visual gene map for every trait and skill
 
+### R4.5 — Art style samples
+- [ ] Style samples, 3 samples × 3 styles: "remembr we arent using other peoples shit unless we absoulutley have to so plan on buiolding it all and things like ingame microbes viruses and intelligernt creature should all have samples 1,2,3 made in 3 diffeernt styles 1,2,3 for a hand ful of things in the game before we go with any one style and same for things like the galaxy layouts solarsystem layouts and planets and stars and dyson spheres and space ships and space colonires ands space stations and rouseource firleds and gas giants and athe whole periodic table of elements"
+  - Styles: RimWorld-like, Populous-like, Stardew-like, all drawn originally by us: "try a rimworld like and a, populous like, and a stardew like".
+  - Light on the GPU, built for living things that move and spread: "not one thats too gpu intense and these will be living things in the environment moving and spreading as told before".
+  - Waits on R4's basic renderer: "we cant do em till you build tyhier egine and shit".
+- [ ] Samples: Microbes (3 examples × 3 styles)
+- [ ] Samples: Viruses (3 examples × 3 styles)
+- [ ] Samples: Intelligent creatures (3 examples × 3 styles)
+- [ ] Samples: A handful of other living things (plants, insects, animals, fish, birds) (3 examples × 3 styles)
+- [ ] Samples: Galaxy layouts (3 examples × 3 styles)
+- [ ] Samples: Solar system layouts (3 examples × 3 styles)
+- [ ] Samples: Planets (3 examples × 3 styles)
+- [ ] Samples: Stars (3 examples × 3 styles)
+- [ ] Samples: Gas giants (3 examples × 3 styles)
+- [ ] Samples: Dyson spheres (3 examples × 3 styles)
+- [ ] Samples: Space ships (3 examples × 3 styles)
+- [ ] Samples: Space colonies (3 examples × 3 styles)
+- [ ] Samples: Space stations (3 examples × 3 styles)
+- [ ] Samples: Resource fields (3 examples × 3 styles)
+- [ ] Samples: The whole periodic table of elements (all 118) (3 examples × 3 styles)
+- [ ] Side-by-side comparison sheet of every subject, for the creator to pick one style
+- [ ] Lock in the chosen style, recorded verbatim in `docs/DESIGN.md`
+
 ### R5 — Universe
 - [ ] Galaxy generation from a seed
   - Sizes: Small, Medium, Large, Massive.
