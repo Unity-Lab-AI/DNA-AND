@@ -156,11 +156,11 @@ Every species that ever lived, on one **circular tree**: your first cell at the 
 |--|--|
 | 📜 **100 ages** | From the first stone tool to intergalactic. On Earth they follow real history. Other worlds can take their own order |
 | 🌳 **The tech tree** | 100 branches in 10 families that feed each other. Metal feeds war, war feeds rockets, rockets feed space |
-| 🗳️ **Real society** | Tribes, culture, religion, politics, trade, war |
-| 💀 **Self-destruction** | Collapse can throw them back ages. "Intelligent life has amazing ways of killing itself" |
-| 🤏 **You only nudge** | You never pick their next discovery. You inspire, scare, bless and punish. They choose |
+| 🗳️ **100 kinds of society** | How they rule, trade, live together, believe and keep order, from bands to galactic law |
+| 💀 **100 ways to self-destruct** | Nuclear winter, rogue machines, grey goo, engineered plague. Collapse can throw them back ages |
+| 🤏 **100 ways to nudge** | You never pick their next discovery. You raise prophets, send omens, start wars and end famines. They choose |
 
-👉 [Ages of Civilization](docs/wiki/ages-of-civilization.md "100 ages") · [Tech Tree](docs/wiki/tech-tree.md "How discoveries connect")
+👉 [Ages of Civilization](docs/wiki/ages-of-civilization.md "100 ages") · [Tech Tree](docs/wiki/tech-tree.md "100 branches") · [Society](docs/wiki/society.md "100 kinds of society") · [Nudges](docs/wiki/nudges.md "100 ways to nudge")
 
 ---
 
