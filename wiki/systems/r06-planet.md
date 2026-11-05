@@ -28,3 +28,8 @@ Earth comes first. Other templates (list 62, "Planet templates to unlock after E
 
 ## 🧮 Grid
 ✅ The planet's surface is split into equal-size cells on a sphere. Each cell stores its ground, water, air, weather and chemistry.
+
+## 📌 Decided specs (build from these)
+
+- 100 planet templates, listed in `docs/wiki/planets-and-templates.md`. Earth is first, then 2–8 unlock first. Life on a template never exists before the player's first action.
+- All 118 elements (`docs/wiki/elements.md`). Lab-made 93+ unlock once a civilization creates them.

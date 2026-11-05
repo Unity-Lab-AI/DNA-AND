@@ -102,6 +102,10 @@ Follow your progress through the [stages of life](stages-of-life.md "100 stages,
 
 ---
 
+> 🏁 **Little milestones, big milestones.** Every stage has 100 milestones. Most just pop up as a small notice: *"First shell," "First eye."* Only the stage's headline milestone stops time. See [Milestones](milestones.md "100 per stage, 10,000 in all").
+
+---
+
 ## 5 · 🐟 Life in the seas
 
 Cells clump into many-celled life. Then come jellies, worms, shells, the first fish.
@@ -149,10 +153,13 @@ One species starts using tools. In this run it's an ape, but it could be wolves,
 
 > "intelligent life has amazing ways of killing its self"
 
+> 🔞 **From here on it gets dark.** Thinking life hunts, enslaves, sacrifices and wages war. This is an 18+ game.
+
 From here on you **nudge** intelligent life. You never command it. You have the powers people credit God with.
 
 - 🌠 **Omens** and 🙌 **Miracles** shape what tribes believe.
 - 🧙 **Prophets** unite tribes, or become tyrants.
+- 🤏 That's 3 of [100 ways to nudge](nudges.md "Every nudge and the powers that do it").
 
 > ⚠️ **Harvesting gets risky.** Reaping souls by hand is slow, and if intelligent life **sees** you do it, they panic. See [Souls & Harvesting](souls-and-harvesting.md "Where souls come from and the price of taking them").
 
@@ -181,6 +188,12 @@ Fire, language, tribes, farming, metal, empires. The [Ages of Civilization](ages
 In co-op, you **see each other's cursors** on the same world. One of you calms a war with 🕊️ **Peace** while the other hands out a good 🌾 **Harvest**. Everyone works toward one goal. See [Multiplayer](multiplayer.md "Single, co-op and multiplayer in one shared world").
 
 Later, intelligent life starts **harvesting for you**, using its own power to reap life on your behalf.
+
+---
+
+> 🗳️ **Watch their society shift.** Chiefdom to kingdom, kingdom to republic, republic to dictatorship. Your nudges push it, but they choose. See [Society](society.md "100 kinds of society").
+
+> 🩸 **The Dark Harvest begins.** Sacrifice rites, plague camps, slave plantations and world wars all pay you souls. Your people find a darker way to harvest in almost every era. See [The Dark Harvest](dark-harvest.md "100 cruel methods, matrixed by era").
 
 ---
 
@@ -218,6 +231,10 @@ A civilization wraps its star in a shell of collectors. It's the biggest structu
 > "since all life is like a virus advanced forms seprad and use up avasil nutrientrs and resources and have to spread"
 
 Advanced life has used up what it has. It has to spread again.
+
+---
+
+> 🩸 **World grinders.** Huge machines powered by atomics and the Dyson sphere crawl across a dead moon and eat it like a lawnmower. Every era has its own [Dark Harvest](dark-harvest.md "100 cruel methods").
 
 ---
 

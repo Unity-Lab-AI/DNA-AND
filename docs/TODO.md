@@ -35,7 +35,8 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 
 - [x] Write the work laws: code is written from the docs (`docs/WORK-LAWS.md`)
 - [x] Every TODO section names its **Spec:** pages
-- [ ] `/super-review`: everything the creator said is properly done in every TODO and doc
+- [x] `/super-review`: everything the creator said is properly done in every TODO and doc
+  - First pass found 7 issues (2 high, 4 medium, 1 low). All 7 are fixed: the missing messages are recorded, the builder specs have decided-spec sections, the playthrough covers the new systems, Heat became Fire, the LISTS index is complete, and the README numbers and TODO milestone line are updated.
 - [ ] `/unity` check: nothing the creator said is left out, word for word
 - [ ] Only after both pass: fill the top-100 lists (below)
 - [ ] Only after the lists: start R1 code, following `docs/WORK-LAWS.md`
@@ -184,7 +185,7 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
   - A circular family tree (heredity) and a gene tree. Sortable by planet, solar system or galaxy. Extinct branches are kept.
   - Every rank, from domain to species, is tracked to 100: real plus invented.
 - [ ] Top 100 nutrients list
-- [ ] Milestones for every stage of life
+- [ ] Milestones for every stage of life: 100 per stage (10,000), built from the lists (`docs/wiki/milestones.md`)
   - All 100 stages (`docs/wiki/stages-of-life.md`). Each stage is one of the 100 unlock points. Every power unlocks at exactly one stage.
 
 ### R9 — Intelligent life
