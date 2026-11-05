@@ -48,3 +48,9 @@ From `docs/DESIGN.md`, round 8. Every living thing runs a mini AI driven by the 
 | 🌌 Galactic mind | A galaxy-spanning civilization | Steers species and colonies |
 
 Bigger layers steer smaller ones, and members can defect when that helps their own genes. Layers come only from evolution, with no fixed ladder steps. This also has to run fast enough for a huge population: grouped crowds share one group AI until you zoom in.
+
+## 📌 Decided specs (build from these)
+
+- 100 stages of life (`docs/wiki/stages-of-life.md`). Each stage unlocks exactly one power (or the 5 starters at stage 1).
+- 100 milestones per stage, 10,000 in all, built from the top-100 lists, 10 per family × 10 families. Milestone 100 is the headline. Only headline milestones slow time and trigger autosave (`docs/wiki/milestones.md`).
+- 100-step grouping ladder and 100 ways species mix (`docs/wiki/groups-and-flocking.md`). Tree of life with every rank tracked 100 deep (`docs/wiki/tree-of-life.md`).

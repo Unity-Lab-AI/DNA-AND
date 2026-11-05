@@ -214,8 +214,8 @@ Powers cost **Souls**. Cost = the power's **tier (T1–T100) × area × strength
 
 | | |
 |--|--|
-| ⏸️ **Pause + 5 speeds** | 1×, 10×, 100×, 1,000× and max |
-| 🏁 **10,000 milestones** | 100 in every stage. Each stage's big one (first walk, first fire, first farm, first rocket) drops time to 1× and you watch it happen |
+| ⏸️ **Pause + 5 speeds** | 1×, 10×, 100×, 1,000× and max. See [Time](docs/wiki/time.md "Pause, speeds, slow-downs") |
+| 🏁 **10,000 milestones** | 100 in every stage ([Milestones](docs/wiki/milestones.md "How they're built")). Each stage's big one (first walk, first fire, first farm, first rocket) drops time to 1× and you watch it happen |
 | ⚖️ **Balanced** | Billions of years fly by early, and history slows to decades late |
 
 ---
@@ -241,6 +241,10 @@ Powers cost **Souls**. Cost = the power's **tier (T1–T100) × area × strength
 | **100** | god powers | **100** | grouping steps |
 | **100** | planet templates | **118** | elements |
 | **10,000** | encyclopedia entries (100 × 100) | **6** | layers of mind |
+| **10,000** | milestones (100 per stage) | **100** | tech branches |
+| **100** | kinds of society | **100** | ways to nudge |
+| **100** | Dark Harvest methods | **100** | ways to earn souls |
+| **100** | power tiers (T1–T100) | **100** | ways civilizations end |
 | **8** | players per world | **∞** | how long a galaxy lasts |
 
 ---
@@ -313,7 +317,7 @@ The only outside pieces are Windows itself, your graphics card's driver, and the
 | 🗺️ [Full Playthrough](docs/wiki/playthrough.md "Dead rock to intergalactic war") | One whole game, start to endgame |
 | ⚗️ [Elements](docs/wiki/elements.md "All 118") | The full periodic table, and what each element does |
 | ⚙️ [Menus & Settings](docs/wiki/menus-and-settings.md "Main menu, saving, settings") | Saving, settings and accessibility |
-| 📖 [Glossary](docs/wiki/glossary.md "Every term") · ❓ [FAQ](docs/wiki/faq.md "Common questions") | Every term, every question |
+| 📖 [Glossary](docs/wiki/glossary.md "Every term") · ❓ [FAQ](docs/wiki/faq.md "Common questions") · 💜 [Credits](docs/wiki/credits.md "The team") | Every term, every question, everyone who made it |
 | 🛠️ [Design Record](docs/DESIGN.md "Every decision, in the creator's words") · [Roadmap](docs/ROADMAP.md "The big stages") · [How we work](docs/DESIGN.md#how-we-work-verbatim "Branches and rules") · [Work Laws](docs/WORK-LAWS.md "The docs are the spec for all code") | For the team |
 
 ---

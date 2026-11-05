@@ -38,3 +38,9 @@ Gene powers have "differnt outcomes good and bad depending."
 ## 🩸 Dark Harvest
 
 100 cruel harvest methods in 10 groups (madness and beasts, disease, war, politics and law, belief, labor and economy, environment, genes and bodies, machines and control, space). Each appears at a set age and is pushed by named powers, and each pays souls per death. The group × era matrix is in `docs/wiki/dark-harvest.md`. Methods can only appear in civilizations of that age or later.
+
+## 📌 Decided specs (build from these)
+
+- 100 powers. Each has one unlock stage (1–100) and one tier (T1–T100). The table is in `docs/wiki/god-powers.md`. T81–T100 have cooldowns. Cost = tier × area × strength. #4 is Starshine and #81 is Stellar Flare.
+- 100 nudges, each mapped to the powers that do it (`docs/wiki/nudges.md`).
+- 100 soul sources (`docs/wiki/souls-and-harvesting.md`). Milestones pay no souls.
