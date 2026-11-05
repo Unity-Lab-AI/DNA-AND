@@ -70,3 +70,9 @@ Original TODO lines closed here, verbatim:
 - `docs/DECOMPOSED.md`: R1's first task broken into 7 steps.
 - `docs/LISTS.md` and `docs/POWERS.md`: marked approved.
 - `docs/DESIGN.md`: the open-questions section updated.
+
+**Verbatim completeness pass (super-review + Unity).** Verbatim ask: "then /unity so she(our in house special info handler codex) can make sure nothing waas left out in all the verbatium words and answers given and shew knows me best". Changes:
+- `docs/DESIGN.md`: added "How we work" (the working rules, verbatim) and "Conversation record" (all 20 messages, verbatim, in order).
+- `docs/wiki/elements.md`: 8 elements re-labelled "Predicted (never measured)".
+- `README.md`: linked to "How we work".
+- Two review findings ("not a clicker" and the internet FAQ) were false alarms. Both were already in the wiki.

@@ -182,3 +182,56 @@ Gee handed these choices over, so Claude picked the best AAA option for each. Ev
 | S22 | Source layout | One folder per roadmap system (`src/toolchain`, `src/platform`, …) |
 | S23 | Disk space | Measured once the first build exists |
 | S24 | Uninstall | Keep saves and ask whether to delete them |
+
+---
+
+## How we work (verbatim)
+
+These are the creator's working rules for this repo, each in his own words.
+
+| Rule | Verbatim |
+|---|---|
+| Branch flow | "and when u do stiuff in batches u need to do the full feature, develop, main cascade" |
+| Both remotes | "on boith remotes" |
+| Branch order | "use the right proceude freature>develop>main and the bolock should be fine" |
+| Push order | "fix them so we can make the pushes like i said feature>develop>cascade" |
+| `.claude/` is tracked | "this .claude is allowed to be pushed jsut like every project we put it in" |
+| Git over HTTPS | "u have to use https im signed in right now" / "try again use https im signed in now" |
+| Decisions stay in the main session | "stop u dont outsource importatn decistions to a fuucking agent thhat knows nothing of the project!" |
+| Suggestions as multiple choice | "option 2. but use this way to give me suggestions" |
+| Everything is 100 | "i think i told you 100x everything, did you not properly understand what everything means and need to reassess what ive already told you?" |
+
+**In practice:**
+- Every batch of work goes `feature/*` → `develop` → `main`.
+- Each branch gets pushed to both `origin` (git.unityailab.com) and `github`, over HTTPS.
+- `.claude/` is committed with the project.
+- Design decisions are never handed off to helpers.
+- Questions come as multiple choice, with suggestions.
+- Every list has 100 entries.
+
+---
+
+## Conversation record (every message, verbatim)
+
+Everything the creator has said about this project, in order. Short process replies are included too, so nothing is missing.
+
+1. **Project setup:** "import the :https://git.unityailab.com/UnityAILab/UAL-ClaudeWorkflow so we have the templet files heree in this project, i havent told you what the project is about yet, but go ahead and set up the import and here will be the repo for the project: https://git.unityailab.com/GFourteen/DNA-AND and you will make one on git hub in the Unity ai lab account as Gfourteen for DNA-AND as well"
+2. "u have to use https im signed in right now"
+3. "and when u do stiuff in batches u need to do the full feature, develop, main cascade"
+4. "on boith remotes"
+5. **The rules:** see "The rules of the project" above.
+6. "1. im not ther yet 2. thats the templete stuff and out side of the project". This answered "what is DNA-AND?" and "keep the template's atree.exe?"
+7. **The pitch:** see "The pitch" above. It ended with: "now you shoudl have a million questions for me"
+8. "to write up the todo". This explained what the questions were for.
+9. **Round 1 answers, in full:** "1. we make it 2. all three 3.https://jsonbin.io/app/dashboard 4. (thats a stuppid question) obviously galaxy size to buidl dyson spheres and ingalactic war and technology trees for the life 5. EARTH(but other templets too you can unlock after reaching certain points on Earth. ut will be a AAA game graphics that can do all the microbes and viruses an d gene mapings and peices for every traight and skill and evolutionary thing like breathing air to walking upright to photosynethesiis 6. solarsystems in the galaxy. they will be like ants ais with genes that use thatev eveold or been infected with u know EVOLUTION 7.stars+planets>solar sytems> galaxys 8. Real-style 9. wher they are on the planet can be animate by what they are living in that area liek 1 worm can be 4396 worms and i suppose its possible to cover the planet win worms but unlickely with mutation and viruses and breeding if not asexual and such but that all needs worked out. 10. life starts base on your first action. AND THIS IS NOT A MOBILE CLICKER  bullshit 11. basic god stuff that can effect life u know im sure youll figure it out all scaled for the entire game think populous form back in the day but gneological twists 12. points are amount of life in your galaxie(S!), 13. no direct edit besids using powers to influence things to happen 14. maybe yea a inset ones uve unlocked but has differnt outcomes good and bad depending. 15. i dont know a full game should take about 4-6 hours to get a civ to space im thinking 16. well for each stage of life all has its miles stones and intelligent life has technology and culture and war and tribalisze and pollitics and stuff like real life does 17. only every nudge evrything but u get the power of god to basicly do everything peopel attribute god doing. yes thats the whole point alla life can die and intelligent life has amazing ways of killing its self 19. combination of all of them.20. no cheats will NOT work its fine. 21.no its added to the oceans or land via meteorite 22. yeas a normal game landing a nd wiki of everything setting quit. single/coop/multi player see each others cursors all working to one goal. the todo for all of this shall be emense as all of the systems and trees and proceduaral dynmamic templets all nedd to be figured and the arrays and the graphics and 3d top down world with god mode space mechanics. dso the todo needs made and all the docs and wikis and how to and setup and readmes and nothing of this game runs in a html its its own system and program"
+10. **Round 2 answers:** see "Answers, round 2" above.
+11. "use the right proceude freature>develop>main and the bolock should be fine"
+12. **Round 3 answers, in full:** "1what categories. 2. real and dynamic invented combo procedurally 3. i like that maybe u have to harvet life and later on u get the intelligent sure intelligences using their powers to harvest life for you endgame kinda wiked liek the intelligences goal is to harvest life for its needs and since all life is like a virus advanced forms seprad and use up avasil nutrientrs and resources and have to spread. jsut liek real life 4. Alfreddo is Mills but he goes by Alfreddo so use that. and those are not the only two fuckign option fix the .claude dumb ass u wront and imported the fucking hooks just fix them so we can make the pushes like i said feature>develop>cascade and this .claude is allowed to be pushed jsut like every project we put it in"
+13. "how do i edit it then"
+14. "okay shit go". This came after adding the force-push permission.
+15. "try again use https im signed in now"
+16. **The docs ask, and round 4 answers:** see "Answers, round 4" above.
+17. **Round 5 ask:** "you need to answer all the aBCD ..mds for best answers for everything based on beding A AAAA Game like nothing ever seen on earth before"
+18. "stop u dont outsource importatn decistions to a fuucking agent thhat knows nothing of the project!"
+19. "you need to make the todo and docs all of them proper"
+20. **Review ask:** "then /unity so she(our in house special info handler codex) can make sure nothing waas left out in all the verbatium words and answers given and shew knows me best"

@@ -138,15 +138,15 @@ From your very first moment you can **add any element** to your world. What each
 | 106 | 🟦 | Sg | Seaborgium | Transition | Lab-made, lasts seconds |
 | 107 | 🟦 | Bh | Bohrium | Transition | Lab-made, lasts seconds |
 | 108 | 🟦 | Hs | Hassium | Transition | Lab-made, lasts seconds |
-| 109 | ❔ | Mt | Meitnerium | Unknown | Lab-made, lasts moments |
-| 110 | ❔ | Ds | Darmstadtium | Unknown | Lab-made, lasts moments |
-| 111 | ❔ | Rg | Roentgenium | Unknown | Lab-made, lasts moments |
+| 109 | ❔ | Mt | Meitnerium | Predicted (never measured) | Lab-made, lasts moments |
+| 110 | ❔ | Ds | Darmstadtium | Predicted (never measured) | Lab-made, lasts moments |
+| 111 | ❔ | Rg | Roentgenium | Predicted (never measured) | Lab-made, lasts moments |
 | 112 | 🟦 | Cn | Copernicium | Transition | Lab-made, lasts moments |
-| 113 | ❔ | Nh | Nihonium | Unknown | Lab-made, lasts moments |
-| 114 | ❔ | Fl | Flerovium | Unknown | Lab-made, lasts moments |
-| 115 | ❔ | Mc | Moscovium | Unknown | Lab-made, lasts moments |
-| 116 | ❔ | Lv | Livermorium | Unknown | Lab-made, lasts moments |
-| 117 | ❔ | Ts | Tennessine | Unknown | Lab-made, lasts moments |
+| 113 | ❔ | Nh | Nihonium | Predicted (never measured) | Lab-made, lasts moments |
+| 114 | ❔ | Fl | Flerovium | Predicted (never measured) | Lab-made, lasts moments |
+| 115 | ❔ | Mc | Moscovium | Predicted (never measured) | Lab-made, lasts moments |
+| 116 | ❔ | Lv | Livermorium | Predicted (never measured) | Lab-made, lasts moments |
+| 117 | ❔ | Ts | Tennessine | Predicted (never measured) | Lab-made, lasts moments |
 | 118 | ⬜ | Og | Oganesson | Noble gas | Heaviest known element |
 
 > 🧪 **Lab-made elements** (93 and up, apart from traces) don't occur in nature. Late-game civilizations can make them.
