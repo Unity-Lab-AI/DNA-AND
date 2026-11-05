@@ -19,7 +19,7 @@ namespace DnaAnd.Shell
         private readonly BillboardDrawer _drawer;
         private float _yaw, _zoom = 1f;
         public int Set { get; private set; }
-        private readonly bool[,] _marks = new bool[3, 9];   // [set, row*3+col]: the samples marked good
+        private readonly bool[,] _marks = new bool[4, 9];   // [set, row*3+col]: the samples marked good
         private static readonly string[] StyleNames = { "RimWorld-like", "Populous-like", "Stardew-like" };
         private const int FrameDots = 48;
         private UploadBuffer _frameBuf;
@@ -35,12 +35,19 @@ namespace DnaAnd.Shell
         private readonly int[] _focus = { -1, -1, -1 };              // per solar system: the body the camera follows, -1 = the star
         private readonly StarVertex[][] _sysStaticShifted = new StarVertex[3][];
         private readonly Mat4[,] _tileVp = new Mat4[3, 3];
-        private float _sysZoom = 1f;                                  // set 2 zooms from the whole system down to one planet
+        private float _sysZoom = 1f;
+        // set 3: nine kinds of star up close, all in the locked Populous-like style
+        private static readonly string[] StarIds = { "g-type", "m-type", "o-type", "red-giant", "red-supergiant", "blue-supergiant", "white-dwarf", "pulsar", "brown-dwarf" };
+        private readonly string[] _starNames = new string[9];
+        private readonly UploadBuffer[] _starBufs = new UploadBuffer[9];
+        private readonly int[] _starCounts = new int[9];                                  // set 2 zooms from the whole system down to one planet
 
         public string Title
         {
             get
             {
+                if (Set == 3)
+                    return "DNA-AND samples · Set 3: Stars (Populous-like) · see the Legend menu for which star is which · right-click marks a keeper";
                 if (Set == 2)
                     return "DNA-AND samples · Set 2: Solar systems · rows: " + string.Join(", ", _systemNames) +
                            " · columns: RimWorld-like, Populous-like, Stardew-like · right-click marks a good one · [ and ] switch set";
@@ -53,7 +60,6 @@ namespace DnaAnd.Shell
         {
             Set = 1;
             _frameBuf = new UploadBuffer(gpu.Device, (long)_frameVerts.Length * Marshal.SizeOf(typeof(StarVertex)));
-            LoadMarks();
             _drawer = new BillboardDrawer(gpu.CommandList, pipeline);
             // three galaxy types, taken from the content
             var wanted = new[] { "spiral", "barred-spiral", "elliptical" };
@@ -85,6 +91,15 @@ namespace DnaAnd.Shell
                 _sysVerts[row] = new StarVertex[(_systems[row].Bodies.Count + 1) * (1 + TrailPoints)];
                 _sysBodies[row] = new UploadBuffer(gpu.Device, (long)_sysVerts[row].Length * stride);
             }
+
+            for (int i = 0; i < 9; i++)
+            {
+                StarVertex[] v = StarGen.Build(content, StarIds[i], seed * 31UL + (ulong)i, out _starNames[i]);
+                _starCounts[i] = v.Length;
+                _starBufs[i] = new UploadBuffer(gpu.Device, (long)Math.Max(1, v.Length) * stride);
+                _starBufs[i].Write(v, v.Length);
+            }
+            LoadMarks(); // after every sample has its name
         }
 
         public bool OneSet; // opened for a single set: [ and ] do nothing
@@ -105,6 +120,7 @@ namespace DnaAnd.Shell
         public void Draw(int width, int height, double time)
         {
             if (Set == 2) { DrawSystems(width, height, time); DrawMarks(width, height); return; }
+            if (Set == 3) { DrawStars(width, height, time); DrawMarks(width, height); return; }
             int tileW = width / 3, tileH = height / 3;
             for (int row = 0; row < 3; row++)
                 for (int col = 0; col < 3; col++)
@@ -192,6 +208,21 @@ namespace DnaAnd.Shell
             else _sysZoom = 1f;
         }
 
+        private void DrawStars(int width, int height, double time)
+        {
+            int tileW = width / 3, tileH = height / 3;
+            for (int i = 0; i < 9; i++)
+            {
+                float pitch = 0.35f, dist = 3.6f / _zoom;
+                float yaw = _yaw * 3f + i;                       // each star turns slowly, at a different angle
+                var eye = new Vec3((float)(Math.Cos(yaw) * Math.Cos(pitch)) * dist, (float)Math.Sin(pitch) * dist, (float)(Math.Sin(yaw) * Math.Cos(pitch)) * dist);
+                Mat4 view = Mat4.LookAt(eye, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
+                Mat4 vp = view * Mat4.Perspective(0.9f, tileW / (float)Math.Max(1, tileH), 0.01f, 50f);
+                var right = new Vec3(view.M11, view.M21, view.M31); var up = new Vec3(view.M12, view.M22, view.M32);
+                DrawTile(_starBufs[i], _starCounts[i], vp, right, up, 1f, 0f, 2f, (i % 3) * tileW, (i / 3) * tileH, tileW, tileH, time);
+            }
+        }
+
         private void DrawTile(UploadBuffer buf, int count, Mat4 vp, Vec3 right, Vec3 up, float sizeScale, float minSize, float style, int x, int y, int w, int h, double time)
         {
             if (count <= 0) return;
@@ -222,7 +253,7 @@ namespace DnaAnd.Shell
         public string[] KeeperLabels()
         {
             var l = new string[9];
-            for (int i = 0; i < 9; i++) l[i] = "Row " + (i / 3 + 1) + ": " + RowName(Set, i / 3) + "  ·  column " + (i % 3 + 1) + ": " + StyleNames[i % 3];
+            for (int i = 0; i < 9; i++) l[i] = Set == 3 ? "Row " + (i / 3 + 1) + ", column " + (i % 3 + 1) + ": " + _starNames[i] : "Row " + (i / 3 + 1) + ": " + RowName(Set, i / 3) + "  ·  column " + (i % 3 + 1) + ": " + StyleNames[i % 3];
             return l;
         }
 
@@ -230,6 +261,13 @@ namespace DnaAnd.Shell
 
         public string Legend()
         {
+            if (Set == 3)
+            {
+                var st = new System.Text.StringBuilder("Set 3 of 17: stars, all in the game's style (Populous-like)\n\n");
+                for (int i = 0; i < 9; i++) st.Append("  Row " + (i / 3 + 1) + ", column " + (i % 3 + 1) + ": " + _starNames[i] + "\n");
+                st.Append("\nControls:\n  Right-click a star: mark or unmark it as a keeper (green frame)\n  Keepers menu: the same, with tick boxes\n  Mouse wheel: zoom\n  Exit menu or Esc: close the game\n\nKeepers are saved in picks.txt in the game folder.");
+                return st.ToString();
+            }
             string what = Set == 2 ? "Set 2 of 17: solar systems" : "Set 1 of 17: galaxies (locked: column 2, Populous-like)";
             var sb = new System.Text.StringBuilder(what + "\n\nRows (top to bottom):\n");
             for (int r = 0; r < 3; r++) sb.Append("  " + (r + 1) + ". " + RowName(Set, r) + "\n");
@@ -246,15 +284,21 @@ namespace DnaAnd.Shell
 
         private string RowName(int set, int row) { return set == 2 ? _systemNames[row] : _typeNames[row]; }
 
+        private string SampleName(int set, int i)
+        {
+            if (set == 3) return _starNames[i] + " | Populous-like";
+            return RowName(set, i / 3) + " | " + StyleNames[i % 3];
+        }
+
         // the marks go in picks.txt next to the game, one line per marked sample, so they can be read back
         private void SaveMarks()
         {
             try
             {
                 var lines = new System.Collections.Generic.List<string>();
-                for (int set = 1; set <= 2; set++)
+                for (int set = 1; set <= 3; set++)
                     for (int i = 0; i < 9; i++)
-                        if (_marks[set, i]) lines.Add("set " + set + " | " + RowName(set, i / 3) + " | " + StyleNames[i % 3]);
+                        if (_marks[set, i]) lines.Add("set " + set + " | " + SampleName(set, i));
                 System.IO.File.WriteAllLines("picks.txt", lines.ToArray());
             }
             catch { }
@@ -269,9 +313,9 @@ namespace DnaAnd.Shell
                 {
                     var parts = line.Split('|');
                     if (parts.Length != 3) continue;
-                    int set; if (!int.TryParse(parts[0].Trim().Replace("set ", ""), out set) || set < 1 || set > 2) continue;
+                    int set; if (!int.TryParse(parts[0].Trim().Replace("set ", ""), out set) || set < 1 || set > 3) continue;
                     for (int i = 0; i < 9; i++)
-                        if (RowName(set, i / 3) == parts[1].Trim() && StyleNames[i % 3] == parts[2].Trim()) _marks[set, i] = true;
+                        if (SampleName(set, i) == parts[1].Trim() + " | " + parts[2].Trim()) _marks[set, i] = true;
                 }
             }
             catch { }
@@ -310,6 +354,7 @@ namespace DnaAnd.Shell
             foreach (var b in _buffers) if (b != null) b.Dispose();
             foreach (var b in _sysStatic) if (b != null) b.Dispose();
             foreach (var b in _sysBodies) if (b != null) b.Dispose();
+            foreach (var b in _starBufs) if (b != null) b.Dispose();
         }
     }
 }

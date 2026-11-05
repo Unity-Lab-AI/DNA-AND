@@ -13,7 +13,7 @@ namespace DnaAnd
         private static int Main(string[] args)
         {
             // --smoke <ms>: a timed test run that closes itself after <ms> milliseconds.
-            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; bool testSet2 = false; int testSpeed = -1; double tryEvery = -1;
+            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int openSet = 0; int testSpeed = -1; double tryEvery = -1;
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i] == "--smoke" && i + 1 < args.Length) int.TryParse(args[i + 1], out smokeMs);
@@ -21,7 +21,8 @@ namespace DnaAnd
                 if (args[i] == "--deep" && i + 1 < args.Length) int.TryParse(args[i + 1], out testDeep);       // open deep zoom on a row
                 if (args[i] == "--zoom" && i + 1 < args.Length) double.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out testZoom);
                 if (args[i] == "--visit") testVisit = true;  // visit the middle star
-                if (args[i] == "--set2") testSet2 = true;   // open sample set 2
+                if (args[i] == "--set2") openSet = 2;       // open one sample set on its own
+                if (args[i] == "--set3") openSet = 3;
                 if (args[i] == "--core") testCore = true;    // zoom to the core black hole
                 if (args[i] == "--speed" && i + 1 < args.Length) int.TryParse(args[i + 1], out testSpeed); // 0-4
                 if (args[i] == "--try" && i + 1 < args.Length) double.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out tryEvery); // keep-or-revert prompt every N s
@@ -55,7 +56,7 @@ namespace DnaAnd
             string endReason = "closed normally";
             const ulong Seed = 20261105UL;
             DeepView deep = null;
-            if (testSet2) viewer.ShowSet(2);
+            if (openSet > 0) viewer.ShowSet(openSet);
             if (testDeep >= 0) deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(testDeep), viewer.NameOf(testDeep), Seed + (ulong)testDeep * 7919UL);
             while (window.Pump())
             {

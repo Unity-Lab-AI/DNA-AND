@@ -605,3 +605,4 @@ Everything the creator has said about this project, in order. Short process repl
 64. "u have to open them up one at a time as u didnt design the tester well enough to not be fucking complicated". Each sample set now opens on its own, with no set switching.
 65. **Solar system style locked:** "middle column only thing is zoom isnt deep enough to planet level". Populous-like (center column). Added: click a planet to follow it, and the wheel zooms down to planet size.
 66. "the center one is the best center row center column". The best solar system sample is the compact red-dwarf system (center row) in Populous-like (center column).
+67. **Art style locked for everything:** "yup same one the center one is the best, dont need to test them twice". Populous-like is the game's art style. The sample sets that remain show only that style; there is no more style comparison.

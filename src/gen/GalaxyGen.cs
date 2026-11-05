@@ -37,7 +37,7 @@ namespace DnaAnd.Gen
             }
         }
 
-        private static void ColorOf(string c, out float r, out float g, out float b)
+        public static void ColorOf(string c, out float r, out float g, out float b)
         {
             switch (c.Trim())
             {
