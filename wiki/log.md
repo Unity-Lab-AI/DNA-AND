@@ -13,3 +13,7 @@ Append-only. Newest at the bottom.
 - All 47 open suggestions were decided (see `docs/DESIGN.md`, round 5), and every 💬 mark across the wiki and docs was replaced with the final decision.
 - The language is named **Helix**.
 - Pages stay `status: draft` because no code exists yet.
+
+## 2026-11-05 — Task ledger made proper
+
+- `docs/ROADMAP.md`, `docs/TODO.md`, `docs/DECOMPOSED.md` and `docs/FINALIZED.md` now reflect every decision. Finished tasks moved to FINALIZED word for word. R1's first task is broken into 7 steps.

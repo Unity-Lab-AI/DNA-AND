@@ -4,7 +4,7 @@
 >
 > "think populous form back in the day but gneological twists" / "no direct edit besids using powers to influence things to happen" / gene powers "has differnt outcomes good and bad depending."
 
-**Status: DRAFT, waiting for the creator's approval.** The 100 powers are grouped by when they'd unlock. The ones you named yourself are marked ★. What each power costs, and when it unlocks, gets decided later.
+**Status: APPROVED** ("Use them as is"). The 100 powers are grouped by type. The ones you named yourself are marked ★. Costs, unlock points and cooldowns are on the [God Powers wiki page](wiki/god-powers.md).
 
 ## Heat, cold and weather
 | # | Power | What it does | Plus | Minus |
@@ -138,6 +138,6 @@
 | 99 | Forecast | See coming disasters | Time to react | Costs points |
 | 100 | Sanctuary | Protects an area from your other powers and disasters | Keeps a refuge | Life there grows soft |
 
-## Questions on this list
-- Swap, cut or add any?
-- **Answered:** powers are paid for by harvesting life, and later intelligent life harvests for you (see `docs/DESIGN.md`, round 3). The harvest cost of each power is still to be set.
+## Decisions on this list
+- Powers are paid for in **Souls** from life and harvesting. Later, intelligent life harvests for you (`docs/DESIGN.md`, round 3).
+- Cost = tier × area × strength. Tier 4–5 powers have cooldowns (`docs/DESIGN.md`, round 5).
