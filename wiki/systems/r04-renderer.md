@@ -41,7 +41,7 @@ The art style is locked: **Populous-like (faceted low-poly, tilted 3D god view),
 | | |
 |---|---|
 | 🖼️ **What** | Each sample set opens on its own (`--set2`, `--set3`, `--set4`); Keepers are ticked from the menu and saved in `picks.txt` |
-| ✅ **Approved** | Set 1 galaxies, set 2 solar systems, set 3 stars, set 4 planets and gas giants (pictures in `docs/samples/`) |
+| ✅ **Approved** | Sets 1–6: galaxies, solar systems, stars, planets and gas giants, resource fields, the Dyson sphere (pictures in `docs/samples/`) |
 | 🪶 **Rule** | Light on the graphics card. Thousands of living things move and spread at once |
 
 Subjects: microbes, viruses, intelligent creatures, a handful of other living things, galaxy and solar system layouts, planets, stars, gas giants, Dyson spheres, spaceships, space colonies, space stations, resource fields, and all 118 elements.
@@ -63,6 +63,8 @@ The renderer draws what the live generators build. Every asset is generated on t
 | 🕳️ Depth | A depth buffer, so the ground hides what is behind it | `src/render/Gpu.cs` |
 | 🌍 Planets | A cube blown into a ball; each face splits into smaller pieces near the camera (up to 40 levels, about a micrometre). Pieces are made nearest first, a few milliseconds per frame. Layers: ground and sea floor, see-through sea, turning clouds, a glowing air shell | `src/gen/PlanetTerrain.cs` |
 | 🪂 Fly-down | Orbit to the surface, then on down to micrometres; the camera always lands on finished ground; rain, snow, ash or dust under clouds; under water it turns dark and murky | `src/shell/PlanetView.cs` |
+| 🪐 Resource fields | Volcanoes, rivers and 16 kinds of field placed by real geology, seen on the ground; R lights every field in its own colour | `src/gen/PlanetTerrain.cs` |
+| 🏭 Dyson sphere | A shell around a star: industrial machinery outside (sectors, trenches, blocks, towers, pipes), a planet landscape turned inside out on the inside, held on by spin; free flight inside | `src/gen/PlanetTerrain.cs`, `src/gen/DysonGen.cs`, `src/shell/PlanetView.cs` |
 | 📷 Own pictures | `--shot <s> <file.bmp>` copies the finished frame off the graphics card; `--tour <name> <km,...>` takes one per height | `src/render/Gpu.cs`, `src/Program.cs` |
 
 Everything is drawn relative to the camera in double precision, so nothing shakes from galaxy size down to micrometres.

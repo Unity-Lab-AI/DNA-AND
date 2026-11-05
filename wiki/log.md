@@ -100,3 +100,8 @@ Append-only. Newest at the bottom.
 - Sets 1–4 (galaxies, solar systems, stars, planets with gas giants) are approved. The keeper pictures are in `docs/samples/`.
 - The renderer now has depth, solid faceted ground, glowing air, see-through clouds and water, and planets with detail from orbit down to micrometres.
 - `r04-renderer.md` is verified against the code.
+
+## 2026-11-05 — Sample sets 5 and 6 approved
+
+- Set 5: resource fields placed by real geology on every world, with a resource view.
+- Set 6: one Dyson sphere, with an industrial hull outside and a terraformed landscape inside around its star. You can go in and out, and fly freely inside.

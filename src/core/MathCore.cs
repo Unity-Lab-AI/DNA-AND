@@ -94,6 +94,7 @@ namespace DnaAnd.Core
             return z ^ (z >> 31);
         }
         private static ulong Rotl(ulong x, int k) { return (x << k) | (x >> (64 - k)); }
+        public int Below(int n) { return (int)(Next() % (ulong)Math.Max(1, n)); }
         public ulong Next()
         {
             ulong result = Rotl(_b * 5, 7) * 9, t = _b << 17;
