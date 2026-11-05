@@ -155,7 +155,7 @@ Every species that ever lived, on one **circular tree**: your first cell at the 
 | | |
 |--|--|
 | 📜 **100 ages** | From the first stone tool to intergalactic. On Earth they follow real history. Other worlds can take their own order |
-| 🌳 **The tech tree** | 8 branches that feed each other. Metal feeds war, war feeds rockets, rockets feed space |
+| 🌳 **The tech tree** | 100 branches in 10 families that feed each other. Metal feeds war, war feeds rockets, rockets feed space |
 | 🗳️ **Real society** | Tribes, culture, religion, politics, trade, war |
 | 💀 **Self-destruction** | Collapse can throw them back ages. "Intelligent life has amazing ways of killing itself" |
 | 🤏 **You only nudge** | You never pick their next discovery. You inspire, scare, bless and punish. They choose |
