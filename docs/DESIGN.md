@@ -641,3 +641,4 @@ Everything the creator has said about this project, in order. Short process repl
     - Windows opened for the creator have no timer and stay open until closed. Keep going or revert is still in the menu.
     - Automatic checks open small in the bottom-right corner and don't take the keyboard.
     - `test.cmd` with no number stays open until closed.
+82. **Set 5 approved:** "looks good" (resource fields) and "good" (test windows stay open).
