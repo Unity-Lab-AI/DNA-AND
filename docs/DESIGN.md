@@ -629,3 +629,8 @@ Everything the creator has said about this project, in order. Short process repl
     - Lava worlds show glowing cracks and rivers.
 75. "you grid of 9 is all fucked up when i zoom it it bairly even zooms in and the y all go toskeletons like im inside oall of them, but the single stests were all good, something is worng with the 9 grid semple test that its not propelry working like the single tests were, that were all good". Cause: the grid wheel moved every camera toward the planet centres with no surface check. Fix: the planet grid cameras stay fixed. Rolling the wheel over a planet (or clicking it) opens that planet's own fly-down from the same distance, and Esc returns to the grid.
 76. **Set 4 approved:** "okay marked em all they look good". All 9 planets and giants are keepers (picks.txt).
+77. "only keep the keeps on all the images and stuff weve taken and push with out all the dead weight of failures". Changes:
+    - All test pictures were deleted.
+    - The RimWorld-like and Stardew-like styles were removed from the code, including the shader and the sample grids. Sets 1 and 2 now show one Populous-like view per row.
+    - The old dotted-planet code was removed.
+    - Only the keepers were pictured again, into `docs/samples/`, then pushed.

@@ -1,5 +1,5 @@
-// DNA-AND · shell · the live sample viewer: 3 examples (rows) x 3 styles (columns), moving and rotatable.
-// Set 1: galaxies. Styles: RimWorld-like (flat, top-down), Populous-like (low-poly, tilted 3D), Stardew-like (pixel).
+// DNA-AND · shell · the live sample viewer: each sample set shown moving, with keepers marked from the menu.
+// Sample sets, each opened on its own: 1 galaxies, 2 solar systems, 3 stars, 4 planets. All in the game's style (Populous-like).
 using System;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
@@ -20,7 +20,7 @@ namespace DnaAnd.Shell
         private float _yaw, _zoom = 1f;
         public int Set { get; private set; }
         private readonly bool[,] _marks = new bool[5, 9];   // [set, row*3+col]: the samples marked good
-        private static readonly string[] StyleNames = { "RimWorld-like", "Populous-like", "Stardew-like" };
+        private static readonly string[] StyleNames = { "", "Populous-like", "" };   // only the middle place is used: the earlier picks were made there
         private const int FrameDots = 48;
         private UploadBuffer _frameBuf;
         private readonly StarVertex[] _frameVerts = new StarVertex[9 * 4 * FrameDots];
@@ -34,7 +34,7 @@ namespace DnaAnd.Shell
         private readonly int[] _sysCount = new int[3];
         private readonly int[] _focus = { -1, -1, -1 };              // per solar system: the body the camera follows, -1 = the star
         private readonly StarVertex[][] _sysStaticShifted = new StarVertex[3][];
-        private readonly Mat4[,] _tileVp = new Mat4[3, 3];
+        private readonly Mat4[] _tileVp = new Mat4[3];
         private float _sysZoom = 1f;
         // set 3: nine kinds of star up close, all in the locked Populous-like style
         private static readonly string[] StarIds = { "g-type", "m-type", "o-type", "red-giant", "red-supergiant", "blue-supergiant", "white-dwarf", "pulsar", "brown-dwarf" };
@@ -62,10 +62,10 @@ namespace DnaAnd.Shell
                 if (Set == 3)
                     return "DNA-AND samples · Set 3: Stars (Populous-like) · see the Legend menu for which star is which · right-click marks a keeper";
                 if (Set == 2)
-                    return "DNA-AND samples · Set 2: Solar systems · rows: " + string.Join(", ", _systemNames) +
-                           " · columns: RimWorld-like, Populous-like, Stardew-like · right-click marks a good one · [ and ] switch set";
-                return "DNA-AND samples · Set 1: Galaxies (locked: Populous-like) · rows: " + string.Join(", ", _typeNames) +
-                       " · click a galaxy to zoom deep into it, right-click marks a good one, [ and ] switch set";
+                    return "DNA-AND samples · Set 2: Solar systems (Populous-like) · rows: " + string.Join(", ", _systemNames) +
+                           " · click a planet to follow it, wheel to zoom · right-click marks a keeper";
+                return "DNA-AND samples · Set 1: Galaxies (Populous-like) · rows: " + string.Join(", ", _typeNames) +
+                       " · click a galaxy to zoom deep into it · right-click marks a keeper";
             }
         }
 
@@ -117,12 +117,11 @@ namespace DnaAnd.Shell
             }
             for (int i = 0; i < 9; i++)
             {
-                PlanetSurface surf;
-                StarVertex[] v = PlanetGen.Build(content, PlanetIds[i], seed * 37UL + (ulong)i, out _planetNames[i], out surf);
+                PlanetRings surf = PlanetGen.Build(content, PlanetIds[i], seed * 37UL + (ulong)i, out _planetNames[i]);
                 _terrains[i] = new PlanetTerrain(gpu.Device, PlanetIds[i], _planetNames[i], (uint)(seed * 41UL + (ulong)i));
                 // the rings, scaled to the planet's real size in km (the air is now drawn as a glowing shell by the planet itself)
                 var all = new System.Collections.Generic.List<StarVertex>();
-                for (int k = 0; k < surf.Rings.Count; k++) all.Add(SpaceGen.Star(surf.Rings[k], 0.02f, 0.85f, 0.78f, 0.62f, surf.RingShade[k]));
+                for (int k = 0; k < surf.Points.Count; k++) all.Add(SpaceGen.Star(surf.Points[k], 0.02f, 0.85f, 0.78f, 0.62f, surf.Shade[k]));
                 float R = (float)_terrains[i].Radius;
                 var arr = all.ToArray();
                 for (int k = 0; k < arr.Length; k++) { arr[k].X *= R; arr[k].Y *= R; arr[k].Z *= R; arr[k].Size *= R; }
@@ -154,34 +153,24 @@ namespace DnaAnd.Shell
             if (Set == 2) { DrawSystems(width, height, time); DrawMarks(width, height); return; }
             if (Set == 3) { DrawStars(width, height, time); DrawMarks(width, height); return; }
             if (Set == 4) { DrawPlanets(width, height, time); DrawMarks(width, height); return; }
-            int tileW = width / 3, tileH = height / 3;
+            int tileH = height / 3;
             for (int row = 0; row < 3; row++)
-                for (int col = 0; col < 3; col++)
-                {
-                    int x = col * tileW, y = row * tileH;
-                    float pitch = col == 1 ? 0.55f : 1.45f;                // Populous-like is tilted 3D; the others look down
-                    float dist = 2.3f / _zoom;
-                    var eye = new Vec3((float)(Math.Cos(_yaw) * Math.Cos(pitch)) * dist, (float)Math.Sin(pitch) * dist, (float)(Math.Sin(_yaw) * Math.Cos(pitch)) * dist);
-                    Mat4 view = Mat4.LookAt(eye, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
-                    Mat4 proj = Mat4.Perspective(0.9f, tileW / (float)Math.Max(1, tileH), 0.01f, 50f);
-                    Mat4 vp = view * proj;
-                    var right = new Vec3(view.M11, view.M21, view.M31);
-                    var up = new Vec3(view.M12, view.M22, view.M32);
-                    float style = col + 1;                                  // 1 flat, 2 low-poly, 3 pixel
-                    float sizeScale = col == 2 ? 0.010f : col == 1 ? 0.008f : 0.0055f;
-                    var c = new float[BillboardPipeline.ConstantCount];
-                    Pack(c, vp);
-                    c[16] = right.X; c[17] = right.Y; c[18] = right.Z;
-                    c[20] = up.X; c[21] = up.Y; c[22] = up.Z;
-                    c[24] = (float)time; c[25] = sizeScale / _zoom * 1.0f; c[26] = style; c[27] = 4f;
-                    c[28] = tileW; c[29] = tileH;
-                    _drawer.Draw(_buffers[row], StarsPerGalaxy, c, x, y, tileW, tileH);
-                }
+            {
+                int y = row * tileH;
+                float pitch = 0.55f, dist = 2.3f / _zoom;                 // tilted 3D, the game's style
+                var eye = new Vec3((float)(Math.Cos(_yaw) * Math.Cos(pitch)) * dist, (float)Math.Sin(pitch) * dist, (float)(Math.Sin(_yaw) * Math.Cos(pitch)) * dist);
+                Mat4 view = Mat4.LookAt(eye, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
+                Mat4 vp = view * Mat4.Perspective(0.9f, width / (float)Math.Max(1, tileH), 0.01f, 50f);
+                var right = new Vec3(view.M11, view.M21, view.M31);
+                var up = new Vec3(view.M12, view.M22, view.M32);
+                DrawTile(_buffers[row], StarsPerGalaxy, vp, right, up, 0.008f / _zoom, 0f, 2f, 0, y, width, tileH, time);
+            }
+            DrawMarks(width, height);
         }
 
         private void DrawSystems(int width, int height, double time)
         {
-            int tileW = width / 3, tileH = height / 3;
+            int tileH = height / 3;
             for (int row = 0; row < 3; row++)
             {
                 var sys = _systems[row];
@@ -201,17 +190,15 @@ namespace DnaAnd.Shell
                 // closest the camera may come: a few radii from the followed body
                 double nearest = (_focus[row] >= 0 ? sys.Bodies[_focus[row]].RadiusUnits : sys.StarRadius) * scale * 4;
                 double dist = Math.Max(nearest, 2.6 / _sysZoom);
-                for (int col = 0; col < 3; col++)
                 {
-                    float pitch = col == 1 ? 0.55f : 1.45f;
+                    float pitch = 0.55f;
                     var eye = new Vec3((float)(Math.Cos(_yaw) * Math.Cos(pitch) * dist), (float)(Math.Sin(pitch) * dist), (float)(Math.Sin(_yaw) * Math.Cos(pitch) * dist));
                     Mat4 view = Mat4.LookAt(eye, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
-                    Mat4 vp = view * Mat4.Perspective(0.9f, tileW / (float)Math.Max(1, tileH), (float)(dist * 1e-3), (float)(dist * 1e4));
-                    _tileVp[row, col] = vp;
+                    Mat4 vp = view * Mat4.Perspective(0.9f, width / (float)Math.Max(1, tileH), (float)(dist * 1e-3), (float)(dist * 1e4));
+                    _tileVp[row] = vp;
                     var right = new Vec3(view.M11, view.M21, view.M31); var up = new Vec3(view.M12, view.M22, view.M32);
-                    float style = col + 1;
-                    DrawTile(_sysStatic[row], st.Length, vp, right, up, 0f, 0.0025f, style, col * tileW, row * tileH, tileW, tileH, time);
-                    DrawTile(_sysBodies[row], _sysCount[row], vp, right, up, 1f, col == 2 ? 0.012f : 0.008f, style, col * tileW, row * tileH, tileW, tileH, time);
+                    DrawTile(_sysStatic[row], st.Length, vp, right, up, 0f, 0.0025f, 2f, 0, row * tileH, width, tileH, time);
+                    DrawTile(_sysBodies[row], _sysCount[row], vp, right, up, 1f, 0.008f, 2f, 0, row * tileH, width, tileH, time);
                 }
             }
         }
@@ -220,10 +207,10 @@ namespace DnaAnd.Shell
         /// clicking empty space far from any body goes back to the star.</summary>
         public void PickFocus(int x, int y, int width, int height)
         {
-            int tileW = Math.Max(1, width / 3), tileH = Math.Max(1, height / 3);
-            int col = Math.Max(0, Math.Min(2, x / tileW)), row = RowAt(y, height);
-            float mx = (x - col * tileW) / (float)tileW * 2f - 1f, my = 1f - (y - row * tileH) / (float)tileH * 2f;
-            Mat4 m = _tileVp[row, col];
+            int tileH = Math.Max(1, height / 3);
+            int row = RowAt(y, height);
+            float mx = x / (float)Math.Max(1, width) * 2f - 1f, my = 1f - (y - row * tileH) / (float)tileH * 2f;
+            Mat4 m = _tileVp[row];
             int best = -1; float bestD = 0.08f;                       // must be within this distance on screen
             for (int i = 0; i < _systems[row].Bodies.Count; i++)
             {
@@ -303,22 +290,33 @@ namespace DnaAnd.Shell
         /// <summary>Right-click: marks or unmarks the sample under the mouse as a good one, and saves the marks.</summary>
         public void ToggleMark(int x, int y, int width, int height)
         {
-            int col = Math.Max(0, Math.Min(2, x / Math.Max(1, width / 3)));
+            int col = Set <= 2 ? 1 : Math.Max(0, Math.Min(2, x / Math.Max(1, width / 3)));
             int i = RowAt(y, height) * 3 + col;
             _marks[Set, i] = !_marks[Set, i];
             SaveMarks();
         }
 
-        public void ToggleMark(int i) { _marks[Set, i] = !_marks[Set, i]; SaveMarks(); }
+        /// <summary>From the Keepers menu: item <paramref name="item"/> (sets 1 and 2 list one item per row).</summary>
+        public void ToggleMark(int item) { int i = Set <= 2 ? item * 3 + 1 : item; if (i > 8) return; _marks[Set, i] = !_marks[Set, i]; SaveMarks(); }
 
         public string[] KeeperLabels()
         {
             var l = new string[9];
+            if (Set <= 2)
+            {
+                var rows = new string[3];
+                for (int r = 0; r < 3; r++) rows[r] = "Row " + (r + 1) + ": " + RowName(Set, r);
+                return rows;
+            }
             for (int i = 0; i < 9; i++) l[i] = Set >= 3 ? "Row " + (i / 3 + 1) + ", column " + (i % 3 + 1) + ": " + (Set == 3 ? _starNames[i] : _planetNames[i]) : "Row " + (i / 3 + 1) + ": " + RowName(Set, i / 3) + "  ·  column " + (i % 3 + 1) + ": " + StyleNames[i % 3];
             return l;
         }
 
-        public bool[] KeeperTicks() { var t = new bool[9]; for (int i = 0; i < 9; i++) t[i] = _marks[Set, i]; return t; }
+        public bool[] KeeperTicks()
+        {
+            if (Set <= 2) { var r = new bool[3]; for (int k = 0; k < 3; k++) r[k] = _marks[Set, k * 3 + 1]; return r; }
+            var t = new bool[9]; for (int i = 0; i < 9; i++) t[i] = _marks[Set, i]; return t;
+        }
 
         public string Legend()
         {
@@ -330,11 +328,10 @@ namespace DnaAnd.Shell
                 st.Append("\nControls:\n  Right-click a sample: mark or unmark it as a keeper (green frame)\n  Keepers menu: the same, with tick boxes\n  Mouse wheel: zoom\n  Exit menu or Esc: close the game\n\nKeepers are saved in picks.txt in the game folder.");
                 return st.ToString();
             }
-            string what = Set == 2 ? "Set 2 of 17: solar systems" : "Set 1 of 17: galaxies (locked: column 2, Populous-like)";
+            string what = Set == 2 ? "Set 2 of 17: solar systems" : "Set 1 of 17: galaxies";
             var sb = new System.Text.StringBuilder(what + "\n\nRows (top to bottom):\n");
             for (int r = 0; r < 3; r++) sb.Append("  " + (r + 1) + ". " + RowName(Set, r) + "\n");
-            sb.Append("\nColumns (left to right):\n");
-            for (int c = 0; c < 3; c++) sb.Append("  " + (c + 1) + ". " + StyleNames[c] + "\n");
+            sb.Append("\nAll in the game's style (Populous-like).\n");
             sb.Append("\nControls:\n  Right-click a sample: mark or unmark it as a keeper (green frame)\n  Keepers menu: the same, with tick boxes\n");
             if (Set == 1) sb.Append("  Left-click a galaxy: zoom deep into it (Esc or right-click to come back)\n");
             if (Set == 2) sb.Append("  Left-click a planet: the camera follows it; then the mouse wheel zooms all the way in to it\n  Left-click empty space: back to the star\n");
@@ -392,6 +389,7 @@ namespace DnaAnd.Shell
             {
                 if (!_marks[Set, i]) continue;
                 float x0 = -1f + (i % 3) * 2f / 3f, x1 = x0 + 2f / 3f, y0 = 1f - (i / 3) * 2f / 3f, y1 = y0 - 2f / 3f;
+                if (Set <= 2) { x0 = -1f; x1 = 1f; }            // one wide sample per row
                 const float inset = 0.012f;
                 x0 += inset; x1 -= inset; y0 -= inset * 1.6f; y1 += inset * 1.6f;
                 for (int k = 0; k < FrameDots; k++)

@@ -16,7 +16,7 @@ Content is **what the live generators work from**. It is never a finished asset 
 | 📏 **Ranges** | The limits a generator may vary within | Surface temperature 30,000–50,000 K |
 | 🧩 **Parts** | Building blocks a generator combines | Leg, wing, eye, dome, spire, hull |
 | 📐 **Rules** | How the generator puts parts together | Insect species build with segments and hex cells |
-| 🎨 **Style hooks** | Per-style values for the 3 sample styles | RimWorld-like, Populous-like, Stardew-like |
+| 🎨 **Style hooks** | Values for the game's one art style | Populous-like (locked) |
 
 ---
 

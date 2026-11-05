@@ -44,7 +44,6 @@ namespace DnaAnd.Gen
         /// <summary>The size (km) of the finest ground piece ready under the camera. The camera may not go lower
         /// than a few of its steps, so it always lands on finished ground and never inside a rough early piece.</summary>
         public double ReadyStep { get; private set; }
-        public string Debug = "";
         private readonly StarVertex[] _scratch = new StarVertex[Grid * Grid * 6 + 4 * Grid * 6];
         private readonly double[] _hx = new double[(Grid + 1) * (Grid + 1)], _hy = new double[(Grid + 1) * (Grid + 1)], _hz = new double[(Grid + 1) * (Grid + 1)];
         private readonly double[] _hh = new double[(Grid + 1) * (Grid + 1)];
@@ -474,9 +473,7 @@ namespace DnaAnd.Gen
             ReadyStep = double.MaxValue;
             float lx = (float)StarDir[0], ly = (float)StarDir[1], lz = (float)StarDir[2];
             // the ground (and the sea floor)
-            _dbgN = 0; _dbgMax = 0; _dbgNearD = 1e30; _dbgNearL = -1;
             Collect(Ground, camX, camY, camZ, splitFactor);
-            Debug = "pieces " + _dbgN + " deepest " + _dbgMax + " nearest level " + _dbgNearL + " at " + _dbgNearD.ToString("0.000000") + " km, cached " + _cache.Count;
             DrawList(pipes.Solid, 0, camX, camY, camZ, Mat4.Identity, viewRot, proj, lx, ly, lz, fogDist, fr, fg, fb, x, y, w, h);
             // the sea surface: see-through, with glints of starlight
             if (HasWater)
@@ -577,7 +574,6 @@ namespace DnaAnd.Gen
         }
 
         private readonly List<Patch> _drawList = new List<Patch>();
-        private int _dbgN, _dbgMax, _dbgNearL; private double _dbgNearD;
 
         private void Visit(int layer, int f, int level, long i, long j, double camX, double camY, double camZ, double splitFactor)
         {
@@ -617,7 +613,6 @@ namespace DnaAnd.Gen
                 double sz = 2.0 / Math.Pow(2, level), s0 = -1 + i * sz, t0 = -1 + j * sz;
                 if (_camS >= s0 && _camS <= s0 + sz && _camT >= t0 && _camT <= t0 + sz) ReadyStep = p.Edge / Grid;
             }
-            if (layer == Ground) { _dbgN++; if (level > _dbgMax) _dbgMax = level; if (dist < _dbgNearD) { _dbgNearD = dist; _dbgNearL = level; } }
             _drawList.Add(p);
         }
 
