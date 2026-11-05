@@ -75,7 +75,7 @@ namespace DnaAnd.Shell
         /// <summary>Returns false when the player wants to go back to the sample grid.</summary>
         public bool Update(Input input, double dt, int w, int h)
         {
-            if (input.WasPressed(0x08)) return false;                                // Backspace: back to samples
+            if (input.WasPressed(0x08) || input.WasPressed(0x1B) || input.RightClicked) return false; // Backspace, Esc or right-click: back to samples
             if (input.LeftDown) { _yaw += input.MouseDX * 0.006f; _pitch = Math.Max(-1.5f, Math.Min(1.5f, _pitch + input.MouseDY * 0.006f)); }
             if (input.Wheel != 0) _dist *= Math.Pow(0.82, input.Wheel);
             double minDist = _focusStar >= 0 ? _system.StarRadius * 1.5 : _bh.HorizonUnits * 3;
@@ -218,7 +218,7 @@ namespace DnaAnd.Shell
                         _bh.MassSol, _bh.Active ? ", feeding (jets on)" : ", quiet", _clusters, _nebulas)
                     : string.Format("focus: {0} star · {1} planets · frost line {2:0.0} au · habitable zone {3:0.00} au",
                         _system.StarName, _system.Planets, _system.FrostLineAu, _system.HabitableAu);
-                return string.Format("DNA-AND deep zoom · {0} · view {1} across · {2} · time {3} · wheel zoom, drag rotate, Enter visit middle star, H core, 1-5 speed, Space pause, Backspace back",
+                return string.Format("DNA-AND deep zoom · {0} · view {1} across · {2} · time {3} · wheel zoom, drag rotate, Enter visit middle star, H core, 1-5 speed, Space pause, Esc or right-click = back",
                     _name, Units.Describe(_dist * 1.0), focus, _paused ? "paused" : _speed.ToString("N0") + "x");
             }
         }

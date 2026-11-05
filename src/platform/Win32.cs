@@ -19,6 +19,8 @@ namespace DnaAnd.Platform
         public const uint CS_HREDRAW = 0x0002;
         public const uint CS_VREDRAW = 0x0001;
         public const uint WM_SIZE = 0x0005;
+        public const uint WM_ENTERSIZEMOVE = 0x0231;
+        public const uint WM_EXITSIZEMOVE = 0x0232;
         public const uint WM_KEYDOWN = 0x0100;
         public const uint WM_KEYUP = 0x0101;
         public const uint WM_SYSKEYDOWN = 0x0104;
