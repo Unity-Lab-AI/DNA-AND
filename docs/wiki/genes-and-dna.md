@@ -17,7 +17,7 @@ Every living thing in DNA-AND carries a real-style [genome](glossary.md#genome "
 | 🟩 **G** | Guanine |
 | 🟨 **T** | Thymine |
 
-That DNA builds the body **and** the behavior. Nothing is hand-made — every creature is what its genes say it is.
+That DNA builds the body **and** the behavior. Nothing is hand-made: the game's creature generator builds each body **live**, straight from its genes, so every creature is exactly what its genes say it is.
 
 <!-- IMG: docs/img/dna-helix.png | A glowing double helix unwinding into a strip of colored A, C, G, T letters -->
 > 🖼️ *A genome unwinding into its letters* — rendered by the game's own 3D generator

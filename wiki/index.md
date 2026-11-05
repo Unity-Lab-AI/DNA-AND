@@ -9,6 +9,7 @@ How the game gets built, system by system, all from scratch. 🟡 = draft (plan 
 | 🟡 | [R2 · Windows layer](systems/r02-windows-layer.md "Talking to Windows directly") | Window, input, sound, files, clock, threads, network |
 | 🟡 | [R3 · Engine core](systems/r03-engine-core.md "Math, memory, giant arrays, threads, saves") | The base every system sits on |
 | 🟡 | [R4 · Renderer](systems/r04-renderer.md "AAA 3D graphics from scratch") | Graphics, zoom from microbe to galaxy, the 3D image generator |
+| 🟡 | [R4.4 · Live generators](systems/r04b-generators.md "Every asset built on the fly, nothing pre-built") | Creature, city, space tech and 11 more generators |
 | 🟡 | [R4.5 · Style samples](systems/r04-renderer.md#-style-samples-come-first "3 samples × 3 styles before any style is locked") | RimWorld-like, Populous-like, Stardew-like samples, light on the GPU |
 
 ## 🌌 The world

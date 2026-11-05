@@ -65,6 +65,7 @@ One folder per roadmap system:
 | `src/platform/` | Talking to Windows |
 | `src/core/` | Math, memory, arrays, jobs, saves |
 | `src/render/` | Graphics + the 3D image generator |
+| `src/gen/` | The live generators: creature, city, space tech and the rest |
 | `src/universe/` · `src/planet/` | Galaxies → planets |
 | `src/genome/` · `src/life/` | DNA → living things |
 | `src/civ/` · `src/space/` | Civilization → space |

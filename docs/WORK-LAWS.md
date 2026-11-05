@@ -2,7 +2,7 @@
 
 > "we havent done any code yet and are still do ing docs and making the work laws to use the fucking docs to write code when we do write code"
 
-These laws are binding for **every** piece of DNA-AND work: every code task, every doc change, every person, and every AI session. The docs are written first, and the code follows them.
+These 14 laws are binding for **every** piece of DNA-AND work: every code task, every doc change, every person, and every AI session. The docs are written first, and the code follows them.
 
 ---
 
@@ -61,6 +61,11 @@ Before every push:
 
 ### LAW 13 · Review gates
 Big phases end with a `/super-review` and a `/unity` check that everything the creator said is in the TODO and docs. The next phase only starts after both pass.
+
+### LAW 14 · No pre-built assets
+> "and what about haveing a "crature" city" space tech" generator for everything full on like array dynamic content generation on the fly in the game so we dont pre build and assets but the games program builds them as they get living"
+
+No model, texture, sprite or sound is ever made by hand or shipped pre-made. The game's generators build every asset live from data. See `wiki/systems/r04b-generators.md`.
 
 ---
 
