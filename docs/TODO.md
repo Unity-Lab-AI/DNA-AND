@@ -51,6 +51,8 @@ Order: galactic scale down, the same order as the sample sets.
 - [x] Content: Galaxy layouts (seeds, ranges, parts, rules) in `content/` · `content/galaxies.dnat`: 20 types, 4 real examples, 10 parts, 6 structures, 10 rules. Galaxy sizes decided: 100 / 500 / 2,000 / 10,000 systems
 - [~] Content: Solar system layouts (seeds, ranges, parts, rules) in `content/` · `content/solar-systems.dnat`: 14 kinds, 4 real examples, 10 zones, 10 rules
 - [~] Content: Stars (seeds, ranges, parts, rules) in `content/` · `content/stars.dnat` started: 20 real seeds, 5 rules
+- [x] Content: Black holes and quasars in `content/black-holes.dnat`, researched: "dont forget black holes and quasars,, i think maybe you need to research topics as you are leaving out all kinds of thhigns maybe make that a rule"
+- [x] Re-research the files written before LAW 16 (stars, galaxies, solar systems) and add anything missing. Added: 7 luminosity classes, 7 star types, 7 galaxy types and a rule, 1 system type, 2 zones and 2 rules
 - [ ] Content: Planets (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Gas giants (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Moons (seeds, ranges, parts, rules) in `content/`

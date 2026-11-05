@@ -1,4 +1,5 @@
 # DNA-AND content · stars
+# researched: Wikipedia "Stellar classification" (Morgan–Keenan system, luminosity classes, extended classes C, S, L, T, Y, D)
 # Real seeds for the star generator, plus its rules.
 # Values are typical ranges from real astronomy. Spec: docs/CONTENT-FORMAT.md
 
@@ -176,6 +177,82 @@ name: Cepheid variable
 real: yes
 stage: a giant that swells and shrinks on a steady beat
 tags: pulsing, variable
+
+# ── Luminosity classes (how bright for its type) ──
+
+@class hypergiant
+name: Hypergiant (class 0 / Ia+)
+real: yes
+says: the brightest, heaviest stars, losing mass in huge winds
+example: Eta Carinae
+
+@class supergiant
+name: Supergiant (class I)
+real: yes
+says: enormous, very bright stars near the end of their lives
+
+@class bright-giant
+name: Bright giant (class II)
+real: yes
+says: between giants and supergiants
+
+@class giant
+name: Giant (class III)
+real: yes
+example: Arcturus
+
+@class subgiant
+name: Subgiant (class IV)
+real: yes
+says: a star just starting to swell into a giant
+
+@class main-sequence
+name: Main-sequence star (class V)
+real: yes
+says: a star steadily burning hydrogen, like the Sun
+
+@class subdwarf
+name: Subdwarf (class VI)
+real: yes
+says: dimmer than a main-sequence star of the same color
+
+# ── Extra star types ──
+
+@star carbon-star
+name: Carbon star (class C)
+real: yes
+color: deep red
+says: a cool giant whose air is rich in carbon
+
+@star s-type
+name: S-type star
+real: yes
+says: a cool giant between ordinary red giants and carbon stars
+
+@star l-dwarf
+name: L-type brown dwarf
+real: yes
+says: the warmest brown dwarfs, with metal-hydride clouds
+
+@star t-dwarf
+name: T-type brown dwarf
+real: yes
+says: cooler brown dwarfs with methane in their air
+
+@star y-dwarf
+name: Y-type brown dwarf
+real: yes
+says: the coldest brown dwarfs, barely warmer than a planet
+
+@star rr-lyrae
+name: RR Lyrae variable
+real: yes
+says: an old pulsing star that brightens and dims in less than a day
+
+@star mira
+name: Mira variable
+real: yes
+says: a pulsing red giant that brightens and dims over months
 
 # ── Generator rules ──
 
