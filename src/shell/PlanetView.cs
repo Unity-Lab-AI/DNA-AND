@@ -227,7 +227,20 @@ namespace DnaAnd.Shell
             _time += dt;
             if (input.WasPressed(Win32.VK_ESCAPE) || input.WasPressed(0x08)) return false;   // only Esc or Backspace leave; a mouse click never does
             if (input.WasPressed(0x52) && _terrain.Solid && !_terrain.Shell) _terrain = _terrain == _normal ? _fields : _normal;     // R: resource view on or off
-            if (input.WasPressed(0x43) && _terrain.Shell && _terrain.Habitable) _centre = !_centre;                  // C: the view from the middle
+            // I: in or out through the hull, from anywhere (even the view from the middle)
+            if (input.WasPressed(0x49) && _terrain.Shell && _terrain.Habitable)
+            {
+                if (_inside || _centre)
+                {
+                    // out: come out right above where you were inside
+                    if (_flyReady) { double rr = Math.Sqrt(_px * _px + _py * _py + _pz * _pz); _lat = Math.Asin(_py / rr); _lon = Math.Atan2(_pz, _px); }
+                    _inside = false; _centre = false; _alt = 2000;
+                }
+                else { _inside = true; _terrain.StartPoint(out _lat, out _lon); _flyReady = false; _alt = 30; }
+                return true;
+            }
+            // C: the view from the middle, and C again goes back to where you were
+            if (input.WasPressed(0x43) && _terrain.Shell && _terrain.Habitable) { _centre = !_centre; if (!_centre && !_inside) { _inside = true; _flyReady = false; } return true; }
             if (_centre)
             {
                 // no automatic turning: only dragging turns the view
@@ -243,13 +256,7 @@ namespace DnaAnd.Shell
                 }
                 else return true;
             }
-            if (_inside && !_centre && !input.WasPressed(0x49) && !input.WasPressed(0x43)) return Fly(input, dt);
-            if (input.WasPressed(0x49) && _terrain.Shell && _terrain.Habitable)                                       // I: go through the hull, in or out
-            {
-                _inside = !_inside;
-                _alt = _inside ? 30 : 2000;
-                if (_inside) { _terrain.StartPoint(out _lat, out _lon); _flyReady = false; }       // come in over dry land
-            }
+            if (_inside && !_centre) return Fly(input, dt);
             if (input.WasPressed(0x4E) && _terrain.Solid) JumpToNextField();                                       // N: go to the next kind of field
             double maxAlt = _inside ? _terrain.Radius * 0.95 : _terrain.Radius * 4;     // inside, you can rise almost to the star
             double perNotch = _inside && _alt > 10 ? 0.4 : 0.7;      // inside a sphere the heights are huge: bigger steps down
