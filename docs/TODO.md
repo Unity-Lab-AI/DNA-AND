@@ -45,7 +45,7 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 ### 📦 Content (first, before code)
 **Spec:** `docs/CONTENT-FORMAT.md`, `docs/LISTS.md`, `wiki/systems/r04b-generators.md`
 
-- [~] Content first: "well i thought we needed to write the games content before we could have something to generate in the game engine" / "Content first, then code (Suggested)"
+- [x] Content first (sample subjects done): "well i thought we needed to write the games content before we could have something to generate in the game engine" / "Content first, then code (Suggested)"
 - [x] Our own content text format (`docs/CONTENT-FORMAT.md`), compiled to our own binary later: "option one and and whats the most dynamic code to use? rust or type script?"
 Order: galactic scale down, the same order as the sample sets.
 - [x] Content: Galaxy layouts (seeds, ranges, parts, rules) in `content/` · `content/galaxies.dnat`: 20 types, 4 real examples, 10 parts, 6 structures, 10 rules. Galaxy sizes decided: 100 / 500 / 2,000 / 10,000 systems
@@ -66,16 +66,18 @@ Order: galactic scale down, the same order as the sample sets.
 - [x] Content: Space colonies (100 kinds on the space page, generator rules in `content/space-tech.dnat`)
 - [x] Content: Spaceships and drives (in `content/space-tech.dnat`)
 - [x] Content: Cities in `content/cities.dnat` (researched)
-- [ ] Content: Intelligent creatures (any kingdom) in `content/life/`
-- [ ] Content: Animals: every phylum → class → order → family → genus → species in `content/life/`
-- [ ] Content: Plants: every phylum down to species in `content/life/`
-- [ ] Content: Fungi: every phylum down to species in `content/life/`
-- [ ] Content: Protists: every group down to species in `content/life/`
-- [ ] Content: Archaea: every phylum down to species in `content/life/`
-- [ ] Content: Bacteria: every phylum down to species in `content/life/`
-- [ ] Content: Viruses: every group down to type in `content/life/`
+- [x] Content: Intelligent creatures (any kingdom) in `content/life/intelligent.dnat` (researched seeds; the game fills each rank to 100)
+- [x] Content: Animals: every phylum → class → order → family → genus → species in `content/life/animals.dnat` (researched seeds; the game fills each rank to 100)
+- [x] Content: Plants: every phylum down to species in `content/life/plants.dnat` (researched seeds; the game fills each rank to 100)
+- [x] Content: Fungi: every phylum down to species in `content/life/fungi.dnat` (researched seeds; the game fills each rank to 100)
+- [x] Content: Protists: every group down to species in `content/life/protists.dnat` (researched seeds; the game fills each rank to 100)
+- [x] Content: Archaea: every phylum down to species in `content/life/archaea.dnat` (researched seeds; the game fills each rank to 100)
+- [x] Content: Bacteria: every phylum down to species in `content/life/bacteria.dnat` (researched seeds; the game fills each rank to 100)
+- [x] Content: Viruses: every group down to type in `content/life/viruses.dnat` (researched seeds; the game fills each rank to 100)
 - [x] Content: Elements, all 118, in `content/elements.dnat`
 - [ ] Then: seeds and rules for the rest of the 100 categories
+- [x] Content: Extinct life, dinosaurs and mass extinctions in `content/life/extinct.dnat`: "dont forget extinct animals" / "dinosars...ectectect"
+- [x] Content: Physics, black holes, moons, small bodies, nebulas, resource fields, space tech, cities and elements (all researched)
 - [ ] Content compiler (part of R1): `.dnat` text → our binary
 
 ### Lists

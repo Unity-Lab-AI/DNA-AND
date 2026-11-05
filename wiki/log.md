@@ -69,3 +69,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Physics
 
 - content/physics.dnat (researched): 4 forces, particles, atoms, planet interiors, tectonics, the dynamo, atmospheres. New public page forces-of-nature.md. r03 and r06 specs updated.
+
+## 2026-11-05 — Content for every sample subject
+
+- Researched content files: planets, gas giants, moons, small bodies, nebulas, resource fields, space tech, cities, elements (118), and life (viruses, bacteria, archaea, protists, fungi, plants, animals, extinct life, intelligent creatures).

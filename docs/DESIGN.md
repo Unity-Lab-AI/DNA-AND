@@ -500,3 +500,5 @@ Everything the creator has said about this project, in order. Short process repl
 45. "and make that a law and build it inbto the docs". Built into WORK-LAWS (LAW 15, plus the before-push check), the builder wiki rules (`wiki/CLAUDE.md`), the TODO docs upkeep and the ROADMAP docs stage.
 46. "dont forget black holes and quasars,, i think maybe you need to research topics as you are leaving out all kinds of thhigns maybe make that a rule". Added `content/black-holes.dnat` (researched) and LAW 16, research first.
 47. "dont forget the forces of nature weak and nuclear forces of atoms pysics electormagnatisim magma in plantes that arte tectonic with magnic fields and shit come one wwhat about gravity and atmosphers". Added `content/physics.dnat` (researched) and the public page `docs/wiki/forces-of-nature.md`.
+48. "okay hit it all in order and keep at it we dont have to push constantly we have local git so shit stop wasting some much time on house keeping but docs shall all ways saty uptoday and checked for stallness"
+49. "dont forget extinct animals" / "dinosars...ectectect". Added `content/life/extinct.dnat`.
