@@ -23,3 +23,9 @@ Once intelligent life reaches a planet, life can be planted there. The planet's 
 
 ## ⚔️ Meeting other civilizations
 Civilizations from different worlds can meet, trade or fight across solar systems and galaxies.
+
+## 📌 Decided specs (build from these)
+
+- World-condition matrix: 10 conditions × 10 levels, each needing its own tech, rated per species.
+- 100-step travel ladder up to hyperdrives and intergalactic travel.
+- 100 space resources and 100 kinds of colony (mining outposts, prison colonies and more), all built by the space-tech generator in the builder species' own image.

@@ -142,6 +142,7 @@ On top of the 100 categories, these also get a top 100 each: "every thing blows 
 | 100 soul sources | `docs/wiki/souls-and-harvesting.md` |
 | 100 grouping steps, 100 ways species mix | `docs/wiki/groups-and-flocking.md` |
 | 100 planet templates | `docs/wiki/planets-and-templates.md` |
+| 100 space objects, 100-cell world matrix, 100-step travel ladder, 100 space resources, 100 kinds of colony | `docs/wiki/space-and-dyson-spheres.md` |
 | 100 glossary terms | `docs/wiki/glossary.md` |
 | 100 FAQ questions | `docs/wiki/faq.md` |
 

@@ -53,7 +53,11 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] Content: Stars (seeds, ranges, parts, rules) in `content/` · `content/stars.dnat` started: 20 real seeds, 5 rules
 - [ ] Content: Planets (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Gas giants (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Moons (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Small bodies, belts and clouds: comets, asteroids, dwarf planets, Kuiper belt, Oort clouds (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Nebulas and gas clouds (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Resource fields (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Space resources and colonies (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Dyson spheres (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Space stations (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Space colonies (seeds, ranges, parts, rules) in `content/`
@@ -156,12 +160,12 @@ Order: galactic scale down, the same order as the sample sets.
 - [ ] Sample sets, galactic scale down, one set at a time, waiting for the creator's input before the next: "and when we do the dsamples we show the non headless and do them galactic scale down one set of samples at a time to take input before doing the next set"
   - Life sets follow the full tree (`docs/wiki/tree-of-life.md`): "and what the fuck we are still doing docs u ments as this:" ... Animals / Insects / Microbes and viruses ..." IS NOT ALL LIVING THINGS IN THE FULL KINDOM PHILUM CLASS GENIUS SPECIES and the full kindom thing in full"
   - [ ] Set 1: Galaxy layouts
-  - [ ] Set 2: Solar system layouts
+  - [ ] Set 2: Solar system layouts, with moons, asteroid belts, the Kuiper belt and Oort clouds
   - [ ] Set 3: Stars
   - [ ] Set 4: Planets and gas giants
   - [ ] Set 5: Resource fields
   - [ ] Set 6: Dyson spheres
-  - [ ] Set 7: Space stations, colonies and spaceships
+  - [ ] Set 7: Space stations, colonies (mining outposts, prison colonies and the rest), spaceships and hyperdrive ships
   - [ ] Set 8: Cities
   - [ ] Set 9: Intelligent creatures (any kingdom)
   - [ ] Set 10: Animals: every phylum, then its classes, orders, families, genera, species
@@ -263,6 +267,13 @@ Order: galactic scale down, the same order as the sample sets.
 
 ### R10 — Space
 **Spec:** `wiki/systems/r10-space.md`, `docs/wiki/space-and-dyson-spheres.md`
+
+- [ ] 100 kinds of space objects, generated live (Oort clouds, Kuiper belt, comets, asteroid belts, nebulas, moons and more): "remebr space has all kind sof things for ort clouds to comets and merots hitting planets and astorid belts and nebulas andplanets of all makes ups with temp ranges that need different techs and inter solarystem flt hyperdrives for glaaxy to galaxty ect ect all planed out in all docs"
+- [ ] Impacts: comets and meteorites hitting planets, 10 sizes
+- [ ] World-condition matrix: 10 conditions × 10 levels, each needing its own tech, per species
+- [ ] 100-step travel ladder: in-system flight → interstellar → hyperdrives → galaxy to galaxy
+- [ ] 100 space resources
+- [ ] 100 kinds of colony, including mining outposts and prison colonies: "resources and colinatzitions of other planets mining outsposert prison coloniers all of it"
 
 - [ ] Space travel and reaching other planets
 - [ ] Spreading life and colonies

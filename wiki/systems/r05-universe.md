@@ -25,3 +25,8 @@ You start on an Earth-template planet in a random solar system. Life reaches oth
 
 ## 🔁 Restart means a new universe
 > "open ended till u resarts to get a new world and galaxy"
+
+## 📌 Decided specs (build from these)
+
+- 100 space objects in 10 groups, including Oort clouds, the Kuiper belt, comets, asteroid belts and nebulas (`docs/wiki/space-and-dyson-spheres.md`).
+- Impacts in 10 sizes, from comets and meteorites out of Oort clouds, the Kuiper belt and asteroid belts.
