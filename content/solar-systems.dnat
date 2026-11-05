@@ -1,4 +1,5 @@
 # DNA-AND content · solar systems
+# researched: exoplanet architecture reviews (resonant chains: TRAPPIST-1, TOI-178); NASA Solar System overviews
 # Real seeds for the solar-system generator: kinds of systems, real examples,
 # the zones a system is built from, and the rules.
 # Distances in au (1 au = the Earth–Sun distance). Spec: docs/CONTENT-FORMAT.md · wiki/systems/r05-universe.md
@@ -175,6 +176,31 @@ says: spots ahead of and behind a planet in its orbit where rocks collect
 name: Ring zone
 real: yes
 says: close to a giant planet, where moons can't hold together and rings form
+
+@system resonant-chain
+name: Resonant-chain system
+real: yes
+shape: planets whose orbits lock together in a steady beat, each lap timed to the next
+example: TRAPPIST-1, TOI-178
+
+@zone detached
+name: Detached objects
+real: yes
+says: icy bodies on huge lonely orbits beyond the Kuiper belt
+example: Sedna
+
+@zone heliosphere
+name: Heliosphere
+real: yes
+says: the bubble the star's wind blows around the whole system; its edge is where interstellar space begins
+
+@rule system-resonance
+real: rule
+says: young planets often drift into locked resonant chains; most chains later break apart
+
+@rule system-hill-sphere
+real: rule
+says: a moon can only stay with a planet inside that planet's sphere of pull; too far out and the star takes it
 
 # ── Generator rules ──
 

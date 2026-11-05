@@ -61,3 +61,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Public docs law
 
 - LAW 15: public docs carry no work notes. Public docs cleaned, and the rule was added to wiki/CLAUDE.md, the TODO upkeep and the before-push check.
+
+## 2026-11-05 — Research first
+
+- LAW 16: research every topic before writing it. Added content/black-holes.dnat (researched). Re-researched stars, galaxies and solar systems, and filled the gaps.
