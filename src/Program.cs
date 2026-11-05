@@ -112,7 +112,8 @@ namespace DnaAnd
                 if (testAlt > 0) planet.SetAltitude(testAlt);
             }
             if (testPlanet >= 0) { planet = new PlanetView(gpu, meshes, pipeline, viewer.TerrainAt(testPlanet), viewer.FieldTerrainAt(testPlanet), viewer.Set == 5 || testFieldView); for (int k = 0; k < testJumps; k++) planet.JumpToNextField(); if (testAlt > 0) planet.SetAltitude(testAlt); }
-            if (journey) { deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(0), viewer.NameOf(0), Seed); if (Array.IndexOf(args, "--test-system") >= 0) deep.TestJourney(gpu.Width, gpu.Height); }
+            UniverseView universe = journey ? new UniverseView(gpu, pipeline, content, Seed) : null;
+            if (journey && Array.IndexOf(args, "--test-system") >= 0) { deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(0), viewer.NameOf(0), Seed); deep.TestJourney(gpu.Width, gpu.Height); }
             if (testDeep >= 0) deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(testDeep), viewer.NameOf(testDeep), Seed + (ulong)testDeep * 7919UL);
             while (window.Pump())
             {
@@ -155,7 +156,7 @@ namespace DnaAnd
                         if (viewer.Set == 6) window.Close();          // the Dyson sphere is the whole set: leaving it closes the sample
                         else { planet.Dispose(); planet = null; if (deep != null) deep.ReturnFromPlanet(); }   // the journey: back up to the solar system
                     } }
-                else if (deep == null)
+                else if (deep == null && universe == null)
                 {
                     viewer.Update(window.Input, clock.Delta);
                     if (window.Input.RightClicked) { viewer.ToggleMark(window.Input.MouseX, window.Input.MouseY, window.Width, window.Height); menuDirty = true; }
@@ -178,7 +179,24 @@ namespace DnaAnd
                         deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(row), viewer.NameOf(row), Seed + (ulong)row * 7919UL);
                     }
                 }
-                else if (!deep.Update(window.Input, clock.Delta, gpu.Width, gpu.Height)) { if (journey) window.Close(); else { deep.Dispose(); deep = null; } }
+                else if (deep == null && universe != null)
+                {
+                    // the start of the journey: the mix of galaxies; close enough to one, fly into it
+                    if (!universe.Update(window.Input, clock.Delta, gpu.Width, gpu.Height)) window.Close();
+                    else if (universe.HandOff >= 0)
+                    {
+                        var g = universe.Focus;
+                        deep = new DeepView(gpu, pipeline, content, g.Type, g.Name, g.Seed);
+                        deep.AimForJourney();
+                        universe.HandOff = -1;
+                    }
+                }
+                else if (!deep.Update(window.Input, clock.Delta, gpu.Width, gpu.Height))
+                {
+                    if (journey && deep.Ascend && universe != null) { deep.Dispose(); deep = null; universe.ReturnFromGalaxy(); }
+                    else if (journey) window.Close();
+                    else { deep.Dispose(); deep = null; }
+                }
                 else if (deep.HandOff >= 0)
                 {
                     // the journey: close enough to a planet, so fly down to it, carrying on from the same distance
@@ -196,6 +214,7 @@ namespace DnaAnd
                 if (microbes != null) microbes.Draw(gpu, gpu.Width, gpu.Height, clock.Total);
                 else if (elements != null) elements.Draw(gpu, gpu.Width, gpu.Height, clock.Total);
                 else if (planet != null) planet.Draw(gpu, gpu.Width, gpu.Height);
+                else if (deep == null && universe != null) universe.Draw(gpu.Width, gpu.Height, clock.Total);
                 else if (deep == null) viewer.Draw(gpu.Width, gpu.Height, clock.Total); else deep.Draw(gpu.Width, gpu.Height, clock.Total);
                 if (shotPath != null && clock.Total >= shotAt) { gpu.CaptureNext = shotPath; shotPath = null; }
                 if (tour != null && planet != null && tourStep < tour.Length * 2 && clock.Total >= 1.0 + tourStep * 3.0)
@@ -211,7 +230,7 @@ namespace DnaAnd
                 frames++; titleTimer += clock.Delta;
                 if (titleTimer >= 0.5)
                 {
-                    lastTitle = string.Format("{0} · {1:0} fps", microbes != null ? microbes.Title : elements != null ? elements.Title : planet != null ? planet.Title : deep == null ? viewer.Title : deep.Title, frames / titleTimer);
+                    lastTitle = string.Format("{0} · {1:0} fps", microbes != null ? microbes.Title : elements != null ? elements.Title : planet != null ? planet.Title : deep == null ? (universe != null ? universe.Title : viewer.Title) : deep.Title, frames / titleTimer);
                     window.SetTitle(string.Format("{0} · {1:0} fps", planet != null ? planet.Title : deep == null ? viewer.Title : deep.Title, frames / titleTimer));
                     titleTimer = 0; frames = 0;
                 }
@@ -221,6 +240,7 @@ namespace DnaAnd
             }
             if (deep != null) deep.Dispose();
             if (elements != null) elements.Dispose();
+            if (universe != null) universe.Dispose();
             if (microbes != null) microbes.Dispose();
             viewer.Dispose(); if (planet != null) planet.Dispose(); if (meshes != null) meshes.Dispose(); pipeline.Dispose(); gpu.Dispose();
             watchdog.Stop();

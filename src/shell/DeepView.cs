@@ -26,6 +26,45 @@ namespace DnaAnd.Shell
         private int _focusBody = -1;               // in a solar system: the planet or moon the camera is centred on (-1 = the star)
         /// <summary>Set when the camera has come close enough to a planet to fly down to it: the body's index (else -1).</summary>
         public int HandOff = -1;
+        /// <summary>Set when the player zooms out past the whole galaxy: back to the mix of galaxies.</summary>
+        public bool Ascend;
+        private int _pendingStar = -1;              // the journey: the star being flown toward, opened once close enough
+
+        /// <summary>The journey: aim at a Sun-like star out in the disc, so rolling the wheel in flies to it.</summary>
+        public void AimForJourney()
+        {
+            int best = -1; double bestScore = 1e9;
+            for (int i = 0; i < _stars.Length; i += 7)
+            {
+                double r = Math.Sqrt(_stars[i].X * _stars[i].X + _stars[i].Z * _stars[i].Z);
+                string k = _kindList[Math.Max(0, _kinds[i])].Id;
+                double score = Math.Abs(r - 0.55) + (k == "g-type" ? 0 : 1);
+                if (score < bestScore) { bestScore = score; best = i; }
+            }
+            if (best < 0) return;
+            _pendingStar = best;
+            SetFocus(_stars[best].X, _stars[best].Y, _stars[best].Z);
+            _dist = 3.5;
+        }
+
+        private void OpenStar(int best)
+        {
+            _focusStar = best; _pendingStar = -1;
+            StarKind kind = _kindList[Math.Max(0, _kinds[best])];
+            _system = SpaceGen.System(_content, kind, _seed * 31UL + (ulong)best); _focusBody = -1;
+            SetFocus(_stars[best].X, _stars[best].Y, _stars[best].Z);
+            if (_sysStatic != null) _sysStatic.Dispose();
+            _sysStatic = Upload(_system.Static);
+            if (_sysBodies != null) _sysBodies.Dispose();
+            _bodyVerts = new StarVertex[(_system.Bodies.Count + 1) * (1 + TrailPoints)];
+            _staticShifted = new StarVertex[_system.Static.Length];
+            _sysBodies = new UploadBuffer(_gpu.Device, (long)_bodyVerts.Length * Stride);
+            // and pick its Earth-like world (or its first planet), so rolling on in flies down to it
+            int pick = 0;
+            for (int i = 0; i < _system.Bodies.Count; i++) if (_system.Bodies[i].Parent < 0 && _system.Bodies[i].Kind == "Temperate world") { pick = i; break; }
+            PickBody(pick);
+            _dist = Math.Max(_dist, _system.Bodies[pick].RadiusUnits * 4000);
+        }
         public SpaceGen.StarSystem System { get { return _system; } }
         public ulong SystemSeed { get { return _seed * 31UL + (ulong)Math.Max(0, _focusStar); } }
         private double _fx, _fy, _fz;          // focus position in galaxy units (double)
@@ -85,8 +124,11 @@ namespace DnaAnd.Shell
             if (_system != null && input.WasPressed(0x09)) PickBody((_focusBody + 2) % (_system.Bodies.Count + 1) - 1);
             if (_system != null && input.LeftClicked) ClickBody(input.MouseX, input.MouseY, w, h);
             if (input.LeftDown) { _yaw += input.MouseDX * 0.006f; _pitch = Math.Max(-1.5f, Math.Min(1.5f, _pitch + input.MouseDY * 0.006f)); }
+            if (input.Wheel < 0 && _focusStar < 0 && _dist >= 3.99) { Ascend = true; return false; }     // out past the galaxy: back to the universe
+            if (input.Wheel < 0 && _focusStar >= 0 && _focusBody < 0 && _dist >= 3.99) { GoCore(); _dist = 3.9; return true; }   // out past the solar system: back to the whole galaxy
             if (input.Wheel != 0) _dist *= Math.Pow(0.82, input.Wheel);
-            double minDist = _focusStar >= 0 ? _system.StarRadius * 1.5 : _bh.HorizonUnits * 3;
+            if (_pendingStar >= 0 && _dist < 2e-6) OpenStar(_pendingStar);                 // close enough to the star: open its solar system
+            double minDist = _focusStar >= 0 ? _system.StarRadius * 1.5 : _pendingStar >= 0 ? 1e-6 : _bh.HorizonUnits * 3;
             if (_focusBody >= 0) minDist = _system.Bodies[_focusBody].RadiusUnits * 1.05;
             _dist = Math.Max(minDist, Math.Min(4.0, _dist));
             // close enough to a planet: hand over to the planet view, at the same distance
