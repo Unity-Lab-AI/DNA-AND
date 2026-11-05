@@ -1,5 +1,7 @@
 # 🐺 Groups & Flocking
 
+[🏠 Wiki home](README.md) · [📖 Glossary](glossary.md) · [❓ FAQ](faq.md)
+
 > *A wolf becomes a pack. A pack becomes a horde. A horde learns to think. And one day, wolves build cities.*
 
 <!-- IMG: docs/img/flocking-ladder.png | One wolf, then a pack, then a howling horde, then upright wolf-folk raising a stone village, left to right across a valley -->
@@ -172,4 +174,6 @@ Real life isn't tidy, and neither is DNA-AND. One species can use another **in e
 
 ---
 
-👉 Next: [Tree of Life](tree-of-life.md "Every species, in one circular family tree") · [Stages of Life](stages-of-life.md) · [Ages of Civilization](ages-of-civilization.md)
+## 🔗 See also
+
+[Tree of Life](tree-of-life.md "Circular family and gene trees of every species") · [Stages of Life](stages-of-life.md "100 stages, chemistry to the stars") · [Ages of Civilization](ages-of-civilization.md "100 ages, stone tools to intergalactic") · [Genes & DNA](genes-and-dna.md "How real-style genomes build life") · [Space & Dyson Spheres](space-and-dyson-spheres.md "Leaving home, Dyson spheres, galactic war") · [🏠 Wiki home](README.md)

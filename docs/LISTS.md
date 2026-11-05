@@ -4,6 +4,8 @@
 
 **Status: APPROVED** ("Use them as is"). Below are the 100 categories. Each one gets filled with its top 100 entries, real ones plus game-invented ones, for 10,000 entries in all. The categories you named yourself are marked ★.
 
+📖 Player wiki versions: [Elements](wiki/elements.md) · [Stages of Life](wiki/stages-of-life.md) · [Groups & Flocking](wiki/groups-and-flocking.md) · [Tree of Life](wiki/tree-of-life.md) · [God Powers](wiki/god-powers.md)
+
 ## Life
 1. ★ Virus types
 2. Bacteria types

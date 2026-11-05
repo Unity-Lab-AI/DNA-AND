@@ -9,6 +9,7 @@ How the game gets built, system by system, all from scratch. 🟡 = draft (plan 
 | 🟡 | [R2 · Windows layer](systems/r02-windows-layer.md "Talking to Windows directly") | Window, input, sound, files, clock, threads, network |
 | 🟡 | [R3 · Engine core](systems/r03-engine-core.md "Math, memory, giant arrays, threads, saves") | The base every system sits on |
 | 🟡 | [R4 · Renderer](systems/r04-renderer.md "AAA 3D graphics from scratch") | Graphics, zoom from microbe to galaxy, the 3D image generator |
+| 🟡 | [R4.5 · Style samples](systems/r04-renderer.md#-style-samples-come-first "3 samples × 3 styles before any style is locked") | RimWorld-like, Populous-like, Stardew-like samples, light on the GPU |
 
 ## 🌌 The world
 | | Page | What it covers |
@@ -20,8 +21,8 @@ How the game gets built, system by system, all from scratch. 🟡 = draft (plan 
 | | Page | What it covers |
 |---|---|---|
 | 🟡 | [R7 · Genome](systems/r07-genome.md "Real-style DNA") | DNA, mutation, breeding, viruses |
-| 🟡 | [R8 · Life sim](systems/r08-life-sim.md "Viruses to animals, grouped populations") | Ant-like creatures, populations, evolution |
-| 🟡 | [R9 · Civilization](systems/r09-civilization.md "Tribes, culture, politics, war, tech") | Intelligent life |
+| 🟡 | [R8 · Life sim](systems/r08-life-sim.md "Viruses to animals, grouped populations") | Layered selfish-gene mini AIs, 100-step grouping ladder, tree of life, populations, evolution |
+| 🟡 | [R9 · Civilization](systems/r09-civilization.md "Tribes, culture, politics, war, tech") | Intelligent life of any species, 100 ages, tech tree |
 | 🟡 | [R10 · Space](systems/r10-space.md "Travel, colonies, Dyson spheres") | Spreading across galaxies |
 
 ## 🎮 The game
@@ -37,6 +38,7 @@ How the game gets built, system by system, all from scratch. 🟡 = draft (plan 
 
 ## 📚 Related
 - [Design record](../docs/DESIGN.md "The creator's decisions, verbatim") · [Roadmap](../docs/ROADMAP.md) · [To-do](../docs/TODO.md)
+- Player wiki: [home](../docs/wiki/README.md) · [Groups & Flocking](../docs/wiki/groups-and-flocking.md) · [Tree of Life](../docs/wiki/tree-of-life.md)
 - [How to build](../docs/HOW-TO-BUILD.md) · [Setup](../docs/SETUP.md) · [Image slots](../docs/img/README.md)
 - [Open suggestions (builder)](../docs/suggestions/D.md "Multiple-choice questions waiting on the creator")
 - [Schema](CLAUDE.md) · [Log](log.md)

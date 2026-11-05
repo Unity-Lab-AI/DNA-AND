@@ -47,3 +47,9 @@ Earth comes first. Other planet [templates](planets-and-templates.md) unlock as 
 
 ### 🎲 Can I replay the same world?
 Yes. Use the same [seed](glossary.md#seed "The number that builds your world — same seed, same galaxy").
+
+---
+
+## 🔗 See also
+
+[Getting Started](getting-started.md "Your first world, your first hour") · [Glossary](glossary.md "Every term explained") · [Full Playthrough](playthrough.md "One full game, dead rock to intergalactic war") · [Groups & Flocking](groups-and-flocking.md "All things flock together: the 100-step grouping ladder") · [God Powers](god-powers.md "All 100 powers, pluses and minuses") · [🏠 Wiki home](README.md)

@@ -1,5 +1,7 @@
 # 🏛️ Ages of Civilization
 
+[🏠 Wiki home](README.md) · [📖 Glossary](glossary.md) · [❓ FAQ](faq.md)
+
 > *One hundred ages, from a chipped rock to a war between galaxies. Your people climb every step themselves. You just decide how hard the climb is.*
 
 <!-- IMG: docs/img/ages-hero.png | A stone axe, a cathedral, a steam train and a Dyson sphere lined up left to right -->
@@ -13,7 +15,8 @@
 |---|---|
 | 🧠 **They start with intelligence** | Ages open once life reaches the thinking stages in [Stages of Life](stages-of-life.md "100 stages from chemistry to spacefaring"). |
 | 🤏 **You only nudge** | You never pick a civilization's next tech. You inspire, scare, bless and punish. They choose. |
-| 🔁 **Real history order** | The ages follow how real human history unfolded. |
+| 🔁 **Real history order** | On Earth, the ages follow how real human history unfolded. |
+| 🐺 **Any species** | Wolf-folk, bird-folk and hive minds climb the ages too, each in its own way. See [Groups & Flocking](groups-and-flocking.md "All things flock together"). |
 | 💀 **They can fail** | Civilizations can stall, collapse or wipe themselves out. Intelligent life has amazing ways of killing itself. |
 | 🌳 **Every age is a set of discoveries** | See the [Tech Tree](tech-tree.md "How every discovery connects") for how they link. |
 
@@ -215,3 +218,9 @@
 | 🌳 [Tech Tree](tech-tree.md "How every discovery connects") | How every discovery connects |
 | 🧬 [Stages of Life](stages-of-life.md "100 stages from chemistry to spacefaring") | How life got here |
 | ⚡ [God Powers](god-powers.md "All 100 god powers") | How to steer them |
+
+---
+
+## 🔗 See also
+
+[Tech Tree](tech-tree.md "How every discovery connects") · [Groups & Flocking](groups-and-flocking.md "All things flock together: the 100-step grouping ladder") · [Stages of Life](stages-of-life.md "100 stages, chemistry to the stars") · [Souls & Harvesting](souls-and-harvesting.md "The currency of a god") · [Space & Dyson Spheres](space-and-dyson-spheres.md "Leaving home, Dyson spheres, galactic war") · [🏠 Wiki home](README.md)

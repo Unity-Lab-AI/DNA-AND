@@ -1,5 +1,7 @@
 # 🌳 Tree of Life
 
+[🏠 Wiki home](README.md) · [📖 Glossary](glossary.md) · [❓ FAQ](faq.md)
+
 > *Every creature that ever lived in your galaxy, on one living, branching circle.*
 
 <!-- IMG: docs/img/tree-of-life-circle.png | A glowing circular tree of life: the first cell at the center, branches fanning out to thousands of species around the rim, extinct branches greyed out -->
@@ -66,4 +68,6 @@ Also filter by alive or extinct, by [stage of life](stages-of-life.md "100 stage
 
 ---
 
-👉 Next: [Groups & Flocking](groups-and-flocking.md) · [Genes & DNA](genes-and-dna.md) · [Leaderboard & Genebank](leaderboard-and-genebank.md)
+## 🔗 See also
+
+[Groups & Flocking](groups-and-flocking.md "All things flock together: the 100-step grouping ladder") · [Genes & DNA](genes-and-dna.md "How real-style genomes build life") · [Stages of Life](stages-of-life.md "100 stages, chemistry to the stars") · [Leaderboard & Genebank](leaderboard-and-genebank.md "Scores and Genome of the Week") · [🏠 Wiki home](README.md)

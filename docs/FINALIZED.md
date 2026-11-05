@@ -76,3 +76,16 @@ Original TODO lines closed here, verbatim:
 - `docs/wiki/elements.md`: 8 elements re-labelled "Predicted (never measured)".
 - `README.md`: linked to "How we work".
 - Two review findings ("not a clicker" and the internet FAQ) were false alarms. Both were already in the wiki.
+
+**Full docs audit against the game design.** Verbatim: "okay not check everyfucking document is writen for the full complete game with links and refrences to all the othe docsds where needed and constantly fix regress as you work to getting all docs and wiki updated to the game design as its been layed out". Changes:
+- Every player wiki page now has the same top menu (home, glossary, FAQ) and a "See also" footer with tooltips, linking related pages, including Groups & Flocking and Tree of Life.
+- Added 9 glossary terms: flocking, grouping ladder, tree of life, selfish gene, mini AI, hive mind, galactic mind, cooldown, Genome of the Week.
+- Older pages updated for rounds 6–8:
+  - Stages and Ages: any species can reach intelligence.
+  - Playthrough: any species, and AI layers.
+  - Genes: the selfish gene, the grouping ladder, the tree of life.
+  - Space: the galactic mind.
+  - Getting Started, Menus and SETUP: the 18+ rating.
+- Builder wiki: the index has R4.5 and new descriptions. The civilization page covers any species. The game-shell page covers the 18+ rating.
+- `docs/LISTS.md` and `docs/POWERS.md` link to their wiki pages.
+- Regression checks: one regression was caught and fixed (tooltips dropped from footers). 58 files, 0 broken links. Counts confirmed: 100 stages, 100 ages, 100 powers, 118 elements.

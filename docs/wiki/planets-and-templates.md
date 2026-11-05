@@ -55,3 +55,9 @@ Your galaxy is full of solar systems. Each one has its own star and planets — 
 Life can't just float to the next world. **Intelligent life has to get there first.**
 
 👉 See [Space & Dyson Spheres](space-and-dyson-spheres.md).
+
+---
+
+## 🔗 See also
+
+[Elements](elements.md "All 118 elements and what they do") · [Space & Dyson Spheres](space-and-dyson-spheres.md "Leaving home, Dyson spheres, galactic war") · [Stages of Life](stages-of-life.md "100 stages, chemistry to the stars") · [Ages of Civilization](ages-of-civilization.md "100 ages, stone tools to intergalactic") · [🏠 Wiki home](README.md)

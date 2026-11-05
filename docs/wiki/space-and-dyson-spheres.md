@@ -39,6 +39,12 @@ A [Dyson sphere](glossary.md#dyson-sphere "A shell of machines built around a st
 
 ---
 
+## 🌌 The galactic mind
+
+Spread far enough and a species can grow a **[galactic mind](glossary.md#galactic-mind "One will steering life across a whole galaxy")**, the top layer of [how life thinks](groups-and-flocking.md#-how-life-thinks "Layered mini AIs"). Steps 71–100 of the [grouping ladder](groups-and-flocking.md "The 100 steps") run from the first off-world colony to universe-spanning life.
+
+---
+
 ## ⚔️ Intergalactic war
 
 Galaxies are big enough for more than one empire. Civilizations meet. They trade. They fight.
@@ -58,3 +64,9 @@ Galaxies are big enough for more than one empire. Civilizations meet. They trade
 Late in the game you unlock powers that work on stars and planets: [solar flares](god-powers.md "Bursts from the sun — auroras, and fried technology"), meteors, comets, wormholes, supernovas and more.
 
 👉 See [God Powers](god-powers.md) — Space powers.
+
+---
+
+## 🔗 See also
+
+[Groups & Flocking](groups-and-flocking.md "All things flock together: the 100-step grouping ladder") · [Planets & Templates](planets-and-templates.md "Earth, and the worlds you unlock") · [Tech Tree](tech-tree.md "How every discovery connects") · [Leaderboard & Genebank](leaderboard-and-genebank.md "Scores and Genome of the Week") · [God Powers](god-powers.md "All 100 powers, pluses and minuses") · [🏠 Wiki home](README.md)
