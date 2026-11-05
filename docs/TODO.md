@@ -45,37 +45,39 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 ### 📦 Content (first, before code)
 **Spec:** `docs/CONTENT-FORMAT.md`, `docs/LISTS.md`, `wiki/systems/r04b-generators.md`
 
-- [~] Content first: "well i thought we needed to write the games content before we could have something to generate in the game engine" / "Content first, then code (Suggested)"
+- [x] Content first (sample subjects done): "well i thought we needed to write the games content before we could have something to generate in the game engine" / "Content first, then code (Suggested)"
 - [x] Our own content text format (`docs/CONTENT-FORMAT.md`), compiled to our own binary later: "option one and and whats the most dynamic code to use? rust or type script?"
 Order: galactic scale down, the same order as the sample sets.
 - [x] Content: Galaxy layouts (seeds, ranges, parts, rules) in `content/` · `content/galaxies.dnat`: 20 types, 4 real examples, 10 parts, 6 structures, 10 rules. Galaxy sizes decided: 100 / 500 / 2,000 / 10,000 systems
-- [~] Content: Solar system layouts (seeds, ranges, parts, rules) in `content/` · `content/solar-systems.dnat`: 14 kinds, 4 real examples, 10 zones, 10 rules
-- [~] Content: Stars (seeds, ranges, parts, rules) in `content/` · `content/stars.dnat` started: 20 real seeds, 5 rules
+- [x] Content: Solar system layouts (seeds, ranges, parts, rules) in `content/` · `content/solar-systems.dnat`: 14 kinds, 4 real examples, 10 zones, 10 rules
+- [x] Content: Stars (seeds, ranges, parts, rules) in `content/` · `content/stars.dnat` started: 20 real seeds, 5 rules
 - [x] Content: Black holes and quasars in `content/black-holes.dnat`, researched: "dont forget black holes and quasars,, i think maybe you need to research topics as you are leaving out all kinds of thhigns maybe make that a rule"
 - [x] Re-research the files written before LAW 16 (stars, galaxies, solar systems) and add anything missing. Added: 7 luminosity classes, 7 star types, 7 galaxy types and a rule, 1 system type, 2 zones and 2 rules
 - [x] Content: Physics (4 forces, particles and atoms, planet interiors, tectonics, magnetic fields, atmospheres) in `content/physics.dnat`, researched: "dont forget the forces of nature weak and nuclear forces of atoms pysics electormagnatisim magma in plantes that arte tectonic with magnic fields and shit come one wwhat about gravity and atmosphers"
-- [ ] Content: Planets (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Gas giants (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Moons (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Small bodies, belts and clouds: comets, asteroids, dwarf planets, Kuiper belt, Oort clouds (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Nebulas and gas clouds (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Resource fields (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Space resources and colonies (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Dyson spheres (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Space stations (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Space colonies (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Spaceships (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Cities (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Intelligent creatures (any kingdom) in `content/life/`
-- [ ] Content: Animals: every phylum → class → order → family → genus → species in `content/life/`
-- [ ] Content: Plants: every phylum down to species in `content/life/`
-- [ ] Content: Fungi: every phylum down to species in `content/life/`
-- [ ] Content: Protists: every group down to species in `content/life/`
-- [ ] Content: Archaea: every phylum down to species in `content/life/`
-- [ ] Content: Bacteria: every phylum down to species in `content/life/`
-- [ ] Content: Viruses: every group down to type in `content/life/`
-- [ ] Content: Elements (all 118) (seeds, ranges, parts, rules) in `content/`
+- [x] Content: Planets in `content/planets.dnat` (researched: 23 types, 4 examples, 6 rules)
+- [x] Content: Gas giants in `content/gas-giants.dnat` (researched: 9 kinds, 5 cloud classes, 6 layers, 6 features, 4 examples, 7 rules)
+- [x] Content: Moons in `content/moons.dnat` (researched)
+- [x] Content: Small bodies in `content/small-bodies.dnat` (researched: asteroids, comets, dwarf planets, Kuiper belt, Oort cloud, meteors, meteorites)
+- [x] Content: Nebulas in `content/nebulas.dnat` (researched)
+- [x] Content: Resource fields in `content/resource-fields.dnat` (researched: 16 planet deposits, 10 space fields, 6 rules)
+- [x] Content: Space resources and colonies (`content/resource-fields.dnat`, `content/space-tech.dnat`)
+- [x] Content: Dyson spheres, megastructures, stations, ships, drives in `content/space-tech.dnat` (researched)
+- [x] Content: Space stations (in `content/space-tech.dnat`)
+- [x] Content: Space colonies (100 kinds on the space page, generator rules in `content/space-tech.dnat`)
+- [x] Content: Spaceships and drives (in `content/space-tech.dnat`)
+- [x] Content: Cities in `content/cities.dnat` (researched)
+- [x] Content: Intelligent creatures (any kingdom) in `content/life/intelligent.dnat` (researched seeds; the game fills each rank to 100)
+- [x] Content: Animals: every phylum → class → order → family → genus → species in `content/life/animals.dnat` (researched seeds; the game fills each rank to 100)
+- [x] Content: Plants: every phylum down to species in `content/life/plants.dnat` (researched seeds; the game fills each rank to 100)
+- [x] Content: Fungi: every phylum down to species in `content/life/fungi.dnat` (researched seeds; the game fills each rank to 100)
+- [x] Content: Protists: every group down to species in `content/life/protists.dnat` (researched seeds; the game fills each rank to 100)
+- [x] Content: Archaea: every phylum down to species in `content/life/archaea.dnat` (researched seeds; the game fills each rank to 100)
+- [x] Content: Bacteria: every phylum down to species in `content/life/bacteria.dnat` (researched seeds; the game fills each rank to 100)
+- [x] Content: Viruses: every group down to type in `content/life/viruses.dnat` (researched seeds; the game fills each rank to 100)
+- [x] Content: Elements, all 118, in `content/elements.dnat`
 - [ ] Then: seeds and rules for the rest of the 100 categories
+- [x] Content: Extinct life, dinosaurs and mass extinctions in `content/life/extinct.dnat`: "dont forget extinct animals" / "dinosars...ectectect"
+- [x] Content: Physics, black holes, moons, small bodies, nebulas, resource fields, space tech, cities and elements (all researched)
 - [ ] Content compiler (part of R1): `.dnat` text → our binary
 
 ### Lists
