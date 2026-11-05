@@ -144,7 +144,14 @@ namespace DnaAnd.Shell
             if (input.WasPressed(Win32.VK_ESCAPE) || input.WasPressed(0x08) || input.RightClicked) return false;
             if (input.WasPressed(0x52) && _terrain.Solid && !_terrain.Shell) _terrain = _terrain == _normal ? _fields : _normal;     // R: resource view on or off
             if (input.WasPressed(0x43) && _terrain.Shell && _terrain.Habitable) _centre = !_centre;                  // C: the view from the middle
-            if (_centre) { _centreTurn += dt * 0.05 + input.MouseDX * 0.004 * (input.LeftDown ? 1 : 0); return true; }
+            if (_centre)
+            {
+                // no automatic turning: only dragging turns the view
+                if (input.LeftDown) _centreTurn += input.MouseDX * 0.004;
+                // the wheel flies you down from the middle onto the inner surface, and on down from there
+                if (input.Wheel > 0) { _centre = false; _inside = true; _alt = _terrain.Radius * 0.4; _terrain.StartPoint(out _lat, out _lon); }
+                else return true;
+            }
             if (input.WasPressed(0x49) && _terrain.Shell && _terrain.Habitable)                                       // I: go through the hull, in or out
             {
                 _inside = !_inside;
@@ -153,7 +160,8 @@ namespace DnaAnd.Shell
             }
             if (input.WasPressed(0x4E) && _terrain.Solid) JumpToNextField();                                       // N: go to the next kind of field
             double maxAlt = _inside ? _terrain.Radius * 0.95 : _terrain.Radius * 4;     // inside, you can rise almost to the star
-            if (input.Wheel != 0) _alt = Math.Max(_minAlt, Math.Min(maxAlt, _alt * Math.Pow(0.7, input.Wheel)));
+            double perNotch = _inside && _alt > 10 ? 0.4 : 0.7;      // inside a sphere the heights are huge: bigger steps down
+            if (input.Wheel != 0) _alt = Math.Max(_minAlt, Math.Min(maxAlt, _alt * Math.Pow(perNotch, input.Wheel)));
             double R = _terrain.Radius;
             double step = (_alt + 1e-9) / R;                               // ground speed grows with height
             double fwd = 0, side = 0;
