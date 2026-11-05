@@ -55,5 +55,5 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 
 ## 🔨 Decided so far
 
-- Lightning, and Spark of Life, can start life again, anywhere and any number of times on one planet. Each start is its own family tree.
+- Lightning, and Spark of Life, can start life again in more places on one planet. Each use costs Souls, like every power. Each start is its own family tree.
 - Resources are for the species. The god has no use for them.
