@@ -89,8 +89,8 @@ namespace DnaAnd.Gen
             }
             if (radiusKm > 0) Radius = radiusKm;
             Solid = kind != "gas-giant" && kind != "ice-giant" && kind != "hot-jupiter" && kind != "dyson-hull";
-            HasWater = kind == "temperate" || kind == "ocean" || kind == "dyson-shell";
-            HasClouds = kind != "dyson-hull";   // giants get a high haze deck over their deep clouds
+            HasWater = kind == "temperate" || kind == "ocean";
+            HasClouds = kind != "dyson-hull" && kind != "dyson-shell";   // giants get a high haze deck over their deep clouds
             // how high the clouds float and how thick the air is (km), and the air's colour
             switch (kind)
             {
@@ -152,8 +152,8 @@ namespace DnaAnd.Gen
             double sum = 0, f = 48 * Math.Pow(2, from);
             for (int i = from; i < to; i++)
             {
-                double width = (Kind == "dyson-shell" ? 6371 : Radius) / f;   // km across one bump at this layer
-                sum += (Value(x * f + i * 3.1, y * f - i * 5.3, z * f + i * 2.9, seed + (uint)i * 13u) * 2 - 1) * width * 0.18;
+                double width = Radius / f;                           // km across one bump at this layer
+                sum += (Value(x * f + i * 3.1, y * f - i * 5.3, z * f + i * 2.9, seed + (uint)i * 13u) * 2 - 1) * Math.Min(width * 0.18, 3.0);
                 f *= 2;
             }
             return sum;
@@ -176,13 +176,27 @@ namespace DnaAnd.Gen
         {
             if (Kind == "dyson-shell")
             {
-                // the inner land has planet-sized features (continents thousands of km across, mountains a few km high):
-                // the shell is just far bigger, so it holds the land of millions of Earths
-                double sc = Radius / 6371.0;
-                int shift = (int)Math.Round(Math.Log(sc, 2));
-                _latOverride = Math.Abs(y) * 0.5;              // the shell has no frozen poles: its star is overhead everywhere
-                double hs = HeightBase(x * sc, y * sc, z * sc, Math.Max(6, layers - shift), out r, out g, out b, out glow);
+                // the inside of the orb is a planet landscape turned inside out: the same working terrain as the planets,
+                // sized to the orb itself, so it curves up and around you with the star at the centre
+                _latOverride = 0.25;                                  // the star is overhead everywhere: no frozen poles
+                double hs = HeightBase(x, y, z, layers, out r, out g, out b, out glow);
                 _latOverride = -1;
+                int biome = (int)(Fbm(x, y, z, _seed + 970u, 3, 3) * 8) % 8;   // regions with their own terraformed climate
+                float tv = (float)(0.85 + 0.3 * _tint);
+                if (hs < 0)
+                {
+                    double dp = Math.Min(1, -hs / 3);                    // seas, painted flat at sea level
+                    r = (float)(0.1 - 0.07 * dp); g = (float)(0.32 - 0.2 * dp); b = (float)(0.55 - 0.25 * dp);
+                    hs = 0;
+                }
+                else if (hs < 3.6 && glow == 0)
+                {
+                    float[,] pal = { { 0.27f, 0.47f, 0.2f }, { 0.22f, 0.5f, 0.24f }, { 0.33f, 0.48f, 0.25f }, { 0.6f, 0.55f, 0.32f },
+                                     { 0.2f, 0.36f, 0.22f }, { 0.36f, 0.47f, 0.24f }, { 0.3f, 0.43f, 0.27f }, { 0.55f, 0.44f, 0.3f } };
+                    double up2 = Math.Max(0, Math.Min(1, (hs - 2.0) / 1.4));          // higher up: rock shows through
+                    r = (float)(pal[biome, 0] * tv * (1 - up2) + 0.46 * up2); g = (float)(pal[biome, 1] * tv * (1 - up2) + 0.44 * up2); b = (float)(pal[biome, 2] * tv * (1 - up2) + 0.4 * up2);
+                    if (hs < 0.06) { r = 0.78f * tv; g = 0.72f * tv; b = 0.54f * tv; }     // beaches
+                }
                 if (Mask == 1)
                 {
                     // a ring world: tall walls along both edges hold the air in
@@ -191,28 +205,7 @@ namespace DnaAnd.Gen
                     {
                         double t = Math.Min(1, (edge - 0.82) / 0.1);
                         hs = Math.Max(hs, t * t * 1500);
-                        if (t > 0.3) { float tone = (float)(0.7 + 0.2 * Hash((long)(x * 2e5), (long)(z * 2e5), 0, _seed)); r = 0.42f * tone; g = 0.43f * tone; b = 0.47f * tone; glow = 0; }
-                    }
-                }
-                {
-                    double lat = Math.Asin(Math.Max(-1, Math.Min(1, y))), lon = Math.Atan2(z, x);
-                    long pi, pj; double pe, pc;
-                    Hex(lon * 75000, lat * 75000, out pi, out pj, out pe, out pc);           // habitat plates, about 2000 km across
-                    long qi, qj; double qe, qc;
-                    Hex(lon * 1500000, lat * 1500000, out qi, out qj, out qe, out qc);       // fields on each plate, about 100 km across
-                    if (hs < 1500 * 0.3)                                                    // not on the ring's edge walls
-                    {
-                        double ground = Math.Round(hs * 0.45 / 0.25) * 0.25;                // terraced, levelled ground
-                        hs = Math.Max(0.05, ground * 0.7 + hs * 0.45 * 0.3);
-                        if (pc < 0.12) { hs = -0.6; }                                       // a built lake in the middle of each plate
-                        else if (pe < 0.012) { hs = -0.4; }                                 // canals between the plates
-                        else if (pe < 0.016) { hs = 0.08; r = 0.9f; g = 0.95f; b = 1f; glow = 0.9f; }  // light strips along the canals
-                        else if (qe < 0.04) { hs += 0.02; r = 0.55f; g = 0.55f; b = 0.58f; glow = 0.15f; } // low walls between the fields
-                        else
-                        {
-                            float t2 = (float)(0.85 + 0.3 * Hash(qi, qj, 1, _seed));
-                            if (hs > 0.05 && glow == 0 && (r + g + b) < 2.4f) { r = 0.5f * t2; g = 0.42f * t2; b = 0.32f * t2; }  // prepared soil, field by field
-                        }
+                        if (t > 0.3) { r = 0.42f; g = 0.43f; b = 0.47f; glow = 0; }
                     }
                 }
                 LastField = -1; return hs;
@@ -255,9 +248,10 @@ namespace DnaAnd.Gen
                 case "ocean": land = cont - 0.38; break;
                 case "desert": land = cont + 0.2; break;
                 case "lava": case "snowball": land = cont + 0.1; break;
+                case "dyson-shell": land = cont + _shellLand; break;   // each terraformed section has its own share of land
                 default: land = cont + 0.06; break;            // Earth-like: about a third land
             }
-            double mtn = ridge * ridge * Smooth(0, 0.35, land);
+            double mtn = ridge * ridge * Smooth(0, 0.35, land) * (Kind == "dyson-shell" ? _shellMtn : 1);
             _land = land; _mtn = mtn; _tint = tint;
             h = land * 3.2 + mtn * 7.5 + mtn * (mtnFine - 0.5) * 2.2 + detail * (0.12 + 0.35 * Smooth(0, 0.4, land) + 0.6 * mtn) + micro;
             if (Kind == "desert")
@@ -354,7 +348,7 @@ namespace DnaAnd.Gen
 
         // ── volcanoes, rivers and resource fields ───────────────────────
 
-        private double _land, _mtn, _tint, _latOverride = -1;
+        private double _land, _mtn, _tint, _latOverride = -1, _shellLand = 0.1, _shellMtn = 1;
         /// <summary>The resource field at the last point asked about (index into <see cref="Fields"/>), or -1.</summary>
         public int LastField { get; private set; }
         /// <summary>True: every field lights up in its own colour, buried ones too (the resource view).</summary>
@@ -599,6 +593,7 @@ namespace DnaAnd.Gen
                 return Smooth(0.55, 0.72, gc) * 0.55;
             }
             double c = Fbm(x, y, z, _seed + 500u, 2.4, 7) + 0.1 * Math.Cos(y * 7);
+            if (Shell) c -= 0.1;                                     // shells: scattered clouds, so the land shows
             if (Kind == "lava") c += 0.12;
             if (Kind == "snowball") c -= 0.08;
             if (Kind == "tidally-locked") { double day = x * StarDir[0] + y * StarDir[1] + z * StarDir[2]; c += 0.25 * Smooth(-0.3, 0.3, day) - 0.18; }
@@ -686,7 +681,14 @@ namespace DnaAnd.Gen
                         if (near && cell > 0.965 && hcen < 0.25) { r = 1f; g = 0.82f; bl = 0.45f; gl = 0.95f; }     // lit windows, ports and docks
                     }
                     else if (layer == Ground) h = Height(x, y, z, layers, out r, out g, out bl, out gl);
-                    else if (layer == Water) { h = 0; r = 0.04f; g = 0.18f; bl = 0.34f; gl = 0; al = 0.72f; }
+                    else if (layer == Water)
+                    {
+                        h = 0; r = 0.04f; g = 0.18f; bl = 0.34f; gl = 0; al = 0.72f;
+                        // water only where the ground is really below the sea; over land it is hidden under the ground
+                        float r0, g0, b0, gl0;
+                        double ground = Height(x, y, z, layers, out r0, out g0, out b0, out gl0);
+                        if (ground > 0.0) { al = 0; h = -Math.Min(50, ground + 1); }
+                    }
                     else
                     {
                         h = 0; gl = 0; al = (float)(CloudCover(x, y, z) * 0.92);
@@ -760,6 +762,7 @@ namespace DnaAnd.Gen
         {
             // straight down toward the planet's centre
             double ax = _hx[a] + p.Cx, ay = _hy[a] + p.Cy, az = _hz[a] + p.Cz, al = Math.Sqrt(ax * ax + ay * ay + az * az);
+            if (Shell) drop *= 0.15;                              // shells: only a tiny lip, or they show as boxes from inside
             if (Shell && !_makingHull) drop = -drop;             // the inner land's "down" is outward, away from the star
             double bx = _hx[b] + p.Cx, by = _hy[b] + p.Cy, bz = _hz[b] + p.Cz, bl = Math.Sqrt(bx * bx + by * by + bz * bz);
             var A = new StarVertex { X = (float)_hx[a], Y = (float)_hy[a], Z = (float)_hz[a], Size = _cgl[a], R = _cr[a], G = _cg[a], B = _cb[a], A = 1 };

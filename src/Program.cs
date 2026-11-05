@@ -87,6 +87,7 @@ namespace DnaAnd
                 var sh = viewer.DysonAt(testDyson).Enterable;
                 planet = new PlanetView(gpu, meshes, pipeline, sh, sh, false); planet.Extras = viewer.DysonAt(testDyson).Pieces;
                 if (testInside) planet.GoInside();
+                if (Array.IndexOf(args, "--centre") >= 0) planet.Centre();
                 if (testAlt > 0) planet.SetAltitude(testAlt);
             }
             if (testPlanet >= 0) { planet = new PlanetView(gpu, meshes, pipeline, viewer.TerrainAt(testPlanet), viewer.FieldTerrainAt(testPlanet), viewer.Set == 5 || testFieldView); for (int k = 0; k < testJumps; k++) planet.JumpToNextField(); if (testAlt > 0) planet.SetAltitude(testAlt); }

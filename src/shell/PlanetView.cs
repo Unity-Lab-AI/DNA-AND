@@ -23,7 +23,8 @@ namespace DnaAnd.Shell
         private double _alt;                       // km above the solid ground (or sea floor) under the camera
         private readonly double _minAlt;
         private double _time;
-        private bool _inside;                      // inside a Dyson shell: standing on the inner land, the star overhead
+        private bool _inside;
+        private bool _centre; private double _centreTurn;   // floating near the star, looking out at the whole inner world                      // inside a Dyson shell: standing on the inner land, the star overhead
         private UploadBuffer _starBuf; private int _starCount;
         public StarVertex[] Extras;                // the structure's own pieces (docks, ships, collectors), in km around the star; set by the sample viewer
         private UploadBuffer _extraBuf;
@@ -52,11 +53,15 @@ namespace DnaAnd.Shell
                 _alt = terrain.Radius * 1.3; _lat = 0.02; _lon = 0.4;
                 // the star at the centre: a bright glowing ball
                 var rng = new Rng(5);
-                var sv = new StarVertex[3000];
+                // the star at the centre: a bright ball with a wide glowing halo, so it reads clearly from anywhere inside
+                var sv = new StarVertex[4200];
                 for (int i = 0; i < sv.Length; i++)
                 {
-                    double u = rng.NextDouble() * 2 - 1, a = rng.NextDouble() * Math.PI * 2, rr = Math.Sqrt(1 - u * u), d = 696000 * (i < 2400 ? 1 : rng.Range(1.05f, 1.6f));
-                    sv[i] = SpaceGen.Star(new Vec3((float)(Math.Cos(a) * rr * d), (float)(u * d), (float)(Math.Sin(a) * rr * d)), i < 2400 ? 120000 : 260000, 1f, 0.92f, 0.7f, i < 2400 ? 0.5f : 0.06f);
+                    bool ball = i < 2400, halo = i >= 3600;
+                    double u = rng.NextDouble() * 2 - 1, a = rng.NextDouble() * Math.PI * 2, rr = Math.Sqrt(1 - u * u);
+                    double d = 696000 * (ball ? 1 : halo ? rng.Range(2f, 9f) : rng.Range(1.05f, 2f));
+                    sv[i] = SpaceGen.Star(new Vec3((float)(Math.Cos(a) * rr * d), (float)(u * d), (float)(Math.Sin(a) * rr * d)),
+                        ball ? 160000 : halo ? 2500000 : 500000, 1f, 0.9f, 0.62f, ball ? 0.7f : halo ? 0.025f : 0.1f);
                 }
                 _starCount = sv.Length;
                 _starBuf = new UploadBuffer(gpu.Device, (long)sv.Length * Marshal.SizeOf(typeof(StarVertex)));
@@ -65,6 +70,7 @@ namespace DnaAnd.Shell
         }
 
         public void SetAltitude(double km) { _alt = Math.Max(_minAlt, km); }
+        public void Centre() { _centre = true; }
         public void GoInside() { if (_terrain.Shell && _terrain.Habitable) { _inside = true; _alt = 30; _terrain.StartPoint(out _lat, out _lon); } }
 
         /// <summary>Flies to an example of the next kind of resource field, 2 km above it.</summary>
@@ -120,9 +126,10 @@ namespace DnaAnd.Shell
             {
                 string where = _underWater ? " · under water, " + Size(_waterDepth) + " below the surface" : "";
                 if (_terrain.Solid && _fieldHere >= 0 && !_terrain.Shell) where += " · field here: " + PlanetTerrain.Fields[_fieldHere].Name;
+                if (_centre) return "DNA-AND · " + _terrain.Name + " · THE VIEW FROM THE MIDDLE: the whole inner world wrapped around its star, the metal hull outside · drag to turn · C to go back";
                 if (_terrain.Shell)
                     where += _inside ? " · INSIDE: the shell's spin holds you on its inner land, the star overhead (I to go back out)"
-                                     : (_terrain.Habitable ? " · outside the hull (I to go inside)" : " · outside the hull");
+                                     : (_terrain.Habitable ? " · outside the hull (I to go inside, C for the view from the middle)" : " · outside the hull");
                 if (_terrain == _fields) where += " · RESOURCE VIEW (R to switch off, Legend for colours)";
                 string loading = _shown > _alt * 1.01 ? " (finer ground still forming: going down to " + Size(_alt) + ")" : "";
                 return "DNA-AND · " + _terrain.Name + " · " + Size(_shown) + loading + " above the " + (_terrain.Shell && !_inside ? "hull" : _terrain.Solid ? (_overSea ? "sea floor" : "ground") : "deep cloud tops") + where +
@@ -136,6 +143,8 @@ namespace DnaAnd.Shell
             _time += dt;
             if (input.WasPressed(Win32.VK_ESCAPE) || input.WasPressed(0x08) || input.RightClicked) return false;
             if (input.WasPressed(0x52) && _terrain.Solid && !_terrain.Shell) _terrain = _terrain == _normal ? _fields : _normal;     // R: resource view on or off
+            if (input.WasPressed(0x43) && _terrain.Shell && _terrain.Habitable) _centre = !_centre;                  // C: the view from the middle
+            if (_centre) { _centreTurn += dt * 0.05 + input.MouseDX * 0.004 * (input.LeftDown ? 1 : 0); return true; }
             if (input.WasPressed(0x49) && _terrain.Shell && _terrain.Habitable)                                       // I: go through the hull, in or out
             {
                 _inside = !_inside;
@@ -169,6 +178,7 @@ namespace DnaAnd.Shell
 
         public void Draw(Gpu gpu, int width, int height)
         {
+            if (_centre) { DrawCentre(gpu, width, height); return; }
             double R = _terrain.Radius;
             double ux = Math.Cos(_lat) * Math.Cos(_lon), uy = Math.Sin(_lat), uz = Math.Cos(_lat) * Math.Sin(_lon);
             // the camera always sits on top of the solid ground (the sea floor under water): it lands, it never sinks in
@@ -216,6 +226,20 @@ namespace DnaAnd.Shell
             _terrain.Draw(_pipes, cx, cy, cz, view, proj, _time, 3.0, fogDist, sr, sg, sb, 0, 0, width, height, 400);
             if (_terrain.Shell) DrawStructure(gpu, view, proj, cx, cy, cz, width, height);
             DrawWeather(view, proj, up, northV, eastV, width, height);
+        }
+
+        // the view from the middle: float a third of the way out from the star and look at the inner world all around
+        private void DrawCentre(Gpu gpu, int width, int height)
+        {
+            double R = _terrain.Radius, a = _centreTurn;
+            double cx = Math.Cos(a) * R * 0.45, cy = R * 0.1, cz = Math.Sin(a) * R * 0.45;
+            var look = new Vec3((float)-Math.Cos(a + 0.35), -0.22f, (float)-Math.Sin(a + 0.35));   // back across the star toward the far side
+            float ll = (float)Math.Sqrt(Vec3.Dot(look, look)); look = look * (1f / ll);
+            Mat4 view = Mat4.LookAt(new Vec3(0, 0, 0), look, new Vec3(0, 1, 0));
+            Mat4 proj = Mat4.Perspective(1.3f, width / (float)Math.Max(1, height), (float)(R * 0.02), (float)(R * 3));
+            gpu.ClearNow(0.01f, 0.012f, 0.02f);
+            _terrain.Draw(_pipes, cx, cy, cz, view, proj, _time, 2.2, 0, 0, 0, 0, 0, 0, width, height, 30);
+            DrawStructure(gpu, view, proj, cx, cy, cz, width, height);
         }
 
         // the star in the middle, and the structure's docks, ships and collectors, all drawn relative to the camera
