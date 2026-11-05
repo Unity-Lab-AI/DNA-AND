@@ -60,6 +60,7 @@ One folder per roadmap system:
 
 | Folder | System |
 |---|---|
+| `content/` | Game content in our own text format (`.dnat`), compiled to binary by our toolchain |
 | `bootstrap/` | Steps 0–2: seed, hex, assembler |
 | `src/toolchain/` | Our compiler |
 | `src/platform/` | Talking to Windows |

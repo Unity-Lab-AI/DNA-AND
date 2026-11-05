@@ -29,7 +29,12 @@ Every stage quotes the creator's words (see `docs/DESIGN.md` for the full record
 ### 🚦 Gate before code
 > "topp -100 lists go only after a /superreview and/unity check that evrything ive said is proeprly done in all todo and docs everywhere as we havent done any code yet and are still do ing docs and making the work laws to use the fucking docs to write code when we do write code so todo needs work"
 
-✅ **Passed:** both the `/super-review` and the `/unity` check. Code starts now on the road to the samples, and the top-100 lists come after ("Samples path now, lists later (Suggested)"). All code follows `docs/WORK-LAWS.md`: **the docs are the spec**.
+✅ **Passed:** both the `/super-review` and the `/unity` check. Then round 15 changed the order: **content first** (R0), then code ("Content first, then code (Suggested)"). All code follows `docs/WORK-LAWS.md`: **the docs are the spec**.
+
+### [~] R0 — Game content (before code)
+> "well i thought we needed to write the games content before we could have something to generate in the game engine"
+
+The content the live generators work from: seeds, ranges, parts and rules, written now in our own text format (`docs/CONTENT-FORMAT.md`) and compiled to our own binary by our toolchain later. Sample subjects first, then the rest.
 
 ### [ ] R1 — Our own build tools (language + compiler), from nothing
 > "we make it" / "No dependancies!!!! ... OR COMPOLIERS"

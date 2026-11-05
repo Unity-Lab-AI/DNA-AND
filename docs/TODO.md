@@ -40,7 +40,32 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 - [x] `/unity` check: nothing the creator said is left out, word for word
   - All 30 recent messages are checked and recorded verbatim in `docs/DESIGN.md`. One gap was fixed: the milestone answer is now quoted in its task. **Gate passed.**
 - [ ] Write the real seed entries for the top-100 lists (below). Moved after the samples: "Samples path now, lists later (Suggested)"
-- [~] Start R1 code toward the sample viewer, following `docs/WORK-LAWS.md`: "okay now we need to do everything we need to do so you can get me those 9 none headless samples of everything from the planets to the microbes to the animals insects cities spaces stations stars and dyson spheres"
+- [ ] Start R1 code toward the sample viewer, after the sample-subject content, following `docs/WORK-LAWS.md`: "okay now we need to do everything we need to do so you can get me those 9 none headless samples of everything from the planets to the microbes to the animals insects cities spaces stations stars and dyson spheres"
+
+### 📦 Content (first, before code)
+**Spec:** `docs/CONTENT-FORMAT.md`, `docs/LISTS.md`, `wiki/systems/r04b-generators.md`
+
+- [~] Content first: "well i thought we needed to write the games content before we could have something to generate in the game engine" / "Content first, then code (Suggested)"
+- [x] Our own content text format (`docs/CONTENT-FORMAT.md`), compiled to our own binary later: "option one and and whats the most dynamic code to use? rust or type script?"
+- [ ] Content: Stars (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Planets (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Gas giants (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Galaxy layouts (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Solar system layouts (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Resource fields (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Elements (all 118) (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Dyson spheres (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Space stations (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Space colonies (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Spaceships (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Cities (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Microbes (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Viruses (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Insects (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Animals (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Intelligent creatures (seeds, ranges, parts, rules) in `content/`
+- [ ] Then: seeds and rules for the rest of the 100 categories
+- [ ] Content compiler (part of R1): `.dnat` text → our binary
 
 ### Lists
 **Spec:** `docs/LISTS.md`
