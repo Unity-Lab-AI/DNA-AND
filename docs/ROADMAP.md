@@ -26,6 +26,11 @@ LAW #0 reminder: every milestone description preserves the user's verbatim words
 
 Every stage quotes the creator's words (see `docs/DESIGN.md` for the full record). Order goes top to bottom: each stage needs the ones above it. All of the creator's questions are answered (rounds 1–5 in `docs/DESIGN.md`). Nothing is blocked. **R17 (docs) is in progress**, and **R1 is next to build.**
 
+### 🚦 Gate before code
+> "topp -100 lists go only after a /superreview and/unity check that evrything ive said is proeprly done in all todo and docs everywhere as we havent done any code yet and are still do ing docs and making the work laws to use the fucking docs to write code when we do write code so todo needs work"
+
+No code until the docs pass a `/super-review` and a `/unity` check, and the top-100 lists are filled. After that, all code follows `docs/WORK-LAWS.md`: **the docs are the spec**.
+
 ### [ ] R1 — Our own build tools (language + compiler), from nothing
 > "we make it" / "No dependancies!!!! ... OR COMPOLIERS"
 
@@ -105,7 +110,8 @@ Each creature acts on its genes, like an ant. Crowds of the same kind are groupe
 Tribes, culture, politics, wars, technology trees, and the ways civilizations can wipe themselves out.
 
 - 100 ages in real-history order (`docs/wiki/ages-of-civilization.md`). A collapse can send a civilization back to earlier ages.
-- The tech tree has 8 branches. Each discovery needs the one before it on its branch, plus links across branches.
+- The tech tree has 100 branches in 10 families. Each discovery needs the one before it in its family, plus links across families.
+- 100 kinds of society (`docs/wiki/society.md`). 100 ways civilizations end.
 - Intelligent life gradually takes over harvesting for the player, in 6 steps (`docs/wiki/tech-tree.md`).
 
 ### [ ] R10 — Space expansion up to Dyson spheres
