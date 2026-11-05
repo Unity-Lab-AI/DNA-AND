@@ -29,6 +29,7 @@ namespace DnaAnd
                 if (args[i] == "--set7") openSet = 7;
                 if (args[i] == "--set8") openSet = 8;
                 if (args[i] == "--style") openSet = 9;       // the style sample for living and built things
+                if (args[i] == "--family") openSet = 10;     // a family of animals, built from their genes
                 if (args[i] == "--look" && i + 1 < args.Length) { int lk; if (int.TryParse(args[i + 1], out lk)) openLook = lk - 1; }
                 if (args[i] == "--wheelback" && i + 2 < args.Length)   // --wheelback <start s> <for s>: roll the wheel out, for test runs
                 {
@@ -113,7 +114,7 @@ namespace DnaAnd
             bool journey = Array.IndexOf(args, "--journey") >= 0;
             ElementView elements = openSet == 7 ? new ElementView(gpu, meshes, content) : null;
             MicrobeView microbes = openSet == 8 ? new MicrobeView(gpu, pipeline, Seed) : null;
-            StyleView style = openSet == 9 ? new StyleView(gpu, meshes, Seed, openLook) : null;
+            StyleView style = openSet == 9 || openSet == 10 ? new StyleView(gpu, meshes, Seed, openLook, openSet == 10) : null;
             if (openSet == 6 && testDyson < 0)
             {
                 var one = viewer.DysonAt(5).Enterable;

@@ -8,6 +8,7 @@ using DnaAnd.Core;
 using DnaAnd.Gen;
 using DnaAnd.Platform;
 using DnaAnd.Render;
+using DnaAnd.Sim;
 
 namespace DnaAnd.Shell
 {
@@ -19,11 +20,28 @@ namespace DnaAnd.Shell
         private int _look, _built = -1;
         private double _turn, _tilt = 0.35, _zoom = 1; private bool _still;
         private readonly bool[] _marks = new bool[9];
+        // family mode: the nine are a line of descent, each built from its own genes; E evolves them all a generation, N starts a new family
+        private readonly bool _family; private Genome[] _genes; private ulong _seed; private int _gens; private Rng _rng;
 
-        public StyleView(Gpu gpu, MeshPipes pipes, ulong seed, int look)
+        public StyleView(Gpu gpu, MeshPipes pipes, ulong seed, int look, bool family = false)
         {
-            _device = gpu.Device; _pipes = pipes; _look = Math.Max(0, Math.Min(2, look));
-            for (int i = 0; i < 9; i++) _bodies[i] = BodyGen.Subject(i, seed);
+            _device = gpu.Device; _pipes = pipes; _look = Math.Max(0, Math.Min(2, look)); _family = family; _seed = seed;
+            if (family) { _look = 0; NewFamily(); }
+            else for (int i = 0; i < 9; i++) _bodies[i] = BodyGen.Subject(i, seed);
+        }
+
+        private void NewFamily() { _genes = GeneBody.Family(_seed); _rng = new Rng(_seed + 99); _gens = 0; BodiesFromGenes(); }
+        private void BodiesFromGenes() { for (int i = 0; i < 9; i++) _bodies[i] = GeneBody.FromGenome(_genes[i], _seed + (ulong)i); _built = -1; }
+
+        private static string Describe(Genome g)
+        {
+            int segs = 1 + (int)Math.Round(g.Segs * 6), legs = (int)Math.Round(g.Legs * 4) * 2;
+            var parts = new List<string>();
+            parts.Add(segs + " segment" + (segs == 1 ? "" : "s")); parts.Add(legs + " legs");
+            if (g.Fins > 0.3f) parts.Add("fins"); if (g.Wings > 0.3f) parts.Add("wings"); if (g.Neck > 0.1f) parts.Add("a neck"); if (g.Tail > 0.1f) parts.Add("a tail");
+            if (g.Armour > 0.4f) parts.Add("armour"); if (g.Toxin > 0.5f) parts.Add("poison (warning spots)"); if (g.Hunt > 0.4f) parts.Add("hunter's jaws");
+            if (g.Stage >= 5 && g.Upright > 0.5f) parts.Add("stands upright");
+            return PlanetLife.StageNames[g.Stage] + ": " + string.Join(", ", parts.ToArray());
         }
 
         public string Title
@@ -31,6 +49,10 @@ namespace DnaAnd.Shell
             get
             {
                 var kept = new List<string>(); for (int i = 0; i < 9; i++) if (_marks[i]) kept.Add((i + 1).ToString());
+                if (_family)
+                    return "DNA-AND samples · A family of animals, built from their genes · " + (_gens == 0 ? "as first made" : _gens + " generations evolved") +
+                           " · keepers: " + (kept.Count == 0 ? "none" : string.Join(", ", kept.ToArray())) +
+                           " · E: evolve a generation · N: new family · drag: turn · wheel: zoom · Space: stop turning · right-click: mark keeper · Legend";
                 return "DNA-AND samples · Style of living and built things · look " + (_look + 1) + " of 3: " + BodyGen.LookNames[_look] +
                        " · keepers: " + (kept.Count == 0 ? "none" : string.Join(", ", kept.ToArray())) +
                        " · 1 2 3: change look · drag: turn · wheel: zoom · Space: stop turning · right-click: mark keeper · Legend";
@@ -39,6 +61,16 @@ namespace DnaAnd.Shell
 
         public string Legend()
         {
+            if (_family)
+            {
+                var fb = new System.Text.StringBuilder("A family of animals, built from their genes\n\n");
+                fb.Append("Nothing here is a fixed model. Each animal's body is built from its genes: how many body segments, legs, eyes, fins and wings it has, the length of its legs, neck and tail, its armour and poison, and whether it hunts. Its size and colour come from its genes too.\n\n");
+                fb.Append("Each tile is a descendant of the tile before it, eight generations later, so the family resemblance shows. Along the way the line climbs from nerves to brains to big brains, and big-brained animals can stand up, turning their front legs into arms.\n\n");
+                fb.Append("Press E to evolve all of them one more generation and watch them change. Press N for a whole new family.\n\n");
+                for (int i = 0; i < 9; i++) fb.Append("  " + (i + 1) + ": " + Describe(_genes[i]) + (_marks[i] ? "   (keeper)" : "") + "\n");
+                fb.Append("\nControls:\n  E: evolve a generation · N: new family\n  Drag: turn them · Mouse wheel: closer and further\n  Space: stop or start the slow turning\n  Right-click a tile, or the Keepers menu: mark it\n  Exit menu or Esc: close");
+                return fb.ToString();
+            }
             var sb = new System.Text.StringBuilder("Style sample: how living and built things are drawn\n\n");
             sb.Append("The same nine subjects, all built from their own seed by the body builder, in one of three looks:\n");
             for (int k = 0; k < 3; k++) sb.Append("  " + (k + 1) + ": " + BodyGen.LookNames[k] + (k == _look ? "   <- showing now" : "") + "\n");
@@ -53,7 +85,9 @@ namespace DnaAnd.Shell
 
         public void Update(Input input, double dt, int width, int height)
         {
-            for (int k = 0; k < 3; k++) if (input.WasPressed(0x31 + k)) _look = k;
+            if (!_family) for (int k = 0; k < 3; k++) if (input.WasPressed(0x31 + k)) _look = k;
+            if (_family && input.WasPressed(0x45)) { for (int i = 0; i < 9; i++) _genes[i] = Genome.Mutate(_genes[i], _rng, 3f); _gens++; BodiesFromGenes(); }
+            if (_family && input.WasPressed(0x4E)) { _seed = _seed * 6364136223846793005UL + 1442695040888963407UL; NewFamily(); }
             if (input.WasPressed(Win32.VK_SPACE)) _still = !_still;
             if (input.Wheel != 0) _zoom = Math.Max(0.3, Math.Min(3, _zoom * Math.Pow(0.87, input.Wheel)));
             if (input.LeftDown) { _turn += input.MouseDX * 0.01; _tilt = Math.Max(-1.2, Math.Min(1.4, _tilt + input.MouseDY * 0.01)); }

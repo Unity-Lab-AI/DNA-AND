@@ -23,6 +23,19 @@ namespace DnaAnd.Sim
         public int Shape;         // 0 ball, 1 rod, 2 spiral
         public int Stage;         // how far up the ladder of life: 0 replicators (virus-like), 1 cells, 2 many-celled, 3 nerves, 4 brains, 5 big-brained hunters, 6 communication
         public float R, G, B;     // family colour (drifts a little each generation, so families stay visible)
+        // the body plan: read by the body builder once life is many-celled; each 0..1, drifting a little every generation
+        public float Segs;        // how many body segments (1 to 7)
+        public float Legs;        // how many pairs of legs (none to 4)
+        public float LegLen;      // how long the legs are
+        public float Neck;        // how long the neck is
+        public float Tail;        // how long the tail is
+        public float Fins;        // fins along the body (for water)
+        public float Wings;       // wings (for air)
+        public float Head;        // how big the head is (grows with brains)
+        public float Eyes;        // how many eyes (none to 4 pairs)
+        public float Armour;      // shell plates and spikes
+        public float Upright;     // stands on its back legs
+        public float Branch;      // for plants and fungi: how much it branches
 
         public static Genome Mutate(Genome g, Rng rng, float rate)
         {
@@ -39,6 +52,12 @@ namespace DnaAnd.Sim
             c.Warm = Clamp(g.Warm + rng.Range(-0.05f, 0.05f) * rate * big, 0, 1);
             if (rng.NextDouble() < 0.04 * rate * big) c.Surface = (g.Surface + (rng.NextDouble() < 0.5 ? 1 : 63)) % 64;   // a new surface: old viruses no longer fit
             if (rng.NextDouble() < 0.004 * big) c.Shape = rng.Below(3);
+            c.Segs = Clamp(g.Segs + rng.Range(-0.05f, 0.05f) * rate * big, 0, 1); c.Legs = Clamp(g.Legs + rng.Range(-0.05f, 0.05f) * rate * big, 0, 1);
+            c.LegLen = Clamp(g.LegLen + rng.Range(-0.05f, 0.05f) * rate * big, 0, 1); c.Neck = Clamp(g.Neck + rng.Range(-0.05f, 0.05f) * rate * big, 0, 1);
+            c.Tail = Clamp(g.Tail + rng.Range(-0.05f, 0.05f) * rate * big, 0, 1); c.Fins = Clamp(g.Fins + rng.Range(-0.05f, 0.05f) * rate * big, 0, 1);
+            c.Wings = Clamp(g.Wings + rng.Range(-0.05f, 0.05f) * rate * big, 0, 1); c.Head = Clamp(g.Head + rng.Range(-0.05f, 0.05f) * rate * big, 0, 1);
+            c.Eyes = Clamp(g.Eyes + rng.Range(-0.05f, 0.05f) * rate * big, 0, 1); c.Armour = Clamp(g.Armour + rng.Range(-0.05f, 0.05f) * rate * big, 0, 1);
+            c.Upright = Clamp(g.Upright + rng.Range(-0.05f, 0.05f) * rate * big, 0, 1); c.Branch = Clamp(g.Branch + rng.Range(-0.05f, 0.05f) * rate * big, 0, 1);
             c.Stage = g.Stage;                                                // climbing the ladder is decided by the planet's life, rarely
             c.R = Clamp(g.R + rng.Range(-0.03f, 0.03f), 0.1f, 1); c.G = Clamp(g.G + rng.Range(-0.03f, 0.03f), 0.1f, 1); c.B = Clamp(g.B + rng.Range(-0.03f, 0.03f), 0.1f, 1);
             return c;
