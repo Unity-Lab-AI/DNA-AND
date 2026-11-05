@@ -132,6 +132,15 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 - [ ] Insects
 - [ ] Animals
 - [ ] Gene-driven ant-like behavior for each creature
+- [ ] Layered mini AIs: "and we will have to make the mini ai's that are individual, species, hive, glactic mind like typ dynamic control ai of what they are suppose to so selfish gene like all life tries to get more and do more before death but life is life death comes"
+  - [ ] Individual AI: selfish gene, wants to get more, do more and breed before death. Death always comes
+  - [ ] Chemical AI for brainless life: "option 2 but real life non brian things still do thing sin life do you need to research?" (bacteria quorum sensing and moving toward food, slime-mold pathfinding, plants growing toward light and warning neighbors, viruses that only latch, inject and copy)
+  - [ ] Group AI (pack, flock, school, colony)
+  - [ ] Hive AI
+  - [ ] Species AI
+  - [ ] Galactic mind AI
+  - [ ] Bigger steers smaller, and members can rebel, cheat or split off: "Bigger steers smaller (Suggested)"
+  - [ ] Each layer appears only when evolution builds the brain or bond it needs
 - [ ] Grouping crowds by area ("1 worm can be 4396 worms")
   - One group per cell and species. A group splits when its genes drift, and individuals appear when you zoom in.
 - [ ] Food chains, disease, extinction, new species

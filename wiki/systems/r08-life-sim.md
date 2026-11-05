@@ -33,3 +33,18 @@ When a group's genes drift far enough apart, it **splits into two groups**. That
 
 ## 🗂️ What's simulated
 Everything in the life lists: viruses, bacteria, archaea, fungi, single cells, plants, insects, fish, birds, mammals and more ([docs/LISTS.md](../../docs/LISTS.md)).
+
+## 🧠 Layered mini AIs
+
+From `docs/DESIGN.md`, round 8. Every living thing runs a mini AI driven by the selfish gene, and death always comes.
+
+| Layer | Appears when | Notes |
+|---|---|---|
+| 🧪 Chemical | Always (brainless life) | Sense, then respond: move toward food (chemotaxis), quorum sensing, grow toward light, slime-mold pathfinding |
+| 🐾 Individual | A nervous system evolves | Its own goals: eat, survive, mate |
+| 🐺 Group | Social bonding genes evolve | Steers its members |
+| 🐝 Hive | Caste and colony genes evolve | Steers its members |
+| 🧬 Species | Intelligence evolves | Steers its groups |
+| 🌌 Galactic mind | A galaxy-spanning civilization | Steers species and colonies |
+
+Bigger layers steer smaller ones, and members can defect when that helps their own genes. Layers come only from evolution, with no fixed ladder steps. This also has to run fast enough for a huge population: grouped crowds share one group AI until you zoom in.

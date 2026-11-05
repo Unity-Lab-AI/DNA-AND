@@ -132,6 +132,29 @@
 
 ---
 
+## 🧠 How life thinks
+
+Every living thing runs its own little mind, driven by the **selfish gene**: get more, do more, and pass your genes on before you die. And **death always comes.**
+
+| Layer | Who | What it wants |
+|---|---|---|
+| 🧪 **Chemistry** | Viruses, bacteria, plants, slime molds | Sense, then respond: move to food, flee poison, grow toward light |
+| 🐾 **Individual** | Every creature with a nervous system | Eat, survive, mate, win |
+| 🐺 **Group** | Packs, flocks, schools, colonies | Hunt together, defend together |
+| 🐝 **Hive** | Hives and supercolonies | The colony first, the queen's genes |
+| 🧬 **Species** | Thinking species | Spread the species, beat rivals |
+| 🌌 **Galactic mind** | Galaxy-spanning life | Own the galaxy, use everything up |
+
+| | |
+|--|--|
+| ⬇️ **Bigger steers smaller** | Each layer nudges the one below it |
+| 😈 **But genes are selfish** | Members can still rebel, cheat or split off when it helps their own genes |
+| 🧬 **Evolution builds the layers** | A layer only appears when a species evolves the brain or bond for it |
+
+> 🦠 **No brain? Still alive.** Real bacteria "vote" with chemical signals before they attack. Slime molds solve mazes. Plants warn their neighbors when something's eating them. In DNA-AND, so does everything else.
+
+---
+
 ## 🔗 When species mix
 
 Real life isn't tidy, and neither is DNA-AND. One species can use another **in every way possible**:
