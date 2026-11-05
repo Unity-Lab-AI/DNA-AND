@@ -24,6 +24,20 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
   - ✅ All 47 open questions decided and applied (`docs/DESIGN.md` round 5).
   - ⏳ Left: fill the 55 image slots once R4's 3D generator and capture tool exist.
 
+- [~] The 100 rule everywhere: "100The tech tree    8 branches, 100 Real society, 100  Self-destruction, You only nudge 100, where else did you not follow the 100 rule?" / "fix all docs all docs all docs all docs"
+  - [x] 100 unlock points (one per stage) and 100 cost tiers (T1–T100)
+  - [ ] 100 tech tree branches
+  - [ ] 100 kinds of society
+  - [ ] 100 ways civilizations destroy themselves
+  - [ ] 100 ways to nudge
+  - [ ] 100 ways species mix
+  - [ ] 100 harvest steps
+  - [ ] 100 ways to earn souls
+  - [ ] 100 milestones per stage of life
+  - [ ] 100 glossary terms
+  - [ ] 100 FAQ questions
+  - [ ] All 100 planet templates listed
+
 ---
 
 ## Pending
@@ -153,7 +167,7 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
   - Every rank, from domain to species, is tracked to 100: real plus invented.
 - [ ] Top 100 nutrients list
 - [ ] Milestones for every stage of life
-  - All 100 stages (`docs/wiki/stages-of-life.md`). Each stage unlocks the powers that fit it, with stronger "+" versions later.
+  - All 100 stages (`docs/wiki/stages-of-life.md`). Each stage is one of the 100 unlock points. Every power unlocks at exactly one stage.
 
 ### R9 — Intelligent life
 - [ ] Tribes and culture
@@ -173,9 +187,9 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 ### R11 — God mode
 - [ ] Build all 100 powers from the power list (`docs/POWERS.md`, `docs/wiki/god-powers.md`)
 - [ ] Unlocking powers with points from the amount of life in your galaxies
-  - Six unlock points: Start, Life, Land, Mind, Civ, Space.
+  - 100 unlock points = the 100 stages of life: "Stages + ranked tiers (Suggested)".
 - [ ] Paying for powers by harvesting life: "maybe u have to harvet life and later on u get the intelligent sure intelligences using their powers to harvest life for you"
-  - The currency is **Souls**. Cost = tier × area × strength. Tier 4–5 powers have cooldowns.
+  - The currency is **Souls**. Cost = tier × area × strength. 100 tiers, T1–T100. T81–T100 have cooldowns.
   - Harvesting is slow and shows as a glow that scares intelligent life. Mass deaths give lots of souls.
 - [ ] Endgame: intelligent life harvests life for its own needs, spreads and uses up nutrients and resources: "since all life is like a virus advanced forms seprad and use up avasil nutrientrs and resources and have to spread. jsut liek real life"
   - Six harvest steps, from farming to intergalactic (`docs/wiki/tech-tree.md`).

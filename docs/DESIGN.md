@@ -249,6 +249,25 @@ The ask: "and we will have to make the mini ai's that are individual, species, h
 
 ---
 
+## Round 9: the 100 rule, everywhere (verbatim)
+
+The ask: "100The tech tree    8 branches, 100 Real society, 100  Self-destruction, You only nudge 100, where else did you not follow the 100 rule?"
+
+| Question | Answer (verbatim) |
+|---|---|
+| Game-content lists to 100 (tech branches, society, self-destruction, nudges, species mixing, harvest steps, ways to earn souls, unlock points, cost tiers, milestones per stage, glossary, FAQ, planet templates shown) | "Yes, all of them to 100 (Suggested)" |
+| Control and setting counts (5 speeds, 8 players, 3 art styles, 6 AI layers, 4 galaxy sizes, 6 settings groups, 8 menu buttons) | "Keep these as they are (Suggested)" |
+| How unlocks and tiers work | "Stages + ranked tiers (Suggested)" |
+| Follow-up | "fix all docs all docs all docs all docs" |
+
+### What these mean for the build
+- **Every game-content list has 100 entries.**
+- **Unlock points:** the 100 stages of life. Every power unlocks at exactly one stage, and the 5 starters at stage 1. This replaces round 5's six unlock points and "+" versions.
+- **Cost tiers:** T1–T100, every power ranked from weakest to strongest. Cost = tier × area × strength. T81–T100 have cooldowns. This replaces round 5's 5 tiers.
+- **Controls and settings keep their counts.**
+
+---
+
 ## How we work (verbatim)
 
 These are the creator's working rules for this repo, each in his own words.
@@ -309,3 +328,4 @@ Everything the creator has said about this project, in order. Short process repl
 24. **Docs audit:** "okay not check everyfucking document is writen for the full complete game with links and refrences to all the othe docsds where needed and constantly fix regress as you work to getting all docs and wiki updated to the game design as its been layed out"
 25. **Star, not sun:** "dont say cage a Sun thats a mis nomer its a star TheSun if a pronoun of our star". Every generic "sun" and "sunlight" in the docs became "star" and "starlight".
 26. **Power names:** "Starshine + Stellar Flare (Suggested)". Power #4 is now Starshine, and #81 is now Stellar Flare.
+27. **The 100 rule, everywhere:** see "Round 9" above. "100The tech tree    8 branches, 100 Real society, 100  Self-destruction, You only nudge 100, where else did you not follow the 100 rule?" / "fix all docs all docs all docs all docs"
