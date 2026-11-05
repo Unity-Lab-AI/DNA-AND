@@ -2,7 +2,7 @@
 
 > "we havent done any code yet and are still do ing docs and making the work laws to use the fucking docs to write code when we do write code"
 
-These 15 laws are binding for **every** piece of DNA-AND work: every code task, every doc change, every person, and every AI session. The docs are written first, and the code follows them.
+These 16 laws are binding for **every** piece of DNA-AND work: every code task, every doc change, every person, and every AI session. The docs are written first, and the code follows them.
 
 ---
 
@@ -80,6 +80,17 @@ No model, texture, sprite or sound is ever made by hand or shipped pre-made. The
 
 **Internal docs** (all the rest) keep every work note, word for word.
 
+
+### LAW 16 · Research first
+> "dont forget black holes and quasars,, i think maybe you need to research topics as you are leaving out all kinds of thhigns maybe make that a rule"
+
+Before writing content or docs for any topic, **research it** so nothing is left out:
+1. Search reliable sources (science agencies, encyclopedias, review papers) for the topic's full range: every kind, part, event and real example.
+2. List what the research found, and compare it with what we have.
+3. Write our own entries from it. Research tells us **what exists**; we never copy anyone's text, tables or data files (LAW 5).
+4. Note the sources at the top of the internal content file (`# researched: …`). Never in public docs (LAW 15).
+5. If research can't settle a fact, leave it out, or mark it `real: hypothetical` when science itself is unsure.
+
 ---
 
 ## ✅ Before writing any code
@@ -87,7 +98,7 @@ No model, texture, sprite or sound is ever made by hand or shipped pre-made. The
 | | Check |
 |:-:|---|
 | 1 | The task is in `docs/TODO.md`, with its **Spec:** pages |
-| 2 | Every spec page is read in full |
+| 2 | Every spec page is read in full, and its topic is researched (LAW 16) |
 | 3 | Every detail the code needs is in those pages, or LAW 3 was followed |
 | 4 | Nothing outside the project is used (LAW 5) |
 | 5 | You're on a `feature/*` branch (LAW 10) |
