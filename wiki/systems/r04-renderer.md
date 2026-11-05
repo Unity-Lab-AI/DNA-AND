@@ -46,3 +46,7 @@ No final art style is locked in until the creator compares samples (`docs/DESIGN
 | ⏱️ **When** | Right after the basic renderer works |
 
 Subjects: microbes, viruses, intelligent creatures, a handful of other living things, galaxy and solar system layouts, planets, stars, gas giants, Dyson spheres, spaceships, space colonies, space stations, resource fields, and all 118 elements.
+
+## 🧬 Assets come from the species
+
+Every asset is generated procedurally from a seed. Built things (cities, spaceships, stations, colonies) are generated from the genes and body plan of the species that builds them. An insect species gets insect cities and insect ships (`docs/DESIGN.md`, round 12).

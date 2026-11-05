@@ -39,8 +39,8 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
   - First pass found 7 issues (2 high, 4 medium, 1 low). All 7 are fixed: the missing messages are recorded, the builder specs have decided-spec sections, the playthrough covers the new systems, Heat became Fire, the LISTS index is complete, and the README numbers and TODO milestone line are updated.
 - [x] `/unity` check: nothing the creator said is left out, word for word
   - All 30 recent messages are checked and recorded verbatim in `docs/DESIGN.md`. One gap was fixed: the milestone answer is now quoted in its task. **Gate passed.**
-- [ ] Only after both pass: fill the top-100 lists (below)
-- [ ] Only after the lists: start R1 code, following `docs/WORK-LAWS.md`
+- [ ] Fill the top-100 lists (below). Moved after the samples: "Samples path now, lists later (Suggested)"
+- [~] Start R1 code toward the sample viewer, following `docs/WORK-LAWS.md`: "okay now we need to do everything we need to do so you can get me those 9 none headless samples of everything from the planets to the microbes to the animals insects cities spaces stations stars and dyson spheres"
 
 ### Lists
 **Spec:** `docs/LISTS.md`
@@ -103,6 +103,11 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 - [ ] Visual gene map for every trait and skill
 
 ### R4.5 — Art style samples
+- [ ] Live sample viewer, its own window, moving and rotatable: "Live viewer, moving (Suggested)"
+- [ ] Every sample generated procedurally from a seed: "and remember thses things are get dynamic procedural generations"
+- [ ] Samples rendered with Direct3D 12: "Straight to Direct3D 12"
+- [ ] Our own shader-code generator for Direct3D 12 (no outside shader compiler)
+- [ ] Species-driven asset generation: cities, ships and stations built from the species' own genes and body plan: "ie insect species has insect spaceships ansd insect cities"
 **Spec:** `wiki/systems/r04-renderer.md#-style-samples-come-first`, `docs/DESIGN.md` round 6
 
 - [ ] Style samples, 3 samples × 3 styles: "remembr we arent using other peoples shit unless we absoulutley have to so plan on buiolding it all and things like ingame microbes viruses and intelligernt creature should all have samples 1,2,3 made in 3 diffeernt styles 1,2,3 for a hand ful of things in the game before we go with any one style and same for things like the galaxy layouts solarsystem layouts and planets and stars and dyson spheres and space ships and space colonires ands space stations and rouseource firleds and gas giants and athe whole periodic table of elements"
