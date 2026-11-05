@@ -23,6 +23,11 @@ namespace DnaAnd.Shell
         private double _alt;                       // km above the solid ground (or sea floor) under the camera
         private readonly double _minAlt;
         private double _time;
+        /// <summary>Part of the one journey from the galaxy: zooming out past the planet goes back up to its solar system.</summary>
+        public bool Journey; public bool Ascend;
+        private DnaAnd.Sim.MicrobeWorld _microbes; private double _mx, _my, _mz;      // the living microbes on the spot below, once you are small enough
+        private Vec3 _mEast, _mNorth, _mUp; private double _microbeAccum;
+        private UploadBuffer _microbeBuf; private StarVertex[] _microbeVerts;
         private bool _inside;
         // free flight inside a sphere: a real position and a look direction. W/S fly along the look, A/D step sideways,
         // drag with the left button to look around, the wheel flies forward and back. You stop at the surface.
@@ -264,7 +269,9 @@ namespace DnaAnd.Shell
             if (input.WasPressed(0x4E) && _terrain.Solid) JumpToNextField();                                       // N: go to the next kind of field
             double maxAlt = _inside ? _terrain.Radius * 0.95 : _terrain.Radius * 4;     // inside, you can rise almost to the star
             double perNotch = _inside && _alt > 10 ? 0.4 : 0.7;      // inside a sphere the heights are huge: bigger steps down
+            if (Journey && !_inside && input.Wheel < 0 && _alt >= maxAlt * 0.99) { Ascend = true; return false; }   // out past the planet: back to its solar system
             if (input.Wheel != 0) _alt = Math.Max(_minAlt, Math.Min(maxAlt, _alt * Math.Pow(perNotch, input.Wheel)));
+            if (_microbes != null) { _microbeAccum += dt; var sw = System.Diagnostics.Stopwatch.StartNew(); while (_microbeAccum > 0.05 && sw.Elapsed.TotalMilliseconds < 6) { _microbes.Step(0.05); _microbeAccum -= 0.05; } if (_microbeAccum > 1) _microbeAccum = 0; }
             double R = _terrain.Radius;
             double step = (_alt + 1e-9) / R;                               // ground speed grows with height
             double fwd = 0, side = 0;
@@ -340,6 +347,7 @@ namespace DnaAnd.Shell
             _terrain.Draw(_pipes, cx, cy, cz, view, proj, _time, 3.0, fogDist, sr, sg, sb, 0, 0, width, height, 400);
             if (_terrain.Shell) DrawStructure(gpu, view, proj, cx, cy, cz, width, height);
             DrawWeather(view, proj, up, northV, eastV, width, height);
+            DrawMicrobes(gpu, view, proj, cx, cy, cz, ux, uy, uz, ground, up, northV, eastV, width, height);
         }
 
         // the view from the middle: float a third of the way out from the star and look at the inner world all around
@@ -372,6 +380,56 @@ namespace DnaAnd.Shell
                 c[26] = 2; c[30] = 0.0015f;
                 _dots.Draw(_extraBuf, Extras.Length, c, 0, 0, width, height);
             }
+        }
+
+        // at microbe size, the living microbes of set 8 on the spot below (a patch of ground or water about 0.4 mm across)
+        private void DrawMicrobes(Gpu gpu, Mat4 view, Mat4 proj, double cx, double cy, double cz, double ux, double uy, double uz, double ground, Vec3 up, Vec3 north, Vec3 east, int width, int height)
+        {
+            if (!_terrain.Solid || _terrain.Kind == "lava") { _microbes = null; return; }       // nothing can live in molten rock
+            double sz = _shown;
+            if (sz > 2e-6) { if (sz > 5e-6) _microbes = null; return; }                            // only below about 2 mm
+            if (_microbes == null)
+            {
+                // a patch here: its own seed from the place, so each spot has its own life
+                ulong seed = (ulong)(Math.Abs(ux * 1e7) + Math.Abs(uy * 3e7) + Math.Abs(uz * 7e7)) + 17;
+                _microbes = new DnaAnd.Sim.MicrobeWorld(seed);
+                double R = _terrain.Radius + Math.Max(0, ground);
+                _mx = ux * R; _my = uy * R; _mz = uz * R; _mEast = east; _mNorth = north; _mUp = up;
+                _microbeVerts = new StarVertex[DnaAnd.Sim.MicrobeWorld.MaxMicrobes * 6 + DnaAnd.Sim.MicrobeWorld.MaxViruses + 16];
+                if (_microbeBuf == null) _microbeBuf = new UploadBuffer(gpu.Device, (long)_microbeVerts.Length * Marshal.SizeOf(typeof(StarVertex)));
+            }
+            const double Um = 1e-9;                                                                 // one micrometre, in km
+            int n = 0;
+            float ox = (float)(_mx - cx), oy = (float)(_my - cy), oz = (float)(_mz - cz);
+            foreach (var m in _microbes.Microbes)
+            {
+                if (n > _microbeVerts.Length - 6) break;
+                double lx = (m.X - DnaAnd.Sim.MicrobeWorld.Width / 2) * Um, ly = (m.Y - DnaAnd.Sim.MicrobeWorld.Height / 2) * Um;
+                var p = new Vec3(ox, oy, oz) + _mEast * (float)lx + _mNorth * (float)ly + _mUp * (float)(m.G.Size * 1.2 * Um);
+                var g = m.G;
+                _microbeVerts[n++] = SpaceGen.Star(p, (float)(g.Size * Um), g.R, g.G, g.B, 0.9f);
+                if (g.Shape != 0)
+                {
+                    double a = Math.Atan2(m.Vy, m.Vx);
+                    for (int k = -1; k <= 1; k += 2) _microbeVerts[n++] = SpaceGen.Star(p + (_mEast * (float)Math.Cos(a) + _mNorth * (float)Math.Sin(a)) * (float)(k * g.Size * 0.9 * Um), (float)(g.Size * 0.62 * Um), g.R, g.G, g.B, 0.9f);
+                }
+                if (m.Infected >= 0) _microbeVerts[n++] = SpaceGen.Star(p, (float)(g.Size * 1.35 * Um), 1f, 0.15f, 0.1f, 0.35f);
+            }
+            foreach (var v in _microbes.Viruses)
+            {
+                if (n >= _microbeVerts.Length) break;
+                double lx = (v.X - DnaAnd.Sim.MicrobeWorld.Width / 2) * Um, ly = (v.Y - DnaAnd.Sim.MicrobeWorld.Height / 2) * Um;
+                _microbeVerts[n++] = SpaceGen.Star(new Vec3(ox, oy, oz) + _mEast * (float)lx + _mNorth * (float)ly + _mUp * (float)(0.6 * Um), (float)(0.3 * Um), 0.95f, 0.9f, 0.85f, 0.8f);
+            }
+            if (n == 0) return;
+            _microbeBuf.Write(_microbeVerts, n);
+            Mat4 vp = view * proj;
+            var c = new float[BillboardPipeline.ConstantCount];
+            c[0] = vp.M11; c[1] = vp.M12; c[2] = vp.M13; c[3] = vp.M14; c[4] = vp.M21; c[5] = vp.M22; c[6] = vp.M23; c[7] = vp.M24;
+            c[8] = vp.M31; c[9] = vp.M32; c[10] = vp.M33; c[11] = vp.M34; c[12] = vp.M41; c[13] = vp.M42; c[14] = vp.M43; c[15] = vp.M44;
+            c[16] = view.M11; c[17] = view.M21; c[18] = view.M31; c[20] = view.M12; c[21] = view.M22; c[22] = view.M32;
+            c[25] = 1; c[26] = 2; c[27] = 4; c[28] = width; c[29] = height;
+            _dots.Draw(_microbeBuf, n, c, 0, 0, width, height);
         }
 
         // rain, snow, ash or dust falling around the camera when it is low and under a cloud
@@ -411,6 +469,6 @@ namespace DnaAnd.Shell
             _dots.Draw(_dropBuf, n, c, 0, 0, width, height);
         }
 
-        public void Dispose() { _dropBuf.Dispose(); if (_starBuf != null) _starBuf.Dispose(); if (_extraBuf != null) _extraBuf.Dispose(); }
+        public void Dispose() { if (_microbeBuf != null) _microbeBuf.Dispose(); _dropBuf.Dispose(); if (_starBuf != null) _starBuf.Dispose(); if (_extraBuf != null) _extraBuf.Dispose(); }
     }
 }

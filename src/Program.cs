@@ -13,7 +13,7 @@ namespace DnaAnd
         private static int Main(string[] args)
         {
             // --smoke <ms>: a timed test run that closes itself after <ms> milliseconds.
-            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int openSet = 0; int testPlanet = -1; int pressKey = -1; double pressAt = -1; int testDyson = -1; bool testInside = false; int testJumps = 0; bool testFieldView = false; double testAlt = -1; double[] tour = null; int tourStep = 0; string tourName = "tour"; double shotAt = -1; string shotPath = null; int testSpeed = -1; double tryEvery = -1;
+            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int openSet = 0; int testPlanet = -1; double wheelFrom = -1, wheelFor = 0; int pressKey = -1; double pressAt = -1; int testDyson = -1; bool testInside = false; int testJumps = 0; bool testFieldView = false; double testAlt = -1; double[] tour = null; int tourStep = 0; string tourName = "tour"; double shotAt = -1; string shotPath = null; int testSpeed = -1; double tryEvery = -1;
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i] == "--smoke" && i + 1 < args.Length) int.TryParse(args[i + 1], out smokeMs);
@@ -28,6 +28,11 @@ namespace DnaAnd
                 if (args[i] == "--set6") openSet = 6;
                 if (args[i] == "--set7") openSet = 7;
                 if (args[i] == "--set8") openSet = 8;
+                if (args[i] == "--wheel" && i + 2 < args.Length)   // --wheel <start s> <for s>: roll the wheel in once a frame, for test runs
+                {
+                    double.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out wheelFrom);
+                    double.TryParse(args[i + 2], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out wheelFor);
+                }
                 if (args[i] == "--press" && i + 2 < args.Length)   // --press <key letter> <seconds>: press a key once, for test runs
                 {
                     pressKey = char.ToUpperInvariant(args[i + 1][0]);
@@ -90,6 +95,7 @@ namespace DnaAnd
             DeepView deep = null;
             PlanetView planet = null;
             if (openSet > 0) viewer.ShowSet(openSet);
+            bool journey = Array.IndexOf(args, "--journey") >= 0;
             ElementView elements = openSet == 7 ? new ElementView(gpu, meshes, content) : null;
             MicrobeView microbes = openSet == 8 ? new MicrobeView(gpu, pipeline, Seed) : null;
             if (openSet == 6 && testDyson < 0)
@@ -106,6 +112,7 @@ namespace DnaAnd
                 if (testAlt > 0) planet.SetAltitude(testAlt);
             }
             if (testPlanet >= 0) { planet = new PlanetView(gpu, meshes, pipeline, viewer.TerrainAt(testPlanet), viewer.FieldTerrainAt(testPlanet), viewer.Set == 5 || testFieldView); for (int k = 0; k < testJumps; k++) planet.JumpToNextField(); if (testAlt > 0) planet.SetAltitude(testAlt); }
+            if (journey) { deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(0), viewer.NameOf(0), Seed); if (Array.IndexOf(args, "--test-system") >= 0) deep.TestJourney(gpu.Width, gpu.Height); }
             if (testDeep >= 0) deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(testDeep), viewer.NameOf(testDeep), Seed + (ulong)testDeep * 7919UL);
             while (window.Pump())
             {
@@ -140,12 +147,13 @@ namespace DnaAnd
                     testDeep = -1;
                 }
                 if (pressKey >= 0 && clock.Total >= pressAt) { window.Input.Press(pressKey); pressKey = -1; }
+                if (wheelFrom >= 0 && clock.Total >= wheelFrom && clock.Total < wheelFrom + wheelFor) window.Input.Wheel = 1;
                 if (microbes != null) microbes.Update(window.Input, clock.Delta);
                 else if (elements != null) elements.Update(window.Input, clock.Delta);
                 else if (planet != null) { if (!planet.Update(window.Input, clock.Delta))
                     {
                         if (viewer.Set == 6) window.Close();          // the Dyson sphere is the whole set: leaving it closes the sample
-                        else { planet.Dispose(); planet = null; }
+                        else { planet.Dispose(); planet = null; if (deep != null) deep.ReturnFromPlanet(); }   // the journey: back up to the solar system
                     } }
                 else if (deep == null)
                 {
@@ -170,7 +178,20 @@ namespace DnaAnd
                         deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(row), viewer.NameOf(row), Seed + (ulong)row * 7919UL);
                     }
                 }
-                else if (!deep.Update(window.Input, clock.Delta, gpu.Width, gpu.Height)) { deep.Dispose(); deep = null; }
+                else if (!deep.Update(window.Input, clock.Delta, gpu.Width, gpu.Height)) { if (journey) window.Close(); else { deep.Dispose(); deep = null; } }
+                else if (deep.HandOff >= 0)
+                {
+                    // the journey: close enough to a planet, so fly down to it, carrying on from the same distance
+                    int b = deep.HandOff;
+                    var body = deep.System.Bodies[b];
+                    string kind = TerrainKind(body.Kind);
+                    uint tseed = (uint)(deep.SystemSeed * 977UL + (ulong)b);
+                    var t = new DnaAnd.Gen.PlanetTerrain(gpu.Device, kind, body.Kind, tseed);
+                    var tf = new DnaAnd.Gen.PlanetTerrain(gpu.Device, kind, body.Kind, tseed, true);
+                    planet = new PlanetView(gpu, meshes, pipeline, t, tf, false) { Journey = true };
+                    planet.SetAltitude((deep.Distance / deep.BodyRadiusUnits(b) - 1) * t.Radius);
+                    deep.HandOff = -1;
+                }
                 gpu.BeginFrame(0.005f, 0.006f, 0.012f);
                 if (microbes != null) microbes.Draw(gpu, gpu.Width, gpu.Height, clock.Total);
                 else if (elements != null) elements.Draw(gpu, gpu.Width, gpu.Height, clock.Total);
@@ -205,6 +226,21 @@ namespace DnaAnd
             watchdog.Stop();
             WriteLog(string.Format("ok · {0} content entries from {1} files · ran {2:0.00} s · gpu {3}x{4} · {5}", content.Entries.Count, content.Files.Count, clock.Total, gpu.Width, gpu.Height, endReason) + Environment.NewLine + "last title: " + lastTitle);
             return 0;
+        }
+
+        /// <summary>Which kind of ground a planet of the solar system gets in the planet view.</summary>
+        private static string TerrainKind(string bodyKind)
+        {
+            switch (bodyKind)
+            {
+                case "Temperate world": return "temperate";
+                case "Lava planet": return "lava";
+                case "Ice world": return "snowball";
+                case "Gas giant": return "gas-giant";
+                case "Ice giant": return "ice-giant";
+                case "Hot Jupiter": return "hot-jupiter";
+                default: return "desert";                     // rocky planets and moons: dry rock and dust
+            }
         }
 
         private static void WriteLog(string line)
