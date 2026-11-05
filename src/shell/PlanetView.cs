@@ -177,7 +177,8 @@ namespace DnaAnd.Shell
         /// <summary>What each colour means in the resource view, and the keys.</summary>
         public string Legend()
         {
-            var sb = new System.Text.StringBuilder(_terrain.Name + " · resource fields\n\nThe AI species find and use these. You are a god: you have no use for them.\n\n");
+            string air; PlanetTerrain.Air.TryGetValue(_terrain.Kind, out air);
+            var sb = new System.Text.StringBuilder(_terrain.Name + "\n\nAir: " + (air ?? (_terrain.Shell ? "nitrogen 78%, oxygen 21%, argon 1% (made to be breathed)" : "none")) + "\n\nResource fields (the AI species find and use these; you are a god and have no use for them):\n\n");
             foreach (var f in PlanetTerrain.Fields)
                 sb.Append("  " + ColourName(f) + "  " + f.Name + (f.Buried ? " (buried)" : "") + (f.Id == "coal" || f.Id == "oil-gas" ? " (made from buried life: none until life has lived here)" : "") + (f.Where.Length > 0 ? ": " + f.Where : "") + "\n");
             sb.Append("\nKeys:\n  R: resource view on or off\n  N: fly to the next kind of field\n  Mouse wheel: closer and further · drag or W A S D: move · Q E: turn\n  Esc: back");

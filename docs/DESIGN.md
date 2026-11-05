@@ -676,3 +676,4 @@ Everything the creator has said about this project, in order. Short process repl
     4. intelligent creatures
     5. cities
     6. stations, colonies and ships, built from the species that make them
+104. "dont foget temp and pressure and atmo composiytions". Every element now has its melting and boiling points from standard tables, and samples change state with temperature and pressure, which you can set. Every world kind has its air make-up in content, shown in its Legend.

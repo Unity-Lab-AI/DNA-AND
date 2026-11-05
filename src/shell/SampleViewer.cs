@@ -19,7 +19,7 @@ namespace DnaAnd.Shell
         private readonly BillboardDrawer _drawer;
         private float _yaw, _zoom = 1f;
         public int Set { get; private set; }
-        private readonly bool[,] _marks = new bool[7, 9];   // [set, row*3+col]: the samples marked good
+        private readonly bool[,] _marks = new bool[18, 9];   // [set, row*3+col]: the samples marked good
         private static readonly string[] StyleNames = { "", "Populous-like", "" };   // only the middle place is used: the earlier picks were made there
         private const int FrameDots = 48;
         private UploadBuffer _frameBuf;
@@ -437,7 +437,7 @@ namespace DnaAnd.Shell
             try
             {
                 var lines = new System.Collections.Generic.List<string>();
-                for (int set = 1; set <= 6; set++)
+                for (int set = 1; set <= 17; set++)
                     for (int i = 0; i < 9; i++)
                         if (_marks[set, i]) lines.Add("set " + set + " | " + SampleName(set, i));
                 System.IO.File.WriteAllLines("picks.txt", lines.ToArray());
@@ -454,7 +454,7 @@ namespace DnaAnd.Shell
                 {
                     var parts = line.Split('|');
                     if (parts.Length != 3) continue;
-                    int set; if (!int.TryParse(parts[0].Trim().Replace("set ", ""), out set) || set < 1 || set > 6) continue;
+                    int set; if (!int.TryParse(parts[0].Trim().Replace("set ", ""), out set) || set < 1 || set > 17) continue;
                     for (int i = 0; i < 9; i++)
                         if (SampleName(set, i) == parts[1].Trim() + " | " + parts[2].Trim()) _marks[set, i] = true;
                 }

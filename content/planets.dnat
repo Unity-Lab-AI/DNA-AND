@@ -66,6 +66,7 @@ says: a world whose air has lost its hydrogen, leaving helium
 name: Ocean planet
 real: yes
 says: liquid-water oceans hundreds of kilometers deep, with no dry land
+air: nitrogen 70%, oxygen 18%, water vapour 10%, argon 1%, carbon dioxide 1%  (thick, wet air)
 
 @planet hycean
 name: Hycean world
@@ -76,11 +77,13 @@ says: a mini-Neptune whose mass is mostly a warm water ocean under a hydrogen-he
 name: Desert planet
 real: yes
 says: dry rock and sand, little or no surface water
+air: carbon dioxide 95%, nitrogen 2.8%, argon 2%, oxygen 0.2%  (thin, like Mars)
 
 @planet snowball
 name: Snowball planet
 real: yes
 says: a world whose oceans have frozen over, far from its star
+air: nitrogen 95%, methane 4%, carbon monoxide 1%  (cold, like Titan or Pluto)
 
 @planet ice-world
 name: Ice world
@@ -94,6 +97,7 @@ name: Lava planet
 real: yes
 says: so close to its star that its surface is molten rock
 example: Kepler-10b, CoRoT-7b
+air: rock vapour: sodium, potassium, silicon monoxide, oxygen  (a thin haze of boiled rock)
 
 @planet chthonian
 name: Chthonian planet
@@ -111,11 +115,13 @@ name: Temperate planet
 real: yes
 says: in the habitable zone, where liquid water can last
 example: Earth
+air: nitrogen 78%, oxygen 21%, argon 0.9%, carbon dioxide 0.04%, water vapour (varies)  (like Earth)
 
 @planet tidally-locked
 name: Tidally locked planet
 real: yes
 says: one side always faces its star; one side burns, one side freezes, with a twilight ring between
+air: nitrogen 80%, carbon dioxide 15%, oxygen 4%, argon 1%  (winds carry heat to the night side)
 
 @planet eccentric
 name: Eccentric-orbit planet

@@ -26,6 +26,7 @@ namespace DnaAnd
                 if (args[i] == "--set4") openSet = 4;
                 if (args[i] == "--set5") openSet = 5;
                 if (args[i] == "--set6") openSet = 6;
+                if (args[i] == "--set7") openSet = 7;
                 if (args[i] == "--press" && i + 2 < args.Length)   // --press <key letter> <seconds>: press a key once, for test runs
                 {
                     pressKey = char.ToUpperInvariant(args[i + 1][0]);
@@ -87,6 +88,7 @@ namespace DnaAnd
             DeepView deep = null;
             PlanetView planet = null;
             if (openSet > 0) viewer.ShowSet(openSet);
+            ElementView elements = openSet == 7 ? new ElementView(gpu, meshes, content) : null;
             if (openSet == 6 && testDyson < 0)
             {
                 var one = viewer.DysonAt(5).Enterable;
@@ -114,7 +116,7 @@ namespace DnaAnd
                 bool askNow = false;
                 if (cmd == Window.CmdExit) { endReason = "closed with the Exit button"; window.Close(); }
                 else if (cmd == Window.CmdAskNow) askNow = true;
-                else if (cmd == Window.CmdLegend) window.Tell(planet != null ? planet.Legend() : viewer.Legend(), "DNA-AND · Legend");
+                else if (cmd == Window.CmdLegend) window.Tell(elements != null ? elements.Legend() : planet != null ? planet.Legend() : viewer.Legend(), "DNA-AND · Legend");
                 else if (cmd == Window.CmdClearMarks) { viewer.ClearMarks(); menuDirty = true; }
                 else if (cmd >= Window.CmdKeeperBase && cmd < Window.CmdKeeperBase + 9) { viewer.ToggleMark(cmd - Window.CmdKeeperBase); menuDirty = true; }
                 // keep-or-revert safety pop-up: Yes keeps the test going, No or no answer in 15 s closes it safely
@@ -135,7 +137,8 @@ namespace DnaAnd
                     testDeep = -1;
                 }
                 if (pressKey >= 0 && clock.Total >= pressAt) { window.Input.Press(pressKey); pressKey = -1; }
-                if (planet != null) { if (!planet.Update(window.Input, clock.Delta))
+                if (elements != null) elements.Update(window.Input, clock.Delta);
+                else if (planet != null) { if (!planet.Update(window.Input, clock.Delta))
                     {
                         if (viewer.Set == 6) window.Close();          // the Dyson sphere is the whole set: leaving it closes the sample
                         else { planet.Dispose(); planet = null; }
@@ -165,7 +168,8 @@ namespace DnaAnd
                 }
                 else if (!deep.Update(window.Input, clock.Delta, gpu.Width, gpu.Height)) { deep.Dispose(); deep = null; }
                 gpu.BeginFrame(0.005f, 0.006f, 0.012f);
-                if (planet != null) planet.Draw(gpu, gpu.Width, gpu.Height);
+                if (elements != null) elements.Draw(gpu, gpu.Width, gpu.Height, clock.Total);
+                else if (planet != null) planet.Draw(gpu, gpu.Width, gpu.Height);
                 else if (deep == null) viewer.Draw(gpu.Width, gpu.Height, clock.Total); else deep.Draw(gpu.Width, gpu.Height, clock.Total);
                 if (shotPath != null && clock.Total >= shotAt) { gpu.CaptureNext = shotPath; shotPath = null; }
                 if (tour != null && planet != null && tourStep < tour.Length * 2 && clock.Total >= 1.0 + tourStep * 3.0)
@@ -181,7 +185,7 @@ namespace DnaAnd
                 frames++; titleTimer += clock.Delta;
                 if (titleTimer >= 0.5)
                 {
-                    lastTitle = string.Format("{0} · {1:0} fps", planet != null ? planet.Title : deep == null ? viewer.Title : deep.Title, frames / titleTimer);
+                    lastTitle = string.Format("{0} · {1:0} fps", elements != null ? elements.Title : planet != null ? planet.Title : deep == null ? viewer.Title : deep.Title, frames / titleTimer);
                     window.SetTitle(string.Format("{0} · {1:0} fps", planet != null ? planet.Title : deep == null ? viewer.Title : deep.Title, frames / titleTimer));
                     titleTimer = 0; frames = 0;
                 }
@@ -190,6 +194,7 @@ namespace DnaAnd
                 if (smokeMs >= 0 && clock.Total * 1000 >= smokeMs) { window.Close(); smokeMs = -1; }
             }
             if (deep != null) deep.Dispose();
+            if (elements != null) elements.Dispose();
             viewer.Dispose(); if (planet != null) planet.Dispose(); if (meshes != null) meshes.Dispose(); pipeline.Dispose(); gpu.Dispose();
             watchdog.Stop();
             WriteLog(string.Format("ok · {0} content entries from {1} files · ran {2:0.00} s · gpu {3}x{4} · {5}", content.Entries.Count, content.Files.Count, clock.Total, gpu.Width, gpu.Height, endReason) + Environment.NewLine + "last title: " + lastTitle);
