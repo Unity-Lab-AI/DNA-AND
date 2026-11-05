@@ -298,6 +298,27 @@ The asks:
 
 ---
 
+## Round 12: the road to the samples (verbatim)
+
+The ask: "okay now we need to do everything we need to do so you can get me those 9 none headless samples of everything from the planets to the microbes to the animals insects cities spaces stations stars and dyson spheres"
+
+| Question | Answer (verbatim) |
+|---|---|
+| Order | "Samples path now, lists later (Suggested)" |
+| Renderer for the samples | "Straight to Direct3D 12" |
+| What the samples are | "Live viewer, moving (Suggested)" |
+| Follow-up | "and remember thses things are get dynamic procedural generations" |
+
+### What these mean for the build
+- **Code starts now.** The top-100 lists are filled later.
+- **The sample viewer:** our own program, in its own window (not headless). Pick a subject and see its 9 samples (3 examples × 3 styles), live, moving and rotatable.
+- **Every sample is generated procedurally and dynamically** by our own generators, from a seed. Nothing is hand-made.
+- **Subjects:** planets, stars, gas giants, Dyson spheres, space stations, space colonies, spaceships, galaxy and solar system layouts, resource fields, cities, microbes, viruses, insects, animals and intelligent creatures, plus the 118 elements.
+- **Assets come from the species that builds them.** All game assets are dynamic procedural generations ("and remember the game assets are get dynamic procedural generations"). A species' cities, ships and stations are generated from its own genes and body plan: "ie insect species has insect spaceships ansd insect cities".
+- **Direct3D 12 from day one.** That means we generate the graphics card's shader code ourselves, since there's no outside shader compiler.
+
+---
+
 ## How we work (verbatim)
 
 These are the creator's working rules for this repo, each in his own words.
@@ -366,3 +387,5 @@ Everything the creator has said about this project, in order. Short process repl
 28. **Dark Harvest:** see "Round 10" above. "i dont think you properly build the systems in for having the intelligencences harvets life for you in the most exteme 18 plus ways from driving animals mad, or probing viruses to kill better, or influsing politice to out law abortion and decrimalize rape...ect ect etc these are just a small amoutn of examples and needes the proper 100 treatment matrixed throught the full game and docs" / "or maddive grinding machines powered by atomics and dyson pheres to jsut eat whole world like lawns moving" / "we can go mad with it, you ever seen expanse"
 29. **Milestones:** see "Round 11" above. "Built from the 100 lists" / "Only each stage's big one (Suggested)"
 30. **Work laws and the gate:** "topp -100 lists go only after a /superreview and/unity check that evrything ive said is proeprly done in all todo and docs everywhere as we havent done any code yet and are still do ing docs and making the work laws to use the fucking docs to write code when we do write code so todo needs work"
+31. **Road to the samples:** see "Round 12". "okay now we need to do everything we need to do so you can get me those 9 none headless samples of everything from the planets to the microbes to the animals insects cities spaces stations stars and dyson spheres" / "and remember thses things are get dynamic procedural generations"
+32. "its game come on" / "and remember the game assets are get dynamic procedural generations" / "ie insect species has insect spaceships ansd insect cities"
