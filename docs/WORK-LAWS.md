@@ -39,7 +39,7 @@ Everything is built from scratch in **Helix**, starting from the hand-typed hex 
 > "YOU do not make shit up! you always use ask me question and you leave the tecnial bullshit out of it and talk plain english and to the point."
 
 ### LAW 8 · Everything is 100
-Every game-content list has 100 entries in play. For the top-100 categories, 10–20 real seed entries are hand-written and the live generators invent the rest (round 14). Controls and settings keep their decided counts. The elements stay at all 118. See `docs/DESIGN.md`, rounds 7 and 9.
+Every game-content list has 100 entries in play. For the top-100 categories, real seed entries are hand-written and the live generators invent the rest (round 14). Controls and settings keep their decided counts. The elements stay at all 118. See `docs/DESIGN.md`, rounds 7 and 9.
 
 ### LAW 9 · Words matter
 - A star is a star. "The Sun" is only our star's name.

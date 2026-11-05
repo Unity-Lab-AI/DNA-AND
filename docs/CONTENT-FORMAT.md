@@ -12,7 +12,7 @@ Content is **what the live generators work from**. It is never a finished asset 
 
 | Kind | What it holds | Example |
 |---|---|---|
-| 🌱 **Seeds** | 10–20 real-world entries per category (round 14) | A real star type: an O-type blue star |
+| 🌱 **Seeds** | Real-world entries per category, as many as it takes to teach its generator (round 14) | A real star type: an O-type blue star |
 | 📏 **Ranges** | The limits a generator may vary within | Surface temperature 30,000–50,000 K |
 | 🧩 **Parts** | Building blocks a generator combines | Leg, wing, eye, dome, spire, hull |
 | 📐 **Rules** | How the generator puts parts together | Insect species build with segments and hex cells |

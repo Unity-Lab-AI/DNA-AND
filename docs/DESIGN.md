@@ -315,6 +315,7 @@ The ask: "okay now we need to do everything we need to do so you can get me thos
 - **Every sample is generated procedurally and dynamically** by our own generators, from a seed. Nothing is hand-made.
 - **Subjects:** planets, stars, gas giants, Dyson spheres, space stations, space colonies, spaceships, galaxy and solar system layouts, resource fields, cities, microbes, viruses, insects, animals and intelligent creatures, plus the 118 elements.
 - **Assets come from the species that builds them.** All game assets are dynamic procedural generations ("and remember the game assets are get dynamic procedural generations"). A species' cities, ships and stations are generated from its own genes and body plan: "ie insect species has insect spaceships ansd insect cities".
+- **Sample order:** the samples are shown in their own window (not headless), from galactic scale down, **one set at a time**. Claude waits for the creator's input before doing the next set: "and when we do the dsamples we show the non headless and do them galactic scale down one set of samples at a time to take input before doing the next set".
 - **Direct3D 12 from day one.** That means we generate the graphics card's shader code ourselves, since there's no outside shader compiler.
 
 ---
@@ -342,7 +343,7 @@ The ask: "okay wasnt there categories or something u said we need but do we real
 | How many real entries to write by hand | "Real seeds, game fills to 100 (Suggested)" |
 
 ### What this means for the build
-- **Real seeds:** each of the 100 categories gets **10–20 real seed entries** written by hand. These are strong real-world examples that teach its generator the rules.
+- **Real seeds:** each of the 100 categories gets **real seed entries** written by hand, as many as its generator needs. **No fixed number.** Claude had written "10–20" here from its own option text, and the creator corrected it: "i never made a 10-20 rule". These are strong real-world examples that teach its generator the rules.
 - **The game fills the rest:** the live generators invent the rest, so every category still reaches **100 in play**, and they're different in every world.
 - **The 100 rule still holds in the game** (LAW 8). The hand-written part is the seeds.
 
@@ -443,3 +444,5 @@ Everything the creator has said about this project, in order. Short process repl
 35. "make sure all docs are correct"
 36. **List size:** "okay wasnt there categories or something u said we need but do we really need 10000?". Answer: "Real seeds, game fills to 100 (Suggested)"
 37. **Content first:** see "Round 15". "well i thought we needed to write the games content before we could have something to generate in the game engine" / "option one and and whats the most dynamic code to use? rust or type script?"
+38. "and when we do the dsamples we show the non headless and do them galactic scale down one set of samples at a time to take input before doing the next set"
+39. "i never made a 10-20 rule". Corrected: no fixed seed count.
