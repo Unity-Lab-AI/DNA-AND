@@ -59,7 +59,7 @@ Order: galactic scale down, the same order as the sample sets.
 - [x] Content: Moons in `content/moons.dnat` (researched)
 - [x] Content: Small bodies in `content/small-bodies.dnat` (researched: asteroids, comets, dwarf planets, Kuiper belt, Oort cloud, meteors, meteorites)
 - [x] Content: Nebulas in `content/nebulas.dnat` (researched)
-- [ ] Content: Resource fields (seeds, ranges, parts, rules) in `content/`
+- [x] Content: Resource fields in `content/resource-fields.dnat` (researched: 16 planet deposits, 10 space fields, 6 rules)
 - [ ] Content: Space resources and colonies (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Dyson spheres (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Space stations (seeds, ranges, parts, rules) in `content/`
