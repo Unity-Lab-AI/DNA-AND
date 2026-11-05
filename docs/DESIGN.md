@@ -54,3 +54,31 @@ The workflow template (`.claude/`, the template docs and installers) is project 
 ## OPEN questions (waiting on the creator)
 
 These are tracked in `docs/TODO.md` under "Questions for the creator".
+
+---
+
+## Answers, round 2 (verbatim)
+
+| # | Question | Answer (verbatim) |
+|---|---|---|
+| Q1 | Build tools / which system first | "windows only for now" |
+| Q2 | Use only the operating system and graphics driver | "sure" |
+| Q3 | jsonbin as the only outside thing | "it only thing allowed but lets keep it as a side car so if needed we can pop something else in there." |
+| Q4 | Gladiator | "look on desktop it in the folder called gladiators" |
+| Q5 | The "everything" list | "do top 100 for everything from viruse types, aminals, insects, fish, birds, environmets, senses, abilities, and not limited to thed bit to incluse the top one hundered top onehundreds" |
+| Q6 | One player hosts multiplayer | "yes" |
+| Q7 | Losing | "open ended till u resarts to get a new world and galaxy" |
+| Q8 | God powers | "they all need their usesas and pluses and minuses in some cases raise temp with fire lower with cold add water to flood sun to dry it up solar flare to fuck with tech, ,ect ect ect ect ect ect ectr x100" |
+| Q9 | Wikis | "both" |
+| Q10 | Fix commit history / credits | "yes and this deserves the unity ai lab team credits and website .com with the git and github links" |
+
+### What these mean for the build
+- **Windows only for now.** Mac and Linux stay on the roadmap for later.
+- **The only outside software:** Windows itself and the graphics card driver.
+- **The only outside service:** jsonbin. It plugs in as a swappable piece (a "side car"), so another service can replace it later without touching the rest of the game.
+- **Gladiators** is a web page inside an outside program (Electron) with many outside packages. DNA-AND can't be built that way. What carries over is how it ships: a single setup exe on a release page, and a README with a banner and screenshots.
+- **The lists:** the top 100 categories, each holding its top 100 entries (`docs/LISTS.md`).
+- **God powers:** 100 of them, each with uses, pluses and minuses (`docs/POWERS.md`).
+- **Multiplayer:** one player's computer hosts.
+- **The game never ends** until the player restarts with a new world and galaxy.
+- **Two wikis:** one inside the game, one for us builders.
