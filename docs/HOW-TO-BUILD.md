@@ -1,5 +1,7 @@
 # 🛠️ How to Build DNA-AND from Source
 
+> ⚖️ **Read [the Work Laws](WORK-LAWS.md "The docs are the spec") first.** Every line of code is written from the docs.
+
 > 🟡 **This is the plan.** No game code or tools exist yet. This page describes how the build **will** work, and it gets updated as each step is built.
 
 ## 🚫 The one rule

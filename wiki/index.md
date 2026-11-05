@@ -37,6 +37,7 @@ How the game gets built, system by system, all from scratch. 🟡 = draft (plan 
 | 🟡 | [R17 · Docs + image capture](systems/r17-docs-and-capture.md "Docs, wikis, auto-filled image slots") | Docs and the image "botting" tool |
 
 ## 📚 Related
+- ⚖️ [Work Laws](../docs/WORK-LAWS.md "The docs are the spec for all code"): read before writing any code
 - [Design record](../docs/DESIGN.md "The creator's decisions, verbatim") · [Roadmap](../docs/ROADMAP.md) · [To-do](../docs/TODO.md)
 - Player wiki: [home](../docs/wiki/README.md) · [Groups & Flocking](../docs/wiki/groups-and-flocking.md) · [Tree of Life](../docs/wiki/tree-of-life.md)
 - [How to build](../docs/HOW-TO-BUILD.md) · [Setup](../docs/SETUP.md) · [Image slots](../docs/img/README.md)
