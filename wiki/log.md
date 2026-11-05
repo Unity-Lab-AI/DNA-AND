@@ -25,3 +25,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Flocking and tree of life
 
 - New player pages: groups-and-flocking.md (the 100-step grouping ladder) and tree-of-life.md. Life sim tasks added. The game is rated 18+.
+
+## 2026-11-05 — Layered mini AIs
+
+- Added the selfish-gene layered AI (chemical, individual, group, hive, species, galactic mind) to the life sim plan and the player page.
