@@ -81,7 +81,7 @@
 | 🏆 [Leaderboard & Genebank](docs/wiki/leaderboard-and-genebank.md "Scores and shared genomes") | ⚙️ [Menus & Settings](docs/wiki/menus-and-settings.md "Everything on the main screen") |
 | 📖 [Glossary](docs/wiki/glossary.md "Every term explained") | ❓ [FAQ](docs/wiki/faq.md "Common questions") |
 
-🛠️ **For builders:** [Builder Wiki](wiki/index.md "How the game is built") · [How to Build](docs/HOW-TO-BUILD.md "Building from source with our own tools") · [Design Record](docs/DESIGN.md "Every decision, in the creator's words") · [Roadmap](docs/ROADMAP.md "The big stages of building it")
+🛠️ **For builders:** [Builder Wiki](wiki/index.md "How the game is built") · [How to Build](docs/HOW-TO-BUILD.md "Building from source with our own tools") · [Design Record](docs/DESIGN.md "Every decision, in the creator's words") · [Roadmap](docs/ROADMAP.md "The big stages of building it") · [How we work](docs/DESIGN.md#how-we-work-verbatim "Branches feature → develop → main, pushed to both remotes")
 
 ---
 
