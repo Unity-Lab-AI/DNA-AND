@@ -2,6 +2,7 @@
 using System;
 using DnaAnd.Core;
 using DnaAnd.Platform;
+using DnaAnd.Render;
 
 namespace DnaAnd
 {
@@ -24,6 +25,9 @@ namespace DnaAnd
 
             ContentLibrary content = ContentLibrary.Load("content");
             var window = new Window("DNA-AND", 1600, 900);
+            Gpu gpu;
+            try { gpu = new Gpu(window.Handle, window.Width, window.Height); }
+            catch (Exception ex) { WriteLog("gpu error · " + ex.Message); window.Close(); return 2; }
 
             double titleTimer = 0; int frames = 0;
             while (window.Pump())
@@ -33,6 +37,11 @@ namespace DnaAnd
 
                 if (window.Input.WasPressed(Win32.VK_ESCAPE)) window.Close();
                 if (testStall && clock.Total > 0.5) System.Threading.Thread.Sleep(10000);
+
+                if (window.Resized) { window.Resized = false; gpu.Resize(window.Width, window.Height); }
+                float t = (float)clock.Total;
+                gpu.BeginFrame(0.02f, 0.03f + 0.02f * (float)Math.Sin(t), 0.08f);
+                gpu.EndFrame();
 
                 frames++; titleTimer += clock.Delta;
                 if (titleTimer >= 0.5)
@@ -44,17 +53,21 @@ namespace DnaAnd
 
                 window.Input.EndFrame();
                 if (smokeMs >= 0 && clock.Total * 1000 >= smokeMs) { window.Close(); smokeMs = -1; }
-                Win32.Sleep(1);
             }
+            gpu.Dispose();
             watchdog.Stop();
+            WriteLog(string.Format("ok · {0} content entries from {1} files · ran {2:0.00} s · gpu {3}x{4}", content.Entries.Count, content.Files.Count, clock.Total, gpu.Width, gpu.Height));
+            return 0;
+        }
+
+        private static void WriteLog(string line)
+        {
             try
             {
                 System.IO.Directory.CreateDirectory("build");
-                System.IO.File.WriteAllText(System.IO.Path.Combine("build", "last-run.log"),
-                    string.Format("ok · {0} content entries from {1} files · ran {2:0.00} s" + Environment.NewLine, content.Entries.Count, content.Files.Count, clock.Total));
+                System.IO.File.WriteAllText(System.IO.Path.Combine("build", "last-run.log"), line + Environment.NewLine);
             }
             catch { }
-            return 0;
         }
     }
 }
