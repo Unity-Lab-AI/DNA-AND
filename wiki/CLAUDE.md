@@ -37,3 +37,7 @@ After any significant change:
 2. Keep `wiki/index.md` in sync.
 3. Append an entry to `wiki/log.md`.
 4. If a page can't be updated properly, set `status: stale`. Never leave it silently wrong.
+
+## ⚖️ Work laws
+
+These pages are the **spec** for the code (`docs/WORK-LAWS.md`, LAW 1–4). Code is written from these pages. When code matches a page, set `status: verified` and `last-verified: <commit>`. If code needs a detail that no page gives, ask the creator first and record the answer in `docs/DESIGN.md`.

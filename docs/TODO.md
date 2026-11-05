@@ -11,6 +11,8 @@ Status markers:
 
 LAW #0 reminder: every task description preserves the user's verbatim words.
 
+⚖️ **Work laws:** every task is built from its **Spec:** pages, per `docs/WORK-LAWS.md`. If a spec is missing a detail, ask the creator first (LAW 3).
+
 **Three-tier cascade:** ROADMAP.md (major) → TODO.md (minor, this file) → DECOMPOSED.md (decomposed). YOLO mode reads all three and works the cascade — see `.claude/commands/yolo.md` and `.claude/WORKFLOW.md §YOLO MODE`.
 
 
@@ -20,7 +22,7 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 
 ### R17 — Docs
 - [~] Write all wikis, docs and readmes as if the game were complete: "okay we need to write all the wikis and docs and readmes for the entire project in full to complete final endgame and play through completely in full no text wealls easy and fun to read beautifully written and well designed and formated with tool tips and everything like a AAA game using all the icons and images of the game in the docs with links and relseas link at top of readme and everything as if the game was full and complete wee will make everything but the geam itself yet"
-  - ✅ Written: README, player wiki (`docs/wiki/`, 20 pages), builder wiki (`wiki/`), `docs/SETUP.md`, `docs/HOW-TO-BUILD.md`, `docs/img/README.md`.
+  - ✅ Written: README, player wiki (`docs/wiki/`, 26 pages), builder wiki (`wiki/`), `docs/SETUP.md`, `docs/HOW-TO-BUILD.md`, `docs/img/README.md`, `docs/WORK-LAWS.md`.
   - ✅ All 47 open questions decided and applied (`docs/DESIGN.md` round 5).
   - ⏳ Left: fill the 55 image slots once R4's 3D generator and capture tool exist.
 
@@ -28,13 +30,27 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 
 ## Pending
 
+### 🚦 Gate: before the top-100 lists and before any code
+> "topp -100 lists go only after a /superreview and/unity check that evrything ive said is proeprly done in all todo and docs everywhere as we havent done any code yet and are still do ing docs and making the work laws to use the fucking docs to write code when we do write code so todo needs work"
+
+- [x] Write the work laws: code is written from the docs (`docs/WORK-LAWS.md`)
+- [x] Every TODO section names its **Spec:** pages
+- [ ] `/super-review`: everything the creator said is properly done in every TODO and doc
+- [ ] `/unity` check: nothing the creator said is left out, word for word
+- [ ] Only after both pass: fill the top-100 lists (below)
+- [ ] Only after the lists: start R1 code, following `docs/WORK-LAWS.md`
+
 ### Lists
+**Spec:** `docs/LISTS.md`
+
 - [ ] Fill each approved category with its top 100 entries — "real and dynamic invented combo procedurally"
   - 100 categories × 100 entries = 10,000 entries (`docs/LISTS.md`, approved: "Use them as is").
   - Real-world entries only. The invented ones come from the generator below.
 - [ ] Procedural generator that invents new entries on top of the real ones
 
 ### R1 — Our own build tools (Helix)
+**Spec:** `wiki/systems/r01-toolchain.md`, `docs/HOW-TO-BUILD.md`, `docs/DECOMPOSED.md`
+
 - [ ] Design the tiny first tool, written directly as raw machine bytes, that can turn simple text instructions into machine code
   - Decided: a **hex loader** typed in as raw bytes. It turns a text file of hex digits into a Windows exe. Broken down in `docs/DECOMPOSED.md`.
 - [ ] Use it to build a fuller machine-code writer (an "assembler")
@@ -51,12 +67,16 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
   - `docs/HOW-TO-BUILD.md` has the plan. Exact commands get added as each step exists.
 
 ### R2 — Talking to Windows
+**Spec:** `wiki/systems/r02-windows-layer.md`
+
 - [ ] Windows: window, keyboard, mouse, sound, files, clock, threads, network
   - Only Windows itself and the graphics card driver may be used ("sure").
 - [ ] (Later) Mac: same list
 - [ ] (Later) Linux: same list
 
 ### R3 — Engine core
+**Spec:** `wiki/systems/r03-engine-core.md`
+
 - [ ] Math: vectors, matrices, noise, seeded random numbers
   - Our own seeded random generator. 64-bit positions with a moving origin.
 - [ ] Memory and the giant data arrays for billions of things
@@ -67,6 +87,8 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
   - Our own versioned binary chunks: universe, planets, life, civilizations, player.
 
 ### R4 — Graphics
+**Spec:** `wiki/systems/r04-renderer.md`, `docs/img/README.md`, `wiki/systems/r17-docs-and-capture.md`
+
 - [ ] Our own 3D image generator for all game icons and art: "we will need to design the #D genrator and botting of them"
 - [ ] Auto-capture tool that renders the doc images and fills every image slot in the docs
   - A mode of the game exe. It finds every `<!-- IMG: ... -->` marker and renders that image (`docs/img/README.md`).
@@ -79,6 +101,8 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 - [ ] Visual gene map for every trait and skill
 
 ### R4.5 — Art style samples
+**Spec:** `wiki/systems/r04-renderer.md#-style-samples-come-first`, `docs/DESIGN.md` round 6
+
 - [ ] Style samples, 3 samples × 3 styles: "remembr we arent using other peoples shit unless we absoulutley have to so plan on buiolding it all and things like ingame microbes viruses and intelligernt creature should all have samples 1,2,3 made in 3 diffeernt styles 1,2,3 for a hand ful of things in the game before we go with any one style and same for things like the galaxy layouts solarsystem layouts and planets and stars and dyson spheres and space ships and space colonires ands space stations and rouseource firleds and gas giants and athe whole periodic table of elements"
   - Styles: RimWorld-like, Populous-like, Stardew-like, all drawn originally by us: "try a rimworld like and a, populous like, and a stardew like".
   - Light on the GPU, built for living things that move and spread: "not one thats too gpu intense and these will be living things in the environment moving and spreading as told before".
@@ -102,12 +126,16 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 - [ ] Lock in the chosen style, recorded verbatim in `docs/DESIGN.md`
 
 ### R5 — Universe
+**Spec:** `wiki/systems/r05-universe.md`, `docs/wiki/space-and-dyson-spheres.md`
+
 - [ ] Galaxy generation from a seed
   - Sizes: Small, Medium, Large, Massive.
 - [ ] Solar systems: stars and planets
 - [ ] Multiple galaxies
 
 ### R6 — Planet
+**Spec:** `wiki/systems/r06-planet.md`, `docs/wiki/planets-and-templates.md`, `docs/wiki/elements.md`
+
 - [ ] Earth template: the full "everything" list (top 100 lists)
   - Surface split into equal-size cells on a sphere.
 - [ ] Unlockable other planet templates and what unlocks them
@@ -118,6 +146,8 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
   - All 118 elements. Lab-made ones (93+) unlock once a civilization creates them.
 
 ### R7 — Genomes
+**Spec:** `wiki/systems/r07-genome.md`, `docs/wiki/genes-and-dna.md`
+
 - [ ] Real-style DNA format
   - 2 bits per letter (A, C, G, T).
 - [ ] How DNA builds a body and its behavior
@@ -126,6 +156,8 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 - [ ] Map of gene pieces to traits ("breathing air to walking upright to photosynethesiis")
 
 ### R8 — Life
+**Spec:** `wiki/systems/r08-life-sim.md`, `docs/wiki/stages-of-life.md`, `docs/wiki/milestones.md`, `docs/wiki/groups-and-flocking.md`, `docs/wiki/tree-of-life.md`
+
 - [ ] Viruses
 - [ ] Microbes
 - [ ] Plants
@@ -156,35 +188,49 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
   - All 100 stages (`docs/wiki/stages-of-life.md`). Each stage is one of the 100 unlock points. Every power unlocks at exactly one stage.
 
 ### R9 — Intelligent life
+**Spec:** `wiki/systems/r09-civilization.md`, `docs/wiki/ages-of-civilization.md`, `docs/wiki/tech-tree.md`, `docs/wiki/society.md`
+
 - [ ] Tribes and culture
 - [ ] Politics
 - [ ] War
 - [ ] Technology tree
-  - 100 ages in real-history order, 8 branches. Each discovery needs the one before it on its branch, plus links across branches (`docs/wiki/tech-tree.md`).
+- [ ] 100 tech branches in 10 families (`docs/wiki/tech-tree.md`)
+- [ ] 100 kinds of society: rule, trade, family, belief, law (`docs/wiki/society.md`)
+  - 100 ages in real-history order. 100 branches in 10 families. Each discovery needs the one before it in its family, plus links across families.
 - [ ] Ways civilizations destroy themselves
   - A collapse can send a civilization back to earlier ages.
 
 ### R10 — Space
+**Spec:** `wiki/systems/r10-space.md`, `docs/wiki/space-and-dyson-spheres.md`
+
 - [ ] Space travel and reaching other planets
 - [ ] Spreading life and colonies
 - [ ] Dyson spheres
 - [ ] War across galaxies
 
 ### R11 — God mode
+**Spec:** `wiki/systems/r11-god-mode.md`, `docs/wiki/god-powers.md`, `docs/wiki/souls-and-harvesting.md`, `docs/wiki/nudges.md`, `docs/wiki/dark-harvest.md`, `docs/POWERS.md`
+
 - [ ] Build all 100 powers from the power list (`docs/POWERS.md`, `docs/wiki/god-powers.md`)
+  - Names as decided, including #4 Starshine and #81 Stellar Flare ("Starshine + Stellar Flare (Suggested)").
+  - No direct DNA editing: "no direct edit besids using powers to influence things to happen".
+- [ ] 100 nudges, each driven by its powers (`docs/wiki/nudges.md`)
 - [ ] Unlocking powers with points from the amount of life in your galaxies
+  - Each power unlocks at exactly one stage. The 5 starters are at stage 1. The table is in `docs/wiki/god-powers.md` and `docs/wiki/stages-of-life.md`.
   - 100 unlock points = the 100 stages of life: "Stages + ranked tiers (Suggested)".
 - [ ] Paying for powers by harvesting life: "maybe u have to harvet life and later on u get the intelligent sure intelligences using their powers to harvest life for you"
   - The currency is **Souls**. Cost = tier × area × strength. 100 tiers, T1–T100. T81–T100 have cooldowns.
   - Harvesting is slow and shows as a glow that scares intelligent life. Mass deaths give lots of souls.
 - [ ] Build the Dark Harvest system: 100 methods, each gated by age, pushed by powers, paying souls per death (`docs/wiki/dark-harvest.md`)
 - [ ] Endgame: intelligent life harvests life for its own needs, spreads and uses up nutrients and resources: "since all life is like a virus advanced forms seprad and use up avasil nutrientrs and resources and have to spread. jsut liek real life"
-  - Six harvest steps, from farming to intergalactic (`docs/wiki/tech-tree.md`).
+  - 100 harvest steps, one per age, with the six big jumps marked.
 - [ ] Gene powers with good and bad outcomes
 - [ ] Life starting from the player's first action
   - Starting toolkit: lightning, heat (fire), cold, water, spark of life, add genes, and add elements: "option one but things like add genes add elements ect ect real life so full perioditic table of elements".
 
 ### R12 — Time
+**Spec:** `wiki/systems/r12-time.md`, `docs/wiki/time.md`, `docs/wiki/milestones.md`
+
 - [ ] Pause and speed controls
   - Pause plus 1×, 10×, 100×, 1,000× and max.
 - [ ] Automatic speed jumps at headline milestones only
@@ -194,6 +240,8 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
   - Each stage has its own years-per-second.
 
 ### R13 — Game shell
+**Spec:** `wiki/systems/r13-game-shell.md`, `docs/wiki/menus-and-settings.md`, `docs/wiki/controls.md`
+
 - [ ] 18+ rating shown on the store/release page, installer and main menu: "this is a 18 plus game"
 - [ ] Open-ended play: "open ended till u resarts to get a new world and galaxy"
 - [ ] Main screen
@@ -208,12 +256,16 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
   - WASD/edge pan, scroll-wheel zoom, right-drag rotate, left-click power, Space pause, 1–5 speeds, Esc menu, F1 wiki.
 
 ### R14 — Multiplayer
+**Spec:** `wiki/systems/r14-multiplayer.md`, `docs/wiki/multiplayer.md`
+
 - [ ] Single player
 - [ ] Co-op and multiplayer in one shared world (one player's computer hosts)
   - Join code, up to 8 players, our own reliable messaging over UDP.
 - [ ] Seeing each other's cursors
 
 ### R15 — Leaderboard and Genebank
+**Spec:** `wiki/systems/r15-leaderboard-genebank.md`, `docs/wiki/leaderboard-and-genebank.md`
+
 - [ ] Our own secure web connection code (approved)
   - TLS 1.3, written from scratch.
 - [ ] Leaderboard service as a swappable side car: "lets keep it as a side car so if needed we can pop something else in there."
@@ -226,6 +278,8 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
   - Available from the first-life stage on.
 
 ### R16 — Shipping
+**Spec:** `wiki/systems/r16-packaging.md`, `docs/SETUP.md`
+
 - [ ] Windows exe
 - [ ] Our own `DNA-AND-Setup.exe` installer
   - Uninstall keeps saves and asks whether to delete them.
@@ -234,6 +288,8 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 - [ ] (Later) Linux program
 
 ### R17 — Docs (upkeep)
+**Spec:** `wiki/systems/r17-docs-and-capture.md`, `wiki/CLAUDE.md`, `docs/WORK-LAWS.md`
+
 - [ ] Fill all 55 image slots with the R4 capture tool
 - [ ] Keep README and DESIGN up to date
 - [ ] Keep every wiki page true as code lands: update `last-verified` and flip `status` from draft to verified

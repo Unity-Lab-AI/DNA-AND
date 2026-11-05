@@ -33,3 +33,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Full docs audit
 
 - Cross-linked every player page, added glossary terms, and brought older pages up to rounds 6–8. Link and count checks pass.
+
+## 2026-11-05 — Work laws
+
+- Added `docs/WORK-LAWS.md`: the docs are the spec for all code. Every TODO section now lists its Spec pages. There is a review gate before the top-100 lists and before any code.

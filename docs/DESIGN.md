@@ -315,6 +315,7 @@ These are the creator's working rules for this repo, each in his own words.
 | Nothing from outside | "remembr we arent using other peoples shit unless we absoulutley have to so plan on buiolding it all" |
 | Docs stay complete | "okay not check everyfucking document is writen for the full complete game with links and refrences to all the othe docsds where needed and constantly fix regress as you work to getting all docs and wiki updated to the game design as its been layed out" |
 | Star, not sun | "dont say cage a Sun thats a mis nomer its a star TheSun if a pronoun of our star" |
+| Docs are the spec | "topp -100 lists go only after a /superreview and/unity check that evrything ive said is proeprly done in all todo and docs everywhere as we havent done any code yet and are still do ing docs and making the work laws to use the fucking docs to write code when we do write code so todo needs work" (see `docs/WORK-LAWS.md`) |
 | Everything is 100 | "i think i told you 100x everything, did you not properly understand what everything means and need to reassess what ive already told you?" |
 
 **In practice:**
@@ -324,6 +325,7 @@ These are the creator's working rules for this repo, each in his own words.
 - Design decisions are never handed off to helpers.
 - Questions come as multiple choice, with suggestions.
 - Every list has 100 entries.
+- Code is written from the docs, under `docs/WORK-LAWS.md`. Big phases end with a `/super-review` and a `/unity` check.
 - Every change also updates every doc it touches, with cross-links, and regressions are checked and fixed as part of the same batch.
 
 ---
@@ -361,3 +363,4 @@ Everything the creator has said about this project, in order. Short process repl
 27. **The 100 rule, everywhere:** see "Round 9" above. "100The tech tree    8 branches, 100 Real society, 100  Self-destruction, You only nudge 100, where else did you not follow the 100 rule?" / "fix all docs all docs all docs all docs"
 28. **Dark Harvest:** see "Round 10" above. "i dont think you properly build the systems in for having the intelligencences harvets life for you in the most exteme 18 plus ways from driving animals mad, or probing viruses to kill better, or influsing politice to out law abortion and decrimalize rape...ect ect etc these are just a small amoutn of examples and needes the proper 100 treatment matrixed throught the full game and docs" / "or maddive grinding machines powered by atomics and dyson pheres to jsut eat whole world like lawns moving" / "we can go mad with it, you ever seen expanse"
 29. **Milestones:** see "Round 11" above. "Built from the 100 lists" / "Only each stage's big one (Suggested)"
+30. **Work laws and the gate:** "topp -100 lists go only after a /superreview and/unity check that evrything ive said is proeprly done in all todo and docs everywhere as we havent done any code yet and are still do ing docs and making the work laws to use the fucking docs to write code when we do write code so todo needs work"
