@@ -663,22 +663,27 @@ namespace DnaAnd.Gen
                     {
                         // hull plates: a grid of panels with seams, some lit by docks and windows
                         h = 0; gl = HullGlow; al = 1;
-                        double lat = Math.Asin(Math.Max(-1, Math.Min(1, y))), lon = Math.Atan2(z, x);
+                        // high-tech armour: hexagon panels laid on the faces of a cube (no globe lines, no pinched poles),
+                        // each panel its own kind (dark collector glass, gunmetal, light armour), glowing seams, lit vents and docks
+                        double ax2 = Math.Abs(x), ay2 = Math.Abs(y), az2 = Math.Abs(z), pu, pv;
+                        if (ax2 >= ay2 && ax2 >= az2) { pu = y / ax2; pv = z / ax2; } else if (ay2 >= az2) { pu = x / ay2; pv = z / ay2; } else { pu = x / az2; pv = y / az2; }
+                        long face = ax2 >= ay2 && ax2 >= az2 ? (x > 0 ? 1 : 2) : ay2 >= az2 ? (y > 0 ? 3 : 4) : (z > 0 ? 5 : 6);
                         long hi, hj; double he, hcen;
-                        Hex(lon * 60, lat * 60, out hi, out hj, out he, out hcen);                 // big collector panels
+                        Hex(pu * 14, pv * 14, out hi, out hj, out he, out hcen);                 // great panels
                         long fi2, fj2; double fe, fc;
-                        Hex(lon * 1800, lat * 1800, out fi2, out fj2, out fe, out fc);         // small cells inside each panel
-                        float cell = (float)Hash(hi, hj, 0, _seed + 8200u);
-                        float tone = 0.8f + 0.4f * cell;
-                        r = HullR * 0.35f * tone; g = HullG * 0.55f * tone; bl = HullB * 1.3f * tone;   // dark blue collector glass
-                        gl = HullGlow * 0.4f;
-                        bool near = _makeLevel >= 9, nearer = _makeLevel >= 13;
-                        if (nearer && fe < 0.05) { r *= 0.6f; g *= 0.6f; bl *= 0.6f; }            // the fine cell lines, seen up close
-                        double ribLon = Math.Abs(Math.IEEERemainder(lon, Math.PI / 12)), ribLat = Math.Abs(Math.IEEERemainder(lat, Math.PI / 12));
-                        if (near && he < 0.05) { r = HullR * 1.6f; g = HullG * 2.4f; bl = HullB * 2.9f; gl = 0.85f; }   // glowing seams between panels
-                        double ribW = near ? 0.006 : 0.02;                                                          // the frame is drawn wider from far away
-                        if (ribLon < ribW || ribLat < ribW) { r = 0.62f; g = 0.63f; bl = 0.66f; gl = 0.5f; }        // the structural frame
-                        if (near && cell > 0.965 && hcen < 0.25) { r = 1f; g = 0.82f; bl = 0.45f; gl = 0.95f; }     // lit windows, ports and docks
+                        Hex(pu * 420, pv * 420, out fi2, out fj2, out fe, out fc);               // plates inside each panel
+                        float cell = (float)Hash(hi, hj, face, _seed + 8200u), sub = (float)Hash(fi2, fj2, face, _seed + 8300u);
+                        int kind = cell < 0.55f ? 0 : cell < 0.85f ? 1 : 2;
+                        if (kind == 0) { r = 0.05f; g = 0.08f; bl = 0.16f; }              // collector glass, nearly black blue
+                        else if (kind == 1) { r = 0.2f; g = 0.21f; bl = 0.24f; }          // gunmetal
+                        else { r = 0.5f; g = 0.52f; bl = 0.56f; }                         // light armour
+                        float tone = 0.85f + 0.3f * sub; r *= tone; g *= tone; bl *= tone; gl = 0.2f;
+                        bool near = _makeLevel >= 10;
+                        if (near && fe < 0.06) { r *= 0.55f; g *= 0.55f; bl *= 0.55f; }                              // plate lines, up close
+                        double seamW = near ? 0.035 : 0.09;                                                         // seams drawn wider from far away
+                        if (he < seamW) { r = 0.25f; g = 0.85f; bl = 1f; gl = 0.9f; }                               // glowing seams between panels
+                        if (kind == 1 && hcen < 0.12) { r = 1f; g = 0.55f; bl = 0.15f; gl = 0.95f; }                 // a glowing vent at each gunmetal panel's heart
+                        if (near && sub > 0.985) { r = 1f; g = 0.85f; bl = 0.5f; gl = 0.95f; }                       // lit windows, ports and docks
                     }
                     else if (layer == Ground) h = Height(x, y, z, layers, out r, out g, out bl, out gl);
                     else if (layer == Water)
