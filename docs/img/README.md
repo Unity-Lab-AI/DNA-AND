@@ -49,6 +49,10 @@ After the swap, a slot looks like this:
 
 Run the capture tool's scan to list every slot. Until then, search the repo for `IMG:`.
 
+## 🏭 Images come from the live generators
+
+Every doc image is rendered from the game's own live generators (`wiki/systems/r04b-generators.md`). No art is drawn by hand.
+
 ## 🎨 Style comes first
 
 Doc images can only be rendered after the creator picks one of the 3 sample styles (RimWorld-like, Populous-like or Stardew-like). See `docs/DESIGN.md`, round 6.

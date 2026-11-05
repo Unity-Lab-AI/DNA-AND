@@ -41,3 +41,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Round 12 regression sweep
 
 - Gate order, R4.5 plan and species-driven assets brought in line across the docs.
+
+## 2026-11-05 — Live generators
+
+- Added R4.4: live generators, no pre-built assets (new page r04b-generators.md). Full docs correctness scan passed.

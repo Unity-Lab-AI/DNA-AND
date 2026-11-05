@@ -142,4 +142,4 @@
 
 ## Decisions on this list
 - Powers are paid for in **Souls** from life and harvesting. Later, intelligent life harvests for you (`docs/DESIGN.md`, round 3).
-- Cost = tier × area × strength. Tier 4–5 powers have cooldowns (`docs/DESIGN.md`, round 5).
+- Cost = tier × area × strength, with 100 tiers (T1–T100). T81–T100 have cooldowns (`docs/DESIGN.md`, round 9).

@@ -50,3 +50,7 @@ Subjects: microbes, viruses, intelligent creatures, a handful of other living th
 ## 🧬 Assets come from the species
 
 Every asset is generated procedurally from a seed. Built things (cities, spaceships, stations, colonies) are generated from the genes and body plan of the species that builds them. An insect species gets insect cities and insect ships (`docs/DESIGN.md`, round 12).
+
+## 🏭 Live generators
+
+The renderer draws what the live generators build. Every asset is generated on the fly and nothing is pre-built. See [R4.4 · Live generators](r04b-generators.md).

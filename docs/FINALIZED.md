@@ -119,3 +119,11 @@ New pages: `docs/wiki/society.md`, `docs/wiki/nudges.md`, `docs/wiki/dark-harves
 - the species-built assets were missing from the player docs
 
 63 files, 0 broken links, every list at 100.
+
+**Live generators (round 13) and an all-docs correctness check.** Verbatim: "and what about haveing a "crature" city" space tech" generator for everything full on like array dynamic content generation on the fly in the game so we dont pre build and assets but the games program builds them as they get living" / "make sure all docs are correct".
+- New spec: `wiki/systems/r04b-generators.md` (14 live generators).
+- New roadmap stage: R4.4.
+- New tasks: 16, in the TODO.
+- New law: LAW 14, no pre-built assets.
+- Updated: README, HOW-TO-BUILD (`src/gen/`), the genes page, the renderer page, the image README, and the builder index.
+- Correctness scan: fixed one stale line ("Tier 4–5 cooldowns" in POWERS). 64 files, 0 broken links, all lists at 100.

@@ -319,6 +319,20 @@ The ask: "okay now we need to do everything we need to do so you can get me thos
 
 ---
 
+## Round 13: live generators (verbatim)
+
+The ask: "and what about haveing a "crature" city" space tech" generator for everything full on like array dynamic content generation on the fly in the game so we dont pre build and assets but the games program builds them as they get living"
+
+### What this means for the build
+- **No pre-built assets, ever.** No models, textures, sprites or sounds ship with the game.
+- **The game's own generators build every asset live, on the fly, from data arrays** (genome, body plan, society, age, tech branches, chemistry, seed). They rebuild an asset whenever its data changes.
+- **The generators:** microbe and virus, plant and fungus, creature, intelligent creature, city, tech and machine, space tech, planet and moon, star, galaxy and system, resource field, element, weather and effect, sound.
+- **Built in their own image:** the city, tech and space-tech generators read the builder's genes and body plan.
+- **The samples (R4.5) are the generators' first output.**
+- **Spec:** `wiki/systems/r04b-generators.md`.
+
+---
+
 ## How we work (verbatim)
 
 These are the creator's working rules for this repo, each in his own words.
@@ -337,6 +351,7 @@ These are the creator's working rules for this repo, each in his own words.
 | Docs stay complete | "okay not check everyfucking document is writen for the full complete game with links and refrences to all the othe docsds where needed and constantly fix regress as you work to getting all docs and wiki updated to the game design as its been layed out" |
 | Star, not sun | "dont say cage a Sun thats a mis nomer its a star TheSun if a pronoun of our star" |
 | Docs are the spec | "topp -100 lists go only after a /superreview and/unity check that evrything ive said is proeprly done in all todo and docs everywhere as we havent done any code yet and are still do ing docs and making the work laws to use the fucking docs to write code when we do write code so todo needs work" (see `docs/WORK-LAWS.md`) |
+| No pre-built assets | "and what about haveing a "crature" city" space tech" generator for everything full on like array dynamic content generation on the fly in the game so we dont pre build and assets but the games program builds them as they get living" |
 | Everything is 100 | "i think i told you 100x everything, did you not properly understand what everything means and need to reassess what ive already told you?" |
 
 **In practice:**
@@ -390,3 +405,5 @@ Everything the creator has said about this project, in order. Short process repl
 31. **Road to the samples:** see "Round 12". "okay now we need to do everything we need to do so you can get me those 9 none headless samples of everything from the planets to the microbes to the animals insects cities spaces stations stars and dyson spheres" / "and remember thses things are get dynamic procedural generations"
 32. "its game come on" / "and remember the game assets are get dynamic procedural generations" / "ie insect species has insect spaceships ansd insect cities"
 33. "make sure ther are no game regresions in the docs based on the game". Fixed: the gate order in the ROADMAP (lists now come after the samples), the R4.5 plan (live viewer, D3D12, procedural), and the species-driven assets now in README, Space, Ages, and Groups & Flocking.
+34. **Live generators:** see "Round 13". "and what about haveing a "crature" city" space tech" generator for everything full on like array dynamic content generation on the fly in the game so we dont pre build and assets but the games program builds them as they get living"
+35. "make sure all docs are correct"
