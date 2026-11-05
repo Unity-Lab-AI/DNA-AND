@@ -51,7 +51,7 @@ example: the Sun
 | `a..b` | A range the generator picks from |
 | `a, b, c` | A list |
 | `1e6` | 1,000,000 (shorthand for big numbers) |
-| `real: yes` | A real-world seed. `real: rule` marks a generator rule. `real: hypothetical` marks something science predicts but hasn't confirmed |
+| `real: yes` | A real-world seed. `real: rule` marks a generator rule. `real: hypothetical` marks something science predicts but hasn't confirmed. `real: game` marks something DNA-AND invents (hyperdrives, world grinders) |
 | `# researched:` | Under the title line: the sources the topic was researched from (LAW 16) |
 | `# …` | A comment, ignored |
 

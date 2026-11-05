@@ -60,11 +60,11 @@ Order: galactic scale down, the same order as the sample sets.
 - [x] Content: Small bodies in `content/small-bodies.dnat` (researched: asteroids, comets, dwarf planets, Kuiper belt, Oort cloud, meteors, meteorites)
 - [x] Content: Nebulas in `content/nebulas.dnat` (researched)
 - [x] Content: Resource fields in `content/resource-fields.dnat` (researched: 16 planet deposits, 10 space fields, 6 rules)
-- [ ] Content: Space resources and colonies (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Dyson spheres (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Space stations (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Space colonies (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Spaceships (seeds, ranges, parts, rules) in `content/`
+- [x] Content: Space resources and colonies (`content/resource-fields.dnat`, `content/space-tech.dnat`)
+- [x] Content: Dyson spheres, megastructures, stations, ships, drives in `content/space-tech.dnat` (researched)
+- [x] Content: Space stations (in `content/space-tech.dnat`)
+- [x] Content: Space colonies (100 kinds on the space page, generator rules in `content/space-tech.dnat`)
+- [x] Content: Spaceships and drives (in `content/space-tech.dnat`)
 - [ ] Content: Cities (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Intelligent creatures (any kingdom) in `content/life/`
 - [ ] Content: Animals: every phylum → class → order → family → genus → species in `content/life/`
