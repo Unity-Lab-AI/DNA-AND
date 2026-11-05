@@ -59,6 +59,8 @@ _(Round 1 and 2 answered — see `docs/DESIGN.md` and `docs/FINALIZED.md`.)_
 - [ ] Save and load file format
 
 ### R4 — Graphics
+- [ ] Our own 3D image generator for all game icons and art: "we will need to design the #D genrator and botting of them"
+- [ ] Auto-capture tool that renders the doc images and fills every image slot in the docs
 - [ ] Talk to the graphics card on each system
 - [ ] Terrain, water, sky, weather, lighting, shadows
 - [ ] Drawing creatures built from their genes
@@ -148,6 +150,8 @@ _(Round 1 and 2 answered — see `docs/DESIGN.md` and `docs/FINALIZED.md`.)_
 - [ ] (Later) Linux program
 
 ### R17 — Docs
+- [~] Write all wikis, docs and readmes as if the game were complete: "okay we need to write all the wikis and docs and readmes for the entire project in full to complete final endgame and play through completely in full no text wealls easy and fun to read beautifully written and well designed and formated with tool tips and everything like a AAA game using all the icons and images of the game in the docs with links and relseas link at top of readme and everything as if the game was full and complete wee will make everything but the geam itself yet"
+- [ ] Release pages on both git.unityailab.com and GitHub, linked first thing in the README
 - [ ] Setup guide
 - [ ] How-to guides
 - [ ] Builder wiki and in-game wiki
