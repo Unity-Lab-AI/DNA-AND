@@ -102,6 +102,11 @@ namespace DnaAnd.Platform
         [DllImport("kernel32.dll")]
         public static extern void Sleep(uint ms);
 
+        // Per-monitor DPI awareness: the game draws at true pixels. Changes nothing about the display itself.
+        [DllImport("user32.dll")]
+        public static extern bool SetProcessDpiAwarenessContext(IntPtr context);
+        public static readonly IntPtr DPI_PER_MONITOR_AWARE_V2 = new IntPtr(-4);
+
         [DllImport("kernel32.dll")]
         public static extern bool QueryPerformanceCounter(out long count);
 

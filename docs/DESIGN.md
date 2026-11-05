@@ -540,3 +540,6 @@ Everything the creator has said about this project, in order. Short process repl
     - LAW 11: a content-coverage check.
 51. **Toolchain start:** "Start from PowerShell (Suggested)"
 52. **Compiler:** "Use C# built into Windows". The game is in C#, compiled by Windows' built-in csc.exe. Helix and the self-built toolchain are retired.
+53. "just doint fucking break my display when u build the game engine" / "'pust safty reverts on test timeouts". Done: windowed only, vsync, Alt+Enter blocked, an in-game watchdog safety exit and a safe test runner with a forced close.
+54. "its got to have full resolution scaling and range". Done so far: resize and DPI awareness. Render-scale and the zoom range are tasks.
+55. "superb, lets do that 1-5". Steps 1–5 are done. Shaders compile with Windows' own d3dcompiler_47.dll (round 20 reasoning: it ships with Windows).

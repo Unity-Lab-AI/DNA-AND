@@ -15,6 +15,8 @@ namespace DnaAnd.Platform
         private readonly double _hardLimitSeconds; // < 0 means no limit (normal play)
         private readonly Clock _clock;
         private volatile bool _stop;
+        private volatile bool _running; // false during start-up
+        private const double StartupLimitSeconds = 20.0;
 
         public Watchdog(Clock clock, double stallSeconds, double hardLimitSeconds)
         {
@@ -27,6 +29,9 @@ namespace DnaAnd.Platform
         /// <summary>Call once per frame from the main loop.</summary>
         public void Beat() { Interlocked.Exchange(ref _lastBeat, BitConverter.DoubleToInt64Bits(_clock.Total)); }
 
+        /// <summary>Call once the first frame has been shown: from then on the strict stall limit applies.</summary>
+        public void Running() { Beat(); _running = true; }
+
         public void Stop() { _stop = true; }
 
         private void Run()
@@ -36,8 +41,9 @@ namespace DnaAnd.Platform
                 Thread.Sleep(250);
                 double now = _clock.Total;
                 double last = BitConverter.Int64BitsToDouble(Interlocked.Read(ref _lastBeat));
-                if (now - last > _stallSeconds) Bail("main loop stalled for " + (now - last).ToString("0.0") + " s");
-                if (_hardLimitSeconds >= 0 && now > _hardLimitSeconds) Bail("test run passed its hard limit of " + _hardLimitSeconds + " s");
+                double limit = _running ? _stallSeconds : StartupLimitSeconds;
+                if (now - last > limit) Bail((_running ? "main loop stalled for " : "start-up took longer than ") + (now - last).ToString("0.0") + " s");
+                if (_hardLimitSeconds >= 0 && now > _hardLimitSeconds + (_running ? 0 : StartupLimitSeconds)) Bail("test run passed its hard limit of " + _hardLimitSeconds + " s");
             }
         }
 

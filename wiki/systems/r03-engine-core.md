@@ -44,3 +44,7 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 
 - `content/physics.dnat`: 49 entries (The four forces of nature, Particles and atoms, Inside a planet, What moves inside a planet, Atmospheres) and 8 rules
 - `content/elements.dnat`: 118 entries (Main) and 5 rules
+
+## 🔨 Built so far
+
+See `src/` and the TODO for what exists. Display safety: windowed only, vsync, Alt+Enter blocked, an in-game watchdog, and timed test runs that are force-closed if they overrun.

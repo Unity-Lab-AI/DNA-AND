@@ -81,3 +81,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — First code
 
 - Round 20: the game is written in C# and compiled by Windows' built-in csc.exe. build.cmd plus the first window (our own Windows calls) works. r01 is now verified.
+
+## 2026-11-05 — Engine steps 1–5
+
+- Input, clock, watchdog, test runner, math/RNG/noise, content loader, Direct3D 12, billboard pipeline, galaxy generator and the live sample viewer (set 1, galaxies).

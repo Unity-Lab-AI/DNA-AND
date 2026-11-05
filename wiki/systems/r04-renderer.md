@@ -54,3 +54,7 @@ Every asset is generated procedurally from a seed. Built things (cities, spacesh
 ## 🏭 Live generators
 
 The renderer draws what the live generators build. Every asset is generated on the fly and nothing is pre-built. See [R4.4 · Live generators](r04b-generators.md).
+
+## 🔨 Built so far
+
+See `src/` and the TODO for what exists. Display safety: windowed only, vsync, Alt+Enter blocked, an in-game watchdog, and timed test runs that are force-closed if they overrun.

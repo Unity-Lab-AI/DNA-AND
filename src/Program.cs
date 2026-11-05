@@ -3,6 +3,7 @@ using System;
 using DnaAnd.Core;
 using DnaAnd.Platform;
 using DnaAnd.Render;
+using DnaAnd.Shell;
 
 namespace DnaAnd
 {
@@ -19,6 +20,7 @@ namespace DnaAnd
                 if (args[i] == "--test-stall") testStall = true; // proves the watchdog fires
             }
 
+            try { Win32.SetProcessDpiAwarenessContext(Win32.DPI_PER_MONITOR_AWARE_V2); } catch { }
             var clock = new Clock();
             // Safety: force-exit if the main loop stalls 3 s, or if a test overruns its time by 5 s.
             var watchdog = new Watchdog(clock, 3.0, smokeMs >= 0 ? smokeMs / 1000.0 + 5.0 : -1);
@@ -28,8 +30,15 @@ namespace DnaAnd
             Gpu gpu;
             try { gpu = new Gpu(window.Handle, window.Width, window.Height); }
             catch (Exception ex) { WriteLog("gpu error · " + ex.Message); window.Close(); return 2; }
+            BillboardPipeline pipeline; SampleViewer viewer;
+            try
+            {
+                pipeline = new BillboardPipeline(gpu.Device);
+                viewer = new SampleViewer(gpu, pipeline, content, 20261105UL);
+            }
+            catch (Exception ex) { WriteLog("setup error · " + ex.Message); gpu.Dispose(); window.Close(); return 2; }
 
-            double titleTimer = 0; int frames = 0;
+            double titleTimer = 0; int frames = 0; bool firstFrame = true;
             while (window.Pump())
             {
                 clock.Tick();
@@ -39,22 +48,23 @@ namespace DnaAnd
                 if (testStall && clock.Total > 0.5) System.Threading.Thread.Sleep(10000);
 
                 if (window.Resized) { window.Resized = false; gpu.Resize(window.Width, window.Height); }
-                float t = (float)clock.Total;
-                gpu.BeginFrame(0.02f, 0.03f + 0.02f * (float)Math.Sin(t), 0.08f);
+                viewer.Update(window.Input, clock.Delta);
+                gpu.BeginFrame(0.005f, 0.006f, 0.012f);
+                viewer.Draw(gpu.Width, gpu.Height, clock.Total);
                 gpu.EndFrame();
+                if (firstFrame) { firstFrame = false; watchdog.Running(); }
 
                 frames++; titleTimer += clock.Delta;
                 if (titleTimer >= 0.5)
                 {
-                    window.SetTitle(string.Format("DNA-AND · {0:0} fps · {1} content entries from {2} files",
-                        frames / titleTimer, content.Entries.Count, content.Files.Count));
+                    window.SetTitle(string.Format("{0} · {1:0} fps", viewer.Title, frames / titleTimer));
                     titleTimer = 0; frames = 0;
                 }
 
                 window.Input.EndFrame();
                 if (smokeMs >= 0 && clock.Total * 1000 >= smokeMs) { window.Close(); smokeMs = -1; }
             }
-            gpu.Dispose();
+            viewer.Dispose(); pipeline.Dispose(); gpu.Dispose();
             watchdog.Stop();
             WriteLog(string.Format("ok · {0} content entries from {1} files · ran {2:0.00} s · gpu {3}x{4}", content.Entries.Count, content.Files.Count, clock.Total, gpu.Width, gpu.Height));
             return 0;

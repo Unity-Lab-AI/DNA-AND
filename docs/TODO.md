@@ -94,13 +94,15 @@ Order: galactic scale down, the same order as the sample sets.
 - [x] `build.cmd`: run Windows' own `csc.exe` over `src/` and write `build/DNA-AND.exe`: "Use C# built into Windows". Builds clean with warnings treated as errors
 - [~] Source layout: `src/platform`, `src/core`, `src/render`, `src/gen` and the rest, one folder per system (started: `src/Program.cs`, `src/platform/`)
 - [x] First proof: the exe opens its own window and closes cleanly (`DNA-AND.exe --smoke 1500` exits 0)
-- [ ] Content loader: read the `content/*.dnat` text files at start-up (replaces the planned binary content compiler)
+- [x] Content loader: read the `content/*.dnat` text files at start-up (`src/core/Content.cs`, loads 1,007 entries)
 
 ### R2 — Talking to Windows
 **Spec:** `wiki/systems/r02-windows-layer.md`
 
 - [~] Windows: window, keyboard, mouse, sound, files, clock, threads, network
   - [x] Window: our own Windows calls (`src/platform/Win32.cs`, `src/platform/Window.cs`)
+  - [x] Keyboard and mouse, frame clock, file reading (`src/platform/Input.cs`)
+  - [x] Safety: in-game watchdog (`src/platform/Watchdog.cs`) and safe test runner (`test.cmd`)
   - Only Windows itself and the graphics card driver may be used ("sure").
 - [ ] (Later) Mac: same list
 - [ ] (Later) Linux: same list
@@ -124,9 +126,9 @@ Order: galactic scale down, the same order as the sample sets.
   - [ ] physics-greenhouse: greenhouse gases warm a planet; too much can run away into a Venus-like world
   - [ ] physics-tech: civilizations climb the forces in order: fire and chemistry (electromagnetism), electricity and magnetism, then fission and fusion (the strong force), then mastery of gravity for space travel
 
-- [ ] Math: vectors, matrices, noise, seeded random numbers
+- [x] Math: vectors, matrices, noise, seeded random numbers (`src/core/MathCore.cs`)
   - Our own seeded random generator. 64-bit positions with a moving origin.
-- [ ] Memory and the giant data arrays for billions of things
+- [~] Memory and the giant data arrays for billions of things (started: `BigArray<T>`)
   - Big memory blocks reserved up front per system.
 - [ ] Multithreading so the simulation uses every CPU core
   - One worker per core, pulling jobs from a shared queue.
@@ -134,12 +136,17 @@ Order: galactic scale down, the same order as the sample sets.
   - Our own versioned binary chunks: universe, planets, life, civilizations, player.
 
 ### R4 — Graphics
+- [ ] Full resolution scaling and range: "its got to have full resolution scaling and range"
+  - [x] Any window size, rebuilt on resize; per-monitor DPI aware (sharp on high-DPI screens, display settings untouched)
+  - [ ] Render-scale setting (draw at 50–200% of the window, then scale to fit)
+  - [ ] Zoom range from one microbe to a whole galaxy (64-bit positions, moving origin)
 **Spec:** `wiki/systems/r04-renderer.md`, `docs/img/README.md`, `wiki/systems/r17-docs-and-capture.md`
 
 - [ ] Our own 3D image generator for all game icons and art: "we will need to design the #D genrator and botting of them"
 - [ ] Auto-capture tool that renders the doc images and fills every image slot in the docs
   - A mode of the game exe. It finds every `<!-- IMG: ... -->` marker and renders that image (`docs/img/README.md`).
-- [ ] Talk to the graphics card on each system
+- [x] Talk to the graphics card: Direct3D 12 device, swap chain, frames (`src/render/Gpu.cs`), windowed, vsync, Alt+Enter blocked
+- [x] Billboard pipeline: shaders compiled by Windows' own d3dcompiler_47.dll (`src/render/Pipeline.cs`, `src/render/Draw.cs`)
   - Direct3D 12 (part of Windows).
 - [ ] Terrain, water, sky, weather, lighting, shadows
 - [ ] Drawing creatures built from their genes
@@ -161,7 +168,7 @@ Order: galactic scale down, the same order as the sample sets.
 - [ ] Space tech generator
 - [ ] Planet & moon generator
 - [ ] Star generator
-- [ ] Galaxy & system generator
+- [~] Galaxy & system generator: galaxies done (`src/gen/GalaxyGen.cs`, from the galaxy and star content)
 - [ ] Resource field generator
 - [ ] Element generator
 - [ ] Weather & effect generator
@@ -172,10 +179,10 @@ Order: galactic scale down, the same order as the sample sets.
 - [ ] Fossil & ruin generator
 
 ### R4.5 — Art style samples
-- [ ] Live sample viewer, its own window, moving and rotatable: "Live viewer, moving (Suggested)"
+- [x] Live sample viewer, its own window, moving and rotatable: "Live viewer, moving (Suggested)"
 - [ ] Sample sets, galactic scale down, one set at a time, waiting for the creator's input before the next: "and when we do the dsamples we show the non headless and do them galactic scale down one set of samples at a time to take input before doing the next set"
   - Life sets follow the full tree (`docs/wiki/tree-of-life.md`): "and what the fuck we are still doing docs u ments as this:" ... Animals / Insects / Microbes and viruses ..." IS NOT ALL LIVING THINGS IN THE FULL KINDOM PHILUM CLASS GENIUS SPECIES and the full kindom thing in full"
-  - [ ] Set 1: Galaxy layouts
+  - [~] Set 1: Galaxy layouts. Live in the viewer (`src/shell/SampleViewer.cs`), waiting for the creator's input
   - [ ] Set 2: Solar system layouts, with moons, asteroid belts, the Kuiper belt and Oort clouds
   - [ ] Set 3: Stars
   - [ ] Set 4: Planets and gas giants
@@ -194,8 +201,9 @@ Order: galactic scale down, the same order as the sample sets.
   - [ ] Set 17: Elements (all 118)
 
 - [ ] Every sample generated procedurally from a seed: "and remember thses things are get dynamic procedural generations"
-- [ ] Samples rendered with Direct3D 12: "Straight to Direct3D 12"
+- [x] Samples rendered with Direct3D 12: "Straight to Direct3D 12"
 - [ ] Our own shader-code generator for Direct3D 12 (no outside shader compiler)
+  - Changed: shaders are compiled by `d3dcompiler_47.dll`, which ships with Windows (same reasoning as round 20)
 - [ ] Species-driven asset generation: cities, ships and stations built from the species' own genes and body plan: "ie insect species has insect spaceships ansd insect cities"
 **Spec:** `wiki/systems/r04-renderer.md#-style-samples-come-first`, `docs/DESIGN.md` round 6
 

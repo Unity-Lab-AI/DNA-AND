@@ -25,6 +25,8 @@ That's it. Nothing to download or install.
 2. Run **`build.cmd`**.
 3. The game appears at **`build/DNA-AND.exe`**.
 
+🧪 **Safe test run:** `test.cmd 3000` runs the game for 3 seconds and closes it. If it ever overruns, it's force-closed. The game always runs in a window and never changes your display settings.
+
 `build.cmd` runs the C# compiler from Windows' own .NET Framework folder over everything in `src/`. Nothing outside the repo and Windows is used.
 
 ---
