@@ -48,3 +48,7 @@ After the swap, a slot looks like this:
 ## 📋 Slots so far
 
 Run the capture tool's scan to list every slot. Until then, search the repo for `IMG:`.
+
+## 🎨 Style comes first
+
+Doc images can only be rendered after the creator picks one of the 3 sample styles (RimWorld-like, Populous-like or Stardew-like). See `docs/DESIGN.md`, round 6.
