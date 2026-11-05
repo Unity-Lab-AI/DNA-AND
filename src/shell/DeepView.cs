@@ -145,7 +145,7 @@ namespace DnaAnd.Shell
             Mat4 vp = ViewProj(w, h);
             var right = new Vec3(view.M11, view.M21, view.M31); var up = new Vec3(view.M12, view.M22, view.M32);
 
-            Draw(_starBuf, _stars.Length, vp, right, up, 0f, 0.0022f, 1f, w, h, time);            // galaxy stars: flat dots
+            Draw(_starBuf, _stars.Length, vp, right, up, 0f, 0.0028f, 2f, w, h, time);            // galaxy stars: Populous-like (the chosen galaxy style)
             if (_structures.Length > 0) Draw(_structBuf, _structures.Length, vp, right, up, 1f, 0.0018f, 0f, w, h, time); // clusters, nebulas
             if (_focusStar < 0)
             {
