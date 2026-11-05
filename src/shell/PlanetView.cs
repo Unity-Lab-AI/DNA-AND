@@ -82,6 +82,7 @@ namespace DnaAnd.Shell
         {
             double R = _terrain.Radius;
             double ux = Math.Cos(_lat) * Math.Cos(_lon), uy = Math.Sin(_lat), uz = Math.Cos(_lat) * Math.Sin(_lon);
+            if (double.IsNaN(_alt) || _alt <= 0 || _alt > R * 0.5) _alt = 30;   // a sane height to come in at
             double r = R - _terrain.GroundAt(ux, uy, uz) - _alt;
             _px = ux * r; _py = uy * r; _pz = uz * r;
             var up = new Vec3((float)-ux, (float)-uy, (float)-uz);
@@ -139,6 +140,8 @@ namespace DnaAnd.Shell
 
         private void DrawFly(Gpu gpu, int width, int height)
         {
+            // place the camera before the first picture inside (otherwise it sits at the star and every number breaks)
+            if (!_flyReady) PlaceFlyer();
             double R = _terrain.Radius, surfR;
             double h = Math.Max(1e-9, FlyHeight(out surfR));
             _alt = h; _shown = h; _underWater = false; _overSea = false; _fieldHere = -1;
