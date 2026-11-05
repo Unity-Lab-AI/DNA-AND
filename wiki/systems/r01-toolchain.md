@@ -19,17 +19,17 @@ Nothing else gets built until this exists. There's no outside tool to lean on, s
 | 1️⃣ Mini-assembler | Hex, fed through the seed | `asm0.exe` | Turns simple written instructions into machine code |
 | 2️⃣ Assembler | `asm0` | `asm.exe` | Full assembler: labels, macros, data, PE output |
 | 3️⃣ Compiler v1 | `asm` | `dnac0.exe` | Compiles our own language |
-| 4️⃣ Compiler v2 | `dnac0` (written in our language) | `dnac.exe` | Self-hosting: the compiler builds itself |
+| 4️⃣ Compiler v2 | `dnac0` (written in Helix) | `dnac.exe` | Self-hosting: the compiler builds itself |
 | 5️⃣ Game | `dnac` | `DNA-AND.exe` | The game |
 
-💬 *Suggestion:* the seed is a tiny hex loader, not the whole assembler in raw bytes. → [S1](../../docs/suggestions/D.md#s1--bootstrap-seed)
+✅ The seed is a tiny hex loader typed in as raw bytes. Everything after it is written as hex text.
 
 ## 🪟 Windows exe format
 Windows only runs programs in its own **PE** exe layout. That's a Windows requirement, not a choice. From step 2 on, our assembler writes PE files itself.
 
-## 🧾 Our language
-💬 *Suggestion:* low-level, C-like, manual memory, no garbage collector. That suits a simulation with billions of things. → [S2](../../docs/suggestions/D.md#s2--language-style)
-💬 *Suggestion:* no name yet, called "our language" in docs. → [S3](../../docs/suggestions/D.md#s3--language-name)
+## 🧾 Helix, our language
+✅ Low-level and C-like: manual memory, no garbage collector. Built for a simulation with billions of things.
+✅ The language is called **Helix**.
 
 ## ✅ Proof each step works
 The rebuilt compiler must compile itself and produce a **byte-identical** copy. Any difference means a bug in the chain.

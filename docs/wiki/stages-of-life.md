@@ -14,10 +14,10 @@
 | 🌍 **Earth follows this order** | Life on an Earth world climbs these 100 stages in the same order real life did. |
 | 🪐 **Other worlds don't have to** | Other [planet templates](glossary.md#template "Unlockable world types beyond Earth") can evolve in other orders. |
 | 🏁 **Every stage ends in a milestone** | When life hits it, the stage is done and the next one opens. |
-| ⏱️ **The game slows down for you** | At every milestone, time automatically drops so you can watch it happen. |
+| ⏱️ **The game slows down for you** | At every milestone, time drops to 1× and a short cinematic shows what happened. You can turn this off in Settings. |
 | 👻 **Life pays you** | Living things slowly give off [Souls](glossary.md#souls "The energy you spend on god powers"). The further life gets, the more there is to harvest. |
 
-> 💬 *Suggestion* — the **Unlocks** column below is a proposal. Each stage opens the god powers that fit it (numbers match [God Powers](god-powers.md "All 100 god powers")). See `docs/suggestions/B.md`.
+> 🔓 Each stage opens the god powers that fit it (numbers match [God Powers](god-powers.md "All 100 god powers")). Powers marked **+** are stronger versions of ones you already have.
 
 > 💡 **Tip:** You never move life to the next stage yourself. You shape the world, and life decides. That's the game.
 
@@ -28,7 +28,7 @@
 <!-- IMG: docs/img/era-young-planet.png | Volcanoes, lightning and a boiling ocean under a hazy orange sky -->
 > 🖼️ *Volcanoes, lightning and a boiling ocean under a hazy orange sky* — rendered by the game's own 3D generator
 
-| # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks 💬 |
+| # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks |
 |---|---|---|---|---|---|
 | 1 | 🪨 | Cooling Crust | The molten surface hardens into rock | First solid crust forms | Raise / Lower Land (16, 17) |
 | 2 | 🌊 | First Oceans | Steam rains down for ages and fills the basins | Oceans cover the low ground | Lake, River (21, 22) |
@@ -48,7 +48,7 @@
 <!-- IMG: docs/img/era-first-cells.png | Glowing microbial mats around a deep-sea vent -->
 > 🖼️ *Glowing microbial mats around a deep-sea vent* — rendered by the game's own 3D generator
 
-| # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks 💬 |
+| # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks |
 |---|---|---|---|---|---|
 | 11 | 🌱 | The First Common Ancestor | One cell line becomes the root of all life | First true cell | Fertility, Barren (45, 46) |
 | 12 | 🦠 | Bacteria | Simple cells spread through the seas | Bacteria in every ocean | Decomposers (52) |
@@ -67,7 +67,7 @@
 
 ## 🔬 Era 3 — Complex Cells *(Stages 23–32)*
 
-| # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks 💬 |
+| # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks |
 |---|---|---|---|---|---|
 | 23 | 🤝 | Swallowed Partners | A cell swallows a bacterium that becomes its power plant | First mitochondria | Symbiosis (53) |
 | 24 | 🔵 | Complex Cells | Big cells with inner parts appear | First complex cell | Watcher (96) |
@@ -87,7 +87,7 @@
 <!-- IMG: docs/img/era-seas.png | A Cambrian seafloor crowded with trilobites, sponges and strange early animals -->
 > 🖼️ *A Cambrian seafloor crowded with trilobites, sponges and strange early animals* — rendered by the game's own 3D generator
 
-| # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks 💬 |
+| # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks |
 |---|---|---|---|---|---|
 | 33 | ❄️ | Snowball Survivors | Life outlasts a planet frozen pole to pole | Life survives a global freeze | Cold, Glacier (2, 23) |
 | 34 | 🧽 | Sponges | The first simple animals filter the water | First animal | Predator Boost (50) |
@@ -112,7 +112,7 @@
 <!-- IMG: docs/img/era-land.png | A lobe-finned fish hauling itself onto a mossy shore under giant fern trees -->
 > 🖼️ *A lobe-finned fish hauling itself onto a mossy shore under giant fern trees* — rendered by the game's own 3D generator
 
-| # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks 💬 |
+| # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks |
 |---|---|---|---|---|---|
 | 48 | 🌱 | Mosses | Tiny plants creep onto bare rock | First land plant | Drought (6) |
 | 49 | 🍄 | Root Partners | Fungi and plants trade food underground | First root partnership | Fertile Soil+ (28) |
@@ -136,7 +136,7 @@
 <!-- IMG: docs/img/era-reptiles.png | Long-necked dinosaurs under a sky of pterosaurs, with a meteor streak on the horizon -->
 > 🖼️ *Long-necked dinosaurs under a sky of pterosaurs, with a meteor streak on the horizon* — rendered by the game's own 3D generator
 
-| # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks 💬 |
+| # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks |
 |---|---|---|---|---|---|
 | 62 | 🥚 | Land Eggs | Eggs with shells that don't dry out | First land egg | Snow (12) |
 | 63 | 🦎 | Reptiles | Scaly animals spread far from water | First reptile | Sun+ (4) |
@@ -157,7 +157,7 @@
 
 ## 🐘 Era 7 — The Age of Mammals *(Stages 76–85)*
 
-| # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks 💬 |
+| # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks |
 |---|---|---|---|---|---|
 | 76 | 🦣 | Mammals Everywhere | Mammals fill the empty world | Mammals on every continent | Acid Rain (35) |
 | 77 | 🤰 | Womb Babies | Young grow inside the mother | First placental mammal | Immunity (63) |
@@ -177,7 +177,7 @@
 <!-- IMG: docs/img/era-thinking.png | A small band of early people around a fire, painted handprints on the cave wall -->
 > 🖼️ *A small band of early people around a fire, painted handprints on the cave wall* — rendered by the game's own 3D generator
 
-| # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks 💬 |
+| # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks |
 |---|---|---|---|---|---|
 | 86 | 🪓 | Stone Tools | Rocks get chipped into blades | First tool made | Inspiration (67) |
 | 87 | 🔥 | Fire | Fire is kept and controlled | First campfire | Omen (68) |
@@ -195,7 +195,7 @@
 
 > 🏛️ From here, intelligent life climbs the 100 [Ages of Civilization](ages-of-civilization.md "Real-history ages from stone tools to intergalactic").
 
-| # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks 💬 |
+| # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks |
 |---|---|---|---|---|---|
 | 95 | 🌾 | Farming | Seeds get planted on purpose | First farm | Golden Age, Dark Age (76, 77) |
 | 96 | 🏙️ | Cities | Thousands live in one place | First city | Rebellion (78) |

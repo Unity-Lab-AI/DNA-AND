@@ -26,9 +26,9 @@ All 100 powers are listed in [docs/POWERS.md](../../docs/POWERS.md "Each with us
 Lightning, heat, cold, water and spark of life, plus **add genes** and **add any of the 118 elements**.
 
 ## 💸 Cost and unlocks
-- Powers cost **Souls**. The cost of each power is still to be set.
-- Powers unlock as the amount of life in your galaxies grows.
-💬 *Suggestion:* how each power's cost is set (flat price, or scaled by area and strength). → [S13](../../docs/suggestions/D.md#s13--power-costs)
+- Powers cost **Souls**: base tier (💠 to 💠💠💠💠💠) × area × strength.
+- Tier 4 and 5 powers have cooldowns. Smaller powers don't.
+- Powers unlock at six points (Start, Life, Land, Mind, Civ, Space) and as stages of life are reached, with stronger "+" versions later.
 
 ## 🚫 No direct editing
 > "no direct edit besids using powers to influence things to happen"

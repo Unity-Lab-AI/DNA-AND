@@ -27,7 +27,7 @@ last-verified: none (plan only)
 Scroll from a single microbe up to the whole galaxy with no loading screens. Each zoom band draws the right level of detail.
 
 ## 🖥️ Talking to the graphics card
-💬 *Suggestion:* Direct3D 12, which is part of Windows itself, so it stays inside rule 1. → [S8](../../docs/suggestions/D.md#s8--graphics-api)
+✅ Direct3D 12, which is part of Windows itself, so it stays inside rule 1.
 
 ## 🖼️ The 3D image generator
 > "we will need to design the #D genrator and botting of them"

@@ -20,7 +20,7 @@ Each creature follows simple rules set by its genes: eat, move, flee, breed, fig
 | 🪱 One **group** per area: a count (4,396), a shared genome, and how much the group varies | Individual worms, generated from the group's genome and variation |
 
 When a group's genes drift far enough apart, it **splits into two groups**. That's how new species are born.
-💬 *Suggestion:* the rules for splitting and merging groups. → [S12](../../docs/suggestions/D.md#s12--population-grouping)
+✅ One group per area cell and species. Individuals are only generated when you zoom in.
 
 ## 🔗 What runs every tick
 | System | Effect |

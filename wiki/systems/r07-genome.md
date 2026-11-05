@@ -12,7 +12,7 @@ last-verified: none (plan only)
 ## 🔤 DNA
 Every living thing carries real-style DNA written in **A, C, G and T**, viruses included. Genes are stretches of that DNA, and they build the body and its behavior.
 
-💬 *Suggestion:* store each letter in 2 bits, so 4 letters fit in one byte. → [S10](../../docs/suggestions/D.md#s10--genome-storage)
+✅ Each letter is stored in 2 bits, so 4 letters fit in one byte.
 
 ## 🔄 How genes change
 | Way | What happens |

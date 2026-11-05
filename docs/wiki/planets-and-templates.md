@@ -33,7 +33,7 @@ Reach certain points on Earth and you unlock new planet [templates](glossary.md#
 
 👉 The full list of planet templates is one of the top-100 lists (category 62).
 
-💬 *Suggestion:* example templates — Ocean world, Desert world, Ice world, Jungle world, Volcanic world, Tidally locked world, Gas giant moon.
+🔓 **The first templates to unlock:** Ocean world, Desert world, Ice world, Jungle world, Volcanic world, Tidally locked world and Gas giant moon. There are 100 in all.
 
 ---
 

@@ -15,7 +15,7 @@ last-verified: none (plan only)
 | `DNA-AND-Setup.exe` | The installer, built with our own toolchain |
 | `DNA-AND.exe` | The game itself |
 
-💬 *Suggestion:* our own setup exe, like Gladiators' `Setup.exe` but with no outside installer tools. → [S19](../../docs/suggestions/D.md#s19--installer)
+✅ Our own setup exe, like Gladiators' `Setup.exe` but with no outside installer tools.
 
 ## 🚀 Release pages (decided)
 Every release goes up on **both**:

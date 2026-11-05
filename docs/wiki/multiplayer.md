@@ -24,7 +24,7 @@ One player's computer **hosts** the world. Everyone else joins it.
 2. 🔗 Friends pick **Multiplayer → Join** and connect.
 3. 🌍 Everyone plays in the host's world.
 
-💬 *Suggestion:* the host shares a join code; up to 8 players per world.
+🔑 The host shares a **join code**. Up to **8 players** per world.
 
 ---
 

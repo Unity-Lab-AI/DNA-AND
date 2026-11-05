@@ -23,8 +23,9 @@
 | **Space** | Pause / unpause |
 | **1 – 5** | Time speeds (1×, 10×, 100×, 1,000×, max) |
 | **Esc** | Menu |
+| **F1** | Open the in-game wiki |
 
-💬 *Suggestion:* the Space, 1–5 and Esc keys above, and a hotkey to open the wiki in-game.
+🎛️ **Every key can be rebound** in Settings → Controls.
 
 <!-- IMG: docs/img/controls-overlay.png | The in-game controls overlay: a mouse diagram and WASD keys drawn over a top-down view of a coastline -->
 > 🖼️ *The in-game controls overlay* — rendered by the game's own 3D generator
