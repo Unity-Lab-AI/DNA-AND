@@ -105,3 +105,9 @@ Append-only. Newest at the bottom.
 
 - Set 5: resource fields placed by real geology on every world, with a resource view.
 - Set 6: one Dyson sphere, with an industrial hull outside and a terraformed landscape inside around its star. You can go in and out, and fly freely inside.
+
+## 2026-11-05 — Sets 7 and 8, and the journey
+
+- Set 7: the elements as game icons, with melting and boiling points and temperature and pressure controls, plus the air of every world.
+- Set 8: a live microbe ecosystem.
+- The journey: one continuous zoom from galaxies to microbes and back. You can click any star and any planet. There are real sizes and no popping. Sea life is shown at true scale.

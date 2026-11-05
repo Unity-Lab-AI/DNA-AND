@@ -65,6 +65,9 @@ The renderer draws what the live generators build. Every asset is generated on t
 | 🪂 Fly-down | Orbit to the surface, then on down to micrometres; the camera always lands on finished ground; rain, snow, ash or dust under clouds; under water it turns dark and murky | `src/shell/PlanetView.cs` |
 | 🪐 Resource fields | Volcanoes, rivers and 16 kinds of field placed by real geology, seen on the ground; R lights every field in its own colour | `src/gen/PlanetTerrain.cs` |
 | 🏭 Dyson sphere | A shell around a star: industrial machinery outside (sectors, trenches, blocks, towers, pipes), a planet landscape turned inside out on the inside, held on by spin; free flight inside | `src/gen/PlanetTerrain.cs`, `src/gen/DysonGen.cs`, `src/shell/PlanetView.cs` |
+| 🌌 The journey | One zoom from a universe of galaxies to a galaxy (zoom where the mouse points, click any star), a solar system (click a planet), a planet, its surface, then sea life at true scale or the soil fading to black, then microbes. Zooming out climbs back up | `src/shell/UniverseView.cs`, `DeepView.cs`, `PlanetView.cs`, `src/sim/SeaLife.cs`, `src/sim/MicrobeWorld.cs` |
+| 🧪 Elements | All 118 as icons: bars, crystals, powders, drops and clouds by state at any temperature and pressure | `src/shell/ElementView.cs`, `src/gen/ElementGen.cs`, `IconFont.cs` |
+| 🦠 Microbes | A live ecosystem: genes, mutation, selection, viruses by surface match | `src/sim/MicrobeWorld.cs`, `src/shell/MicrobeView.cs` |
 | 📷 Own pictures | `--shot <s> <file.bmp>` copies the finished frame off the graphics card; `--tour <name> <km,...>` takes one per height | `src/render/Gpu.cs`, `src/Program.cs` |
 
 Everything is drawn relative to the camera in double precision, so nothing shakes from galaxy size down to micrometres.

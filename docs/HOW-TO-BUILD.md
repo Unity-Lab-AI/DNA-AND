@@ -29,6 +29,10 @@ That's it. Nothing to download or install.
 
 🧪 **Look-around test:** `test.cmd` opens the game and leaves it running until you close it. **Keep going or revert** in the menu bar asks whether to keep it running: **Yes** keeps going, **No** closes it safely, and no answer within 15 seconds closes it safely too. The menu bar has **Exit**, **Keep going or revert**, **Keepers** (tick the samples you like; they're saved in `picks.txt`) and **Legend** (what each sample is, and the controls).
 
+🌌 **The journey:** run the exe with `--journey` for one continuous zoom. It starts in a field of galaxies, then goes into any galaxy, to any star you point at or click, its solar system, a planet, its surface, the sea or the soil, and the living microbes. The mouse wheel zooms where the mouse points, holding Ctrl makes it 8 times faster, and zooming out climbs back up through every level.
+
+🧰 **Separate copies:** `build.cmd NAME` builds `build\NAME\DNA-AND.exe`, so a game that is already open is never closed by a rebuild.
+
 🔭 **Sample sets:** run the exe with `--set2` to `--set6` to open one sample set on its own (`--set5` resource fields, `--set6` the Dyson sphere: I or C goes in and out, M is the view from the middle, inside W A S D flies and dragging looks around).
 
 ⏱️ **Quick check:** `test.cmd 3000` runs for 3 seconds and closes. Quick checks open small in the bottom-right corner and don't take the keyboard.
