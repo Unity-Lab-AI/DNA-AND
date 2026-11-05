@@ -134,6 +134,10 @@
 
 ---
 
+> 🏙️ **What they build looks like them.** When a kind of life reaches cities and spaceships, those are generated from its own genes and body plan. Insect species get insect cities and insect spaceships.
+
+---
+
 ## 🧠 How life thinks
 
 Every living thing runs its own little mind, driven by the **selfish gene**: get more, do more, and pass your genes on before you die. And **death always comes.**
