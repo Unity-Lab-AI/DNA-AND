@@ -125,7 +125,14 @@ namespace DnaAnd.Shell
             if (_system != null && input.LeftClicked) ClickBody(input.MouseX, input.MouseY, w, h);
             if (input.LeftDown) { _yaw += input.MouseDX * 0.006f; _pitch = Math.Max(-1.5f, Math.Min(1.5f, _pitch + input.MouseDY * 0.006f)); }
             if (input.Wheel < 0 && _focusStar < 0 && _dist >= 3.99) { Ascend = true; return false; }     // out past the galaxy: back to the universe
-            if (input.Wheel < 0 && _focusStar >= 0 && _focusBody < 0 && _dist >= 3.99) { GoCore(); _dist = 3.9; return true; }   // out past the solar system: back to the whole galaxy
+            // zooming out lets go step by step: the planet, then the solar system, then the galaxy
+            if (input.Wheel < 0 && _system != null)
+            {
+                double outer = 0; foreach (var b in _system.Bodies) if (b.Parent < 0) outer = Math.Max(outer, b.OrbitUnits);
+                if (_focusBody >= 0 && _dist > outer * 1.5) { _focusBody = -1; }
+                else if (_focusBody < 0 && _dist > outer * 40) { GoCore(); _dist = Math.Max(_dist, outer * 40); return true; }
+            }
+            if (_pendingStar >= 0 && input.Wheel < 0 && _dist > 0.5) _pendingStar = -1;      // backing away from the target star: let it go
             if (input.Wheel != 0) _dist *= Math.Pow(0.82, input.Wheel);
             if (_pendingStar >= 0 && _dist < 2e-6) OpenStar(_pendingStar);                 // close enough to the star: open its solar system
             double minDist = _focusStar >= 0 ? _system.StarRadius * 1.5 : _pendingStar >= 0 ? 1e-6 : _bh.HorizonUnits * 3;

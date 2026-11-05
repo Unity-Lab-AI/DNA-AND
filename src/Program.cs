@@ -13,7 +13,7 @@ namespace DnaAnd
         private static int Main(string[] args)
         {
             // --smoke <ms>: a timed test run that closes itself after <ms> milliseconds.
-            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int openSet = 0; int testPlanet = -1; double wheelFrom = -1, wheelFor = 0; int pressKey = -1; double pressAt = -1; int testDyson = -1; bool testInside = false; int testJumps = 0; bool testFieldView = false; double testAlt = -1; double[] tour = null; int tourStep = 0; string tourName = "tour"; double shotAt = -1; string shotPath = null; int testSpeed = -1; double tryEvery = -1;
+            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int openSet = 0; int testPlanet = -1; double wheelFrom = -1, wheelFor = 0, backFrom = -1, backFor = 0; int pressKey = -1; double pressAt = -1; int testDyson = -1; bool testInside = false; int testJumps = 0; bool testFieldView = false; double testAlt = -1; double[] tour = null; int tourStep = 0; string tourName = "tour"; double shotAt = -1; string shotPath = null; int testSpeed = -1; double tryEvery = -1;
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i] == "--smoke" && i + 1 < args.Length) int.TryParse(args[i + 1], out smokeMs);
@@ -28,6 +28,11 @@ namespace DnaAnd
                 if (args[i] == "--set6") openSet = 6;
                 if (args[i] == "--set7") openSet = 7;
                 if (args[i] == "--set8") openSet = 8;
+                if (args[i] == "--wheelback" && i + 2 < args.Length)   // --wheelback <start s> <for s>: roll the wheel out, for test runs
+                {
+                    double.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out backFrom);
+                    double.TryParse(args[i + 2], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out backFor);
+                }
                 if (args[i] == "--wheel" && i + 2 < args.Length)   // --wheel <start s> <for s>: roll the wheel in once a frame, for test runs
                 {
                     double.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out wheelFrom);
@@ -152,6 +157,8 @@ namespace DnaAnd
                 }
                 if (pressKey >= 0 && clock.Total >= pressAt) { window.Input.Press(pressKey); pressKey = -1; }
                 if (wheelFrom >= 0 && clock.Total >= wheelFrom && clock.Total < wheelFrom + wheelFor) window.Input.Wheel = 1;
+                if (backFrom >= 0 && clock.Total >= backFrom && clock.Total < backFrom + backFor) window.Input.Wheel = -1;
+                if (window.Input.IsDown(0x11)) window.Input.Wheel *= 8;          // hold Ctrl: the wheel zooms eight times as fast, in every view
                 if (microbes != null) microbes.Update(window.Input, clock.Delta);
                 else if (elements != null) elements.Update(window.Input, clock.Delta);
                 else if (planet != null) { if (!planet.Update(window.Input, clock.Delta))
