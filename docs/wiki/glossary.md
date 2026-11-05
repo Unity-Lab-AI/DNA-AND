@@ -24,6 +24,7 @@ Every highlighted word in the wiki links here. **100 terms**, A to Z.
 | <a id="comet"></a>☄️ **Comet** | A ball of ice and dust from the edge of a solar system. It can bring water, or extinction. |
 | <a id="cooldown"></a>⏳ **Cooldown** | Wait time before one of the 20 strongest powers (T81–T100) can be used again. |
 | <a id="cost"></a>💸 **Cost** | What a power takes in souls: tier × area × strength. |
+| <a id="dark-harvest"></a>🩸 **Dark Harvest** | The 100 cruelest ways civilizations harvest life for you. See [The Dark Harvest](dark-harvest.md). |
 | <a id="dna"></a>🧬 **DNA** | The four-letter code (A, C, G, T) that builds every living thing. |
 | <a id="domain"></a>🌐 **Domain** | The biggest rank in the Tree of Life, above kingdom. |
 | <a id="dyson-sphere"></a>🌞 **Dyson sphere** | A giant shell of machines built around a star to catch all its energy. |
@@ -107,7 +108,6 @@ Every highlighted word in the wiki links here. **100 terms**, A to Z.
 | <a id="village"></a>🏘️ **Village** | A settled group with homes and fields. Step 44 on the grouping ladder. |
 | <a id="virus"></a>🦠 **Virus** | A tiny thing with its own genome that lives by infecting others. It can carry genes between species. |
 | <a id="wormhole"></a>🌀 **Wormhole** | A shortcut through space. |
-| <a id="zoom"></a>🔍 **Zoom** | The scroll wheel takes you from one microbe all the way out to a galaxy. |
 
 ---
 

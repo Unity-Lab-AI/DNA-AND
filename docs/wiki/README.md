@@ -37,6 +37,7 @@ Welcome, god. This is everything you need to know — from the first lightning b
 | 🔬 | [Tech Tree](tech-tree.md) | 100 branches, and 100 ways they harvest life for you |
 | 🗳️ | [Society](society.md) | 100 kinds of society: rule, trade, family, belief, law |
 | 🤏 | [Nudges](nudges.md) | 100 ways to nudge a civilization |
+| 🩸 | [The Dark Harvest](dark-harvest.md) | 🔞 100 cruel ways civilizations harvest life for you, matrixed by era |
 | ☀️ | [Space & Dyson Spheres](space-and-dyson-spheres.md) | Leaving home, spreading life, conquering galaxies |
 
 ## ⚡ Being a god

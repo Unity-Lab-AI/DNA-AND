@@ -34,3 +34,7 @@ Later in the game, intelligent life harvests life for you. In the endgame, it ha
 ## 🐺 Any species
 
 Civilization is not only for apes. Any line that evolves intelligence climbs the 100 ages, steered by its species AI and in the end a galactic mind (`docs/DESIGN.md`, rounds 7–8). Species can team up with, tame, farm, rule or enslave each other. See `docs/wiki/groups-and-flocking.md`.
+
+## 🩸 Dark Harvest
+
+100 cruel harvest methods in 10 groups (madness and beasts, disease, war, politics and law, belief, labor and economy, environment, genes and bodies, machines and control, space). Each appears at a set age and is pushed by named powers, and each pays souls per death. The group × era matrix is in `docs/wiki/dark-harvest.md`. Methods can only appear in civilizations of that age or later.

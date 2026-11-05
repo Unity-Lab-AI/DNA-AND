@@ -9,7 +9,7 @@
 
 You never command intelligent life. You never pick its next discovery, its ruler or its war. You **nudge**: you change the world around them, and they decide what to do about it.
 
-Here are **100 ways to nudge**, in 10 groups of 10, with the [god powers](god-powers.md "All 100 powers") that do it. Every nudge has its pluses and minuses, and every one can backfire.
+Many nudges lead straight into the [Dark Harvest](dark-harvest.md "100 cruel methods civilizations use"). Here are **100 ways to nudge**, in 10 groups of 10, with the [god powers](god-powers.md "All 100 powers") that do it. Every nudge has its pluses and minuses, and every one can backfire.
 
 ---
 

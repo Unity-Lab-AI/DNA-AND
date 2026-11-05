@@ -182,6 +182,10 @@ Souls come from **life itself**, from **death**, from **your own harvesting**, f
 
 ---
 
+> 🩸 **Darker still:** civilizations also harvest for you through madness, plague, war, cruel laws, sacrifice, slavery and world grinders. See [The Dark Harvest](dark-harvest.md "100 cruel methods, matrixed by era").
+
+---
+
 ## 🏆 Souls and your score
 
 Your [leaderboard](leaderboard-and-genebank.md) score is:

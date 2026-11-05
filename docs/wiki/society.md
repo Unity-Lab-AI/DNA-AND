@@ -9,6 +9,8 @@
 
 Every thinking species builds a **society**, and it changes as they climb the [100 ages](ages-of-civilization.md "Stone tools to intergalactic"). These are the **100 kinds of society** they can form. A civilization mixes one or more from each group, and the mix shifts over time, often violently.
 
+> 🩸 Cruel laws, death cults and slave economies feed the [Dark Harvest](dark-harvest.md "100 cruel methods").
+
 > 🤏 **You only nudge.** You can't pick their government. You can push it with [omens, prophets, miracles, peace and discord](nudges.md "100 ways to nudge civilization").
 
 ---

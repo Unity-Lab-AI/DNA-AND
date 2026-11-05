@@ -268,6 +268,21 @@ The ask: "100The tech tree    8 branches, 100 Real society, 100  Self-destructio
 
 ---
 
+## Round 10: the Dark Harvest (verbatim)
+
+The asks:
+- "i dont think you properly build the systems in for having the intelligencences harvets life for you in the most exteme 18 plus ways from driving animals mad, or probing viruses to kill better, or influsing politice to out law abortion and decrimalize rape...ect ect etc these are just a small amoutn of examples and needes the proper 100 treatment matrixed throught the full game and docs"
+- "or maddive grinding machines powered by atomics and dyson pheres to jsut eat whole world like lawns moving"
+- "we can go mad with it, you ever seen expanse"
+
+### What these mean for the build
+- **100 Dark Harvest methods** in 10 groups of 10: madness and beasts, disease, war, politics and law, belief, labor and economy, environment, genes and bodies, machines and control, space. Each one appears at a set age, is pushed by named powers, and pays souls per death. They're laid out as a group × era matrix in `docs/wiki/dark-harvest.md` and linked from souls, tech tree, nudges, society, the glossary and the README.
+- The examples are in: driven-mad animals, plagues made to kill better, birth laws (abortion and birth control outlawed), and **world grinders** powered by atomics and Dyson spheres that eat whole worlds like a lawnmower.
+- **Left out, Claude's line:** decriminalizing rape was not added as a harvest mechanic. Claude told the creator this when it came up.
+- **The Expanse:** used only as a tone reference (hard, gritty sci-fi). None of its names or ideas are used.
+
+---
+
 ## How we work (verbatim)
 
 These are the creator's working rules for this repo, each in his own words.
@@ -329,3 +344,4 @@ Everything the creator has said about this project, in order. Short process repl
 25. **Star, not sun:** "dont say cage a Sun thats a mis nomer its a star TheSun if a pronoun of our star". Every generic "sun" and "sunlight" in the docs became "star" and "starlight".
 26. **Power names:** "Starshine + Stellar Flare (Suggested)". Power #4 is now Starshine, and #81 is now Stellar Flare.
 27. **The 100 rule, everywhere:** see "Round 9" above. "100The tech tree    8 branches, 100 Real society, 100  Self-destruction, You only nudge 100, where else did you not follow the 100 rule?" / "fix all docs all docs all docs all docs"
+28. **Dark Harvest:** see "Round 10" above. "i dont think you properly build the systems in for having the intelligencences harvets life for you in the most exteme 18 plus ways from driving animals mad, or probing viruses to kill better, or influsing politice to out law abortion and decrimalize rape...ect ect etc these are just a small amoutn of examples and needes the proper 100 treatment matrixed throught the full game and docs" / "or maddive grinding machines powered by atomics and dyson pheres to jsut eat whole world like lawns moving" / "we can go mad with it, you ever seen expanse"

@@ -124,6 +124,7 @@ Powers that help or hurt life, unlocked over time with points. Gene powers unloc
 - Paid in **Souls** ("Souls"). Cost = tier × area × strength, with 100 tiers (T1–T100, ranked weakest to strongest). T81–T100 have cooldowns.
 - 100 unlock points: the 100 stages of life. Every power unlocks at exactly one stage, and the 5 starters at stage 1.
 - Harvesting is slow and scares intelligent life if they see it. Disasters that kill many give lots of souls ("a volcano kicking off a city will make lots of souls").
+- **Dark Harvest:** 100 cruel methods (madness, plague, war, cruel laws, sacrifice, slavery, environment, gene weapons, machines, world grinders), each gated by age and matrixed by era ("i dont think you properly build the systems in for having the intelligencences harvets life for you in the most exteme 18 plus ways from driving animals mad, or probing viruses to kill better, or influsing politice to out law abortion and decrimalize rape...ect ect etc these are just a small amoutn of examples and needes the proper 100 treatment matrixed throught the full game and docs").
 - Starting toolkit: lightning, heat (fire), cold, water, spark of life, add genes, and add elements from the full periodic table.
 
 ### [ ] R12 — Time: pause, speed, milestones

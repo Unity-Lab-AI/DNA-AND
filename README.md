@@ -189,9 +189,10 @@ Powers cost **Souls**. Cost = the power's **tier (T1–T100) × area × strength
 | 🌱 **Life gives** | Living things slowly give off souls. More life, more souls |
 | 🩸 **Death pays** | Intelligent deaths give the most. A volcano going off under a city pays a fortune |
 | 🖐️ **Harvesting** | You can reap souls by hand, but it's slow, it glows, and if intelligent life sees it they panic |
-| 🏭 **They harvest for you** | As civilizations grow they farm, sacrifice and strip whole planets, and the souls flow to you |
+| 🏭 **They harvest for you** | 100 harvest steps, one per age, from the first hunt to the intergalactic harvest |
+| 🩸 **The Dark Harvest** | 🔞 100 cruel methods: driven-mad beasts, plagues made to kill better, birth laws, death cults, slave plantations, gene wars, killer machines, and world grinders that eat planets like lawns |
 
-👉 [Souls & Harvesting](docs/wiki/souls-and-harvesting.md "The currency of a god")
+👉 [Souls & Harvesting](docs/wiki/souls-and-harvesting.md "The currency of a god") · [The Dark Harvest](docs/wiki/dark-harvest.md "100 cruel ways civilizations harvest for you")
 
 ---
 
