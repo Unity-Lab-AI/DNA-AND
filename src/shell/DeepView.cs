@@ -26,6 +26,11 @@ namespace DnaAnd.Shell
         private double _fx, _fy, _fz;          // focus position in galaxy units (double)
         private float _yaw = 0.6f, _pitch = 0.9f; private double _dist = 2.4;
         private StarVertex[] _bodyVerts;
+        private double _simYears;                 // simulation time in years
+        private double _speed = 1; private bool _paused;
+        private static readonly double[] Speeds = { 1, 10, 100, 1000, 100000 };
+        private const double SecondsPerYearAt1x = 20.0;   // at 1x, one year takes 20 s
+        private const double MaxVisualTurnPerSecond = 0.5; // radians: nothing on screen turns faster than this
         private static readonly int Stride = Marshal.SizeOf(typeof(StarVertex));
 
         public DeepView(Gpu gpu, BillboardPipeline pipe, ContentLibrary content, string type, string name, ulong seed)
@@ -75,6 +80,9 @@ namespace DnaAnd.Shell
             if (input.Wheel != 0) _dist *= Math.Pow(0.82, input.Wheel);
             double minDist = _focusStar >= 0 ? _system.StarRadius * 1.5 : _bh.HorizonUnits * 3;
             _dist = Math.Max(minDist, Math.Min(4.0, _dist));
+            if (input.WasPressed(0x20)) _paused = !_paused;                          // Space: pause
+            for (int k = 0; k < 5; k++) if (input.WasPressed(0x31 + k)) { _speed = Speeds[k]; _paused = false; } // 1-5: speeds
+            if (!_paused) _simYears += dt / SecondsPerYearAt1x * _speed;
             if (input.WasPressed(0x48)) GoCore();                                    // H: the core black hole
             if (input.WasPressed(0x0D)) VisitCenterStar(w, h);                       // Enter: visit the star in the middle
             return true;
@@ -83,6 +91,7 @@ namespace DnaAnd.Shell
         public void TestCore() { GoCore(); _dist = _bh.HorizonUnits * 60; }
         public void TestVisit(int w, int h) { _pitch = 1.45f; _dist = 0.6; VisitCenterStar(w, h); if (_focusStar < 0) { _dist = 0.05; VisitCenterStar(w, h); } _pitch = 0.7f; }
         public void TestZoom(double d) { _dist = d; }
+        public void TestSpeed(int index) { _speed = Speeds[Math.Max(0, Math.Min(4, index))]; }
 
         private void GoCore()
         {
@@ -115,7 +124,7 @@ namespace DnaAnd.Shell
             if (_sysStatic != null) _sysStatic.Dispose();
             _sysStatic = Upload(_system.Static);
             if (_sysBodies != null) _sysBodies.Dispose();
-            _bodyVerts = new StarVertex[_system.Bodies.Count + 1];
+            _bodyVerts = new StarVertex[(_system.Bodies.Count + 1) * (1 + TrailPoints)];
             _sysBodies = new UploadBuffer(_gpu.Device, (long)_bodyVerts.Length * Stride);
             double outer = 0; foreach (var b in _system.Bodies) if (b.Parent < 0) outer = Math.Max(outer, b.OrbitUnits);
             _dist = outer * 2.2;
@@ -141,7 +150,7 @@ namespace DnaAnd.Shell
             if (_focusStar < 0)
             {
                 Draw(_coreBuf, _bh.Glow.Length, vp, right, up, 0f, 0.0016f, 0f, w, h, time);
-                Mat4 spin = Mat4.RotationY((float)(time * 0.8)) * vp;                             // the disk turns
+                Mat4 spin = Mat4.RotationY((float)(time * 0.3)) * vp;                             // the disk turns, gently (calm motion)
                 Draw(_diskBuf, _bh.Disk.Length, spin, right, up, 1f, 0.0012f, 0f, w, h, time);
                 if (_bh.Jets.Length > 0) Draw(_jetBuf, _bh.Jets.Length, vp, right, up, 1f, 0.0012f, 0f, w, h, time);
             }
@@ -149,25 +158,44 @@ namespace DnaAnd.Shell
             {
                 Draw(_sysStatic, _system.Static.Length, vp, right, up, 0f, 0.002f, 1f, w, h, time); // orbits, belts, Oort cloud
                 UpdateBodies(time);
-                Draw(_sysBodies, _bodyVerts.Length, vp, right, up, 1f, 0.006f, 1f, w, h, time);    // the star, planets and moons
+                Draw(_sysBodies, _bodyCount, vp, right, up, 1f, 0.006f, 1f, w, h, time);    // the star, planets and moons
             }
         }
 
+        private const int TrailPoints = 72;
+        private int _bodyCount;
+
         private void UpdateBodies(double time)
         {
-            const double secondsPerYear = 20.0;
+            // Calm motion: the simulation keeps full speed, but nothing on screen turns faster than
+            // MaxVisualTurnPerSecond. Faster bodies are shown as a soft glowing orbit trail instead of a whirling dot.
             var pos = new Vec3[_system.Bodies.Count];
-            _bodyVerts[0] = SpaceGen.Star(new Vec3(0, 0, 0), (float)_system.StarRadius, _system.SR, _system.SG, _system.SB, 1f);
+            int n = 0;
+            _bodyVerts[n++] = SpaceGen.Star(new Vec3(0, 0, 0), (float)_system.StarRadius, _system.SR, _system.SG, _system.SB, 1f);
+            double speedFactor = _paused ? 0 : _speed / SecondsPerYearAt1x; // years per real second
             for (int i = 0; i < _system.Bodies.Count; i++)
             {
                 var b = _system.Bodies[i];
-                double ang = b.Phase + time / secondsPerYear / Math.Max(1e-4, b.Period) * Math.PI * 2;
+                double period = Math.Max(1e-4, b.Period);
+                double visualTurn = speedFactor / period * Math.PI * 2;           // radians per real second on screen
+                double ang = b.Phase + _simYears / period * Math.PI * 2;
                 var p = new Vec3((float)(Math.Cos(ang) * b.OrbitUnits), 0, (float)(Math.Sin(ang) * b.OrbitUnits));
-                if (b.Parent >= 0) p = p + pos[b.Parent];
+                Vec3 centre = b.Parent >= 0 ? pos[b.Parent] : new Vec3(0, 0, 0);
+                p = p + centre;
                 pos[i] = p;
-                _bodyVerts[i + 1] = SpaceGen.Star(p, (float)b.RadiusUnits, b.R, b.G, b.B, b.Parent >= 0 ? 0.6f : 1f);
+                float bright = b.Parent >= 0 ? 0.6f : 1f;
+                if (visualTurn <= MaxVisualTurnPerSecond)
+                    _bodyVerts[n++] = SpaceGen.Star(p, (float)b.RadiusUnits, b.R, b.G, b.B, bright);
+                else
+                    for (int k = 0; k < TrailPoints; k++)
+                    {
+                        double t = k / (double)TrailPoints * Math.PI * 2;
+                        var q = centre + new Vec3((float)(Math.Cos(t) * b.OrbitUnits), 0, (float)(Math.Sin(t) * b.OrbitUnits));
+                        _bodyVerts[n++] = SpaceGen.Star(q, (float)(b.RadiusUnits * 0.5), b.R, b.G, b.B, bright * 0.35f);
+                    }
             }
-            _sysBodies.Write(_bodyVerts, _bodyVerts.Length);
+            _bodyCount = n;
+            _sysBodies.Write(_bodyVerts, n);
         }
 
         private void Draw(UploadBuffer buf, int count, Mat4 vp, Vec3 right, Vec3 up, float sizeScale, float minSize, float style, int w, int h, double time)
@@ -190,8 +218,8 @@ namespace DnaAnd.Shell
                         _bh.MassSol, _bh.Active ? ", feeding (jets on)" : ", quiet", _clusters, _nebulas)
                     : string.Format("focus: {0} star · {1} planets · frost line {2:0.0} au · habitable zone {3:0.00} au",
                         _system.StarName, _system.Planets, _system.FrostLineAu, _system.HabitableAu);
-                return string.Format("DNA-AND deep zoom · {0} · view {1} across · {2} · wheel zoom, drag rotate, Enter visit middle star, H core, Backspace back",
-                    _name, Units.Describe(_dist * 1.0), focus);
+                return string.Format("DNA-AND deep zoom · {0} · view {1} across · {2} · time {3} · wheel zoom, drag rotate, Enter visit middle star, H core, 1-5 speed, Space pause, Backspace back",
+                    _name, Units.Describe(_dist * 1.0), focus, _paused ? "paused" : _speed.ToString("N0") + "x");
             }
         }
 
