@@ -59,6 +59,14 @@ namespace DnaAnd.Core
             return m;
         }
 
+        public static Mat4 RotationY(float a)
+        {
+            var m = Identity; float c = (float)Math.Cos(a), s = (float)Math.Sin(a);
+            m.M11 = c; m.M13 = -s; m.M31 = s; m.M33 = c; return m;
+        }
+
+        public static Mat4 Translation(float x, float y, float z) { var m = Identity; m.M41 = x; m.M42 = y; m.M43 = z; return m; }
+
         /// <summary>Left-handed perspective, depth 0..1.</summary>
         public static Mat4 Perspective(float fovY, float aspect, float near, float far)
         {

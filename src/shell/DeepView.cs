@@ -1,0 +1,203 @@
+// DNA-AND · shell · deep zoom: one galaxy full-window, zoomable from the whole galaxy down to the core's
+// supermassive black hole, its clusters and nebulas, and any star's full system. Everything is generated live.
+// Precision: positions are kept relative to the current focus (a moving origin), so tiny things stay exact.
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using DnaAnd.Core;
+using DnaAnd.Gen;
+using DnaAnd.Platform;
+using DnaAnd.Render;
+
+namespace DnaAnd.Shell
+{
+    internal sealed class DeepView : IDisposable
+    {
+        private const int GalaxyStars = 150000;
+        private readonly Gpu _gpu; private readonly BillboardDrawer _drawer; private readonly ContentLibrary _content;
+        private readonly string _name; private readonly ulong _seed;
+        private readonly StarVertex[] _stars, _structures; private readonly int[] _kinds;
+        private readonly StarVertex[] _starsRel, _structRel;
+        private readonly List<StarKind> _kindList;
+        private readonly SpaceGen.BlackHole _bh;
+        private readonly int _clusters, _nebulas;
+        private UploadBuffer _starBuf, _structBuf, _diskBuf, _jetBuf, _coreBuf, _sysStatic, _sysBodies;
+        private SpaceGen.StarSystem _system; private int _focusStar = -1;
+        private double _fx, _fy, _fz;          // focus position in galaxy units (double)
+        private float _yaw = 0.6f, _pitch = 0.9f; private double _dist = 2.4;
+        private StarVertex[] _bodyVerts;
+        private static readonly int Stride = Marshal.SizeOf(typeof(StarVertex));
+
+        public DeepView(Gpu gpu, BillboardPipeline pipe, ContentLibrary content, string type, string name, ulong seed)
+        {
+            _gpu = gpu; _drawer = new BillboardDrawer(gpu.CommandList, pipe); _content = content; _name = name; _seed = seed;
+            _kindList = GalaxyGen.StarKinds(content);
+            _kinds = new int[GalaxyStars];
+            _stars = GalaxyGen.Generate(type, seed, GalaxyStars, _kindList, _kinds);
+            _structures = SpaceGen.Structures(type, seed, _kindList, out _clusters, out _nebulas);
+            _starsRel = new StarVertex[_stars.Length]; _structRel = new StarVertex[_structures.Length];
+            _starBuf = new UploadBuffer(gpu.Device, (long)_stars.Length * Stride);
+            _structBuf = new UploadBuffer(gpu.Device, (long)Math.Max(1, _structures.Length) * Stride);
+            _bh = SpaceGen.CoreBlackHole(content, seed);
+            _diskBuf = Upload(_bh.Disk); _jetBuf = Upload(_bh.Jets); _coreBuf = Upload(_bh.Glow);
+            SetFocus(0, 0, 0);
+        }
+
+        private UploadBuffer Upload(StarVertex[] v)
+        {
+            var b = new UploadBuffer(_gpu.Device, (long)Math.Max(1, v.Length) * Stride);
+            if (v.Length > 0) b.Write(v, v.Length);
+            return b;
+        }
+
+        private void SetFocus(double x, double y, double z)
+        {
+            _fx = x; _fy = y; _fz = z;
+            Relative(_stars, _starsRel); _starBuf.Write(_starsRel, _starsRel.Length);
+            if (_structures.Length > 0) { Relative(_structures, _structRel); _structBuf.Write(_structRel, _structRel.Length); }
+        }
+
+        private void Relative(StarVertex[] src, StarVertex[] dst)
+        {
+            for (int i = 0; i < src.Length; i++)
+            {
+                StarVertex v = src[i];
+                v.X = (float)(src[i].X - _fx); v.Y = (float)(src[i].Y - _fy); v.Z = (float)(src[i].Z - _fz);
+                dst[i] = v;
+            }
+        }
+
+        /// <summary>Returns false when the player wants to go back to the sample grid.</summary>
+        public bool Update(Input input, double dt, int w, int h)
+        {
+            if (input.WasPressed(0x08)) return false;                                // Backspace: back to samples
+            if (input.LeftDown) { _yaw += input.MouseDX * 0.006f; _pitch = Math.Max(-1.5f, Math.Min(1.5f, _pitch + input.MouseDY * 0.006f)); }
+            if (input.Wheel != 0) _dist *= Math.Pow(0.82, input.Wheel);
+            double minDist = _focusStar >= 0 ? _system.StarRadius * 1.5 : _bh.HorizonUnits * 3;
+            _dist = Math.Max(minDist, Math.Min(4.0, _dist));
+            if (input.WasPressed(0x48)) GoCore();                                    // H: the core black hole
+            if (input.WasPressed(0x0D)) VisitCenterStar(w, h);                       // Enter: visit the star in the middle
+            return true;
+        }
+
+        public void TestCore() { GoCore(); _dist = _bh.HorizonUnits * 60; }
+        public void TestVisit(int w, int h) { _pitch = 1.45f; _dist = 0.6; VisitCenterStar(w, h); if (_focusStar < 0) { _dist = 0.05; VisitCenterStar(w, h); } _pitch = 0.7f; }
+        public void TestZoom(double d) { _dist = d; }
+
+        private void GoCore()
+        {
+            _focusStar = -1; _system = null;
+            if (_sysStatic != null) { _sysStatic.Dispose(); _sysStatic = null; }
+            if (_sysBodies != null) { _sysBodies.Dispose(); _sysBodies = null; }
+            SetFocus(0, 0, 0);
+            _dist = Math.Max(_bh.HorizonUnits * 40, Math.Min(_dist, 0.05));
+        }
+
+        private void VisitCenterStar(int w, int h)
+        {
+            Mat4 vp = ViewProj(w, h);
+            int best = -1; double bestD = 40 * 40; // within 40 pixels of the middle
+            for (int i = 0; i < _starsRel.Length; i++)
+            {
+                StarVertex s = _starsRel[i];
+                float cx = s.X * vp.M11 + s.Y * vp.M21 + s.Z * vp.M31 + vp.M41;
+                float cy = s.X * vp.M12 + s.Y * vp.M22 + s.Z * vp.M32 + vp.M42;
+                float cw = s.X * vp.M14 + s.Y * vp.M24 + s.Z * vp.M34 + vp.M44;
+                if (cw <= 0) continue;
+                double px = cx / cw * w * 0.5, py = cy / cw * h * 0.5, d = px * px + py * py;
+                if (d < bestD) { bestD = d; best = i; }
+            }
+            if (best < 0) return;
+            _focusStar = best;
+            StarKind kind = _kindList[Math.Max(0, _kinds[best])];
+            _system = SpaceGen.System(_content, kind, _seed * 31UL + (ulong)best);
+            SetFocus(_stars[best].X, _stars[best].Y, _stars[best].Z);
+            if (_sysStatic != null) _sysStatic.Dispose();
+            _sysStatic = Upload(_system.Static);
+            if (_sysBodies != null) _sysBodies.Dispose();
+            _bodyVerts = new StarVertex[_system.Bodies.Count + 1];
+            _sysBodies = new UploadBuffer(_gpu.Device, (long)_bodyVerts.Length * Stride);
+            double outer = 0; foreach (var b in _system.Bodies) if (b.Parent < 0) outer = Math.Max(outer, b.OrbitUnits);
+            _dist = outer * 2.2;
+        }
+
+        private Mat4 ViewProj(int w, int h)
+        {
+            var eye = new Vec3((float)(Math.Cos(_yaw) * Math.Cos(_pitch) * _dist), (float)(Math.Sin(_pitch) * _dist), (float)(Math.Sin(_yaw) * Math.Cos(_pitch) * _dist));
+            Mat4 view = Mat4.LookAt(eye, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
+            float near = (float)(_dist * 1e-3), far = (float)Math.Max(_dist * 1e5, 12);
+            return view * Mat4.Perspective(0.9f, w / (float)Math.Max(1, h), near, far);
+        }
+
+        public void Draw(int w, int h, double time)
+        {
+            var eye = new Vec3((float)(Math.Cos(_yaw) * Math.Cos(_pitch) * _dist), (float)(Math.Sin(_pitch) * _dist), (float)(Math.Sin(_yaw) * Math.Cos(_pitch) * _dist));
+            Mat4 view = Mat4.LookAt(eye, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
+            Mat4 vp = ViewProj(w, h);
+            var right = new Vec3(view.M11, view.M21, view.M31); var up = new Vec3(view.M12, view.M22, view.M32);
+
+            Draw(_starBuf, _stars.Length, vp, right, up, 0f, 0.0022f, 1f, w, h, time);            // galaxy stars: flat dots
+            if (_structures.Length > 0) Draw(_structBuf, _structures.Length, vp, right, up, 1f, 0.0018f, 0f, w, h, time); // clusters, nebulas
+            if (_focusStar < 0)
+            {
+                Draw(_coreBuf, _bh.Glow.Length, vp, right, up, 0f, 0.0016f, 0f, w, h, time);
+                Mat4 spin = Mat4.RotationY((float)(time * 0.8)) * vp;                             // the disk turns
+                Draw(_diskBuf, _bh.Disk.Length, spin, right, up, 1f, 0.0012f, 0f, w, h, time);
+                if (_bh.Jets.Length > 0) Draw(_jetBuf, _bh.Jets.Length, vp, right, up, 1f, 0.0012f, 0f, w, h, time);
+            }
+            else
+            {
+                Draw(_sysStatic, _system.Static.Length, vp, right, up, 0f, 0.002f, 1f, w, h, time); // orbits, belts, Oort cloud
+                UpdateBodies(time);
+                Draw(_sysBodies, _bodyVerts.Length, vp, right, up, 1f, 0.006f, 1f, w, h, time);    // the star, planets and moons
+            }
+        }
+
+        private void UpdateBodies(double time)
+        {
+            const double secondsPerYear = 20.0;
+            var pos = new Vec3[_system.Bodies.Count];
+            _bodyVerts[0] = SpaceGen.Star(new Vec3(0, 0, 0), (float)_system.StarRadius, _system.SR, _system.SG, _system.SB, 1f);
+            for (int i = 0; i < _system.Bodies.Count; i++)
+            {
+                var b = _system.Bodies[i];
+                double ang = b.Phase + time / secondsPerYear / Math.Max(1e-4, b.Period) * Math.PI * 2;
+                var p = new Vec3((float)(Math.Cos(ang) * b.OrbitUnits), 0, (float)(Math.Sin(ang) * b.OrbitUnits));
+                if (b.Parent >= 0) p = p + pos[b.Parent];
+                pos[i] = p;
+                _bodyVerts[i + 1] = SpaceGen.Star(p, (float)b.RadiusUnits, b.R, b.G, b.B, b.Parent >= 0 ? 0.6f : 1f);
+            }
+            _sysBodies.Write(_bodyVerts, _bodyVerts.Length);
+        }
+
+        private void Draw(UploadBuffer buf, int count, Mat4 vp, Vec3 right, Vec3 up, float sizeScale, float minSize, float style, int w, int h, double time)
+        {
+            if (buf == null || count <= 0) return;
+            var c = new float[BillboardPipeline.ConstantCount];
+            c[0] = vp.M11; c[1] = vp.M12; c[2] = vp.M13; c[3] = vp.M14; c[4] = vp.M21; c[5] = vp.M22; c[6] = vp.M23; c[7] = vp.M24;
+            c[8] = vp.M31; c[9] = vp.M32; c[10] = vp.M33; c[11] = vp.M34; c[12] = vp.M41; c[13] = vp.M42; c[14] = vp.M43; c[15] = vp.M44;
+            c[16] = right.X; c[17] = right.Y; c[18] = right.Z; c[20] = up.X; c[21] = up.Y; c[22] = up.Z;
+            c[24] = (float)time; c[25] = sizeScale; c[26] = style; c[27] = 4f; c[28] = w; c[29] = h; c[30] = minSize;
+            _drawer.Draw(buf, count, c, 0, 0, w, h);
+        }
+
+        public string Title
+        {
+            get
+            {
+                string focus = _focusStar < 0
+                    ? string.Format("focus: the core's supermassive black hole, {0:0.0e0} Sun masses{1} · {2} star clusters, {3} nebulas",
+                        _bh.MassSol, _bh.Active ? ", feeding (jets on)" : ", quiet", _clusters, _nebulas)
+                    : string.Format("focus: {0} star · {1} planets · frost line {2:0.0} au · habitable zone {3:0.00} au",
+                        _system.StarName, _system.Planets, _system.FrostLineAu, _system.HabitableAu);
+                return string.Format("DNA-AND deep zoom · {0} · view {1} across · {2} · wheel zoom, drag rotate, Enter visit middle star, H core, Backspace back",
+                    _name, Units.Describe(_dist * 1.0), focus);
+            }
+        }
+
+        public void Dispose()
+        {
+            foreach (var b in new[] { _starBuf, _structBuf, _diskBuf, _jetBuf, _coreBuf, _sysStatic, _sysBodies }) if (b != null) b.Dispose();
+        }
+    }
+}

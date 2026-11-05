@@ -439,6 +439,21 @@ The ask: "and we havent talked about the hud much but it should be intrusive so 
 
 ---
 
+## Round 21: set 1 feedback (verbatim)
+
+The feedback: "now the first set looked best but they have to be zoomable to the star sytems and i suppose this is just asa sammple and not the true game but i dont know how zoom and all of that works but how and where do i see the supermassive black holses at the centrter and all the space systems and environment of objects and systems and clusters and things"
+
+| Question | Answer (verbatim) |
+|---|---|
+| Which looked best | "Column 1: RimWorld-like" |
+| Build the deep zoom next | "Yes, build deep zoom now (Suggested)" |
+
+### What this means for the build
+- **Set 1 pick:** the RimWorld-like (flat, clean) style for galaxies.
+- **Deep zoom:** click a galaxy to open it full-window. One continuous zoom goes from galaxy, to the core's supermassive black hole (accretion disk and jets), to clusters and nebulas, to any star's full system (planets, moons, belts, Kuiper belt, Oort cloud). Each level is generated live from the seed and the content files. 64-bit positions and a moving origin keep it precise.
+
+---
+
 ## How we work (verbatim)
 
 These are the creator's working rules for this repo, each in his own words.
@@ -543,3 +558,4 @@ Everything the creator has said about this project, in order. Short process repl
 53. "just doint fucking break my display when u build the game engine" / "'pust safty reverts on test timeouts". Done: windowed only, vsync, Alt+Enter blocked, an in-game watchdog safety exit and a safe test runner with a forced close.
 54. "its got to have full resolution scaling and range". Done so far: resize and DPI awareness. Render-scale and the zoom range are tasks.
 55. "superb, lets do that 1-5". Steps 1–5 are done. Shaders compile with Windows' own d3dcompiler_47.dll (round 20 reasoning: it ships with Windows).
+56. **Set 1 feedback:** see "Round 21".
