@@ -49,13 +49,13 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 - [x] Our own content text format (`docs/CONTENT-FORMAT.md`), compiled to our own binary later: "option one and and whats the most dynamic code to use? rust or type script?"
 Order: galactic scale down, the same order as the sample sets.
 - [x] Content: Galaxy layouts (seeds, ranges, parts, rules) in `content/` · `content/galaxies.dnat`: 20 types, 4 real examples, 10 parts, 6 structures, 10 rules. Galaxy sizes decided: 100 / 500 / 2,000 / 10,000 systems
-- [~] Content: Solar system layouts (seeds, ranges, parts, rules) in `content/` · `content/solar-systems.dnat`: 14 kinds, 4 real examples, 10 zones, 10 rules
-- [~] Content: Stars (seeds, ranges, parts, rules) in `content/` · `content/stars.dnat` started: 20 real seeds, 5 rules
+- [x] Content: Solar system layouts (seeds, ranges, parts, rules) in `content/` · `content/solar-systems.dnat`: 14 kinds, 4 real examples, 10 zones, 10 rules
+- [x] Content: Stars (seeds, ranges, parts, rules) in `content/` · `content/stars.dnat` started: 20 real seeds, 5 rules
 - [x] Content: Black holes and quasars in `content/black-holes.dnat`, researched: "dont forget black holes and quasars,, i think maybe you need to research topics as you are leaving out all kinds of thhigns maybe make that a rule"
 - [x] Re-research the files written before LAW 16 (stars, galaxies, solar systems) and add anything missing. Added: 7 luminosity classes, 7 star types, 7 galaxy types and a rule, 1 system type, 2 zones and 2 rules
 - [x] Content: Physics (4 forces, particles and atoms, planet interiors, tectonics, magnetic fields, atmospheres) in `content/physics.dnat`, researched: "dont forget the forces of nature weak and nuclear forces of atoms pysics electormagnatisim magma in plantes that arte tectonic with magnic fields and shit come one wwhat about gravity and atmosphers"
-- [ ] Content: Planets (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Gas giants (seeds, ranges, parts, rules) in `content/`
+- [x] Content: Planets in `content/planets.dnat` (researched: 23 types, 4 examples, 6 rules)
+- [x] Content: Gas giants in `content/gas-giants.dnat` (researched: 9 kinds, 5 cloud classes, 6 layers, 6 features, 4 examples, 7 rules)
 - [ ] Content: Moons (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Small bodies, belts and clouds: comets, asteroids, dwarf planets, Kuiper belt, Oort clouds (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Nebulas and gas clouds (seeds, ranges, parts, rules) in `content/`
