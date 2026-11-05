@@ -53,6 +53,7 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] Content: Stars (seeds, ranges, parts, rules) in `content/` · `content/stars.dnat` started: 20 real seeds, 5 rules
 - [x] Content: Black holes and quasars in `content/black-holes.dnat`, researched: "dont forget black holes and quasars,, i think maybe you need to research topics as you are leaving out all kinds of thhigns maybe make that a rule"
 - [x] Re-research the files written before LAW 16 (stars, galaxies, solar systems) and add anything missing. Added: 7 luminosity classes, 7 star types, 7 galaxy types and a rule, 1 system type, 2 zones and 2 rules
+- [x] Content: Physics (4 forces, particles and atoms, planet interiors, tectonics, magnetic fields, atmospheres) in `content/physics.dnat`, researched: "dont forget the forces of nature weak and nuclear forces of atoms pysics electormagnatisim magma in plantes that arte tectonic with magnic fields and shit come one wwhat about gravity and atmosphers"
 - [ ] Content: Planets (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Gas giants (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Moons (seeds, ranges, parts, rules) in `content/`
@@ -112,6 +113,7 @@ Order: galactic scale down, the same order as the sample sets.
 - [ ] (Later) Linux: same list
 
 ### R3 — Engine core
+- [ ] Physics core: all four forces drive the sim (gravity, electromagnetism, strong, weak), per `content/physics.dnat`
 **Spec:** `wiki/systems/r03-engine-core.md`
 
 - [ ] Math: vectors, matrices, noise, seeded random numbers
@@ -208,6 +210,8 @@ Order: galactic scale down, the same order as the sample sets.
 - [ ] Unlockable other planet templates and what unlocks them
   - 100 templates. The first to unlock are Ocean, Desert, Ice, Jungle, Volcanic, Tidally locked and Gas-giant moon. Stages and ages can come in their own order on these.
 - [ ] Ground, plates, mountains, oceans, rivers, ice
+- [ ] Planet interiors: core, mantle, crust, magma, convection, plate tectonics or stagnant lid, volcanoes, geodynamo and magnetic field, magnetosphere and auroras
+- [ ] Atmospheres: layers, pressure, makeup, greenhouse and runaway greenhouse, and air escaping (thermal, hydrodynamic, non-thermal)
 - [ ] Air, weather, climate, seasons, day and night
 - [ ] Chemistry and minerals that life can use
   - All 118 elements. Lab-made ones (93+) unlock once a civilization creates them.

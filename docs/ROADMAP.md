@@ -53,6 +53,7 @@ Opening a window, keyboard and mouse, sound, files, the clock, threads, network.
 ### [ ] R3 — Engine core
 The base every system sits on: math (vectors, matrices, noise, random numbers that repeat from a seed), memory handling, the "arrays" that hold billions of things, multithreading, saving data to disk.
 
+- Real physics underneath everything: gravity, electromagnetism, and the strong and weak nuclear forces ("dont forget the forces of nature weak and nuclear forces of atoms pysics electormagnatisim magma in plantes that arte tectonic with magnic fields and shit come one wwhat about gravity and atmosphers").
 - Big memory blocks reserved up front per system.
 - One worker per CPU core, pulling jobs from a shared queue.
 - 64-bit positions with a moving origin.
@@ -98,6 +99,7 @@ Ground, rock, plates, mountains, oceans, rivers, ice, air, weather, seasons, day
 
 - All 118 elements. Lab-made ones (93+) unlock once a civilization creates them.
 - The surface is split into equal-size cells on a sphere.
+- Planet interiors (core, mantle, magma), plate tectonics or a stagnant lid, a geodynamo magnetic field, and layered atmospheres that can be kept or lost.
 - 100 planet templates. The first to unlock are Ocean, Desert, Ice, Jungle, Volcanic, Tidally locked and Gas-giant moon.
 - On other templates, stages and ages can come in their own order.
 

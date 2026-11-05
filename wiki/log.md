@@ -65,3 +65,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Research first
 
 - LAW 16: research every topic before writing it. Added content/black-holes.dnat (researched). Re-researched stars, galaxies and solar systems, and filled the gaps.
+
+## 2026-11-05 — Physics
+
+- content/physics.dnat (researched): 4 forces, particles, atoms, planet interiors, tectonics, the dynamo, atmospheres. New public page forces-of-nature.md. r03 and r06 specs updated.

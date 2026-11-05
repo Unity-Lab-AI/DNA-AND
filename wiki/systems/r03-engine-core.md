@@ -33,3 +33,7 @@ Distances run from a virus to across galaxies.
 
 ## 💾 Save files
 ✅ Our own binary format made of versioned chunks (universe, planets, life, civs, player).
+
+## 📌 Decided specs (build from these)
+
+- Physics core from `content/physics.dnat`: four forces, particles and atoms, isotopes and decay, fusion and fission.
