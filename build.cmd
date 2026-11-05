@@ -7,10 +7,15 @@ if not exist "%CSC%" (
   echo Windows' built-in C# compiler was not found at %CSC%
   exit /b 1
 )
+rem   build.cmd        builds build\DNA-AND.exe (the copy you play)
+rem   build.cmd NAME   builds build\NAME\DNA-AND.exe (a separate copy, such as dev or test, so a running game is never closed or touched)
+set OUT=build\DNA-AND.exe
+if not "%1"=="" set OUT=build\%1\DNA-AND.exe
 if not exist build mkdir build
-"%CSC%" /nologo /target:winexe /platform:x64 /optimize+ /unsafe /warnaserror+ /out:build\DNA-AND.exe /recurse:src\*.cs
+if not "%1"=="" if not exist build\%1 mkdir build\%1
+"%CSC%" /nologo /target:winexe /platform:x64 /optimize+ /unsafe /warnaserror+ /out:%OUT% /recurse:src\*.cs
 if errorlevel 1 (
   echo Build failed.
   exit /b 1
 )
-echo Built build\DNA-AND.exe
+echo Built %OUT%

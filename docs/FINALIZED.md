@@ -156,3 +156,9 @@ LAW 11 now includes a content-coverage check.
 
 - [x] Samples: Resource fields (3 examples × 3 styles). Meaning: "when i said fields i meant areas like water in an ocean ore in rock chemicals near volcanos, for everything". Approved: "looks good".
 - [x] Samples: Dyson spheres (3 examples × 3 styles). One sphere, done right: "should be able to go inside of them where centrifical graveity lets you focus on the shell of te inside like a hallow inside out planet". Approved: "okay its working now".
+
+## 2026-11-05 — Elements, microbes, the journey
+
+- [x] Samples: The whole periodic table of elements (all 118) (3 examples × 3 styles). Approved: "looks good that can go in the wiki once we flush it out with tool tips throughought and propelry gate it all off for balanced play and leveling".
+- [x] Samples: Microbes (3 examples × 3 styles) and Viruses (3 examples × 3 styles), as the live ecosystem: "sound good and real biological like ecoosystem that balances and reacts and changes based on real things like mutation infection survival of the ifttest type stuff or werd combos that just out live anything and persist like plants becasue they are so sucessful".
+- [x] One journey, starting among the galaxies: "and its starts in the mix of glaxixies" / "no that started above a planet". Pushed: "push it we are good to go".

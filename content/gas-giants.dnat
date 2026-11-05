@@ -10,12 +10,14 @@ name: Gas giant
 real: yes
 makeup: mostly hydrogen and helium, a few percent heavier elements
 example: Jupiter, Saturn
+air: hydrogen 90%, helium 10%, methane 0.3%, ammonia 0.03%  (like Jupiter)
 
 @giant ice-giant
 name: Ice giant
 real: yes
 makeup: mostly water, ammonia and methane "ices" under a hydrogen-helium air
 example: Uranus, Neptune
+air: hydrogen 80%, helium 19%, methane 1.5%  (methane makes it blue, like Neptune)
 
 @giant super-jupiter
 name: Super-Jupiter
@@ -31,6 +33,7 @@ says: between Neptune and Saturn in mass
 name: Hot Jupiter
 real: yes
 says: a gas giant in a tight, fast orbit close to its star, hot and puffed up
+air: hydrogen 85%, helium 14%, water, carbon monoxide, sodium and potassium vapour  (scorching)
 
 @giant hot-neptune
 name: Hot Neptune
