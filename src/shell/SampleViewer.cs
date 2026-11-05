@@ -19,7 +19,7 @@ namespace DnaAnd.Shell
         private readonly BillboardDrawer _drawer;
         private float _yaw, _zoom = 1f;
         public int Set { get; private set; }
-        private readonly bool[,] _marks = new bool[4, 9];   // [set, row*3+col]: the samples marked good
+        private readonly bool[,] _marks = new bool[5, 9];   // [set, row*3+col]: the samples marked good
         private static readonly string[] StyleNames = { "RimWorld-like", "Populous-like", "Stardew-like" };
         private const int FrameDots = 48;
         private UploadBuffer _frameBuf;
@@ -43,12 +43,21 @@ namespace DnaAnd.Shell
         private readonly int[] _starCounts = new int[9];
         private readonly StarSurface[] _surfaces = new StarSurface[9];
         private readonly UploadBuffer[] _surfBufs = new UploadBuffer[9];
-        private readonly StarVertex[][] _surfVerts = new StarVertex[9][];                                  // set 2 zooms from the whole system down to one planet
+        private readonly StarVertex[][] _surfVerts = new StarVertex[9][];
+        // set 4: nine planets and giants up close
+        private static readonly string[] PlanetIds = { "temperate", "ocean", "desert", "lava", "snowball", "tidally-locked", "gas-giant", "ice-giant", "hot-jupiter" };
+        private readonly string[] _planetNames = new string[9];
+        private readonly PlanetSurface[] _planets = new PlanetSurface[9];
+        private readonly UploadBuffer[] _planetStatic = new UploadBuffer[9], _planetBufs = new UploadBuffer[9];
+        private readonly int[] _planetStaticCount = new int[9];
+        private readonly StarVertex[][] _planetVerts = new StarVertex[9][];                                  // set 2 zooms from the whole system down to one planet
 
         public string Title
         {
             get
             {
+                if (Set == 4)
+                    return "DNA-AND samples · Set 4: Planets and gas giants (Populous-like) · see the Legend menu for which is which · right-click marks a keeper";
                 if (Set == 3)
                     return "DNA-AND samples · Set 3: Stars (Populous-like) · see the Legend menu for which star is which · right-click marks a keeper";
                 if (Set == 2)
@@ -104,6 +113,15 @@ namespace DnaAnd.Shell
                 _starBufs[i] = new UploadBuffer(gpu.Device, (long)Math.Max(1, v.Length) * stride);
                 _starBufs[i].Write(v, v.Length);
             }
+            for (int i = 0; i < 9; i++)
+            {
+                StarVertex[] v = PlanetGen.Build(content, PlanetIds[i], seed * 37UL + (ulong)i, out _planetNames[i], out _planets[i]);
+                _planetStaticCount[i] = v.Length;
+                _planetStatic[i] = new UploadBuffer(gpu.Device, (long)Math.Max(1, v.Length) * stride);
+                _planetStatic[i].Write(v, v.Length);
+                _planetVerts[i] = new StarVertex[_planets[i].MaxPoints];
+                _planetBufs[i] = new UploadBuffer(gpu.Device, (long)_planetVerts[i].Length * stride);
+            }
             LoadMarks(); // after every sample has its name
         }
 
@@ -126,6 +144,7 @@ namespace DnaAnd.Shell
         {
             if (Set == 2) { DrawSystems(width, height, time); DrawMarks(width, height); return; }
             if (Set == 3) { DrawStars(width, height, time); DrawMarks(width, height); return; }
+            if (Set == 4) { DrawPlanets(width, height, time); DrawMarks(width, height); return; }
             int tileW = width / 3, tileH = height / 3;
             for (int row = 0; row < 3; row++)
                 for (int col = 0; col < 3; col++)
@@ -232,6 +251,26 @@ namespace DnaAnd.Shell
             }
         }
 
+        private void DrawPlanets(int width, int height, double time)
+        {
+            int tileW = width / 3, tileH = height / 3;
+            for (int i = 0; i < 9; i++)
+            {
+                bool ringed = PlanetIds[i] == "gas-giant" || PlanetIds[i] == "ice-giant";
+                float pitch = 0.3f, dist = (ringed ? 5.6f : 3.4f) / _zoom;
+                float yaw = 0.6f + (float)Math.Sin(_yaw * 2f + i) * 0.5f;    // sway gently so the day side stays in view
+                var eye = new Vec3((float)(Math.Cos(yaw) * Math.Cos(pitch)) * dist, (float)Math.Sin(pitch) * dist, (float)(Math.Sin(yaw) * Math.Cos(pitch)) * dist);
+                Mat4 view = Mat4.LookAt(eye, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
+                Mat4 vp = view * Mat4.Perspective(0.9f, tileW / (float)Math.Max(1, tileH), 0.01f, 50f);
+                var right = new Vec3(view.M11, view.M21, view.M31); var up = new Vec3(view.M12, view.M22, view.M32);
+                float len = (float)Math.Sqrt(Vec3.Dot(eye, eye));
+                int pc = _planets[i].Draw(eye * (1f / len), time, _planetVerts[i]);
+                _planetBufs[i].Write(_planetVerts[i], pc);
+                DrawTile(_planetBufs[i], pc, vp, right, up, 1f, 0f, 2f, (i % 3) * tileW, (i / 3) * tileH, tileW, tileH, time);
+                DrawTile(_planetStatic[i], _planetStaticCount[i], vp, right, up, 1f, 0f, 2f, (i % 3) * tileW, (i / 3) * tileH, tileW, tileH, time);
+            }
+        }
+
         private void DrawTile(UploadBuffer buf, int count, Mat4 vp, Vec3 right, Vec3 up, float sizeScale, float minSize, float style, int x, int y, int w, int h, double time)
         {
             if (count <= 0) return;
@@ -262,7 +301,7 @@ namespace DnaAnd.Shell
         public string[] KeeperLabels()
         {
             var l = new string[9];
-            for (int i = 0; i < 9; i++) l[i] = Set == 3 ? "Row " + (i / 3 + 1) + ", column " + (i % 3 + 1) + ": " + _starNames[i] : "Row " + (i / 3 + 1) + ": " + RowName(Set, i / 3) + "  ·  column " + (i % 3 + 1) + ": " + StyleNames[i % 3];
+            for (int i = 0; i < 9; i++) l[i] = Set >= 3 ? "Row " + (i / 3 + 1) + ", column " + (i % 3 + 1) + ": " + (Set == 3 ? _starNames[i] : _planetNames[i]) : "Row " + (i / 3 + 1) + ": " + RowName(Set, i / 3) + "  ·  column " + (i % 3 + 1) + ": " + StyleNames[i % 3];
             return l;
         }
 
@@ -270,10 +309,10 @@ namespace DnaAnd.Shell
 
         public string Legend()
         {
-            if (Set == 3)
+            if (Set >= 3)
             {
-                var st = new System.Text.StringBuilder("Set 3 of 17: stars, all in the game's style (Populous-like)\n\n");
-                for (int i = 0; i < 9; i++) st.Append("  Row " + (i / 3 + 1) + ", column " + (i % 3 + 1) + ": " + _starNames[i] + "\n");
+                var st = new System.Text.StringBuilder(Set == 3 ? "Set 3 of 17: stars, all in the game's style (Populous-like)\n\n" : "Set 4 of 17: planets and gas giants, all in the game's style (Populous-like)\n\n");
+                for (int i = 0; i < 9; i++) st.Append("  Row " + (i / 3 + 1) + ", column " + (i % 3 + 1) + ": " + (Set == 3 ? _starNames[i] : _planetNames[i]) + "\n");
                 st.Append("\nControls:\n  Right-click a star: mark or unmark it as a keeper (green frame)\n  Keepers menu: the same, with tick boxes\n  Mouse wheel: zoom\n  Exit menu or Esc: close the game\n\nKeepers are saved in picks.txt in the game folder.");
                 return st.ToString();
             }
@@ -296,6 +335,7 @@ namespace DnaAnd.Shell
         private string SampleName(int set, int i)
         {
             if (set == 3) return _starNames[i] + " | Populous-like";
+            if (set == 4) return _planetNames[i] + " | Populous-like";
             return RowName(set, i / 3) + " | " + StyleNames[i % 3];
         }
 
@@ -305,7 +345,7 @@ namespace DnaAnd.Shell
             try
             {
                 var lines = new System.Collections.Generic.List<string>();
-                for (int set = 1; set <= 3; set++)
+                for (int set = 1; set <= 4; set++)
                     for (int i = 0; i < 9; i++)
                         if (_marks[set, i]) lines.Add("set " + set + " | " + SampleName(set, i));
                 System.IO.File.WriteAllLines("picks.txt", lines.ToArray());
@@ -322,7 +362,7 @@ namespace DnaAnd.Shell
                 {
                     var parts = line.Split('|');
                     if (parts.Length != 3) continue;
-                    int set; if (!int.TryParse(parts[0].Trim().Replace("set ", ""), out set) || set < 1 || set > 3) continue;
+                    int set; if (!int.TryParse(parts[0].Trim().Replace("set ", ""), out set) || set < 1 || set > 4) continue;
                     for (int i = 0; i < 9; i++)
                         if (SampleName(set, i) == parts[1].Trim() + " | " + parts[2].Trim()) _marks[set, i] = true;
                 }
@@ -365,6 +405,8 @@ namespace DnaAnd.Shell
             foreach (var b in _sysBodies) if (b != null) b.Dispose();
             foreach (var b in _starBufs) if (b != null) b.Dispose();
             foreach (var b in _surfBufs) if (b != null) b.Dispose();
+            foreach (var b in _planetStatic) if (b != null) b.Dispose();
+            foreach (var b in _planetBufs) if (b != null) b.Dispose();
         }
     }
 }

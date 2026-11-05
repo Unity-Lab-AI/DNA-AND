@@ -23,6 +23,7 @@ namespace DnaAnd
                 if (args[i] == "--visit") testVisit = true;  // visit the middle star
                 if (args[i] == "--set2") openSet = 2;       // open one sample set on its own
                 if (args[i] == "--set3") openSet = 3;
+                if (args[i] == "--set4") openSet = 4;
                 if (args[i] == "--core") testCore = true;    // zoom to the core black hole
                 if (args[i] == "--speed" && i + 1 < args.Length) int.TryParse(args[i + 1], out testSpeed); // 0-4
                 if (args[i] == "--try" && i + 1 < args.Length) double.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out tryEvery); // keep-or-revert prompt every N s
