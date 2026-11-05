@@ -206,6 +206,10 @@ Powers cost **Souls**. Cost = the power's **tier (T1–T100) × area × strength
 | 🔓 **100 planet templates** | Unlock ocean worlds, desert worlds, ice worlds, volcanic worlds, gas-giant moons and more |
 | ✨ **Stars → systems → galaxies** | Generated from a seed, in Small, Medium, Large or Massive galaxies |
 | 🚀 **Spread** | Life only reaches other planets when intelligent life carries it there |
+| ☄️ **100 space objects** | Oort clouds, comets, asteroid belts, nebulas, moons, black holes. Comets and meteorites really hit planets |
+| 🌡️ **Every kind of world** | 10 conditions × 10 levels (temperature, gravity, air, radiation…), each needing its own tech to settle |
+| 🛸 **100-step travel ladder** | From the first rocket to hyperdrives and galaxy-to-galaxy travel |
+| 🏘️ **100 kinds of colony** | Mining outposts, prison colonies, farm worlds, fortress moons, capitals, plus 100 space resources |
 | ☀️ **Dyson spheres** | Then intergalactic war |
 
 👉 [Planets & Templates](docs/wiki/planets-and-templates.md "Earth and the worlds you unlock") · [Space & Dyson Spheres](docs/wiki/space-and-dyson-spheres.md "Leaving home")

@@ -49,3 +49,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Content first
 
 - Round 15: content comes before code. Added docs/CONTENT-FORMAT.md (our own text format, compiled to our own binary later). First content file: content/stars.dnat (20 real seeds, 5 rules).
+
+## 2026-11-05 — Space in full
+
+- Space page now has 100 space objects, impacts, the 10x10 world-condition tech matrix, a 100-step travel ladder (to hyperdrives and intergalactic), 100 space resources and 100 kinds of colony. r05 and r10 specs updated.

@@ -39,7 +39,7 @@ Welcome, god. This is everything you need to know — from the first lightning b
 | 🗳️ | [Society](society.md) | 100 kinds of society: rule, trade, family, belief, law |
 | 🤏 | [Nudges](nudges.md) | 100 ways to nudge a civilization |
 | 🩸 | [The Dark Harvest](dark-harvest.md) | 🔞 100 cruel ways civilizations harvest life for you, matrixed by era |
-| ☀️ | [Space & Dyson Spheres](space-and-dyson-spheres.md) | Leaving home, spreading life, conquering galaxies |
+| ☀️ | [Space & Dyson Spheres](space-and-dyson-spheres.md "100 space objects, impacts, world matrix, travel ladder, resources, colonies") | Leaving home, spreading life, conquering galaxies |
 
 ## ⚡ Being a god
 

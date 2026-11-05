@@ -87,6 +87,8 @@ The live generators (R4.4) make 3 examples of each subject, each drawn in all 3 
 
 Random generation from a seed, at full galaxy scale, with more than one galaxy.
 
+- 100 kinds of space objects: Oort clouds, the Kuiper belt, comets, asteroid belts, nebulas, moons, black holes and the rest. Comets and meteorites really hit planets (`docs/wiki/space-and-dyson-spheres.md`, round 16).
+
 - Galaxy sizes: Small, Medium, Large or Massive.
 
 ### [ ] R6 — The planet: Earth and unlockable templates
@@ -134,6 +136,7 @@ Tribes, culture, politics, wars, technology trees, and the ways civilizations ca
 Space travel, spreading life to other planets, colonies, Dyson spheres, war across galaxies.
 
 - Genebank genomes arrive by meteorite, from the first-life stage on.
+- Worlds of every makeup: a 10 × 10 matrix of conditions, each level needing its own tech. Travel climbs a 100-step ladder from rockets to hyperdrives to intergalactic travel. Plus 100 space resources and 100 kinds of colony (mining outposts, prison colonies and more), round 16: "remebr space has all kind sof things for ort clouds to comets and merots hitting planets and astorid belts and nebulas andplanets of all makes ups with temp ranges that need different techs and inter solarystem flt hyperdrives for glaaxy to galaxty ect ect all planed out in all docs" / "resources and colinatzitions of other planets mining outsposert prison coloniers all of it".
 
 ### [ ] R11 — God mode
 > "think populous form back in the day but gneological twists" / "only every nudge evrything but u get the power of god to basicly do everything peopel attribute god doing." / "no direct edit besids using powers to influence things to happen" / "points are amount of life in your galaxie(S!)"
