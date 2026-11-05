@@ -14,6 +14,7 @@ namespace DnaAnd.Platform
         public int Width { get { Win32.RECT r; Win32.GetClientRect(Handle, out r); return r.Right - r.Left; } }
         public int Height { get { Win32.RECT r; Win32.GetClientRect(Handle, out r); return r.Bottom - r.Top; } }
         public bool Resized;
+        public static volatile bool InSizeMove; // Windows holds the game still while the window is moved or resized
 
         public Window(string title, int width, int height)
         {
@@ -65,6 +66,8 @@ namespace DnaAnd.Platform
         {
             if (Input.OnMessage(msg, wParam, lParam)) return IntPtr.Zero;
             if (msg == Win32.WM_SIZE) Resized = true;
+            if (msg == Win32.WM_ENTERSIZEMOVE) InSizeMove = true;
+            if (msg == Win32.WM_EXITSIZEMOVE) InSizeMove = false;
             if (msg == Win32.WM_DESTROY)
             {
                 Win32.PostQuitMessage(0);
