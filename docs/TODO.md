@@ -103,6 +103,7 @@ Order: galactic scale down, the same order as the sample sets.
   - [x] Window: our own Windows calls (`src/platform/Win32.cs`, `src/platform/Window.cs`)
   - [x] Keyboard and mouse, frame clock, file reading (`src/platform/Input.cs`)
   - [x] Safety: in-game watchdog (`src/platform/Watchdog.cs`) and safe test runner (`test.cmd`)
+  - [x] Keep-or-revert prompt for look-around tests (`--try`, `src/shell/KeepBar.cs`): "well i cant reall use the tests because you never put a revert keep option with tine out they just have  a 3 sec timer out so i dont hev time to judge anything"
   - Only Windows itself and the graphics card driver may be used ("sure").
 - [ ] (Later) Mac: same list
 - [ ] (Later) Linux: same list
