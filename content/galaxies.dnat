@@ -266,8 +266,12 @@ says: every galaxy is generated live from the world seed (LAW 14); nothing is pr
 
 @rule galaxy-size
 real: rule
-says: the player picks Small, Medium, Large or Massive; size sets how many stars and systems the galaxy holds
-open: the star count for each size is not decided yet, ask the creator before coding (LAW 3)
+says: the player picks Small, Medium, Large or Massive; size sets how many star systems the galaxy holds, every one fully simulated all the time
+systems-small: 100
+systems-medium: 500
+systems-large: 2000
+systems-massive: 10000
+decided: "Fewer, every one detailed" (docs/DESIGN.md, round 17)
 
 @rule galaxy-type-pick
 real: rule

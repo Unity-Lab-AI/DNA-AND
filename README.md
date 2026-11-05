@@ -204,7 +204,7 @@ Powers cost **Souls**. Cost = the power's **tier (T1–T100) × area × strength
 |--|--|
 | 🌍 **Earth first** | A whole Earth: rock, plates, oceans, weather, seasons, chemistry, all 118 elements |
 | 🔓 **100 planet templates** | Unlock ocean worlds, desert worlds, ice worlds, volcanic worlds, gas-giant moons and more |
-| ✨ **Stars → systems → galaxies** | Generated from a seed, in Small, Medium, Large or Massive galaxies |
+| ✨ **Stars → systems → galaxies** | Generated from a seed: Small (100 systems), Medium (500), Large (2,000) or Massive (10,000), every one fully alive |
 | 🚀 **Spread** | Life only reaches other planets when intelligent life carries it there |
 | ☄️ **100 space objects** | Oort clouds, comets, asteroid belts, nebulas, moons, black holes. Comets and meteorites really hit planets |
 | 🌡️ **Every kind of world** | 10 conditions × 10 levels (temperature, gravity, air, radiation…), each needing its own tech to settle |

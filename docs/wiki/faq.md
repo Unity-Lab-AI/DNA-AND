@@ -52,7 +52,7 @@ Earth comes first. Other [planet templates](planets-and-templates.md) unlock as 
 Galaxy-sized, with stars, planets, solar systems and more than one galaxy.
 
 **14. Can I pick the galaxy size?**  
-Yes: Small, Medium, Large or Massive.
+Yes: Small (100 star systems), Medium (500), Large (2,000) or Massive (10,000). Every system is fully simulated.
 
 **15. Can I replay the same world?**  
 Yes. Use the same [seed](glossary.md#seed "The number that builds your world — same seed, same galaxy").

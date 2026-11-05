@@ -37,7 +37,7 @@ Every highlighted word in the wiki links here. **100 terms**, A to Z.
 | <a id="food-chain"></a>🍽️ **Food chain** | Who eats whom. |
 | <a id="galactic-mind"></a>🌌 **Galactic mind** | The top AI layer: one will steering life across a whole galaxy. |
 | <a id="galaxy"></a>🌌 **Galaxy** | A huge group of solar systems. You can reach more than one. |
-| <a id="galaxy-size"></a>📏 **Galaxy size** | Small, Medium, Large or Massive. You pick it for a new world. |
+| <a id="galaxy-size"></a>📏 **Galaxy size** | Small (100 systems), Medium (500), Large (2,000) or Massive (10,000). You pick it for a new world. |
 | <a id="gene"></a>🧩 **Gene** | One piece of DNA that gives a trait or skill. |
 | <a id="gene-map"></a>🗺️ **Gene map** | The panel showing which gene pieces give which traits. |
 | <a id="gene-tree"></a>🧬 **Gene tree** | The Tree of Life view showing where each gene came from and how it spread. |

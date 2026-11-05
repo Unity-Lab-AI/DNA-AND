@@ -385,6 +385,17 @@ All of the following is planned in `docs/wiki/space-and-dyson-spheres.md`:
 
 ---
 
+## Round 17: galaxy sizes (verbatim)
+
+| Question | Answer (verbatim) |
+|---|---|
+| How many star systems per galaxy size | "Fewer, every one detailed" |
+
+### What this means for the build
+- **Small: 100 · Medium: 500 · Large: 2,000 · Massive: 10,000** star systems. Every one is fully simulated, all the time.
+
+---
+
 ## How we work (verbatim)
 
 These are the creator's working rules for this repo, each in his own words.
@@ -465,3 +476,4 @@ Everything the creator has said about this project, in order. Short process repl
 39. "i never made a 10-20 rule". Corrected: no fixed seed count.
 40. "and what the fuck we are still doing docs u ments as this:" ... Animals / Insects / Microbes and viruses ..." IS NOT ALL LIVING THINGS IN THE FULL KINDOM PHILUM CLASS GENIUS SPECIES and the full kindom thing in full"
 41. **Space in full:** see "Round 16". "remebr space has all kind sof things for ort clouds to comets and merots hitting planets and astorid belts and nebulas andplanets of all makes ups with temp ranges that need different techs and inter solarystem flt hyperdrives for glaaxy to galaxty ect ect all planed out in all docs" / "resources and colinatzitions of other planets mining outsposert prison coloniers all of it"
+42. **Galaxy sizes:** "Fewer, every one detailed"
