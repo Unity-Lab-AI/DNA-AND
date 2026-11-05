@@ -32,6 +32,32 @@ Every stage quotes the creator's words (see `docs/DESIGN.md` for the full record
 ✅ **Passed:** both the `/super-review` and the `/unity` check. Then round 15 changed the order: **content first** (R0), then code ("Content first, then code (Suggested)"). All code follows `docs/WORK-LAWS.md`: **the docs are the spec**.
 
 ### [x] R0 — Game content (before code): sample subjects done
+
+Produced (researched, 1,000+ entries):
+  - `content/black-holes.dnat`
+  - `content/cities.dnat`
+  - `content/elements.dnat`
+  - `content/galaxies.dnat`
+  - `content/gas-giants.dnat`
+  - `content/life/animals.dnat`
+  - `content/life/archaea.dnat`
+  - `content/life/bacteria.dnat`
+  - `content/life/extinct.dnat`
+  - `content/life/fungi.dnat`
+  - `content/life/intelligent.dnat`
+  - `content/life/plants.dnat`
+  - `content/life/protists.dnat`
+  - `content/life/viruses.dnat`
+  - `content/moons.dnat`
+  - `content/nebulas.dnat`
+  - `content/physics.dnat`
+  - `content/planets.dnat`
+  - `content/resource-fields.dnat`
+  - `content/small-bodies.dnat`
+  - `content/solar-systems.dnat`
+  - `content/space-tech.dnat`
+  - `content/stars.dnat`
+
 > "well i thought we needed to write the games content before we could have something to generate in the game engine"
 
 The content the live generators work from: seeds, ranges, parts and rules, written now in our own text format (`docs/CONTENT-FORMAT.md`) and compiled to our own binary by our toolchain later. Sample subjects first, then the rest.
@@ -86,6 +112,8 @@ The live generators (R4.4) make 3 examples of each subject, each drawn in all 3 
 ### [ ] R5 — The universe: stars, planets, solar systems, galaxies
 > "stars+planets>solar sytems> galaxys" / "obviously galaxy size to buidl dyson spheres and ingalactic war"
 
+**Content:** `content/` galaxies, solar-systems, stars, black-holes, nebulas, small-bodies.
+
 Random generation from a seed, at full galaxy scale, with more than one galaxy.
 
 - 100 kinds of space objects: Oort clouds, the Kuiper belt, comets, asteroid belts, nebulas, moons, black holes and the rest. Comets and meteorites really hit planets (`docs/wiki/space-and-dyson-spheres.md`, round 16).
@@ -94,6 +122,8 @@ Random generation from a seed, at full galaxy scale, with more than one galaxy.
 
 ### [ ] R6 — The planet: Earth and unlockable templates
 > "EARTH(but other templets too you can unlock after reaching certain points on Earth." / "full massive wolrd with everything(when i say everything i fucking mean everything) that a wrold has on it like earth"
+
+**Content:** `content/` planets, gas-giants, moons, physics, resource-fields, elements.
 
 Ground, rock, plates, mountains, oceans, rivers, ice, air, weather, seasons, day and night, chemistry, minerals. "Everything" is the **top 100 of every category**, from `docs/LISTS.md`: real seeds each, with the rest invented live (round 14) ("do top 100 for everything..."). Entries are "real and dynamic invented combo procedurally".
 
@@ -113,6 +143,8 @@ Real-style DNA that builds each body and behavior, with mutation, breeding (with
 ### [ ] R8 — Life: every kingdom, phylum to species
 > "fully dynamic ggenology with microbes and viruses and plants and animals and insects" / "they will be like ants ais with genes that use thatev eveold or been infected with u know EVOLUTION"
 
+**Content:** `content/` life/viruses, bacteria, archaea, protists, fungi, plants, animals, extinct, intelligent.
+
 The full tree of life: viruses, bacteria, archaea, protists, fungi, plants and animals, each down to species (`docs/wiki/tree-of-life.md`). Each creature acts on its genes, like an ant. Crowds of the same kind are grouped by where they live ("1 worm can be 4396 worms"). Food chains, disease, extinction, new species.
 
 - 100 stages of life (`docs/wiki/stages-of-life.md`), each with its own milestone.
@@ -125,6 +157,8 @@ The full tree of life: viruses, bacteria, archaea, protists, fungi, plants and a
 ### [ ] R9 — Intelligent life and civilization
 > "intelligent life has technology and culture and war and tribalisze and pollitics and stuff like real life does" / "intelligent life has amazing ways of killing its self"
 
+**Content:** `content/` cities, life/intelligent, resource-fields.
+
 Tribes, culture, politics, wars, technology trees, and the ways civilizations can wipe themselves out.
 
 - 100 ages in real-history order (`docs/wiki/ages-of-civilization.md`). A collapse can send a civilization back to earlier ages.
@@ -134,6 +168,8 @@ Tribes, culture, politics, wars, technology trees, and the ways civilizations ca
 
 ### [ ] R10 — Space expansion up to Dyson spheres
 > "space expansion to dysonsphere" / "to get to other planbets intelligent life has to get there first" / "ingalactic war"
+
+**Content:** `content/` space-tech, small-bodies, resource-fields, black-holes.
 
 Space travel, spreading life to other planets, colonies, Dyson spheres, war across galaxies.
 
