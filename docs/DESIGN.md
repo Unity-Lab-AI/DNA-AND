@@ -593,3 +593,15 @@ Everything the creator has said about this project, in order. Short process repl
     - The set 1 pick is corrected to the center column (Populous-like).
 60. "middle row is 100% trash, center column are best". The barred spiral (middle row) was rebuilt with a thick oval bar, an inner ring and arms from the bar tips. Populous-like (center column) is confirmed.
 61. **Galaxy style locked:** "center column is all 100% go for all theri variations of galaxies"
+62. "thosae all had motion way way too fast" / "and they are still only appear for split seconds". Changes:
+    - Nothing on screen moves faster than 0.05 rad/s, one lap in about 2 minutes.
+    - The sample spin is 4× slower.
+    - The game is now launched properly, so it stays open.
+63. "why do the solar systems have ciclre sof planets on orbit thats not normal and in error the tests are opnly staying open for split seconds when they need a proper continue/revert option on tests with push button pop up and a exit button and selections to mark the good ones on tests" / "it needa legend and like i said the proepr safty buttons" / "and the selctions to mark keepers". Changes:
+    - The dotted orbit rings are gone, and each planet is a single slow dot.
+    - There's a Windows pop-up: Yes keeps going, No reverts, and no answer in 15 s reverts.
+    - The menu bar has Exit, Keep going or revert, Keepers and Legend. Keepers has a tick box for each sample, and right-click toggles a green frame.
+    - Picks are saved to picks.txt.
+64. "u have to open them up one at a time as u didnt design the tester well enough to not be fucking complicated". Each sample set now opens on its own, with no set switching.
+65. **Solar system style locked:** "middle column only thing is zoom isnt deep enough to planet level". Populous-like (center column). Added: click a planet to follow it, and the wheel zooms down to planet size.
+66. "the center one is the best center row center column". The best solar system sample is the compact red-dwarf system (center row) in Populous-like (center column).
