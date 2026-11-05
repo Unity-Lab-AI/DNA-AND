@@ -61,7 +61,7 @@ Galaxies are big enough for more than one empire. Civilizations meet. They trade
 
 ## 🔭 Space powers
 
-Late in the game you unlock powers that work on stars and planets: [solar flares](god-powers.md "Bursts from the sun — auroras, and fried technology"), meteors, comets, wormholes, supernovas and more.
+Late in the game you unlock powers that work on stars and planets: [solar flares](god-powers.md "Bursts from a star — auroras, and fried technology"), meteors, comets, wormholes, supernovas and more.
 
 👉 See [God Powers](god-powers.md) — Space powers.
 

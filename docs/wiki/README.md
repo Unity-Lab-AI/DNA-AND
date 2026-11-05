@@ -5,7 +5,7 @@
 <!-- IMG: docs/img/wiki-banner.png | A young blue-green planet seen from orbit, a faint glowing double helix wrapped around it, a spiral galaxy behind -->
 > 🖼️ *A young blue-green planet seen from orbit, a glowing double helix wrapped around it, a spiral galaxy behind* — rendered by the game's own 3D generator
 
-Welcome, god. This is everything you need to know — from the first lightning bolt on a dead rock to a [Dyson sphere](glossary.md#dyson-sphere "A shell of machines built around a star to catch all its energy") swallowing a sun.
+Welcome, god. This is everything you need to know — from the first lightning bolt on a dead rock to a [Dyson sphere](glossary.md#dyson-sphere "A shell of machines built around a star to catch all its energy") swallowing a star.
 
 ---
 

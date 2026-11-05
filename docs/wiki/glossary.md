@@ -36,7 +36,7 @@ Every highlighted word in the wiki links here.
 | <a id="milestone"></a>🏁 **Milestone** | A big step in evolution or history, like the first walk or the first fire. Time slows down so you can see it. |
 | <a id="mini-ai"></a>🧠 **Mini AI** | The little mind every living thing runs, in layers: chemistry, individual, group, hive, species, galactic mind. |
 | <a id="mutation"></a>🎲 **Mutation** | A random change in DNA. |
-| <a id="photosynthesis"></a>🌿 **Photosynthesis** | Making food from sunlight. |
+| <a id="photosynthesis"></a>🌿 **Photosynthesis** | Making food from starlight. |
 | <a id="planet"></a>🪐 **Planet** | A world that circles a star. Life can live on it. |
 | <a id="power"></a>⚡ **Power** | One of your 100 god abilities. Each costs souls. See [God Powers](god-powers.md). |
 | <a id="sanctuary"></a>🛡️ **Sanctuary** | A power that protects an area from your other powers and from disasters. |

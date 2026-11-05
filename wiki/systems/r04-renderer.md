@@ -18,7 +18,7 @@ last-verified: none (plan only)
 | 🏔️ Terrain | Ground, rock, ice, made from planet data |
 | 🌊 Water | Oceans, rivers, waves, tides |
 | ☁️ Sky + weather | Air, clouds, storms, auroras |
-| 💡 Light + shadow | Sun, stars, day and night |
+| 💡 Light + shadow | Stars, starlight, day and night |
 | 🦠 Life | Bodies **built from their genes**, never hand-modelled |
 | 🧬 Gene map | Which gene pieces make which trait |
 | 🌌 Space | Stars, planets, nebulas, Dyson spheres |

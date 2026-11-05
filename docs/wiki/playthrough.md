@@ -4,8 +4,8 @@
 
 > *One complete game, start to finish. Your game will go differently. Life always does.*
 
-<!-- IMG: docs/img/playthrough-banner.png | A single planet seen from orbit, half barren rock and half green, with a ring of Dyson-sphere panels catching the sun behind it -->
-> 🖼️ *A single planet seen from orbit, half barren rock and half green, with a ring of Dyson-sphere panels catching the sun behind it* — rendered by the game's own 3D generator
+<!-- IMG: docs/img/playthrough-banner.png | A single planet seen from orbit, half barren rock and half green, with a ring of Dyson-sphere panels catching their star's light behind it -->
+> 🖼️ *A single planet seen from orbit, half barren rock and half green, with a ring of Dyson-sphere panels catching their star's light behind it* — rendered by the game's own 3D generator
 
 📼 **This is one example run.** Every world plays out differently. Chapter times are typical; reaching the space age takes about **4–6 hours**.
 
