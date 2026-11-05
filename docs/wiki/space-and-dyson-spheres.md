@@ -30,6 +30,8 @@ When a civilization reaches the space age, everything changes. For the first tim
 
 ---
 
+> 🐜 **Every species builds in its own image.** Ships, stations, colonies and Dyson spheres are generated from the genes and body plan of the species that builds them. Insects fly insect ships, and wolf-folk build wolf-folk stations.
+
 ## 🌞 Dyson spheres
 
 A [Dyson sphere](glossary.md#dyson-sphere "A shell of machines built around a star to catch all its energy") is a giant shell of machines built around a star to catch its energy. It's the mark of a truly advanced civilization.

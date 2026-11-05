@@ -29,7 +29,7 @@ Every stage quotes the creator's words (see `docs/DESIGN.md` for the full record
 ### 🚦 Gate before code
 > "topp -100 lists go only after a /superreview and/unity check that evrything ive said is proeprly done in all todo and docs everywhere as we havent done any code yet and are still do ing docs and making the work laws to use the fucking docs to write code when we do write code so todo needs work"
 
-No code until the docs pass a `/super-review` and a `/unity` check, and the top-100 lists are filled. After that, all code follows `docs/WORK-LAWS.md`: **the docs are the spec**.
+✅ **Passed:** both the `/super-review` and the `/unity` check. Code starts now on the road to the samples, and the top-100 lists come after ("Samples path now, lists later (Suggested)"). All code follows `docs/WORK-LAWS.md`: **the docs are the spec**.
 
 ### [ ] R1 — Our own build tools (language + compiler), from nothing
 > "we make it" / "No dependancies!!!! ... OR COMPOLIERS"
@@ -67,6 +67,10 @@ Talking to the graphics card per system, lighting, shadows, water, sky, terrain,
 > "things like ingame microbes viruses and intelligernt creature should all have samples 1,2,3 made in 3 diffeernt styles 1,2,3 for a hand ful of things in the game before we go with any one style" / "try a rimworld like and a, populous like, and a stardew like"
 
 Our own 3D generator makes 3 examples of each subject, each drawn in all 3 styles (RimWorld-like, Populous-like, Stardew-like). That's 9 pictures per subject. The creator picks one style before any final art is made. The style has to stay light on the graphics card, because thousands of living things move and spread at once. This starts right after R4's basic renderer works.
+
+- **Live viewer:** our own program in its own window. Pick a subject and see its 9 samples moving and rotatable ("Live viewer, moving (Suggested)").
+- **Direct3D 12** from day one ("Straight to Direct3D 12"), with our own shader-code generator.
+- **Procedural:** every sample is generated from a seed ("and remember thses things are get dynamic procedural generations"). Built things follow the species that builds them: "ie insect species has insect spaceships ansd insect cities".
 
 ### [ ] R5 — The universe: stars, planets, solar systems, galaxies
 > "stars+planets>solar sytems> galaxys" / "obviously galaxy size to buidl dyson spheres and ingalactic war"

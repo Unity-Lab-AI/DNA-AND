@@ -37,3 +37,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Work laws
 
 - Added `docs/WORK-LAWS.md`: the docs are the spec for all code. Every TODO section now lists its Spec pages. There is a review gate before the top-100 lists and before any code.
+
+## 2026-11-05 — Round 12 regression sweep
+
+- Gate order, R4.5 plan and species-driven assets brought in line across the docs.

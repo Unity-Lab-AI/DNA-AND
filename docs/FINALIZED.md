@@ -112,3 +112,10 @@ Original TODO lines closed here, verbatim:
   - [x] Dark Harvest, 100 methods matrixed by era: "i dont think you properly build the systems in for having the intelligencences harvets life for you in the most exteme 18 plus ways from driving animals mad, or probing viruses to kill better, or influsing politice to out law abortion and decrimalize rape...ect ect etc these are just a small amoutn of examples and needes the proper 100 treatment matrixed throught the full game and docs" / "or maddive grinding machines powered by atomics and dyson pheres to jsut eat whole world like lawns moving"
 
 New pages: `docs/wiki/society.md`, `docs/wiki/nudges.md`, `docs/wiki/dark-harvest.md`, `docs/wiki/milestones.md`. Updated: god-powers, stages, planets, tech-tree, ages, groups-and-flocking, souls, glossary (100), FAQ (100), time, README, ROADMAP, the builder wiki.
+
+**Round 12 regression sweep.** Verbatim: "make sure ther are no game regresions in the docs based on the game". Three regressions fixed:
+- the ROADMAP gate still said no code before the lists
+- R4.5 didn't have the live viewer, D3D12 or procedural generation
+- the species-built assets were missing from the player docs
+
+63 files, 0 broken links, every list at 100.
