@@ -26,17 +26,18 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 
 - [~] The 100 rule everywhere: "100The tech tree    8 branches, 100 Real society, 100  Self-destruction, You only nudge 100, where else did you not follow the 100 rule?" / "fix all docs all docs all docs all docs"
   - [x] 100 unlock points (one per stage) and 100 cost tiers (T1–T100)
-  - [ ] 100 tech tree branches
-  - [ ] 100 kinds of society
-  - [ ] 100 ways civilizations destroy themselves
-  - [ ] 100 ways to nudge
-  - [ ] 100 ways species mix
-  - [ ] 100 harvest steps
-  - [ ] 100 ways to earn souls
+  - [x] 100 tech tree branches
+  - [x] 100 kinds of society
+  - [x] 100 ways civilizations destroy themselves
+  - [x] 100 ways to nudge
+  - [x] 100 ways species mix
+  - [x] 100 harvest steps
+  - [x] 100 ways to earn souls
   - [ ] 100 milestones per stage of life
-  - [ ] 100 glossary terms
-  - [ ] 100 FAQ questions
-  - [ ] All 100 planet templates listed
+  - [x] 100 glossary terms
+  - [x] 100 FAQ questions
+  - [x] All 100 planet templates listed
+  - [x] Dark Harvest, 100 methods matrixed by era: "i dont think you properly build the systems in for having the intelligencences harvets life for you in the most exteme 18 plus ways from driving animals mad, or probing viruses to kill better, or influsing politice to out law abortion and decrimalize rape...ect ect etc these are just a small amoutn of examples and needes the proper 100 treatment matrixed throught the full game and docs" / "or maddive grinding machines powered by atomics and dyson pheres to jsut eat whole world like lawns moving"
 
 ---
 
@@ -191,6 +192,7 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 - [ ] Paying for powers by harvesting life: "maybe u have to harvet life and later on u get the intelligent sure intelligences using their powers to harvest life for you"
   - The currency is **Souls**. Cost = tier × area × strength. 100 tiers, T1–T100. T81–T100 have cooldowns.
   - Harvesting is slow and shows as a glow that scares intelligent life. Mass deaths give lots of souls.
+- [ ] Build the Dark Harvest system: 100 methods, each gated by age, pushed by powers, paying souls per death (`docs/wiki/dark-harvest.md`)
 - [ ] Endgame: intelligent life harvests life for its own needs, spreads and uses up nutrients and resources: "since all life is like a virus advanced forms seprad and use up avasil nutrientrs and resources and have to spread. jsut liek real life"
   - Six harvest steps, from farming to intergalactic (`docs/wiki/tech-tree.md`).
 - [ ] Gene powers with good and bad outcomes

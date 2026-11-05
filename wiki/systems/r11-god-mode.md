@@ -34,3 +34,7 @@ Lightning, heat, cold, water and spark of life, plus **add genes** and **add any
 > "no direct edit besids using powers to influence things to happen"
 
 Gene powers have "differnt outcomes good and bad depending."
+
+## 🩸 Dark Harvest
+
+100 cruel harvest methods in 10 groups (madness and beasts, disease, war, politics and law, belief, labor and economy, environment, genes and bodies, machines and control, space). Each appears at a set age and is pushed by named powers, and each pays souls per death. The group × era matrix is in `docs/wiki/dark-harvest.md`. Methods can only appear in civilizations of that age or later.

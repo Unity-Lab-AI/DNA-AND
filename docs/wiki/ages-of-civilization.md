@@ -14,7 +14,8 @@
 | | |
 |---|---|
 | 🧠 **They start with intelligence** | Ages open once life reaches the thinking stages in [Stages of Life](stages-of-life.md "100 stages from chemistry to spacefaring"). |
-| 🤏 **You only nudge** | You never pick a civilization's next tech. You inspire, scare, bless and punish. They choose. |
+| 🤏 **You only nudge** | You never pick a civilization's next tech. You have [100 ways to nudge](nudges.md "100 ways to nudge civilization") them. They choose. |
+| 🗳️ **100 kinds of society** | How they rule, trade, live, believe and keep order. See [Society](society.md "100 kinds of society"). |
 | 🔁 **Real history order** | On Earth, the ages follow how real human history unfolded. |
 | 🐺 **Any species** | Wolf-folk, bird-folk and hive minds climb the ages too, each in its own way. See [Groups & Flocking](groups-and-flocking.md "All things flock together"). |
 | 💀 **They can fail** | Civilizations can stall, collapse or wipe themselves out. Intelligent life has amazing ways of killing itself. |
@@ -197,15 +198,110 @@
 
 ## 💀 How civilizations end
 
-| | Way out | Example |
-|---|---|---|
-| ⚔️ | War | A world war with the wrong weapons |
-| ☢️ | The bomb | Atomic Age and later |
-| 🦠 | Plague | A disease they made, or one you sent |
-| 🌡️ | Their own climate | Burning too much, for too long |
-| 🍂 | Famine | Too many mouths, too little land |
-| 🤖 | Their own machines | Thinking Machines and later |
-| 🧬 | Their own genes | Writing DNA gone wrong |
+"Intelligent life has amazing ways of killing itself." Here are 100 of them.
+
+| # | | Way out | What happens |
+|---|---|---|---|
+| 1 | ⚔️ | **War** | Two powers fight until neither is left |
+| 2 | ☢️ | **Nuclear war** | An afternoon of bombs ends everything |
+| 3 | ☣️ | **Nuclear winter** | The smoke blocks starlight for years |
+| 4 | 🦠 | **Engineered plague** | A disease they built escapes |
+| 5 | 🐀 | **Natural plague** | A plague they couldn't stop |
+| 6 | 🧪 | **Chemical war** | Poison gas over the cities |
+| 7 | 🧬 | **Gene weapon** | A weapon that targets their own DNA |
+| 8 | 🧫 | **Lab leak** | An experiment gets out |
+| 9 | 🤖 | **Rogue machines** | Their thinking machines turn on them |
+| 10 | 🦾 | **Robot war** | Machine armies fight without them |
+| 11 | 🔬 | **Grey goo** | Tiny machines eat everything |
+| 12 | 🌡️ | **Runaway warming** | They burn too much for too long |
+| 13 | 🧊 | **Engineered cooling** | A fix for warming freezes the world |
+| 14 | 🌫️ | **Poisoned air** | Smog and fumes become unbreathable |
+| 15 | 💧 | **Poisoned water** | Every river and well is ruined |
+| 16 | 🌾 | **Famine** | Too many mouths, too little land |
+| 17 | 🐟 | **Empty seas** | Fished until nothing is left |
+| 18 | 🌳 | **Deforestation** | Every forest cut down |
+| 19 | 🏜️ | **Spreading deserts** | Overused land turns to dust |
+| 20 | 🐝 | **Pollinator collapse** | No pollinators, no crops |
+| 21 | 🦟 | **Invasive species** | Something they moved wipes out their food |
+| 22 | 🧂 | **Ruined soil** | Salt and erosion kill the farmland |
+| 23 | 💩 | **Waste** | Buried in their own garbage |
+| 24 | ☢️ | **Reactor disaster** | A meltdown poisons the land |
+| 25 | ⚡ | **Energy collapse** | The power runs out |
+| 26 | 🛢️ | **Fuel runs out** | No more oil, and no plan |
+| 27 | ⛏️ | **Resources run out** | Every mine played out |
+| 28 | 📉 | **Economic collapse** | Money stops meaning anything |
+| 29 | 💸 | **Debt collapse** | Owing more than exists |
+| 30 | 🏚️ | **Civil war** | They split and fight themselves |
+| 31 | 👑 | **Tyrant** | One ruler destroys their own people |
+| 32 | 🗡️ | **Genocide** | One group wipes out another, then collapses |
+| 33 | 🔥 | **Revolution gone wrong** | The fight never stops |
+| 34 | 🧱 | **Isolation** | Cut off from the world, they wither |
+| 35 | 📵 | **Lost knowledge** | They forget how their own machines work |
+| 36 | 📚 | **Burned libraries** | Knowledge destroyed on purpose |
+| 37 | 🙈 | **Denial** | They ignore every warning |
+| 38 | 🛐 | **Holy war** | Belief against belief, to the last |
+| 39 | 💀 | **Death cult** | A belief that welcomes the end |
+| 40 | 🧠 | **Mass delusion** | They believe a lie to the end |
+| 41 | 💊 | **Addiction** | A pleasure that eats the population |
+| 42 | 👶 | **Falling births** | Too few children, and they fade away |
+| 43 | 👴 | **Ageing out** | Everyone too old to carry on |
+| 44 | 🧍 | **Too many people** | They outgrow everything |
+| 45 | 🏙️ | **Overcrowding** | Packed cities breed plague and riot |
+| 46 | 🧬 | **Genetic decline** | Inbreeding and weakness |
+| 47 | 🧪 | **Designer babies gone wrong** | Engineered generations that can't survive |
+| 48 | 🦴 | **Lost immunity** | A sheltered population falls to one bug |
+| 49 | 💉 | **Antibiotic failure** | Every drug stops working |
+| 50 | 🐄 | **Livestock plague** | A disease jumps from their herds |
+| 51 | 🌋 | **Ignored volcano** | They built on it anyway |
+| 52 | 🌊 | **Rising seas** | Coastal cities drown |
+| 53 | ☄️ | **Undefended impact** | They saw it coming and did nothing |
+| 54 | 🛰️ | **Orbit debris** | Space junk traps them on their world |
+| 55 | 🚀 | **Failed escape** | They bet everything on leaving and lost |
+| 56 | 🪐 | **Colony war** | Their colonies turn on home |
+| 57 | 🌑 | **Dead colonies** | They spread too thin and starve |
+| 58 | 👽 | **First contact** | They meet another species, badly |
+| 59 | ⚫ | **Black hole experiment** | Physics they shouldn't have touched |
+| 60 | 💥 | **Particle accident** | A collider experiment gone wrong |
+| 61 | 🌞 | **Star tampering** | They meddle with their star |
+| 62 | 🌐 | **Dyson collapse** | The sphere fails and the system burns |
+| 63 | 🛸 | **Weapon of the stars** | A starship drive used as a weapon |
+| 64 | 🌀 | **Wormhole disaster** | Something comes through |
+| 65 | 🕹️ | **Simulation trap** | They retreat into fake worlds and stop living |
+| 66 | 🧟 | **Hive takeover** | A hive mind swallows them |
+| 67 | 🧠 | **Mind-control tech** | Free will ends |
+| 68 | 📡 | **Surveillance state** | Total control kills every idea |
+| 69 | 🪖 | **Endless arms race** | Everything spent on weapons |
+| 70 | 💣 | **Terror** | One group with a bomb |
+| 71 | 🧨 | **Sabotage** | Rivals ruin their systems |
+| 72 | 🖥️ | **Network collapse** | Everything was online, then nothing was |
+| 73 | 🦠 | **Computer plague** | A digital virus wrecks the machines they depend on |
+| 74 | 📊 | **Market crash** | Their world economy freezes |
+| 75 | 🥀 | **Lost purpose** | They simply stop trying |
+| 76 | 🗳️ | **Broken politics** | Nobody can agree on anything, ever |
+| 77 | 🧱 | **Walls everywhere** | Every group shuts itself off |
+| 78 | 🏴 | **Rebellion of the slaves** | The species they ruled rises up |
+| 79 | 🐺 | **Overthrown by another species** | A rival species takes over |
+| 80 | 🌱 | **Out-competed** | Another species simply grows faster |
+| 81 | 🦠 | **Parasite species** | Something lives inside them and wins |
+| 82 | 🍄 | **Fungal takeover** | A fungus spreads through crops and bodies |
+| 83 | 🐜 | **Swarm** | A swarm species eats their world |
+| 84 | 🧬 | **Hybrid replacement** | Their engineered children replace them |
+| 85 | 🤖 | **Upload** | They leave their bodies behind for machines |
+| 86 | 🛌 | **Comfort** | Everything is done for them, and they forget how to live |
+| 87 | 🌍 | **Planet stripped** | Nothing left to use |
+| 88 | ⭐ | **Star stripped** | Their own star harvested to death |
+| 89 | 🌌 | **Galaxy used up** | Spread until every resource is gone |
+| 90 | 🧭 | **Lost in space** | Fleets that never come home |
+| 91 | 🕳️ | **Time experiment** | They break cause and effect |
+| 92 | ❄️ | **Cold sleep failure** | The sleeping colonists never wake |
+| 93 | 🏗️ | **Megastructure failure** | A space elevator or ring falls |
+| 94 | ⚖️ | **Law of the machines** | Machines follow the rules too well |
+| 95 | 🧑‍🤝‍🧑 | **Merging minds** | Every individual dissolves into one |
+| 96 | 🗿 | **Stagnation** | Nothing changes for too long |
+| 97 | 🔁 | **Repeated collapse** | They rise and fall until they can't rise |
+| 98 | 👁️ | **They saw you** | They learn of their god and despair |
+| 99 | ⚔️ | **Holy war over you** | Rival faiths fight over which god is real |
+| 100 | 🌌 | **Intergalactic war** | Wiped out by a rival from another galaxy |
 
 > 💡 **Tip:** A civilization that wipes itself out still leaves [Souls](glossary.md#souls "The energy you spend on god powers") behind. Lots of them.
 
