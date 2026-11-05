@@ -9,23 +9,23 @@ last-verified: none (plan only)
 
 > "we make it" · "No dependancies!!!! ... OR COMPOLIERS" · "windows only for now"
 
-Nothing else gets built until this exists. There's no outside tool to lean on, so the chain starts as **raw machine bytes** and each step builds the next.
+Nothing else gets built until this exists. There's no outside tool to lean on, so the chain starts with a tiny assembler script on the PowerShell that ships with Windows, and each step builds the next.
 
 ## 🪜 The bootstrap ladder
 
 | Step | Built with | Produces | What it can do |
 |---|---|---|---|
-| 0️⃣ Seed | Typed in by hand as raw bytes | `seed.exe` | Turns a text file of hex digits into bytes |
-| 1️⃣ Mini-assembler | Hex, fed through the seed | `asm0.exe` | Turns simple written instructions into machine code |
-| 2️⃣ Assembler | `asm0` | `asm.exe` | Full assembler: labels, macros, data, PE output |
+| 0️⃣ Mini-assembler | A PowerShell script (PowerShell ships with Windows) | `asm0.ps1` | Turns readable assembly text into a Windows exe |
+| 1️⃣ Assembler v1 | Our assembly, built by `asm0.ps1` | `asm1.exe` | The same assembler, now a real exe; it rebuilds itself identically |
+| 2️⃣ Assembler | `asm1` | `asm.exe` | Full assembler: labels, macros, data, PE output |
 | 3️⃣ Compiler v1 | `asm` | `dnac0.exe` | Compiles our own language |
 | 4️⃣ Compiler v2 | `dnac0` (written in Helix) | `dnac.exe` | Self-hosting: the compiler builds itself |
 | 5️⃣ Game | `dnac` | `DNA-AND.exe` | The game |
 
-✅ The seed is a tiny hex loader typed in as raw bytes. Everything after it is written as hex text.
+✅ Step 0 is a small assembler written in PowerShell, which comes with Windows ("Start from PowerShell (Suggested)"). After the assembler rebuilds itself, PowerShell is no longer needed. The exe layout follows [the seed spec](r01a-seed-spec.md).
 
 ## 🪟 Windows exe format
-Windows only runs programs in its own **PE** exe layout. That's a Windows requirement, not a choice. From step 2 on, our assembler writes PE files itself.
+Windows only runs programs in its own **PE** exe layout. That's a Windows requirement, not a choice. From step 0 on, our assembler writes PE files itself.
 
 ## 🧾 Helix, our language
 ✅ Low-level and C-like: manual memory, no garbage collector. Built for a simulation with billions of things.

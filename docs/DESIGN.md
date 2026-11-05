@@ -412,6 +412,19 @@ The ask: "and we havent talked about the hud much but it should be intrusive so 
 
 ---
 
+## Round 19: how the toolchain starts (verbatim)
+
+| Question | Answer (verbatim) |
+|---|---|
+| How the toolchain starts, since hand-typed raw bytes kept getting blocked | "Start from PowerShell (Suggested)" |
+
+### What this means for the build
+- **Step 0 is now a PowerShell script** (`bootstrap/asm0.ps1`). PowerShell ships with Windows, so it counts as "Windows itself". The script is a small assembler: it turns readable assembly text into a real Windows exe.
+- From there our own tools take over: the assembler is rewritten in its own assembly and rebuilds itself, then the Helix compiler follows. PowerShell is not needed after that.
+- The hex seed spec (`wiki/systems/r01a-seed-spec.md`) stays as a reference for the exe layout, which the script follows.
+
+---
+
 ## How we work (verbatim)
 
 These are the creator's working rules for this repo, each in his own words.
@@ -511,3 +524,4 @@ Everything the creator has said about this project, in order. Short process repl
     - ROADMAP: content lines.
     - Glossary and FAQ: terms and questions swapped.
     - LAW 11: a content-coverage check.
+51. **Toolchain start:** "Start from PowerShell (Suggested)"

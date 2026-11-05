@@ -339,7 +339,7 @@ No. It's its own program in its own window.
 The project's first rule: no one else's code, scripts, programs or compilers.
 
 **99. What language is it written in?**  
-Helix, our own language, built from raw machine bytes up.
+Helix, our own language, built from a tiny bootstrap up, with no outside compiler.
 
 **100. Who made it?**  
 The Unity AI Lab team. See [Credits](credits.md).

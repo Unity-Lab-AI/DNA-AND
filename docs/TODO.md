@@ -92,6 +92,7 @@ Order: galactic scale down, the same order as the sample sets.
 **Spec:** `wiki/systems/r01-toolchain.md`, `wiki/systems/r01a-seed-spec.md`, `docs/HOW-TO-BUILD.md`, `docs/DECOMPOSED.md`
 
 - [ ] Design the tiny first tool, written directly as raw machine bytes, that can turn simple text instructions into machine code
+  - Changed: the first tool is a PowerShell assembler (`bootstrap/asm0.ps1`): "Start from PowerShell (Suggested)"
   - Decided: a **hex loader** typed in as raw bytes. It turns a text file of hex digits into a Windows exe. Broken down in `docs/DECOMPOSED.md`.
   - [x] Exact spec written: `wiki/systems/r01a-seed-spec.md` (exe layout, hex format, imports, proofs)
 - [ ] Use it to build a fuller machine-code writer (an "assembler")

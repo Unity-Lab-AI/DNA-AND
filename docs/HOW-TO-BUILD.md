@@ -4,7 +4,7 @@
 
 ## 🚫 The one rule
 
-No outside compiler, no libraries, no build tools. The only outside things are **Windows itself** and the **graphics card driver**.
+No outside compiler, no libraries, no build tools. The only outside things are **Windows itself** (including the PowerShell it ships with, used only for the very first step) and the **graphics card driver**.
 
 ---
 
@@ -22,8 +22,8 @@ That's it. Every tool gets built from the repo itself.
 Each step builds the next. The first step is the only one that isn't built by a tool.
 
 ```
- 0  seed.exe     ← typed in as raw machine bytes
- 1  asm0.exe     ← built by seed.exe from hex text
+ 0  asm0.ps1     ← a small assembler in PowerShell, which comes with Windows
+ 1  asm1.exe     ← the assembler rebuilt in our own assembly, built by asm0.ps1
  2  asm.exe      ← built by asm0.exe: full assembler, writes Windows exes
  3  dnac0.exe    ← built by asm.exe: first compiler for Helix
  4  dnac.exe     ← built by dnac0.exe: the compiler, now written in Helix
@@ -32,14 +32,14 @@ Each step builds the next. The first step is the only one that isn't built by a 
 
 | Step | Input | Output | Proof it works |
 |---|---|---|---|
-| 0️⃣ Seed | Hand-typed raw bytes | `seed.exe` | Turns a hex text file into the exact bytes expected |
-| 1️⃣ Mini-assembler | Hex text | `asm0.exe` | Builds a small test program that runs |
+| 0️⃣ Mini-assembler | PowerShell script | `asm0.ps1` | Builds a small test exe that runs |
+| 1️⃣ Assembler v1 | Our assembly | `asm1.exe` | Rebuilds itself identically |
 | 2️⃣ Assembler | `asm0` source | `asm.exe` | Rebuilds itself identically |
 | 3️⃣ Compiler v1 | Assembly source | `dnac0.exe` | Compiles the compiler's own source |
 | 4️⃣ Compiler v2 | Source in Helix | `dnac.exe` | Built twice in a row, byte-identical |
 | 5️⃣ Game | Game source | `DNA-AND.exe` | Launches to the main menu |
 
-✅ The seed is a tiny hex loader. The language is **Helix**: low-level and C-like, with manual memory.
+✅ Step 0 is a small assembler script that runs on the PowerShell built into Windows. The language is **Helix**: low-level and C-like, with manual memory.
 
 ## ▶️ Running a build (once the tools exist)
 

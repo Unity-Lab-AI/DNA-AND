@@ -367,10 +367,10 @@ Every key can be rebound. 👉 [Controls](docs/wiki/controls.md "Every control")
 
 ## 🛠️ Build it yourself
 
-DNA-AND uses **no one else's code**: no engine, no libraries, no outside compiler. And **no pre-built art**: every creature, plant, city, ship, station, planet and star is built **live by the game itself**, from its genes and data, the moment it comes to life. Even the tools that build it are made here, starting from raw machine bytes:
+DNA-AND uses **no one else's code**: no engine, no libraries, no outside compiler. And **no pre-built art**: every creature, plant, city, ship, station, planet and star is built **live by the game itself**, from its genes and data, the moment it comes to life. Even the tools that build it are made here, starting from a tiny bootstrap that runs on what ships with Windows:
 
 ```
-hex loader (typed in as raw bytes) → assembler → first Helix compiler → Helix compiler written in Helix → DNA-AND.exe → DNA-AND-Setup.exe
+tiny bootstrap assembler (runs on the PowerShell built into Windows) → our own assembler → first Helix compiler → Helix compiler written in Helix → DNA-AND.exe → DNA-AND-Setup.exe
 ```
 
 The only outside pieces are Windows itself, your graphics card's driver, and the online leaderboard service, which plugs in as a swappable side car.

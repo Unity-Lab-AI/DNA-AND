@@ -28,7 +28,7 @@ Any change in behavior updates its docs **in the same batch**. When a system's c
 > "No dependancies!!!! WE DO NOT USE ANOYONE ELSE CODE< SCRIPTS< PROGERMAES< BINARIES <EXECULATEBLES< TANBLES< DATA< FILES< FOLDERS< DIRECTORES< OR COMPOLIERS"
 
 Everything is built from scratch in **Helix**, starting from the hand-typed hex loader. The only outside pieces allowed:
-- Windows itself
+- Windows itself (including the PowerShell it ships with, for the first toolchain step only)
 - the graphics card driver
 - jsonbin, behind the swappable side car
 

@@ -64,7 +64,7 @@ Parent: **R1 — Our own build tools (Helix)**, first minor task. Do these in or
 
 **Verification step:** A sample input file and its expected output bytes are written side by side.
 
-### [ ] Hand-write the loader as raw bytes, with every byte commented
+### [ ] Hand-write the loader as raw bytes, with every byte commented. Replaced (round 19): write `bootstrap/asm0.ps1`, a PowerShell assembler
 
 **Parent minor task (from `docs/TODO.md`, verbatim):**
 > "Design the tiny first tool, written directly as raw machine bytes, that can turn simple text instructions into machine code"
