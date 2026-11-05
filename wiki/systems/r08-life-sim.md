@@ -2,7 +2,7 @@
 title: R8 · Life simulation
 status: partial
 sources: [docs/DESIGN.md (rounds 1, 3, 4), docs/ROADMAP.md#R8]
-last-verified: fdaea69
+last-verified: 2cf573f
 ---
 
 # 🦠 R8 · Life Simulation
@@ -77,4 +77,8 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 - **Selection:** by light, food, temperature, predators and toxins.
 - **Viruses:** they infect by surface match, burst the cell, and mutate.
 - **Scale:** about 600 microbes and 400 viruses, each standing for a crowd of its kind.
-- **Not built yet:** one shared life simulation per planet, starting from its first cells, for every scale to show.
+- **One shared life simulation per planet** (`src/sim/PlanetLife.cs`):
+  - 100 regions, each with up to 100 species groups. Lightning starts it (the first spark is free, then 4 Souls each).
+  - Life climbs replicators > single cells > many-celled > nerves > brains > big-brained > communication. Each stage runs on its own clock, so that is about 3 hours of play.
+  - Each stage competes for room only with its own kind.
+- **What you see follows it:** microbes and sea animals follow the stage reached at each spot. On land, the region's plants, fungi and animals are drawn at true size from their own genes (`src/shell/LandLife.cs`), with an intelligent species' village where one lives.

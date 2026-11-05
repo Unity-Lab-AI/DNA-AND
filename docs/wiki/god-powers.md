@@ -42,7 +42,7 @@ On a dead planet, on day one, you have:
 
 | | Power | Why you need it |
 |---|---|---|
-| ⚡ | **Lightning** | Sparks chemistry in the early oceans. It can start life again, anywhere, as many times as you like: each start is its own family tree |
+| ⚡ | **Lightning** | Sparks chemistry in the early oceans. It can start life again in more places on the same planet, each strike paid for in souls: each start is its own family tree |
 | 🔥 | **Heat** | Warms a frozen world |
 | ❄️ | **Cold** | Cools a boiling one |
 | 💧 | **Water** | Fills basins, makes seas |
