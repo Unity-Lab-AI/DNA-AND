@@ -40,9 +40,11 @@ _(none. The R1 seed tasks below come next.)_
 
 ## Pending
 
+> 🔴 **Retired (round 20).** The seed steps below were replaced by the C# build. They are kept for history.
+
 Parent: **R1 — Our own build tools (Helix)**, first minor task. Do these in order.
 
-### [ ] Write down the exact Windows exe layout the loader must produce
+### [x] Write down the exact Windows exe layout the loader must produce. Done: `wiki/systems/r01a-seed-spec.md`
 
 **Parent minor task (from `docs/TODO.md`, verbatim):**
 > "Design the tiny first tool, written directly as raw machine bytes, that can turn simple text instructions into machine code"
@@ -53,7 +55,7 @@ Parent: **R1 — Our own build tools (Helix)**, first minor task. Do these in or
 
 **Verification step:** The layout page lists every required header field and its value, checked against how Windows loads programs.
 
-### [ ] Define the hex text input format
+### [x] Define the hex text input format. Done: `wiki/systems/r01a-seed-spec.md`
 
 **Parent minor task (from `docs/TODO.md`, verbatim):**
 > "Design the tiny first tool, written directly as raw machine bytes, that can turn simple text instructions into machine code"
@@ -64,7 +66,7 @@ Parent: **R1 — Our own build tools (Helix)**, first minor task. Do these in or
 
 **Verification step:** A sample input file and its expected output bytes are written side by side.
 
-### [ ] Hand-write the loader as raw bytes, with every byte commented
+### [ ] Hand-write the loader as raw bytes, with every byte commented. Replaced (round 19): write `bootstrap/asm0.ps1`, a PowerShell assembler
 
 **Parent minor task (from `docs/TODO.md`, verbatim):**
 > "Design the tiny first tool, written directly as raw machine bytes, that can turn simple text instructions into machine code"

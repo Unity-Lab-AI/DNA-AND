@@ -1,10 +1,10 @@
 # 🛠️ How to Build DNA-AND from Source
 
-> 🟡 **This is the plan.** No game code or tools exist yet. This page describes how the build **will** work, and it gets updated as each step is built.
+> 🟢 Building works today: `build.cmd` makes `build/DNA-AND.exe`, which opens the game window. This page grows as each part of the game is built.
 
 ## 🚫 The one rule
 
-No outside compiler, no libraries, no build tools. The only outside things are **Windows itself** and the **graphics card driver**.
+No outside libraries, packages, engines or build tools. DNA-AND is **written in C#** and built with the **C# compiler that comes with Windows**. Besides our own code, it uses only Windows itself (its compiler, core runtime and system files) and your **graphics card driver**.
 
 ---
 
@@ -12,67 +12,46 @@ No outside compiler, no libraries, no build tools. The only outside things are *
 
 | Need | Why |
 |---|---|
-| 🪟 Windows 10 / 11, 64-bit | The only system supported for now |
+| 🪟 Windows 10 / 11, 64-bit | It already includes the C# compiler and runtime the build uses |
 | 📁 This repo | Everything else is in here |
 
-That's it. Every tool gets built from the repo itself.
+That's it. Nothing to download or install.
 
-## 🪜 The bootstrap chain
+---
 
-Each step builds the next. The first step is the only one that isn't built by a tool.
-
-```
- 0  seed.exe     ← typed in as raw machine bytes
- 1  asm0.exe     ← built by seed.exe from hex text
- 2  asm.exe      ← built by asm0.exe: full assembler, writes Windows exes
- 3  dnac0.exe    ← built by asm.exe: first compiler for Helix
- 4  dnac.exe     ← built by dnac0.exe: the compiler, now written in Helix
- 5  DNA-AND.exe  ← built by dnac.exe: the game
-```
-
-| Step | Input | Output | Proof it works |
-|---|---|---|---|
-| 0️⃣ Seed | Hand-typed raw bytes | `seed.exe` | Turns a hex text file into the exact bytes expected |
-| 1️⃣ Mini-assembler | Hex text | `asm0.exe` | Builds a small test program that runs |
-| 2️⃣ Assembler | `asm0` source | `asm.exe` | Rebuilds itself identically |
-| 3️⃣ Compiler v1 | Assembly source | `dnac0.exe` | Compiles the compiler's own source |
-| 4️⃣ Compiler v2 | Source in Helix | `dnac.exe` | Built twice in a row, byte-identical |
-| 5️⃣ Game | Game source | `DNA-AND.exe` | Launches to the main menu |
-
-✅ The seed is a tiny hex loader. The language is **Helix**: low-level and C-like, with manual memory.
-
-## ▶️ Running a build (once the tools exist)
+## ▶️ Building
 
 1. Open the repo folder.
-2. Run the bootstrap. It builds steps 0 to 4 once and then reuses them.
-3. Build the game with `dnac.exe`.
-4. Build the installer, `DNA-AND-Setup.exe`.
+2. Run **`build.cmd`**.
+3. The game appears at **`build/DNA-AND.exe`**.
 
-📝 The exact commands get written here once step 0 exists.
+`build.cmd` runs the C# compiler from Windows' own .NET Framework folder over everything in `src/`. Nothing outside the repo and Windows is used.
+
+---
 
 ## 🗂️ Source layout
 
-One folder per roadmap system:
+One folder per part of the game:
 
-| Folder | System |
+| Folder | Part |
 |---|---|
-| `content/` | Game content in our own text format (`.dnat`), compiled to binary by our toolchain |
-| `bootstrap/` | Steps 0–2: seed, hex, assembler |
-| `src/toolchain/` | Our compiler |
-| `src/platform/` | Talking to Windows |
-| `src/core/` | Math, memory, arrays, jobs, saves |
-| `src/render/` | Graphics + the 3D image generator |
+| `content/` | Game content, read by the generators |
+| `src/platform/` | Talking to Windows: window, input, files, sound, timing |
+| `src/core/` | Math, memory, big arrays, jobs, saves |
+| `src/render/` | Direct3D 12 graphics |
 | `src/gen/` | The live generators: creature, city, space tech and the rest |
 | `src/universe/` · `src/planet/` | Galaxies → planets |
 | `src/genome/` · `src/life/` | DNA → living things |
 | `src/civ/` · `src/space/` | Civilization → space |
-| `src/god/` · `src/time/` · `src/shell/` | Powers, clock, menus |
+| `src/god/` · `src/time/` · `src/shell/` | Powers, clock, menus and HUD |
 | `src/net/` · `sidecar/` | Multiplayer, leaderboard side car |
-
-## 📸 Filling the doc images
-
-After the game builds, run the capture tool to render every image slot in the docs. See [docs/img/README.md](img/README.md).
 
 ---
 
-🗺️ The full system-by-system plan is in the builder wiki: [wiki/index.md](../wiki/index.md)
+## 📸 Filling the doc images
+
+After the game builds, run its capture mode to render every image slot in the docs.
+
+---
+
+🗺️ Back to the [README](../README.md)
