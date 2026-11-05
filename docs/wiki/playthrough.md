@@ -5,7 +5,7 @@
 <!-- IMG: docs/img/playthrough-banner.png | A single planet seen from orbit, half barren rock and half green, with a ring of Dyson-sphere panels catching the sun behind it -->
 > 🖼️ *A single planet seen from orbit, half barren rock and half green, with a ring of Dyson-sphere panels catching the sun behind it* — rendered by the game's own 3D generator
 
-💬 *Suggestion:* the events in this walkthrough are an **example run**, and the time for each chapter is a proposal. The only decided timing is that reaching the space age takes about **4–6 hours**. See `docs/suggestions/C.md` → *Chapter timings* and *Example-run events*.
+📼 **This is one example run.** Every world plays out differently. Chapter times are typical; reaching the space age takes about **4–6 hours**.
 
 ---
 
@@ -238,7 +238,7 @@ When you're ready, go back to the main menu and start a **new world and galaxy**
 | 🌍 Life in your galaxy | Everything alive |
 | 👻 Life harvested | Every soul you took |
 
-Finish in the top three and you can upload a genome to the **Genebank**, ready to land in someone else's ocean.
+Finish in the weekly top three and you can upload a genome to the **Genebank**, ready to land in someone else's ocean.
 
 ---
 

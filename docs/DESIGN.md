@@ -125,3 +125,60 @@ The ask: "okay we need to write all the wikis and docs and readmes for the entir
 - **Souls are the currency.** Living things slowly give them off. Harvesting by hand is slow and scares intelligent life if they see it. Disasters that kill many, like a volcano hitting a city, give lots of souls.
 - **Starting tools:** a few starter powers (lightning, heat, cold, water, spark of life), plus adding genes and adding any element from the full periodic table (all 118).
 - **Leaderboard score** = life in your galaxy + life harvested.
+
+---
+
+## Round 5: suggestions decided
+
+The ask, verbatim: "you need to answer all the aBCD ..mds for best answers for everything based on beding A AAAA Game like nothing ever seen on earth before"
+
+Gee handed these choices over, so Claude picked the best AAA option for each. Every pick can be changed at any time.
+
+| ID | Topic | Decision |
+|---|---|---|
+| A1 | Galaxy sizes | Small, Medium, Large, Massive |
+| A2 | Hotkeys | Space = pause, 1–5 = speeds, Esc = menu, a wiki hotkey. **Every key can be rebound** |
+| A3 | Souls | Intelligent deaths give more souls. Harvesting shows as a visible glow that nearby intelligent life can spot |
+| A4 | Lab-made elements | Elements 93+ unlock once a civilization first creates them |
+| A5 | Planet templates | Ocean, Desert, Ice, Jungle, Volcanic, Tidally locked and Gas-giant moon come first. The full set is 100 (LISTS #62) |
+| A6 | Multiplayer | The host shares a join code. Up to 8 players |
+| A7 | Genebank top three | **Counted weekly: "Genome of the Week"** |
+| A8 | Saving | Autosave every 10 minutes and at every milestone. Unlimited slots |
+| A9 | Settings | Graphics, Sound, Controls, Gameplay, Online, **plus Accessibility** (colorblind modes, text size, subtitles, motion) |
+| B1 | Stage unlocks | Each stage unlocks the powers that fit it. Stronger "+" versions unlock later |
+| B2 | Milestone slow-down | Time drops to 1x with a short cinematic popup. Can be turned off in Gameplay settings |
+| B3 | Souls from milestones | None. Souls come only from life, deaths and harvesting |
+| B4 | Collapse | Civilizations can fall back to earlier ages |
+| B5 | Tech needs | Each discovery needs the one before it on its branch, plus links across branches |
+| B6 | Harvest steps | Farming 14 → Spirit/sacrifice 11 + Kingdoms 26 → Factories 64 → Writing DNA 85 → Terraforming 94 → Intergalactic 100 |
+| B7 | Ages on other planets | **Other templates can run the ages in their own order**, like the stages |
+| C1 + S13 | Power costs | **Base tier (💠 to 💠💠💠💠💠) × area × strength.** Six unlock points: Start, Life, Land, Mind, Civ, Space |
+| C2 | Cooldowns | **Bigger powers (tiers 4–5) have cooldowns**, smaller ones don't |
+| C3 | Chapter timings | Menu 5m, dead planet 20m, spark 15m, microbes 40m, seas 40m, land 45m, mind 30m, civilization 60m, space at about 4–6 h |
+| C4 | Example run | Yes, clearly labelled as one example run |
+| C5 | Fire and Heat | One power: Fire is the toolkit's heat power. The list stays at 100 |
+| C6 | Spark of Mind | Unlocks when life reaches land. Only works on species close to using tools |
+| C7 | Genebank meteorite | Available from the first-life stage on |
+| S1 | Bootstrap seed | A tiny hex loader typed in as raw bytes |
+| S2 | Language style | Low-level and C-like, with manual memory and no garbage collector |
+| S3 | Language name | **Helix** |
+| S4 | Memory | Big blocks reserved up front per system |
+| S5 | Threading | One worker per core, pulling from a shared job queue |
+| S6 | Precision | 64-bit numbers plus a moving origin |
+| S7 | Random numbers | Our own seeded generator |
+| S8 | Graphics | Direct3D 12 (part of Windows) |
+| S9 | Planet grid | Equal-size cells covering the sphere |
+| S10 | DNA storage | 2 bits per letter |
+| S11 | Save format | Our own versioned binary chunks |
+| S12 | Population groups | One group per cell and species. A group splits when its genes drift, and individuals appear when you zoom in |
+| S14 | Time scale | Each stage has its own years-per-second, tuned so a game reaches space in 4–6 hours |
+| S15 | In-game wiki | Reads the same pages as `docs/wiki/` |
+| S16 | Network | Our own reliable messaging over UDP |
+| S17 | Side car | Its own small program on the same computer |
+| S18 | Secure connection | TLS 1.3 |
+| S19 | Installer | Our own `DNA-AND-Setup.exe` |
+| S20 | Capture tool | A mode of the game exe |
+| S21 | Requirements | Min: Win 10/11 64-bit, 4 cores, 8 GB RAM, D3D12 GPU with 4 GB. Recommended: 8+ cores, 16 GB RAM, 8 GB GPU |
+| S22 | Source layout | One folder per roadmap system (`src/toolchain`, `src/platform`, …) |
+| S23 | Disk space | Measured once the first build exists |
+| S24 | Uninstall | Keep saves and ask whether to delete them |

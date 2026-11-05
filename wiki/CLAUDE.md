@@ -26,7 +26,7 @@ Right now **every page is `draft`** and `last-verified: none (plan only)`. No ga
 ## ✍️ Writing rules
 
 - **Rule 1, no dependencies.** Pages never describe using outside code, libraries, tools, compilers or data. The only outside things are Windows itself, the GPU driver, and jsonbin (behind the side car).
-- **Rule 3, no making things up.** Anything not decided in `docs/DESIGN.md` is marked `💬 *Suggestion*` and logged as a multiple-choice question in `docs/suggestions/`.
+- **Rule 3, no making things up.** Every design fact must trace to `docs/DESIGN.md`. Anything new and undecided goes to the creator as a multiple-choice question first. Past questions are kept in `docs/suggestions/`.
 - Short sections, tables, emoji icons. No text walls.
 - Quote the creator's words verbatim when a page rests on them.
 

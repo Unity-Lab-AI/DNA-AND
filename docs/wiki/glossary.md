@@ -20,7 +20,7 @@ Every highlighted word in the wiki links here.
 | <a id="galaxy"></a>🌌 **Galaxy** | A huge group of solar systems. You can reach more than one. |
 | <a id="gene"></a>🧩 **Gene** | One piece of DNA that gives a trait or skill. |
 | <a id="gene-map"></a>🗺️ **Gene map** | The panel showing which gene pieces give which traits. |
-| <a id="genebank"></a>🏦 **Genebank** | The shared library of players on the leaderboard. The top three can upload a genome for others to use. |
+| <a id="genebank"></a>🏦 **Genebank** | The shared library of players on the leaderboard. The weekly top three (Genome of the Week) can upload a genome for others to use. |
 | <a id="genome"></a>📜 **Genome** | The full set of DNA instructions for one living thing. |
 | <a id="harvest"></a>🌾 **Harvest** | Reaping living things directly for souls. Slow, and it scares intelligent life. |
 | <a id="host"></a>🖥️ **Host** | The player whose computer runs a shared multiplayer world. |

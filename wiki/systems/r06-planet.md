@@ -27,4 +27,4 @@ The planet draws on the top-100 lists in [docs/LISTS.md](../../docs/LISTS.md "10
 Earth comes first. Other templates (list 62, "Planet templates to unlock after Earth") unlock as you reach points on Earth. On other templates, life can evolve in a different order from Earth's.
 
 ## 🧮 Grid
-💬 *Suggestion:* split the planet's surface into equal-size cells on a sphere. Each cell stores its ground, water, air, weather and chemistry. → [S9](../../docs/suggestions/D.md#s9--planet-grid)
+✅ The planet's surface is split into equal-size cells on a sphere. Each cell stores its ground, water, air, weather and chemistry.

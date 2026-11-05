@@ -23,4 +23,4 @@ At each milestone, the game **slows down automatically** so you can watch it hap
 
 ## ⚖️ Pacing
 Earth took about 4 billion years. The game has to fit that into **about 4 to 6 hours to reach space**.
-💬 *Suggestion:* each stage of life has its own base "years per second". 1x means that stage's base rate, and the rates are tuned so the total lands at 4 to 6 hours. → [S14](../../docs/suggestions/D.md#s14--time-scale)
+✅ Each stage of life has its own base "years per second". 1x means that stage's base rate, and the rates are tuned so the total lands at 4 to 6 hours. At each milestone time drops to 1x with a short cinematic, which can be turned off.

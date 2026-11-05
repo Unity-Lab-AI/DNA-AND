@@ -26,7 +26,7 @@ WASD or screen edges to pan · scroll wheel to zoom from microbe to galaxy · ri
 
 ## 📖 In-game wiki
 The in-game wiki covers everything in the game: every entry in the top-100 lists, every power, stage and age.
-💬 *Suggestion:* the game reads the same pages as `docs/wiki/`, so there's one source for both. → [S15](../../docs/suggestions/D.md#s15--in-game-wiki-source)
+✅ The game reads the same pages as `docs/wiki/`, so there's one source for both. Settings include an Accessibility group.
 
 ## ♾️ No game over
 > "open ended till u resarts to get a new world and galaxy"

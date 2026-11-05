@@ -30,7 +30,7 @@ Every player on the leaderboard is listed in the **[Genebank](glossary.md#geneba
 
 The **top three** can upload a [genome](glossary.md#genome "The full set of DNA instructions for one living thing") from their world for everyone else to use.
 
-💬 *Suggestion:* the top three is counted from the leaderboard at the moment you open the Genebank.
+🏅 **Genome of the Week:** the top three are locked in once a week. That week's top three get to upload, and their genomes are featured in the Genebank.
 
 ---
 

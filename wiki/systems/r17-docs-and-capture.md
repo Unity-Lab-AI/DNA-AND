@@ -29,6 +29,6 @@ No outside images are allowed, so every picture in the docs starts as a **slot**
 3. 📸 Renders it and saves the PNG at the given path.
 4. ✏️ Swaps the placeholder line for the real image.
 
-💬 *Suggestion:* the capture tool is a mode of the game exe itself, not a separate program. → [S20](../../docs/suggestions/D.md#s20--capture-tool)
+✅ The capture tool is a mode of the game exe itself, not a separate program.
 
 Full rules: [docs/img/README.md](../../docs/img/README.md).

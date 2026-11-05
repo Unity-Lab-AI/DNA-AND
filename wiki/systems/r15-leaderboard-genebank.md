@@ -32,11 +32,11 @@ jsonbin is the **only outside service**. The game never talks to it directly. Ev
 | Get a genome | Fetches it |
 
 To swap services, replace only the side car.
-💬 *Suggestion:* the side car runs as its own small program that we write, and the game talks to it on the same computer. → [S17](../../docs/suggestions/D.md#s17--side-car-shape)
+✅ The side car runs as its own small program that we write, and the game talks to it on the same computer. The Genebank top three is locked in weekly ("Genome of the Week").
 
 ## 🔒 Secure connection
 Reaching jsonbin needs encrypted web traffic (HTTPS). That's **written from scratch**, which was approved in round 2.
-💬 *Suggestion:* TLS 1.3. → [S18](../../docs/suggestions/D.md#s18--secure-connection)
+✅ TLS 1.3.
 
 ## 🚫 Cheating
 > "no cheats will NOT work its fine."

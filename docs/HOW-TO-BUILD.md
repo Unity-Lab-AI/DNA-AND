@@ -27,8 +27,8 @@ Each step builds the next. The first step is the only one that isn't built by a 
  0  seed.exe     ← typed in as raw machine bytes
  1  asm0.exe     ← built by seed.exe from hex text
  2  asm.exe      ← built by asm0.exe: full assembler, writes Windows exes
- 3  dnac0.exe    ← built by asm.exe: first compiler for our language
- 4  dnac.exe     ← built by dnac0.exe: the compiler, now written in our language
+ 3  dnac0.exe    ← built by asm.exe: first compiler for Helix
+ 4  dnac.exe     ← built by dnac0.exe: the compiler, now written in Helix
  5  DNA-AND.exe  ← built by dnac.exe: the game
 ```
 
@@ -38,10 +38,10 @@ Each step builds the next. The first step is the only one that isn't built by a 
 | 1️⃣ Mini-assembler | Hex text | `asm0.exe` | Builds a small test program that runs |
 | 2️⃣ Assembler | `asm0` source | `asm.exe` | Rebuilds itself identically |
 | 3️⃣ Compiler v1 | Assembly source | `dnac0.exe` | Compiles the compiler's own source |
-| 4️⃣ Compiler v2 | Source in our language | `dnac.exe` | Built twice in a row, byte-identical |
+| 4️⃣ Compiler v2 | Source in Helix | `dnac.exe` | Built twice in a row, byte-identical |
 | 5️⃣ Game | Game source | `DNA-AND.exe` | Launches to the main menu |
 
-💬 *Suggestion:* the seed is a tiny hex loader ([S1](suggestions/D.md#s1--bootstrap-seed)). Language style is [S2](suggestions/D.md#s2--language-style), and the language name is [S3](suggestions/D.md#s3--language-name).
+✅ The seed is a tiny hex loader. The language is **Helix**: low-level and C-like, with manual memory.
 
 ## ▶️ Running a build (once the tools exist)
 
@@ -50,11 +50,11 @@ Each step builds the next. The first step is the only one that isn't built by a 
 3. Build the game with `dnac.exe`.
 4. Build the installer, `DNA-AND-Setup.exe` ([R16](../wiki/systems/r16-packaging.md)).
 
-💬 The exact commands get written here once step 0 exists.
+📝 The exact commands get written here once step 0 exists.
 
 ## 🗂️ Source layout
 
-💬 *Suggestion* ([S22](suggestions/D.md#s22--source-layout)): one folder per roadmap system.
+One folder per roadmap system:
 
 | Folder | System |
 |---|---|

@@ -26,21 +26,20 @@
 
 Your world saves to save slots, so you can keep several galaxies going at once.
 
-💬 *Suggestion:* autosave every 10 minutes and at every milestone, with unlimited save slots.
+⏱️ **Autosave** runs every 10 minutes and at every milestone. Save slots are unlimited.
 
 ---
 
 ## ⚙️ Settings
-
-💬 *Suggestion:* the settings groups below.
 
 | Group | What's in it |
 |---|---|
 | 🖼️ **Graphics** | Resolution, quality, detail distance |
 | 🔊 **Sound** | Master, music, nature, effects |
 | 🎮 **Controls** | Rebind keys, mouse speed, edge panning on/off |
-| ⏱️ **Gameplay** | Milestone slow-downs on/off, tooltips on/off |
+| ⏱️ **Gameplay** | Milestone slow-downs and cinematics on/off, tooltips on/off |
 | 🌐 **Online** | Leaderboard and Genebank on/off |
+| ♿ **Accessibility** | Colorblind modes, text size, subtitles, reduced motion |
 
 ---
 
