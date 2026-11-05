@@ -47,23 +47,24 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 
 - [~] Content first: "well i thought we needed to write the games content before we could have something to generate in the game engine" / "Content first, then code (Suggested)"
 - [x] Our own content text format (`docs/CONTENT-FORMAT.md`), compiled to our own binary later: "option one and and whats the most dynamic code to use? rust or type script?"
-- [ ] Content: Stars (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Planets (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Gas giants (seeds, ranges, parts, rules) in `content/`
+Order: galactic scale down, the same order as the sample sets.
 - [ ] Content: Galaxy layouts (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Solar system layouts (seeds, ranges, parts, rules) in `content/`
+- [~] Content: Stars (seeds, ranges, parts, rules) in `content/` · `content/stars.dnat` started: 20 real seeds, 5 rules
+- [ ] Content: Planets (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Gas giants (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Resource fields (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Elements (all 118) (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Dyson spheres (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Space stations (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Space colonies (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Spaceships (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Cities (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Intelligent creatures (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Animals (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Insects (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Microbes (seeds, ranges, parts, rules) in `content/`
 - [ ] Content: Viruses (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Insects (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Animals (seeds, ranges, parts, rules) in `content/`
-- [ ] Content: Intelligent creatures (seeds, ranges, parts, rules) in `content/`
+- [ ] Content: Elements (all 118) (seeds, ranges, parts, rules) in `content/`
 - [ ] Then: seeds and rules for the rest of the 100 categories
 - [ ] Content compiler (part of R1): `.dnat` text → our binary
 
@@ -71,7 +72,7 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 **Spec:** `docs/LISTS.md`
 
 - [ ] Fill each approved category with its top 100 entries — "real and dynamic invented combo procedurally"
-  - 10–20 real seed entries per category, written by hand: "Real seeds, game fills to 100 (Suggested)" (`docs/LISTS.md`).
+  - Real seed entries per category, written by hand (no fixed number): "Real seeds, game fills to 100 (Suggested)" (`docs/LISTS.md`).
   - The live generators invent the rest, so each category reaches 100 in play.
 - [ ] Procedural generator that invents new entries on top of the real ones
 
@@ -149,6 +150,21 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 
 ### R4.5 — Art style samples
 - [ ] Live sample viewer, its own window, moving and rotatable: "Live viewer, moving (Suggested)"
+- [ ] Sample sets, galactic scale down, one set at a time, waiting for the creator's input before the next: "and when we do the dsamples we show the non headless and do them galactic scale down one set of samples at a time to take input before doing the next set"
+  - [ ] Set 1: Galaxy layouts
+  - [ ] Set 2: Solar system layouts
+  - [ ] Set 3: Stars
+  - [ ] Set 4: Planets and gas giants
+  - [ ] Set 5: Resource fields
+  - [ ] Set 6: Dyson spheres
+  - [ ] Set 7: Space stations, colonies and spaceships
+  - [ ] Set 8: Cities
+  - [ ] Set 9: Intelligent creatures
+  - [ ] Set 10: Animals
+  - [ ] Set 11: Insects
+  - [ ] Set 12: Microbes and viruses
+  - [ ] Set 13: Elements
+
 - [ ] Every sample generated procedurally from a seed: "and remember thses things are get dynamic procedural generations"
 - [ ] Samples rendered with Direct3D 12: "Straight to Direct3D 12"
 - [ ] Our own shader-code generator for Direct3D 12 (no outside shader compiler)

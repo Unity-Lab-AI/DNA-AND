@@ -2,7 +2,7 @@
 
 > "do top 100 for everything from viruse types, aminals, insects, fish, birds, environmets, senses, abilities, and not limited to thed bit to incluse the top one hundered top onehundreds"
 
-**Status: APPROVED** ("Use them as is"). Below are the 100 categories. Each one gets **10–20 real seed entries** written by hand, and the game's live generators invent the rest, so every category reaches **100 in play**, different in every world ("Real seeds, game fills to 100 (Suggested)"). The categories you named yourself are marked ★.
+**Status: APPROVED** ("Use them as is"). Below are the 100 categories. Each one gets **real seed entries** written by hand, as many as it takes to teach its generator, and the game's live generators invent the rest, so every category reaches **100 in play**, different in every world ("Real seeds, game fills to 100 (Suggested)"). The categories you named yourself are marked ★.
 
 📖 Player wiki versions: [Elements](wiki/elements.md) · [Stages of Life](wiki/stages-of-life.md) · [Groups & Flocking](wiki/groups-and-flocking.md) · [Tree of Life](wiki/tree-of-life.md) · [God Powers](wiki/god-powers.md)
 

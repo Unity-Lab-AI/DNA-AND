@@ -171,6 +171,12 @@ real: yes
 stage: the collapsed core of a very heavy star
 tags: no light, swallows matter
 
+@star cepheid
+name: Cepheid variable
+real: yes
+stage: a giant that swells and shrinks on a steady beat
+tags: pulsing, variable
+
 # ── Generator rules ──
 
 @rule star-color
