@@ -18,7 +18,7 @@ From the main menu, pick **New World**.
 | 🌌 **Galaxy size** | How big your playground is. |
 | 🌍 **Starting planet** | Earth. Other [templates](glossary.md#template "A planet type with its own rules, unlocked by reaching milestones") unlock as you play. |
 
-🌌 **Galaxy sizes:** Small, Medium, Large or Massive.
+🌌 **Galaxy sizes:** Small (100 star systems), Medium (500), Large (2,000) or Massive (10,000). Every system is fully alive.
 
 <!-- IMG: docs/img/new-world-screen.png | The New World screen: seed box, galaxy size slider, a slowly spinning preview of the generated galaxy -->
 > 🖼️ *The New World screen, with a spinning preview of your galaxy* — rendered by the game's own 3D generator

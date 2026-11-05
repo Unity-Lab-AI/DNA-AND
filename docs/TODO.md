@@ -48,7 +48,7 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 - [~] Content first: "well i thought we needed to write the games content before we could have something to generate in the game engine" / "Content first, then code (Suggested)"
 - [x] Our own content text format (`docs/CONTENT-FORMAT.md`), compiled to our own binary later: "option one and and whats the most dynamic code to use? rust or type script?"
 Order: galactic scale down, the same order as the sample sets.
-- [~] Content: Galaxy layouts (seeds, ranges, parts, rules) in `content/` · `content/galaxies.dnat`: 20 types, 4 real examples, 10 parts, 6 structures, 10 rules. Open: star count per galaxy size
+- [~] Content: Galaxy layouts (seeds, ranges, parts, rules) in `content/` · `content/galaxies.dnat`: 20 types, 4 real examples, 10 parts, 6 structures, 10 rules. Galaxy sizes decided: 100 / 500 / 2,000 / 10,000 systems
 - [ ] Content: Solar system layouts (seeds, ranges, parts, rules) in `content/`
 - [~] Content: Stars (seeds, ranges, parts, rules) in `content/` · `content/stars.dnat` started: 20 real seeds, 5 rules
 - [ ] Content: Planets (seeds, ranges, parts, rules) in `content/`
@@ -194,7 +194,7 @@ Order: galactic scale down, the same order as the sample sets.
 **Spec:** `wiki/systems/r05-universe.md`, `docs/wiki/space-and-dyson-spheres.md`
 
 - [ ] Galaxy generation from a seed
-  - Sizes: Small, Medium, Large, Massive.
+  - Sizes: Small 100, Medium 500, Large 2,000, Massive 10,000 star systems, every one fully simulated: "Fewer, every one detailed".
 - [ ] Solar systems: stars and planets
 - [ ] Multiple galaxies
 
