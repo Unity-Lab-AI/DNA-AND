@@ -19,7 +19,7 @@ last-verified: none (plan only)
 | ⏩⏩⏩ | 1,000x |
 | ⏭️ | Max |
 
-At each milestone, the game **slows down automatically** so you can watch it happen.
+At each stage's **headline** milestone, the game **slows down automatically** so you can watch it happen. The other 99 milestones per stage only show a notice.
 
 ## ⚖️ Pacing
 Earth took about 4 billion years. The game has to fit that into **about 4 to 6 hours to reach space**.

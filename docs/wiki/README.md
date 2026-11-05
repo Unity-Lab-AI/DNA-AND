@@ -24,6 +24,7 @@ Welcome, god. This is everything you need to know — from the first lightning b
 |:-:|---|---|
 | 🧬 | [Genes & DNA](genes-and-dna.md) | How every creature — and every virus — is built |
 | 🦠 | [Stages of Life](stages-of-life.md) | All 100 stages, from chemistry to the stars |
+| 🏁 | [Milestones](milestones.md) | 100 per stage, 10,000 in all, and how they're built |
 | 🐺 | [Groups & Flocking](groups-and-flocking.md) | How every kind of life groups up, 100 steps to the stars |
 | 🌳 | [Tree of Life](tree-of-life.md) | The circular family and gene trees, sortable by planet, system or galaxy |
 | ⚗️ | [Elements](elements.md) | The full periodic table, and what each element does |
