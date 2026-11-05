@@ -55,9 +55,9 @@ namespace DnaAnd.Gen
             public double Cx, Cy, Cz, Edge; public UploadBuffer Buffer; public int Count; public int LastUsed; public int Level;
         }
 
-        public PlanetTerrain(IntPtr device, string kind, string name, uint seed)
+        public PlanetTerrain(IntPtr device, string kind, string name, uint seed, bool resourceView = false)
         {
-            _device = device; Kind = kind; Name = name; _seed = seed;
+            _device = device; Kind = kind; Name = name; _seed = seed; ResourceView = resourceView;
             switch (kind)
             {
                 case "ocean": Radius = 7400; break;
@@ -156,6 +156,16 @@ namespace DnaAnd.Gen
         /// <paramref name="layers"/> is how much fine detail to add (more when the camera is close).</summary>
         public double Height(double x, double y, double z, int layers, out float r, out float g, out float b, out float glow)
         {
+            double h = HeightBase(x, y, z, layers, out r, out g, out b, out glow);
+            if (!Solid) { LastField = -1; return h; }
+            h = Landforms(x, y, z, h, layers, ref r, ref g, ref b, ref glow);
+            LastField = ClassifyField(x, y, z, h, layers, ref r, ref g, ref b, ref glow);
+            if (ResourceView) ViewColour(LastField, h, ref r, ref g, ref b, ref glow);
+            return h;
+        }
+
+        private double HeightBase(double x, double y, double z, int layers, out float r, out float g, out float b, out float glow)
+        {
             glow = 0;
             double lat = Math.Abs(y);
             if (!Solid)
@@ -187,6 +197,7 @@ namespace DnaAnd.Gen
                 default: land = cont + 0.06; break;            // Earth-like: about a third land
             }
             double mtn = ridge * ridge * Smooth(0, 0.35, land);
+            _land = land; _mtn = mtn; _tint = tint;
             h = land * 3.2 + mtn * 7.5 + mtn * (mtnFine - 0.5) * 2.2 + detail * (0.12 + 0.35 * Smooth(0, 0.4, land) + 0.6 * mtn) + micro;
             if (Kind == "desert")
             {
@@ -279,6 +290,185 @@ namespace DnaAnd.Gen
                 r += (sr - r) * m; g += (sg - g) * m; b += (sb - b) * m;
             }
         }
+
+        // ── volcanoes, rivers and resource fields ───────────────────────
+
+        private double _land, _mtn, _tint;
+        /// <summary>The resource field at the last point asked about (index into <see cref="Fields"/>), or -1.</summary>
+        public int LastField { get; private set; }
+        /// <summary>True: every field lights up in its own colour, buried ones too (the resource view).</summary>
+        public readonly bool ResourceView;
+        /// <summary>Coal, oil and gas are made from buried life, so they appear only once life has lived and died on this world.</summary>
+        public bool LifeHasLived = false;
+
+        public sealed class FieldKind { public string Id, Name, Where; public float R, G, B; public bool Buried; }
+        public static readonly List<FieldKind> Fields = new List<FieldKind>();
+
+        // the colour each field shows in the resource view, and whether it is buried out of sight
+        private static readonly string[] FieldIds = { "ocean-water", "volcanic-sulfide", "epithermal", "porphyry", "orogenic-gold", "skarn", "pegmatite",
+            "placer", "evaporite", "laterite", "banded-iron", "kimberlite", "layered-intrusion", "coal", "oil-gas", "sediment-copper", "ice-field" };
+        private static readonly float[,] FieldColour = { { 0.2f, 0.5f, 1f }, { 1f, 0.92f, 0.1f }, { 1f, 0.6f, 0.1f }, { 0.2f, 0.95f, 0.6f }, { 1f, 0.75f, 0f },
+            { 0.75f, 0.4f, 1f }, { 1f, 0.5f, 0.8f }, { 1f, 0.88f, 0.45f }, { 1f, 1f, 1f }, { 0.95f, 0.32f, 0.12f }, { 0.8f, 0.1f, 0.1f }, { 0.45f, 0.9f, 1f },
+            { 0.65f, 0.65f, 0.25f }, { 0.55f, 0.55f, 0.58f }, { 0.95f, 0.2f, 0.95f }, { 0.2f, 0.75f, 0.25f }, { 0.75f, 0.97f, 1f } };
+        private static readonly bool[] FieldBuried = { false, false, false, true, false, true, true, false, false, false, false, true, true, true, true, true, false };
+
+        /// <summary>Reads every field's name and where it is found from content/resource-fields.dnat.</summary>
+        public static void LoadFields(ContentLibrary content)
+        {
+            if (Fields.Count > 0) return;
+            for (int i = 0; i < FieldIds.Length; i++)
+            {
+                var k = new FieldKind { Id = FieldIds[i], Name = FieldIds[i], Where = "", R = FieldColour[i, 0], G = FieldColour[i, 1], B = FieldColour[i, 2], Buried = FieldBuried[i] };
+                foreach (var e in content.Entries)
+                    if (e.Id == FieldIds[i] && (e.Kind == "deposit" || e.Kind == "field")) { k.Name = e.Name; k.Where = e.Get("where", e.Get("says", "")); }
+                Fields.Add(k);
+            }
+        }
+
+        private static int FieldIndex(string id) { return Array.IndexOf(FieldIds, id); }
+
+        private struct Volcano { public double X, Y, Z, Size, Tall; public bool Active; }
+        private Volcano[] _volcanoes;
+
+        private void MakeVolcanoes()
+        {
+            int count;
+            switch (Kind) { case "lava": count = 60; break; case "desert": count = 12; break; case "snowball": count = 8; break; case "ocean": count = 22; break; default: count = 30; break; }
+            var rng = new Rng(_seed ^ 0xF1AEUL);
+            var list = new List<Volcano>();
+            for (int tries = 0; tries < 4000 && list.Count < count; tries++)
+            {
+                double u = rng.NextDouble() * 2 - 1, a = rng.NextDouble() * Math.PI * 2, rr = Math.Sqrt(1 - u * u);
+                double x = Math.Cos(a) * rr, y = u, z = Math.Sin(a) * rr;
+                float r0, g0, b0, gl0;
+                double h0 = HeightBase(x, y, z, 6, out r0, out g0, out b0, out gl0);
+                // volcanoes rise where plates meet (the mountain belts) and on hot spots; on wet worlds some are islands
+                bool belt = _mtn > 0.15, hotspot = rng.NextDouble() < 0.25;
+                if (!belt && !hotspot) continue;
+                if (h0 < -2.5 && Kind != "ocean") continue;
+                list.Add(new Volcano { X = x, Y = y, Z = z, Size = (Kind == "lava" ? 0.012 : 0.007) * (0.6 + rng.NextDouble()) * 6371 / Radius,
+                    Tall = Kind == "lava" ? 3 + rng.NextDouble() * 6 : 2 + rng.NextDouble() * 4, Active = Kind == "lava" || rng.NextDouble() < 0.4 });
+            }
+            _volcanoes = list.ToArray();
+        }
+
+        private double _volcano, _vent, _river; private bool _activeVent;
+
+        private double Landforms(double x, double y, double z, double h, int layers, ref float r, ref float g, ref float b, ref float glow)
+        {
+            if (_volcanoes == null) MakeVolcanoes();
+            _volcano = 0; _vent = 0; _activeVent = false;
+            foreach (var v in _volcanoes)
+            {
+                double d = 1 - (x * v.X + y * v.Y + z * v.Z);           // about half the angle squared: cheap and smooth
+                double s2 = v.Size * v.Size * 0.5;
+                if (d > s2 * 9) continue;
+                double t = Math.Sqrt(d / s2);                          // 0 at the top, 1 at the foot
+                if (t < 1)
+                {
+                    double cone = Math.Pow(1 - t, 1.6) * v.Tall;
+                    double crater = t < 0.12 ? (0.12 - t) / 0.12 * v.Tall * 0.25 : 0;
+                    h = Math.Max(h, h * (1 - (1 - t)) + cone - crater);
+                    if (1 - t > _volcano) { _volcano = 1 - t; _vent = t < 0.12 ? 1 - t / 0.12 : 0; _activeVent = v.Active; }
+                }
+                else if (3 - t > 0 && (3 - t) / 2 * 0.3 > _volcano) _volcano = (3 - t) / 2 * 0.3;   // the field of ash and hot springs around it
+            }
+            if (_volcano > 0.05)
+            {
+                // dark ash and lava rock on the slopes; a glowing crater if it is active
+                float m = (float)Math.Min(1, _volcano * 1.5);
+                r += (0.2f - r) * m; g += (0.18f - g) * m; b += (0.17f - b) * m;
+                if (_vent > 0 && _activeVent) { r = 1f; g = 0.42f; b = 0.08f; glow = 0.9f; }
+            }
+            // rivers: thin winding channels through the lowlands, running toward the sea
+            _river = 0;
+            if (h > 0.02 && h < 2.2 && Kind != "lava" && Kind != "snowball")
+            {
+                double line = 1 - Math.Abs(Fbm(x, y, z, _seed + 4000u, 22, 3 + Math.Min(Math.Max(0, layers - 6), 6)) * 2 - 1);
+                double width = 0.988 - 0.004 * Smooth(0, 2, h);
+                if (line > width)
+                {
+                    _river = (line - width) / (1 - width);
+                    h -= 0.03 + 0.05 * _river;
+                    if (Kind == "desert") { r = 0.7f; g = 0.55f; b = 0.38f; }            // dry river beds
+                    else { r = 0.1f; g = 0.3f; b = 0.5f; }                                  // river water
+                }
+                else if (line > width - 0.006) _river = -1;                               // the river banks
+            }
+            return h;
+        }
+
+        private bool Spot(double x, double y, double z, int id, double freq, double above)
+        {
+            return Fbm(x, y, z, _seed + 6000u + (uint)id * 97u, freq, 3) > above;
+        }
+
+        /// <summary>Which resource field is here, by real geology, and what it looks like where it shows at the surface.</summary>
+        private int ClassifyField(double x, double y, double z, double h, int layers, ref float r, ref float g, ref float b, ref float glow)
+        {
+            double lat = Math.Abs(y), land = _land, mtn = _mtn;
+            if (HasWater && h < -0.0001 && lat < 0.9) return FieldIndex("ocean-water");
+            if (lat > 0.86 + 0.05 * _tint || Kind == "snowball" && h <= 0.0001) return FieldIndex("ice-field");
+            if (_vent > 0.3) { r = 0.95f; g = 0.85f; b = 0.15f; if (_activeVent) { r = 1f; g = 0.42f; b = 0.08f; } return FieldIndex("volcanic-sulfide"); }   // yellow sulfur crust
+            if (_volcano > 0.25) { if (Spot(x, y, z, 2, 30, 0.55)) { r = 0.85f; g = 0.55f; b = 0.2f; } return FieldIndex("epithermal"); }   // hot-spring stains
+            if (_river < 0) { if (Spot(x, y, z, 7, 200, 0.62)) { r = 0.9f; g = 0.78f; b = 0.3f; } return FieldIndex("placer"); }   // glints of gold in the banks
+            if (_volcano > 0.05 && mtn > 0.1) return FieldIndex("porphyry");
+            if (mtn > 0.3)
+            {
+                if (Spot(x, y, z, 4, 40, 0.6)) { if (Spot(x, y, z, 40, 900, 0.7)) { r = 0.95f; g = 0.8f; b = 0.25f; } return FieldIndex("orogenic-gold"); }   // quartz veins with gold
+                if (Spot(x, y, z, 5, 35, 0.64)) { r = 0.3f; g = 0.55f; b = 0.45f; return FieldIndex("skarn"); }        // green copper stains
+                if (Spot(x, y, z, 6, 50, 0.66)) return FieldIndex("pegmatite");
+            }
+            bool dry = Kind == "desert" || Kind == "tidally-locked";
+            if (dry && h < -0.8) return FieldIndex("evaporite");                                      // the salt flats (already white)
+            if (!dry && h > 0 && h < 0.06 && lat < 0.45 && Spot(x, y, z, 8, 25, 0.62)) { r = 0.93f; g = 0.92f; b = 0.88f; return FieldIndex("evaporite"); }   // salt pans by the sea
+            if (Kind == "temperate" || Kind == "ocean")
+                if (lat < 0.32 && h > 0.04 && h < 1.2 && mtn < 0.15) { r = 0.62f; g = 0.26f; b = 0.14f; return FieldIndex("laterite"); }   // red tropical soil
+            if (land > 0.25 && mtn < 0.08)
+            {
+                if (Spot(x, y, z, 10, 18, 0.6))
+                {
+                    double band = Math.Sin(Fbm(x, y, z, _seed + 77u, 300, 3) * 60) * 0.5 + 0.5;            // red and grey stripes
+                    if (band > 0.5) { r = 0.55f; g = 0.2f; b = 0.15f; } else { r = 0.4f; g = 0.38f; b = 0.38f; }
+                    return FieldIndex("banded-iron");
+                }
+                if (Spot(x, y, z, 11, 60, 0.74)) { r = 0.3f; g = 0.36f; b = 0.38f; return FieldIndex("kimberlite"); }   // blue-grey pipe rock
+                if (Spot(x, y, z, 12, 20, 0.68)) return FieldIndex("layered-intrusion");
+            }
+            if (h > -0.4 && h < 0.7 && mtn < 0.12)
+            {
+                // coal, oil and gas form only from buried dead life: none until life has lived and died here
+                if (LifeHasLived && Spot(x, y, z, 14, 14, 0.6)) { if (h > 0 && Spot(x, y, z, 41, 400, 0.72)) { r = 0.06f; g = 0.05f; b = 0.05f; } return FieldIndex("oil-gas"); }   // black seeps
+                if (LifeHasLived && h > 0 && Spot(x, y, z, 13, 16, 0.6)) return FieldIndex("coal");
+                if (Spot(x, y, z, 15, 22, 0.66)) return FieldIndex("sediment-copper");
+            }
+            return -1;
+        }
+
+        private void ViewColour(int field, double h, ref float r, ref float g, ref float b, ref float glow)
+        {
+            if (field < 0) { float grey = (r + g + b) / 3 * 0.35f; r = g = b = grey; glow = 0; return; }   // no field: dim grey
+            r = FieldColour[field, 0]; g = FieldColour[field, 1]; b = FieldColour[field, 2]; glow = 0.55f;  // lit even at night
+        }
+
+        /// <summary>Where on the planet a field of this kind can be found (unit direction), searching from a seed.</summary>
+        public bool FindField(int field, int start, out double x, out double y, out double z)
+        {
+            var rng = new Rng(_seed ^ (ulong)(field * 7919 + start * 104729));
+            for (int i = 0; i < 20000; i++)
+            {
+                double u = rng.NextDouble() * 2 - 1, a = rng.NextDouble() * Math.PI * 2, rr = Math.Sqrt(1 - u * u);
+                x = Math.Cos(a) * rr; y = u; z = Math.Sin(a) * rr;
+                if (x * StarDir[0] + y * StarDir[1] + z * StarDir[2] < 0.35 && i < 15000) continue;   // a sunlit example
+                float r0, g0, b0, gl0;
+                Height(x, y, z, 10, out r0, out g0, out b0, out gl0);
+                if (LastField == field) return true;
+            }
+            x = y = 0; z = 1; return false;
+        }
+
+        /// <summary>The field under a unit direction (with full detail).</summary>
+        public int FieldAt(double x, double y, double z) { float r, g, b, gl; Height(x, y, z, 20, out r, out g, out b, out gl); return LastField; }
 
         private static double Smooth(double a, double b, double v) { double t = Math.Max(0, Math.Min(1, (v - a) / (b - a))); return t * t * (3 - 2 * t); }
 
@@ -482,7 +672,7 @@ namespace DnaAnd.Gen
                 DrawList(pipes.Clear, 3, camX, camY, camZ, Mat4.Identity, viewRot, proj, lx, ly, lz, fogDist, fr, fg, fb, x, y, w, h);
             }
             // the clouds: a slowly turning layer, drawn in its own turned frame
-            if (HasClouds)
+            if (HasClouds && !(ResourceView && Solid))   // the resource view hides the clouds so every field shows
             {
                 double ang = CloudTurn(time), ca = Math.Cos(ang), sa = Math.Sin(ang);
                 double kx = camX * ca - camZ * sa, kz = camX * sa + camZ * ca;            // the camera, turned back into the clouds' frame

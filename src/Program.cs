@@ -13,7 +13,7 @@ namespace DnaAnd
         private static int Main(string[] args)
         {
             // --smoke <ms>: a timed test run that closes itself after <ms> milliseconds.
-            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int openSet = 0; int testPlanet = -1; double testAlt = -1; double[] tour = null; int tourStep = 0; string tourName = "tour"; double shotAt = -1; string shotPath = null; int testSpeed = -1; double tryEvery = -1;
+            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int openSet = 0; int testPlanet = -1; int testJumps = 0; bool testFieldView = false; double testAlt = -1; double[] tour = null; int tourStep = 0; string tourName = "tour"; double shotAt = -1; string shotPath = null; int testSpeed = -1; double tryEvery = -1;
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i] == "--smoke" && i + 1 < args.Length) int.TryParse(args[i + 1], out smokeMs);
@@ -24,6 +24,9 @@ namespace DnaAnd
                 if (args[i] == "--set2") openSet = 2;       // open one sample set on its own
                 if (args[i] == "--set3") openSet = 3;
                 if (args[i] == "--set4") openSet = 4;
+                if (args[i] == "--set5") openSet = 5;
+                if (args[i] == "--jump" && i + 1 < args.Length) int.TryParse(args[i + 1], out testJumps);   // fly to the Nth kind of field
+                if (args[i] == "--fieldview") testFieldView = true;
                 if (args[i] == "--planet" && i + 1 < args.Length) int.TryParse(args[i + 1], out testPlanet);
                 if (args[i] == "--tour" && i + 2 < args.Length)   // --tour <name> <km,km,...>: pictures at each height, 4 s apart
                 {
@@ -62,6 +65,7 @@ namespace DnaAnd
             {
                 pipeline = new BillboardPipeline(gpu.Device);
                 meshes = new MeshPipes(gpu, pipeline.RootSignature);
+                DnaAnd.Gen.PlanetTerrain.LoadFields(content);
                 viewer = new SampleViewer(gpu, pipeline, meshes, content, 20261105UL);
             }
             catch (Exception ex) { WriteLog("setup error · " + ex.Message); gpu.Dispose(); window.Close(); return 2; }
@@ -74,7 +78,7 @@ namespace DnaAnd
             DeepView deep = null;
             PlanetView planet = null;
             if (openSet > 0) viewer.ShowSet(openSet);
-            if (testPlanet >= 0) { planet = new PlanetView(gpu, meshes, pipeline, viewer.TerrainAt(testPlanet)); if (testAlt > 0) planet.SetAltitude(testAlt); }
+            if (testPlanet >= 0) { planet = new PlanetView(gpu, meshes, pipeline, viewer.TerrainAt(testPlanet), viewer.FieldTerrainAt(testPlanet), viewer.Set == 5 || testFieldView); for (int k = 0; k < testJumps; k++) planet.JumpToNextField(); if (testAlt > 0) planet.SetAltitude(testAlt); }
             if (testDeep >= 0) deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(testDeep), viewer.NameOf(testDeep), Seed + (ulong)testDeep * 7919UL);
             while (window.Pump())
             {
@@ -88,7 +92,7 @@ namespace DnaAnd
                 bool askNow = false;
                 if (cmd == Window.CmdExit) { endReason = "closed with the Exit button"; window.Close(); }
                 else if (cmd == Window.CmdAskNow) askNow = true;
-                else if (cmd == Window.CmdLegend) window.Tell(viewer.Legend(), "DNA-AND · Legend");
+                else if (cmd == Window.CmdLegend) window.Tell(planet != null ? planet.Legend() : viewer.Legend(), "DNA-AND · Legend");
                 else if (cmd == Window.CmdClearMarks) { viewer.ClearMarks(); menuDirty = true; }
                 else if (cmd >= Window.CmdKeeperBase && cmd < Window.CmdKeeperBase + 9) { viewer.ToggleMark(cmd - Window.CmdKeeperBase); menuDirty = true; }
                 // keep-or-revert safety pop-up: Yes keeps the test going, No or no answer in 15 s closes it safely
@@ -113,10 +117,11 @@ namespace DnaAnd
                 {
                     viewer.Update(window.Input, clock.Delta);
                     if (window.Input.RightClicked) { viewer.ToggleMark(window.Input.MouseX, window.Input.MouseY, window.Width, window.Height); menuDirty = true; }
-                    else if ((window.Input.LeftClicked || window.Input.Wheel > 0) && viewer.Set == 4)
+                    else if ((window.Input.LeftClicked || window.Input.Wheel > 0) && (viewer.Set == 4 || viewer.Set == 5))
                     {
                         int col = Math.Max(0, Math.Min(2, window.Input.MouseX / Math.Max(1, window.Width / 3)));
-                        planet = new PlanetView(gpu, meshes, pipeline, viewer.TerrainAt(viewer.RowAt(window.Input.MouseY, window.Height) * 3 + col));
+                        int pick = viewer.RowAt(window.Input.MouseY, window.Height) * 3 + col;
+                        planet = new PlanetView(gpu, meshes, pipeline, viewer.TerrainAt(pick), viewer.FieldTerrainAt(pick), viewer.Set == 5);
                     }
                     else if (window.Input.LeftClicked && viewer.Set == 2) viewer.PickFocus(window.Input.MouseX, window.Input.MouseY, window.Width, window.Height);
                     else if (window.Input.LeftClicked && viewer.Set == 1)

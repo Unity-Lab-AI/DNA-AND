@@ -19,7 +19,7 @@ namespace DnaAnd.Shell
         private readonly BillboardDrawer _drawer;
         private float _yaw, _zoom = 1f;
         public int Set { get; private set; }
-        private readonly bool[,] _marks = new bool[5, 9];   // [set, row*3+col]: the samples marked good
+        private readonly bool[,] _marks = new bool[6, 9];   // [set, row*3+col]: the samples marked good
         private static readonly string[] StyleNames = { "", "Populous-like", "" };   // only the middle place is used: the earlier picks were made there
         private const int FrameDots = 48;
         private UploadBuffer _frameBuf;
@@ -51,12 +51,16 @@ namespace DnaAnd.Shell
         private readonly UploadBuffer[] _planetStatic = new UploadBuffer[9];
         private readonly int[] _planetStaticCount = new int[9];
         private readonly MeshPipes _pipes;
-        public PlanetTerrain TerrainAt(int i) { return _terrains[i]; }                                  // set 2 zooms from the whole system down to one planet
+        private readonly PlanetTerrain[] _fieldTerrains = new PlanetTerrain[9];
+        public PlanetTerrain TerrainAt(int i) { return _terrains[i]; }
+        public PlanetTerrain FieldTerrainAt(int i) { return _fieldTerrains[i]; }                                  // set 2 zooms from the whole system down to one planet
 
         public string Title
         {
             get
             {
+                if (Set == 5)
+                    return "DNA-AND samples · Set 5: Resource fields (every field lit in its own colour) · click or roll the wheel on a world to fly down · Legend for colours · right-click marks a keeper";
                 if (Set == 4)
                     return "DNA-AND samples · Set 4: Planets and gas giants (Populous-like) · see the Legend menu for which is which · right-click marks a keeper";
                 if (Set == 3)
@@ -119,6 +123,7 @@ namespace DnaAnd.Shell
             {
                 PlanetRings surf = PlanetGen.Build(content, PlanetIds[i], seed * 37UL + (ulong)i, out _planetNames[i]);
                 _terrains[i] = new PlanetTerrain(gpu.Device, PlanetIds[i], _planetNames[i], (uint)(seed * 41UL + (ulong)i));
+                _fieldTerrains[i] = new PlanetTerrain(gpu.Device, PlanetIds[i], _planetNames[i], (uint)(seed * 41UL + (ulong)i), true);
                 // the rings, scaled to the planet's real size in km (the air is now drawn as a glowing shell by the planet itself)
                 var all = new System.Collections.Generic.List<StarVertex>();
                 for (int k = 0; k < surf.Points.Count; k++) all.Add(SpaceGen.Star(surf.Points[k], 0.02f, 0.85f, 0.78f, 0.62f, surf.Shade[k]));
@@ -152,7 +157,7 @@ namespace DnaAnd.Shell
         {
             if (Set == 2) { DrawSystems(width, height, time); DrawMarks(width, height); return; }
             if (Set == 3) { DrawStars(width, height, time); DrawMarks(width, height); return; }
-            if (Set == 4) { DrawPlanets(width, height, time); DrawMarks(width, height); return; }
+            if (Set == 4 || Set == 5) { DrawPlanets(width, height, time); DrawMarks(width, height); return; }
             int tileH = height / 3;
             for (int row = 0; row < 3; row++)
             {
@@ -252,7 +257,7 @@ namespace DnaAnd.Shell
             int tileW = width / 3, tileH = height / 3;
             for (int i = 0; i < 9; i++)
             {
-                var t = _terrains[i];
+                var t = Set == 5 ? _fieldTerrains[i] : _terrains[i];
                 bool ringed = PlanetIds[i] == "gas-giant" || PlanetIds[i] == "ice-giant";
                 double R = t.Radius, dist = (ringed ? 5.4 : 3.3) * R;
                 // look from the lit side, a little off the line to the star, swaying gently
@@ -308,7 +313,7 @@ namespace DnaAnd.Shell
                 for (int r = 0; r < 3; r++) rows[r] = "Row " + (r + 1) + ": " + RowName(Set, r);
                 return rows;
             }
-            for (int i = 0; i < 9; i++) l[i] = Set >= 3 ? "Row " + (i / 3 + 1) + ", column " + (i % 3 + 1) + ": " + (Set == 3 ? _starNames[i] : _planetNames[i]) : "Row " + (i / 3 + 1) + ": " + RowName(Set, i / 3) + "  ·  column " + (i % 3 + 1) + ": " + StyleNames[i % 3];
+            for (int i = 0; i < 9; i++) l[i] = Set >= 3 ? "Row " + (i / 3 + 1) + ", column " + (i % 3 + 1) + ": " + (Set == 3 ? _starNames[i] : Set == 5 ? _planetNames[i] + " (fields)" : _planetNames[i]) : "Row " + (i / 3 + 1) + ": " + RowName(Set, i / 3) + "  ·  column " + (i % 3 + 1) + ": " + StyleNames[i % 3];
             return l;
         }
 
@@ -320,6 +325,18 @@ namespace DnaAnd.Shell
 
         public string Legend()
         {
+            if (Set == 5)
+            {
+                var fs = new System.Text.StringBuilder("Set 5 of 17: resource fields, on the same nine worlds\n\nThe AI species find and use resources. You are a god: you have no use for them.\n\nColours:\n");
+                string[] cn = { "blue", "yellow", "orange", "mint green", "gold", "purple", "pink", "pale gold", "white", "rust red", "dark red", "sky blue", "olive", "grey", "magenta", "green", "ice blue" };
+                for (int k = 0; k < PlanetTerrain.Fields.Count; k++)
+                {
+                    var f = PlanetTerrain.Fields[k];
+                    fs.Append("  [" + (k < cn.Length ? cn[k] : "?") + "] " + f.Name + (f.Buried ? " (buried)" : "") + (f.Id == "coal" || f.Id == "oil-gas" ? " (made from buried life: none until life has lived here)" : "") + (f.Where.Length > 0 ? ": " + f.Where : "") + "\n");
+                }
+                fs.Append("\nDim grey: no field.\n\nControls:\n  Left-click a world, or roll the wheel over it: fly down to it (Esc comes back here)\n  In the fly-down: R switches the resource view, N flies to the next kind of field\n  Right-click a sample: mark or unmark it as a keeper\n  Exit menu or Esc: close the game");
+                return fs.ToString();
+            }
             if (Set >= 3)
             {
                 var st = new System.Text.StringBuilder(Set == 3 ? "Set 3 of 17: stars, all in the game's style (Populous-like)\n\n" : "Set 4 of 17: planets and gas giants, all in the game's style (Populous-like)\n\n");
@@ -347,6 +364,7 @@ namespace DnaAnd.Shell
         {
             if (set == 3) return _starNames[i] + " | Populous-like";
             if (set == 4) return _planetNames[i] + " | Populous-like";
+            if (set == 5) return _planetNames[i] + " fields | Populous-like";
             return RowName(set, i / 3) + " | " + StyleNames[i % 3];
         }
 
@@ -356,7 +374,7 @@ namespace DnaAnd.Shell
             try
             {
                 var lines = new System.Collections.Generic.List<string>();
-                for (int set = 1; set <= 4; set++)
+                for (int set = 1; set <= 5; set++)
                     for (int i = 0; i < 9; i++)
                         if (_marks[set, i]) lines.Add("set " + set + " | " + SampleName(set, i));
                 System.IO.File.WriteAllLines("picks.txt", lines.ToArray());
@@ -373,7 +391,7 @@ namespace DnaAnd.Shell
                 {
                     var parts = line.Split('|');
                     if (parts.Length != 3) continue;
-                    int set; if (!int.TryParse(parts[0].Trim().Replace("set ", ""), out set) || set < 1 || set > 4) continue;
+                    int set; if (!int.TryParse(parts[0].Trim().Replace("set ", ""), out set) || set < 1 || set > 5) continue;
                     for (int i = 0; i < 9; i++)
                         if (SampleName(set, i) == parts[1].Trim() + " | " + parts[2].Trim()) _marks[set, i] = true;
                 }
@@ -419,6 +437,7 @@ namespace DnaAnd.Shell
             foreach (var b in _surfBufs) if (b != null) b.Dispose();
             foreach (var b in _planetStatic) if (b != null) b.Dispose();
             foreach (var t in _terrains) if (t != null) t.Dispose();
+            foreach (var t in _fieldTerrains) if (t != null) t.Dispose();
         }
     }
 }

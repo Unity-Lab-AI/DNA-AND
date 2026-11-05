@@ -634,3 +634,6 @@ Everything the creator has said about this project, in order. Short process repl
     - The RimWorld-like and Stardew-like styles were removed from the code, including the shader and the sample grids. Sets 1 and 2 now show one Populous-like view per row.
     - The old dotted-planet code was removed.
     - Only the keepers were pictured again, into `docs/samples/`, then pushed.
+78. **Resource fields meaning:** "when i said fields i meant areas like water in an ocean ore in rock chemicals near volcanos, for everything". A resource field is the place where a resource is naturally found on a world: water in oceans, ore in rock, chemicals near volcanoes. This holds for every resource.
+79. **Resource fields shown two ways:** "option 2 and remember its the ai s that use the resources to play ur just a God and have no use for resources". Every field is a real visible feature on the ground, and a resource view (a key) lights every field in its own colour, buried ones too, with a list of the colours. The AI species use resources. The player is a god and has no use for them.
+80. Coal, oil and gas come only from buried dead life, so they appear only after life has lived and died on a world. Today's lifeless sample worlds have none.

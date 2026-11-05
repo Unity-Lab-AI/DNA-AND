@@ -14,7 +14,9 @@ namespace DnaAnd.Shell
 {
     internal sealed class PlanetView : IDisposable
     {
-        private readonly PlanetTerrain _terrain;
+        private PlanetTerrain _terrain;                        // the one being shown
+        private readonly PlanetTerrain _normal, _fields;       // the planet as it looks, and the same planet in the resource view
+        private int _jumpField = -1, _jumpCount;
         private readonly MeshPipes _pipes;
         private readonly BillboardDrawer _dots;
         private double _lat, _lon, _heading;       // where the camera is over the planet, and which way it faces
@@ -29,9 +31,11 @@ namespace DnaAnd.Shell
         private readonly UploadBuffer _dropBuf;
         private readonly Rng _rng = new Rng(77);
 
-        public PlanetView(Gpu gpu, MeshPipes pipes, BillboardPipeline dots, PlanetTerrain terrain)
+        public PlanetView(Gpu gpu, MeshPipes pipes, BillboardPipeline dots, PlanetTerrain normal, PlanetTerrain fields, bool startInFieldView)
         {
-            _terrain = terrain; _pipes = pipes;
+            _normal = normal; _fields = fields; _pipes = pipes;
+            var terrain = startInFieldView ? fields : normal;
+            _terrain = terrain;
             _dots = new BillboardDrawer(gpu.CommandList, dots);
             _dropBuf = new UploadBuffer(gpu.Device, (long)Drops * Marshal.SizeOf(typeof(StarVertex)));
             for (int i = 0; i < Drops; i++) { _dx[i] = _rng.NextDouble() * 2 - 1; _dy[i] = _rng.NextDouble() * 2 - 1; _dz[i] = _rng.NextDouble() * 2 - 1; }
@@ -42,6 +46,39 @@ namespace DnaAnd.Shell
         }
 
         public void SetAltitude(double km) { _alt = Math.Max(_minAlt, km); }
+
+        /// <summary>Flies to an example of the next kind of resource field, 2 km above it.</summary>
+        public void JumpToNextField()
+        {
+            for (int k = 0; k < PlanetTerrain.Fields.Count; k++)
+            {
+                _jumpField = (_jumpField + 1) % PlanetTerrain.Fields.Count;
+                double x, y, z;
+                if (_normal.FindField(_jumpField, _jumpCount++, out x, out y, out z))
+                {
+                    _lat = Math.Asin(Math.Max(-1, Math.Min(1, y))); _lon = Math.Atan2(z, x); _alt = 2;
+                    return;
+                }
+            }
+        }
+
+        /// <summary>What each colour means in the resource view, and the keys.</summary>
+        public string Legend()
+        {
+            var sb = new System.Text.StringBuilder(_terrain.Name + " · resource fields\n\nThe AI species find and use these. You are a god: you have no use for them.\n\n");
+            foreach (var f in PlanetTerrain.Fields)
+                sb.Append("  " + ColourName(f) + "  " + f.Name + (f.Buried ? " (buried)" : "") + (f.Id == "coal" || f.Id == "oil-gas" ? " (made from buried life: none until life has lived here)" : "") + (f.Where.Length > 0 ? ": " + f.Where : "") + "\n");
+            sb.Append("\nKeys:\n  R: resource view on or off\n  N: fly to the next kind of field\n  Mouse wheel: closer and further · drag or W A S D: move · Q E: turn\n  Esc: back");
+            return sb.ToString();
+        }
+
+        private static string ColourName(PlanetTerrain.FieldKind f)
+        {
+            // a plain name for each colour, so the list can be read without seeing it
+            string[] names = { "blue", "yellow", "orange", "mint green", "gold", "purple", "pink", "pale gold", "white", "rust red", "dark red", "sky blue", "olive", "grey", "magenta", "green", "ice blue" };
+            int i = PlanetTerrain.Fields.IndexOf(f);
+            return "[" + (i >= 0 && i < names.Length ? names[i] : "?") + "]";
+        }
 
         private static string Size(double km)
         {
@@ -54,7 +91,7 @@ namespace DnaAnd.Shell
             return (m * 1e6).ToString("0.0") + " micrometres";
         }
 
-        private bool _underWater, _overSea; private double _waterDepth;
+        private bool _underWater, _overSea; private double _waterDepth; private int _fieldHere = -1;
         private double _shown = 1e9;   // the height actually used this frame (never below finished ground)
 
         public string Title
@@ -62,9 +99,11 @@ namespace DnaAnd.Shell
             get
             {
                 string where = _underWater ? " · under water, " + Size(_waterDepth) + " below the surface" : "";
+                if (_terrain.Solid && _fieldHere >= 0) where += " · field here: " + PlanetTerrain.Fields[_fieldHere].Name;
+                if (_terrain == _fields) where += " · RESOURCE VIEW (R to switch off, Legend for colours)";
                 string loading = _shown > _alt * 1.01 ? " (finer ground still forming: going down to " + Size(_alt) + ")" : "";
                 return "DNA-AND · " + _terrain.Name + " · " + Size(_shown) + loading + " above the " + (_terrain.Solid ? (_overSea ? "sea floor" : "ground") : "deep cloud tops") + where +
-                       (_terrain.Solid ? "" : " (a giant has no ground)") + " · wheel: closer and further · drag or W A S D: move · Q E: turn · Esc: back";
+                       (_terrain.Solid ? "" : " (a giant has no ground)") + " · wheel: closer and further · drag or W A S D: move · Q E: turn · R: resource view · N: next field · Esc: back";
             }
         }
 
@@ -73,6 +112,8 @@ namespace DnaAnd.Shell
         {
             _time += dt;
             if (input.WasPressed(Win32.VK_ESCAPE) || input.WasPressed(0x08) || input.RightClicked) return false;
+            if (input.WasPressed(0x52) && _terrain.Solid) _terrain = _terrain == _normal ? _fields : _normal;     // R: resource view on or off
+            if (input.WasPressed(0x4E) && _terrain.Solid) JumpToNextField();                                       // N: go to the next kind of field
             if (input.Wheel != 0) _alt = Math.Max(_minAlt, Math.Min(_terrain.Radius * 4, _alt * Math.Pow(0.7, input.Wheel)));
             double R = _terrain.Radius;
             double step = (_alt + 1e-9) / R;                               // ground speed grows with height
@@ -102,6 +143,7 @@ namespace DnaAnd.Shell
             double ux = Math.Cos(_lat) * Math.Cos(_lon), uy = Math.Sin(_lat), uz = Math.Cos(_lat) * Math.Sin(_lon);
             // the camera always sits on top of the solid ground (the sea floor under water): it lands, it never sinks in
             double ground = _terrain.GroundAt(ux, uy, uz);
+            _fieldHere = _terrain.Solid ? _terrain.LastField : -1;
             // land on finished ground: while finer ground is still being made, stay a few of its steps above it
             if (_terrain.ReadyStep < double.MaxValue) _shown = Math.Max(_alt, _terrain.ReadyStep * 3); else _shown = _alt;
             double camR = R + ground + _shown;
