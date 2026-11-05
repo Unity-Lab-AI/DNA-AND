@@ -115,6 +115,8 @@ Every kind of life climbs the same **100-step grouping ladder**, from one lone c
 | 🌳 | Seedling → grove → forest → root network → a forest that thinks |
 | 🦠 | Cell → colony → mat → reef → living superorganism |
 
+What they build looks like them: **insect species build insect cities and fly insect spaceships**. Every city, ship and station is generated from the species that builds it.
+
 Species **mix** like real life: they team up, tame, farm, parasitize, conquer, enslave and merge.
 
 👉 [Groups & Flocking](docs/wiki/groups-and-flocking.md "The 100-step grouping ladder")

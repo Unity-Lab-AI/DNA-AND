@@ -15,6 +15,7 @@
 |---|---|
 | 🧠 **They start with intelligence** | Ages open once life reaches the thinking stages in [Stages of Life](stages-of-life.md "100 stages from chemistry to spacefaring"). |
 | 🤏 **You only nudge** | You never pick a civilization's next tech. You have [100 ways to nudge](nudges.md "100 ways to nudge civilization") them. They choose. |
+| 🐜 **Built in their own image** | Cities, buildings and machines are generated from the species that builds them. An insect species builds insect cities. |
 | 🗳️ **100 kinds of society** | How they rule, trade, live, believe and keep order. See [Society](society.md "100 kinds of society"). |
 | 🔁 **Real history order** | On Earth, the ages follow how real human history unfolded. |
 | 🐺 **Any species** | Wolf-folk, bird-folk and hive minds climb the ages too, each in its own way. See [Groups & Flocking](groups-and-flocking.md "All things flock together"). |
