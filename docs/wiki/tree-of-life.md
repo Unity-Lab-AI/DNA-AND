@@ -187,7 +187,7 @@ Life
 | **Birds** | Every bird |
 | **Mammals** | Every mammal |
 
-Below each class come its **orders → families → genera → species**, each tracked 100 deep. The real seeds for every rank live in the game's content files (`content/life/`).
+Below each class come its **orders → families → genera → species**, each tracked 100 deep. Every rank starts from real-world life, and the game invents the rest.
 
 ---
 

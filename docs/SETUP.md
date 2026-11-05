@@ -67,4 +67,4 @@ Download the newer `DNA-AND-Setup.exe` and run it. It installs over the old vers
 
 ---
 
-📖 Next: the player wiki in `docs/wiki/` · 🛠️ Building from source: [HOW-TO-BUILD.md](HOW-TO-BUILD.md)
+📖 Next: the [Player Wiki](wiki/README.md "Every system, explained") · 🛠️ Building from source: [How to Build](HOW-TO-BUILD.md "Build DNA-AND from source")

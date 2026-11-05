@@ -251,7 +251,7 @@ Speech (5) ─ Spirit (11) ─ Bands (12) ─ Chiefdoms (20) ─ Kingdoms (26)
 
 > *At first, you gather [Souls](glossary.md#souls "The energy you spend on god powers") yourself. It's slow, and if they see you, it scares them. Then they learn to do it for you.*
 
-This is decided: later in the game, intelligent life uses its own powers to harvest life for you. In the endgame, harvesting life for its own needs becomes intelligent life's goal. Like a virus, it spreads, uses up nutrients and resources, and has to keep spreading.
+Later in the game, intelligent life uses its own powers to harvest life for you. In the endgame, harvesting life for its own needs becomes intelligent life's goal. Like a virus, it spreads, uses up nutrients and resources, and has to keep spreading.
 
 ```
 Tamed wolves (13) ─ Farming (14) ─ Herding (15) ─ Irrigation (19)

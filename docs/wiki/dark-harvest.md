@@ -4,8 +4,6 @@
 
 > 🔞 **18+.** This page covers the cruelest ways intelligent life harvests life for you.
 
-> *"the intelligences goal is to harvest life for its needs and since all life is like a virus advanced forms seprad and use up avasil nutrientrs and resources and have to spread."*
-
 <!-- IMG: docs/img/dark-harvest-banner.png | A burning city at night under a blood-red sky, glowing souls streaming up from it toward the god's cursor -->
 > 🖼️ *A burning city under a red sky, souls streaming up toward the god's cursor* — rendered by the game's own 3D generator
 

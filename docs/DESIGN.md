@@ -431,6 +431,7 @@ These are the creator's working rules for this repo, each in his own words.
 | Star, not sun | "dont say cage a Sun thats a mis nomer its a star TheSun if a pronoun of our star" |
 | Docs are the spec | "topp -100 lists go only after a /superreview and/unity check that evrything ive said is proeprly done in all todo and docs everywhere as we havent done any code yet and are still do ing docs and making the work laws to use the fucking docs to write code when we do write code so todo needs work" (see `docs/WORK-LAWS.md`) |
 | No pre-built assets | "and what about haveing a "crature" city" space tech" generator for everything full on like array dynamic content generation on the fly in the game so we dont pre build and assets but the games program builds them as they get living" |
+| Public docs clean | "the wiki is public facing so it doesnt have work note and no public document shall have work note and numbers and stuff in them" (WORK-LAWS LAW 15) |
 | Everything is 100 | "i think i told you 100x everything, did you not properly understand what everything means and need to reassess what ive already told you?" |
 
 **In practice:**
@@ -494,3 +495,5 @@ Everything the creator has said about this project, in order. Short process repl
 41. **Space in full:** see "Round 16". "remebr space has all kind sof things for ort clouds to comets and merots hitting planets and astorid belts and nebulas andplanets of all makes ups with temp ranges that need different techs and inter solarystem flt hyperdrives for glaaxy to galaxty ect ect all planed out in all docs" / "resources and colinatzitions of other planets mining outsposert prison coloniers all of it"
 42. **Galaxy sizes:** "Fewer, every one detailed"
 43. **HUD:** see "Round 18". "and we havent talked about the hud much but it should be intrusive so the game window is as big as possible and everthing is click to open and click hold drag to move and everything is properly wow type of game paly action bar buiold your own with setting and wiki and you main curancy and coutnes and time at the header and all of that and things like the element tree and abilityis to add things liek them and water and head with painter tools and brush sizes unlockable as time goes on making things like harvest and powers effeect bigger areas as time goes on and life stpreads"
+44. "the wiki is public facing so it doesnt have work note and no public document shall have work note and numbers and stuff in them". Cleaned 37 work-note lines out of 14 public files, and added LAW 15.
+45. "and make that a law and build it inbto the docs". Built into WORK-LAWS (LAW 15, plus the before-push check), the builder wiki rules (`wiki/CLAUDE.md`), the TODO docs upkeep and the ROADMAP docs stage.

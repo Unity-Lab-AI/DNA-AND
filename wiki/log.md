@@ -57,3 +57,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — HUD
 
 - New player page hud.md: header bar, build-your-own action bar, drag panels, element tree, painter brushes that grow as life spreads. r13 spec updated.
+
+## 2026-11-05 — Public docs law
+
+- LAW 15: public docs carry no work notes. Public docs cleaned, and the rule was added to wiki/CLAUDE.md, the TODO upkeep and the before-push check.

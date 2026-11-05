@@ -15,8 +15,6 @@ DNA-AND has **100 god powers**. Every one has a use, a plus and a minus. None of
 
 You can't edit a creature. You can't place a species, pick its traits or tell a tribe what to do.
 
-> "no direct edit besids using powers to influence things to happen"
-
 You change the **world**, and life answers. Raise a mountain and the herds split. Flood a valley and the fish move in. Life decides what to do next, through its genes and through [evolution](genes-and-dna.md "Real-style DNA that mutates, mixes and gets passed on").
 
 Even the gene powers work this way. They push evolution and raise the odds. They never write the answer.
@@ -214,8 +212,6 @@ On a dead planet, on day one, you have:
 ---
 
 ## 🧭 Management Powers
-
-> *"help you manage it better"*
 
 | # | Power | What it does | ➕ Plus | ➖ Minus | Tier | Unlocks |
 |---|---|---|---|---|---|---|
