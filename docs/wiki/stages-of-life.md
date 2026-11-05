@@ -60,7 +60,7 @@
 | 16 | 🔥 | Vent Feeders | Cells live off chemicals from deep vents | Chemical food chains | Volcano (19) |
 | 17 | 🟫 | Microbial Mats | Cells stack into slimy carpets | First mats | Census (97) |
 | 18 | 🗿 | Stromatolites | Mats build rock towers in the shallows | First living reefs | Island (20) |
-| 19 | ☀️ | Early Photosynthesis | Cells catch starlight, no oxygen made yet | First starlight eaters | Sun (4) |
+| 19 | ☀️ | Early Photosynthesis | Cells catch starlight, no oxygen made yet | First starlight eaters | Starshine (4) |
 | 20 | 🌿 | Oxygen Makers | Blue-green bacteria split water and give off oxygen | Oxygen enters the sea | More Oxygen (31) |
 | 21 | 💨 | Great Oxidation | Oxygen floods the air, poisoning old life | Oxygen in the atmosphere | Less Oxygen (32) |
 | 22 | 🛡️ | Ozone Shield | Oxygen high up blocks the harshest starlight | Ozone layer forms | Ozone (38) |
@@ -141,7 +141,7 @@
 | # | | Stage | What happens | 🏁 Milestone | 🔓 Unlocks |
 |---|---|---|---|---|---|
 | 62 | 🥚 | Land Eggs | Eggs with shells that don't dry out | First land egg | Snow (12) |
-| 63 | 🦎 | Reptiles | Scaly animals spread far from water | First reptile | Sun+ (4) |
+| 63 | 🦎 | Reptiles | Scaly animals spread far from water | First reptile | Starshine+ (4) |
 | 64 | 🐊 | Mammal Ancestors | Sail-backed reptiles with mammal-like teeth | First synapsid | Season Shift (14) |
 | 65 | ☠️ | The Great Dying | Most life is wiped out. Survivors inherit the world | Life survives mass extinction | Climate Nudge (15) |
 | 66 | 🦕 | Dinosaurs | Giants take over the land | First dinosaur | Continental Drift (30) |
@@ -204,7 +204,7 @@
 | 95 | 🌾 | Farming | Seeds get planted on purpose | First farm | Golden Age, Dark Age (76, 77) |
 | 96 | 🏙️ | Cities | Thousands live in one place | First city | Rebellion (78) |
 | 97 | ✍️ | Writing | Words become marks that last | First writing | Ambition (80) |
-| 98 | 🏭 | Industry | Machines and engines | First factory | Solar Flare (81) |
+| 98 | 🏭 | Industry | Machines and engines | First factory | Stellar Flare (81) |
 | 99 | 🛰️ | Spaceflight | A machine reaches orbit | First orbit | Orbit Nudge, Star Brighten/Dim (87–89) |
 | 100 | 🪐 | Spacefarers | The species lives on another world | First off-world colony | Life Seed, Wormhole, and the rest of space (85, 90–95) |
 

@@ -91,3 +91,5 @@ Original TODO lines closed here, verbatim:
 - Regression checks: one regression was caught and fixed (tooltips dropped from footers). 58 files, 0 broken links. Counts confirmed: 100 stages, 100 ages, 100 powers, 118 elements.
 
 **Star, not sun.** Verbatim: "dont say cage a Sun thats a mis nomer its a star TheSun if a pronoun of our star". Every generic "sun", "sunlight" and "sunshine" in README, docs and wiki now says "star" or "starlight" (21 spots). Quotes are unchanged. Power #4 is still named "Sun", pending the creator's call.
+
+**Power renames.** Answer: "Starshine + Stellar Flare (Suggested)". Renamed #4 Sun → Starshine and #81 Solar Flare → Stellar Flare in POWERS, the wiki, stages, playthrough, space, the README and the builder wiki.
