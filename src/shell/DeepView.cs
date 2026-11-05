@@ -33,7 +33,7 @@ namespace DnaAnd.Shell
         /// <summary>The 3D planet being approached (made when a planet is picked; the planet view carries on with this same one).</summary>
         public PlanetTerrain FocusTerrain, FocusFields;
         private StarSurface _starSurface; private StarVertex[] _starCorona, _starSurfVerts; private UploadBuffer _starCoronaBuf, _starSurfBuf, _shineBuf;
-        private double _glideFromX, _glideFromY, _glideFromZ; private bool _gliding;
+        private double _glideFromX, _glideFromY, _glideFromZ; private bool _gliding; private double _glideStartDist = 3.5;
         private int _pendingStar = -1;              // the journey: the star being flown toward, opened once close enough
 
         /// <summary>The journey: aim at a Sun-like star out in the disc, so rolling the wheel in flies to it.</summary>
@@ -49,8 +49,27 @@ namespace DnaAnd.Shell
             }
             if (best < 0) return;
             _pendingStar = best;
-            _glideFromX = 0; _glideFromY = 0; _glideFromZ = 0; _gliding = true;   // start on the whole galaxy, glide toward the star as you zoom
+            _glideFromX = 0; _glideFromY = 0; _glideFromZ = 0; _gliding = true; _glideStartDist = 3.5;   // start on the whole galaxy, glide toward the star as you zoom
             _dist = 3.5;
+        }
+
+        /// <summary>In the galaxy: the star nearest the mouse becomes the one you fly to; the view glides toward it as you zoom in.</summary>
+        private void ClickStar(int mx, int my, int w, int h)
+        {
+            Mat4 vp = ViewProj(w, h);
+            float x = mx / (float)Math.Max(1, w) * 2 - 1, y = 1 - my / (float)Math.Max(1, h) * 2;
+            int best = -1; float bd = 0.03f;
+            for (int i = 0; i < _starsRel.Length; i++)
+            {
+                StarVertex v = _starsRel[i];
+                float cx = v.X * vp.M11 + v.Y * vp.M21 + v.Z * vp.M31 + vp.M41, cy = v.X * vp.M12 + v.Y * vp.M22 + v.Z * vp.M32 + vp.M42, cw = v.X * vp.M14 + v.Y * vp.M24 + v.Z * vp.M34 + vp.M44;
+                if (cw <= 0) continue;
+                float d = Math.Abs(cx / cw - x) + Math.Abs(cy / cw - y);
+                if (d < bd) { bd = d; best = i; }
+            }
+            if (best < 0) return;
+            _pendingStar = best; _glideFromX = _fx; _glideFromY = _fy; _glideFromZ = _fz; _gliding = true;
+            _glideStartDist = _dist;
         }
 
         private void OpenStar(int best)
@@ -133,6 +152,7 @@ namespace DnaAnd.Shell
             // in a solar system: click a planet or moon (or Tab for the next one) to centre on it; the wheel then flies to it
             if (_system != null && input.WasPressed(0x09)) PickBody((_focusBody + 2) % (_system.Bodies.Count + 1) - 1);
             if (_system != null && input.LeftClicked) ClickBody(input.MouseX, input.MouseY, w, h);
+            if (_system == null && input.LeftClicked) ClickStar(input.MouseX, input.MouseY, w, h);   // in the galaxy: any star can be picked
             if (input.LeftDown) { _yaw += input.MouseDX * 0.006f; _pitch = Math.Max(-1.5f, Math.Min(1.5f, _pitch + input.MouseDY * 0.006f)); }
             if (input.Wheel < 0 && _focusStar < 0 && _dist >= 3.99) { Ascend = true; return false; }     // out past the galaxy: back to the universe
             // zooming out lets go step by step: the planet, then the solar system, then the galaxy
@@ -142,12 +162,12 @@ namespace DnaAnd.Shell
                 if (_focusBody >= 0 && _dist > outer * 1.5) { _focusBody = -1; }
                 else if (_focusBody < 0 && _dist > outer * 40) { GoCore(); _dist = Math.Max(_dist, outer * 40); return true; }
             }
-            if (_pendingStar >= 0 && input.Wheel < 0 && _dist > 0.5) _pendingStar = -1;      // backing away from the target star: let it go
+            if (_pendingStar >= 0 && input.Wheel < 0 && _dist > Math.Max(0.5, _glideStartDist)) _pendingStar = -1;      // backing away from the target star: let it go
             if (input.Wheel != 0) _dist *= Math.Pow(0.82, input.Wheel);
             if (_pendingStar >= 0 && _gliding)
             {
                 // how far the zoom has come from the whole galaxy (3.5) to near the star (0.002): the view's centre slides the same share of the way
-                double t = Math.Max(0, Math.Min(1, (Math.Log(3.5) - Math.Log(Math.Max(_dist, 1e-9))) / (Math.Log(3.5) - Math.Log(0.002))));
+                double t = Math.Max(0, Math.Min(1, (Math.Log(_glideStartDist) - Math.Log(Math.Max(_dist, 1e-9))) / (Math.Log(_glideStartDist) - Math.Log(Math.Min(0.002, _glideStartDist * 0.5)))));
                 t = t * t * (3 - 2 * t);
                 var s0 = _stars[_pendingStar];
                 double nx = _glideFromX + (s0.X - _glideFromX) * t, ny = _glideFromY + (s0.Y - _glideFromY) * t, nz = _glideFromZ + (s0.Z - _glideFromZ) * t;
@@ -403,7 +423,7 @@ namespace DnaAnd.Shell
                     : _focusBody >= 0 ? "focus: " + _system.Bodies[_focusBody].Kind + " (keep rolling the wheel in to fly down to it)"
                     : string.Format("focus: {0} star · {1} planets · frost line {2:0.0} au · habitable zone {3:0.00} au",
                         _system.StarName, _system.Planets, _system.FrostLineAu, _system.HabitableAu);
-                return string.Format("DNA-AND deep zoom · {0} · view {1} across · {2} · time {3} · wheel zoom, drag rotate, Enter visit middle star, click a planet or Tab to pick it then wheel in to fly down to it, H core, 1-5 speed, Space pause, Esc = back",
+                return string.Format("DNA-AND deep zoom · {0} · view {1} across · {2} · time {3} · wheel zoom, drag rotate, Enter visit middle star, click a star in the galaxy or a planet in a system to pick it, then wheel in to fly to it, H core, 1-5 speed, Space pause, Esc = back",
                     _name, Units.Describe(_dist * 1.0), focus, _paused ? "paused" : _speed.ToString("N0") + "x");
             }
         }
