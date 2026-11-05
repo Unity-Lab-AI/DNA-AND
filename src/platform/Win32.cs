@@ -18,6 +18,19 @@ namespace DnaAnd.Platform
         public const int IDC_ARROW = 32512;
         public const uint CS_HREDRAW = 0x0002;
         public const uint CS_VREDRAW = 0x0001;
+        public const uint WM_SIZE = 0x0005;
+        public const uint WM_KEYDOWN = 0x0100;
+        public const uint WM_KEYUP = 0x0101;
+        public const uint WM_SYSKEYDOWN = 0x0104;
+        public const uint WM_SYSKEYUP = 0x0105;
+        public const uint WM_MOUSEMOVE = 0x0200;
+        public const uint WM_LBUTTONDOWN = 0x0201;
+        public const uint WM_LBUTTONUP = 0x0202;
+        public const uint WM_RBUTTONDOWN = 0x0204;
+        public const uint WM_RBUTTONUP = 0x0205;
+        public const uint WM_MOUSEWHEEL = 0x020A;
+        public const int VK_ESCAPE = 0x1B, VK_SPACE = 0x20, VK_LEFT = 0x25, VK_UP = 0x26, VK_RIGHT = 0x27, VK_DOWN = 0x28;
+        public const int VK_F1 = 0x70;
 
         public delegate IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
@@ -88,5 +101,20 @@ namespace DnaAnd.Platform
 
         [DllImport("kernel32.dll")]
         public static extern void Sleep(uint ms);
+
+        [DllImport("kernel32.dll")]
+        public static extern bool QueryPerformanceCounter(out long count);
+
+        [DllImport("kernel32.dll")]
+        public static extern bool QueryPerformanceFrequency(out long freq);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT { public int Left, Top, Right, Bottom; }
+
+        [DllImport("user32.dll")]
+        public static extern bool GetClientRect(IntPtr hWnd, out RECT rect);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern bool SetWindowText(IntPtr hWnd, string text);
     }
 }
