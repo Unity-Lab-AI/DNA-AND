@@ -64,7 +64,10 @@ namespace DnaAnd
             try { Win32.SetProcessDpiAwarenessContext(Win32.DPI_PER_MONITOR_AWARE_V2); } catch { }
             // run from the repo root no matter how the game was started (double-click, test.cmd, play.cmd)
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            string root = System.IO.Directory.Exists(System.IO.Path.Combine(exeDir, "content")) ? exeDir : System.IO.Path.GetDirectoryName(exeDir);
+            // the folder holding "content": the exe's own folder or one above it (build\ or build\dev\)
+            string root = exeDir;
+            for (int up = 0; up < 3 && root != null && !System.IO.Directory.Exists(System.IO.Path.Combine(root, "content")); up++) root = System.IO.Path.GetDirectoryName(root);
+            if (root == null) root = exeDir;
             System.IO.Directory.SetCurrentDirectory(root);
             var clock = new Clock();
             // Safety: force-exit if the main loop stalls 6 s, or if a test overruns its time by 5 s.
@@ -111,7 +114,7 @@ namespace DnaAnd
                 if (Array.IndexOf(args, "--centre") >= 0) planet.Centre();
                 if (testAlt > 0) planet.SetAltitude(testAlt);
             }
-            if (testPlanet >= 0) { planet = new PlanetView(gpu, meshes, pipeline, viewer.TerrainAt(testPlanet), viewer.FieldTerrainAt(testPlanet), viewer.Set == 5 || testFieldView); for (int k = 0; k < testJumps; k++) planet.JumpToNextField(); if (testAlt > 0) planet.SetAltitude(testAlt); }
+            if (testPlanet >= 0) { planet = new PlanetView(gpu, meshes, pipeline, viewer.TerrainAt(testPlanet), viewer.FieldTerrainAt(testPlanet), viewer.Set == 5 || testFieldView); for (int k = 0; k < testJumps; k++) planet.JumpToNextField(); if (testAlt > 0) planet.SetAltitude(testAlt); int si = Array.IndexOf(args, "--undersea"); if (si >= 0 && si + 1 < args.Length) planet.GoUnderSea(double.Parse(args[si + 1], System.Globalization.CultureInfo.InvariantCulture)); }
             UniverseView universe = journey ? new UniverseView(gpu, pipeline, content, Seed) : null;
             if (journey && Array.IndexOf(args, "--test-system") >= 0) { deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(0), viewer.NameOf(0), Seed); deep.TestJourney(gpu.Width, gpu.Height); }
             if (testDeep >= 0) deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(testDeep), viewer.NameOf(testDeep), Seed + (ulong)testDeep * 7919UL);

@@ -24,6 +24,9 @@ namespace DnaAnd.Shell
         private readonly double _minAlt;
         private double _time;
         private double _intoGround;
+        private bool _wasUnderWater;
+        private readonly DnaAnd.Sim.SeaLife _sea = new DnaAnd.Sim.SeaLife();
+        private UploadBuffer _seaBuf, _veilBuf; private StarVertex[] _seaVerts = new StarVertex[2400];
         /// <summary>Part of the one journey from the galaxy: zooming out past the planet goes back up to its solar system.</summary>
         public bool Journey; public bool Ascend;
         private DnaAnd.Sim.MicrobeWorld _microbes; private double _mx, _my, _mz;      // the living microbes on the spot below, once you are small enough
@@ -81,6 +84,21 @@ namespace DnaAnd.Shell
         }
 
         public void SetAltitude(double km) { _alt = Math.Max(_minAlt, km); }
+
+        /// <summary>Test runs: go under the sea, <paramref name="depthKm"/> below its surface, over deep water on the lit side.</summary>
+        public void GoUnderSea(double depthKm)
+        {
+            var rng = new Rng(4242);
+            for (int i = 0; i < 20000; i++)
+            {
+                double la = Math.Asin(rng.NextDouble() * 1.6 - 0.8), lo = rng.NextDouble() * Math.PI * 2;
+                double x = Math.Cos(la) * Math.Cos(lo), y = Math.Sin(la), z = Math.Cos(la) * Math.Sin(lo);
+                if (x * _terrain.StarDir[0] + y * _terrain.StarDir[1] + z * _terrain.StarDir[2] < 0.5) continue;
+                double g = _terrain.GroundAt(x, y, z);
+                if (g > -1.5) continue;
+                _lat = la; _lon = lo; _alt = -g - depthKm; return;
+            }
+        }
         public void Centre() { _centre = true; }
         public void GoInside() { if (_terrain.Shell && _terrain.Habitable) { _inside = true; _alt = 30; _terrain.StartPoint(out _lat, out _lon); _flyReady = false; } }
 
@@ -219,6 +237,12 @@ namespace DnaAnd.Shell
             {
                 string where = _underWater ? " · under water, " + Size(_waterDepth) + " below the surface" : "";
                 if (_intoGround > 0) where += " · INSIDE THE GROUND, " + Size(_intoGround) + " in (wheel back out to come up)";
+                if (_underWater && _sea.Animals.Count > 0)
+                {
+                    var names = new System.Collections.Generic.List<string>();
+                    foreach (var an in _sea.Animals) { string nm = DnaAnd.Sim.SeaLife.Kinds[an.Kind].Name; if (!names.Contains(nm)) names.Add(nm); }
+                    where += " · in the water around you: " + string.Join(", ", names.ToArray());
+                }
                 if (_microbes != null) where += " · " + _microbes.Microbes.Count + " microbes in " + _microbes.Families + " families around you, " + _microbes.Viruses.Count + " viruses";
                 if (_terrain.Solid && _fieldHere >= 0 && !_terrain.Shell) where += " · field here: " + PlanetTerrain.Fields[_fieldHere].Name;
                 if (_centre) return "DNA-AND · " + _terrain.Name + " · THE VIEW FROM THE MIDDLE: the whole inner world wrapped around its star, the metal hull outside · drag to turn · C to go back";
@@ -234,9 +258,11 @@ namespace DnaAnd.Shell
         }
 
         /// <summary>Returns false when the player goes back.</summary>
+        private double _frameDt = 0.016;
+
         public bool Update(Input input, double dt)
         {
-            _time += dt;
+            _time += dt; _frameDt = dt;
             if (input.WasPressed(Win32.VK_ESCAPE) || input.WasPressed(0x08)) return false;   // only Esc or Backspace leave; a mouse click never does
             if (input.WasPressed(0x52) && _terrain.Solid && !_terrain.Shell) _terrain = _terrain == _normal ? _fields : _normal;     // R: resource view on or off
             // I: in or out through the hull, from anywhere (even the view from the middle)
@@ -315,6 +341,7 @@ namespace DnaAnd.Shell
             double camR = _inside ? R - ground - _shown : R + ground + _shown;   // inside a shell, "up" points toward the star
             _overSea = _terrain.HasWater && ground < 0 && (_inside || !_terrain.Shell);
             _underWater = _terrain.HasWater && (_inside ? camR > R : camR < R && !_terrain.Shell);
+            _wasUnderWater = _underWater;
             _waterDepth = Math.Abs(R - camR);
             double cx = ux * camR, cy = uy * camR, cz = uz * camR;
             // which way it looks: straight down from high up, toward the horizon near the ground
@@ -327,13 +354,15 @@ namespace DnaAnd.Shell
             double t = Math.Max(0, Math.Min(1, (Math.Log10(alt) - Math.Log10(2)) / (Math.Log10(R * 0.4) - Math.Log10(2))));
             double pitch = -(0.18 + (1.53 - 0.18) * t * t * (3 - 2 * t));
             if (alt < 2) pitch = -0.18 - 0.5 * Math.Max(0, Math.Min(1, (Math.Log10(2) - Math.Log10(alt)) / 6));  // tiny: look a bit more down at what is in front of you
-            if (_inside && alt > 2000) pitch = -0.25;     // high up inside: look out across the inner world, which curves up all around you
+            if (_inside && alt > 2000) pitch = -0.25;
+            if (_wasUnderWater && alt > 0.001) pitch = -0.12;          // under water: look out through the water, not down at a floor you cannot see     // high up inside: look out across the inner world, which curves up all around you
             var look = forward * (float)Math.Cos(pitch) + up * (float)Math.Sin(pitch);
             var lookUp = forward * (float)(-Math.Sin(pitch)) + up * (float)Math.Cos(pitch);
             Mat4 view = Mat4.LookAt(new Vec3(0, 0, 0), look, lookUp);
 
             double horizon = _inside ? Math.Min(R * 2, 3000 + _shown * 400) : Math.Sqrt(Math.Max(0, camR * camR - R * R));
             float near = (float)Math.Max(1e-10, alt * 0.25);
+            if (_wasUnderWater) near = (float)Math.Max(1e-10, Math.Min(near, Math.Min(alt, 0.03) * 0.01));   // under water the nearest things are what you can see
             float far = (float)Math.Min(horizon * 1.3 + R * 0.05 + 50, alt * 2e5 + 1e-6);
             if (alt > R * 0.2 && !_inside) { near = (float)(alt * 0.2); far = (float)(alt + R * 2.2); }
             if (_inside) far = (float)(alt < 5000 ? Math.Min(alt * 2e5 + 50, 2e6) : R * 2.2);   // low: the far land is lost in haze; high: see the whole inner world
@@ -350,7 +379,7 @@ namespace DnaAnd.Shell
                 double light = Math.Exp(-_waterDepth / 0.05);
                 float wl = (float)Math.Max(0.02, light);
                 sr = 0.06f * wl; sg = 0.3f * wl; sb = 0.5f * wl; airT = 1;
-                fogDist = (float)Math.Min(0.03 + alt * 30, far * 0.9);
+                fogDist = (float)Math.Min(0.06, far * 0.9);                      // you see only about 60 metres through water
             }
             if (_intoGround > 0)
             {
@@ -364,6 +393,10 @@ namespace DnaAnd.Shell
             _terrain.Draw(_pipes, cx, cy, cz, view, proj, _time, 3.0, fogDist, sr, sg, sb, 0, 0, width, height, 400);
             if (_terrain.Shell) DrawStructure(gpu, view, proj, cx, cy, cz, width, height);
             DrawWeather(view, proj, up, northV, eastV, width, height);
+            if (_underWater) DrawSea(gpu, view, proj, cx, cy, cz, up, width, height);
+            // on land, below about 5 mm, the view fades to black (down into the soil) before the microbes show
+            if (!_underWater && _terrain.Solid && !_terrain.Shell && _shown < 5e-6)
+                Veil(gpu, view, proj, (float)Math.Max(0, Math.Min(0.97, (Math.Log10(5e-6) - Math.Log10(_shown)) / 1.4)), width, height);
             DrawMicrobes(gpu, view, proj, cx, cy, cz, ux, uy, uz, ground, up, northV, eastV, width, height);
         }
 
@@ -399,6 +432,45 @@ namespace DnaAnd.Shell
             }
         }
 
+        // life in the sea at the size you are looking at: sharks, fish, minnows, krill, drifting animals, amoebas
+        private void DrawSea(Gpu gpu, Mat4 view, Mat4 proj, double cx, double cy, double cz, Vec3 up, int width, int height)
+        {
+            _sea.Update(Math.Max(1e-9, Math.Min(_shown, 0.03)), cx, cy, cz, up, new Vec3(view.M13, view.M23, view.M33), _frameDt);   // in water you see only a few tens of metres
+            float light = (float)Math.Max(0.15, Math.Exp(-_waterDepth / 0.05));
+            int n = _sea.Write(_seaVerts, cx, cy, cz, up, light);
+            if (n == 0) return;
+            if (_seaBuf == null) _seaBuf = new UploadBuffer(gpu.Device, (long)_seaVerts.Length * Marshal.SizeOf(typeof(StarVertex)));
+            _seaBuf.Write(_seaVerts, n);
+            Mat4 vp = view * proj;
+            var c = new float[BillboardPipeline.ConstantCount];
+            c[0] = vp.M11; c[1] = vp.M12; c[2] = vp.M13; c[3] = vp.M14; c[4] = vp.M21; c[5] = vp.M22; c[6] = vp.M23; c[7] = vp.M24;
+            c[8] = vp.M31; c[9] = vp.M32; c[10] = vp.M33; c[11] = vp.M34; c[12] = vp.M41; c[13] = vp.M42; c[14] = vp.M43; c[15] = vp.M44;
+            c[16] = view.M11; c[17] = view.M21; c[18] = view.M31; c[20] = view.M12; c[21] = view.M22; c[22] = view.M32;
+            c[25] = 1; c[26] = 2; c[27] = 4; c[28] = width; c[29] = height;
+            _dots.Draw(_seaBuf, n, c, 0, 0, width, height);
+        }
+
+        // a see-through black sheet just in front of the camera: fades the view toward black
+        private void Veil(Gpu gpu, Mat4 view, Mat4 proj, float amount, int width, int height)
+        {
+            if (amount <= 0.01f) return;
+            var right = new Vec3(view.M11, view.M21, view.M31); var upv = new Vec3(view.M12, view.M22, view.M32); var fwd = new Vec3(view.M13, view.M23, view.M33);
+            float d = (float)Math.Max(1e-10, _shown * 0.3);
+            var cen = fwd * d; var a = right * (d * 3); var b = upv * (d * 3);
+            var v = new StarVertex[6];
+            Vec3[] q = { cen - a - b, cen + a - b, cen + a + b, cen - a - b, cen + a + b, cen - a + b };
+            for (int i = 0; i < 6; i++) v[i] = new StarVertex { X = q[i].X, Y = q[i].Y, Z = q[i].Z, R = 0.01f, G = 0.008f, B = 0.006f, A = amount };
+            if (_veilBuf == null) _veilBuf = new UploadBuffer(gpu.Device, 6L * Marshal.SizeOf(typeof(StarVertex)));
+            _veilBuf.Write(v, 6);
+            Mat4 vp = view * proj;
+            var c = new float[BillboardPipeline.ConstantCount];
+            c[0] = vp.M11; c[1] = vp.M12; c[2] = vp.M13; c[3] = vp.M14; c[4] = vp.M21; c[5] = vp.M22; c[6] = vp.M23; c[7] = vp.M24;
+            c[8] = vp.M31; c[9] = vp.M32; c[10] = vp.M33; c[11] = vp.M34; c[12] = vp.M41; c[13] = vp.M42; c[14] = vp.M43; c[15] = vp.M44;
+            c[16] = fwd.X; c[17] = fwd.Y; c[18] = fwd.Z; c[26] = 2;
+            gpu.ClearDepth();
+            _pipes.Clear.Draw(_veilBuf, 6, c, 0, 0, width, height);
+        }
+
         // at microbe size, the living microbes of set 8 on the spot below (a patch of ground or water about 0.4 mm across)
         private void DrawMicrobes(Gpu gpu, Mat4 view, Mat4 proj, double cx, double cy, double cz, double ux, double uy, double uz, double ground, Vec3 up, Vec3 north, Vec3 east, int width, int height)
         {
@@ -429,19 +501,19 @@ namespace DnaAnd.Shell
                 double ahead = 60 * Um + lift * 4;
                 var p = new Vec3(ox, oy, oz) + _mEast * (float)(lx * 0.45) + _mNorth * (float)(ahead + ly * 0.25) + _mUp * (float)(-ahead * 0.8 + ly * 0.3);
                 var g = m.G;
-                _microbeVerts[n++] = SpaceGen.Star(p, (float)(g.Size * Um), g.R, g.G, g.B, 0.9f);
+                _microbeVerts[n++] = SpaceGen.Star(p, (float)(g.Size * 0.5 * Um), g.R, g.G, g.B, 0.9f);   // true size: the number is half its width
                 if (g.Shape != 0)
                 {
                     double a = Math.Atan2(m.Vy, m.Vx);
-                    for (int k = -1; k <= 1; k += 2) _microbeVerts[n++] = SpaceGen.Star(p + (_mEast * (float)Math.Cos(a) + _mNorth * (float)Math.Sin(a)) * (float)(k * g.Size * 0.9 * Um), (float)(g.Size * 0.62 * Um), g.R, g.G, g.B, 0.9f);
+                    for (int k = -1; k <= 1; k += 2) _microbeVerts[n++] = SpaceGen.Star(p + (_mEast * (float)Math.Cos(a) + _mNorth * (float)Math.Sin(a)) * (float)(k * g.Size * 0.45 * Um), (float)(g.Size * 0.31 * Um), g.R, g.G, g.B, 0.9f);
                 }
-                if (m.Infected >= 0) _microbeVerts[n++] = SpaceGen.Star(p, (float)(g.Size * 1.35 * Um), 1f, 0.15f, 0.1f, 0.35f);
+                if (m.Infected >= 0) _microbeVerts[n++] = SpaceGen.Star(p, (float)(g.Size * 0.68 * Um), 1f, 0.15f, 0.1f, 0.35f);
             }
             foreach (var v in _microbes.Viruses)
             {
                 if (n >= _microbeVerts.Length) break;
                 double lx = (v.X - DnaAnd.Sim.MicrobeWorld.Width / 2) * Um, ly = (v.Y - DnaAnd.Sim.MicrobeWorld.Height / 2) * Um;
-                _microbeVerts[n++] = SpaceGen.Star(new Vec3(ox, oy, oz) + _mEast * (float)(lx * 0.45) + _mNorth * (float)(60 * Um + ly * 0.25) + _mUp * (float)(-60 * Um * 0.8 + ly * 0.3), (float)(0.3 * Um), 0.95f, 0.9f, 0.85f, 0.8f);
+                _microbeVerts[n++] = SpaceGen.Star(new Vec3(ox, oy, oz) + _mEast * (float)(lx * 0.45) + _mNorth * (float)(60 * Um + ly * 0.25) + _mUp * (float)(-60 * Um * 0.8 + ly * 0.3), (float)(0.06 * Um), 0.95f, 0.9f, 0.85f, 0.8f);   // viruses: about a tenth of a micrometre
             }
             if (n == 0) return;
             _microbeBuf.Write(_microbeVerts, n);
@@ -492,6 +564,6 @@ namespace DnaAnd.Shell
             _dots.Draw(_dropBuf, n, c, 0, 0, width, height);
         }
 
-        public void Dispose() { if (_microbeBuf != null) _microbeBuf.Dispose(); _dropBuf.Dispose(); if (_starBuf != null) _starBuf.Dispose(); if (_extraBuf != null) _extraBuf.Dispose(); }
+        public void Dispose() { if (_seaBuf != null) _seaBuf.Dispose(); if (_veilBuf != null) _veilBuf.Dispose(); if (_microbeBuf != null) _microbeBuf.Dispose(); _dropBuf.Dispose(); if (_starBuf != null) _starBuf.Dispose(); if (_extraBuf != null) _extraBuf.Dispose(); }
     }
 }
