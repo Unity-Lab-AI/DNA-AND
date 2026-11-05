@@ -209,12 +209,12 @@ Order: galactic scale down, the same order as the sample sets.
 - [ ] The asset builder and its examples come before any play-testing of planet life: "yeah we are in no way ready to test it we havent even build the asset builder and done those examples for all the creatures life villages tiebes towns cities space stuff ect ect"
   - [x] Style sample first, three body looks: "all of the above but we need to find a set style first". **Smooth chosen**: "those will work the smooth and remmebr what i said about them probecedurally generated and dynamic to the life in the geame"
   - [~] Bodies built from the genes of the species in the running game, changing as they evolve: body-plan genes and the gene body builder done, first sample `--family` (a family of nine animals)
-  - [ ] Creatures and the rest of life (every kingdom)
-  - [ ] Villages
-  - [ ] Tribes
-  - [ ] Towns
-  - [ ] Cities
-  - [ ] Space stuff (stations, colonies, ships and the rest)
+  - [~] Creatures and the rest of life (every kingdom): families of viruses, cells, plants, fungi, jellies, animals and intelligent creatures, all from genes (`--family`)
+  - [~] Villages: from the builder species' genes (`--civ`)
+  - [~] Tribes: a tribe camp from the builder species' genes (`--civ`)
+  - [~] Towns: from the builder species' genes (`--civ`)
+  - [~] Cities: from the builder species' genes (`--civ`)
+  - [~] Space stuff (stations, colonies, ships and the rest): spaceship, hyperdrive ship, space station and colony from the builder species' genes (`--civ`)
 - [ ] Species-driven asset generation: cities, ships and stations built from the species' own genes and body plan: "ie insect species has insect spaceships ansd insect cities"
 **Spec:** `wiki/systems/r04-renderer.md#-style-samples-come-first`, `docs/DESIGN.md` round 6
 

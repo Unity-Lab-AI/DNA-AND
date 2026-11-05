@@ -124,7 +124,7 @@ namespace DnaAnd.Gen
         private static void Animal(Body b, Genome g)
         {
             float cr = g.R, cg = g.G, cb = g.B;
-            int segs = 1 + Count(g.Segs, 6), legPairs = Count(g.Legs, 4), eyePairs = Math.Max(1, Count(g.Eyes, 4));
+            int segs = g.Stage >= 6 ? 2 + Count(g.Segs, 1) : 1 + Count(g.Segs, 6), legPairs = Count(g.Legs, 4), eyePairs = Math.Max(1, Count(g.Eyes, 4));
             bool swims = g.Fins > 0.5f && legPairs == 0;
             float legLen = legPairs > 0 ? 0.2f + g.LegLen * 0.45f : 0;
             float seg = 0.16f + g.Size * 0.03f;                              // how thick each segment is
@@ -132,7 +132,7 @@ namespace DnaAnd.Gen
             double tilt = stand * 1.3;                                       // 0 lying flat, up to about 75 degrees
             var dir = new Vec3((float)Math.Cos(tilt), (float)Math.Sin(tilt), 0);
             float groundY = -0.7f;
-            float bodyY = swims ? 0 : groundY + Math.Max(seg, legLen) + seg * 0.4f;
+            float bodyY = swims ? 0 : legPairs == 0 ? groundY + seg * 0.9f : groundY + legLen + seg * 0.4f;   // legless ones lie on the ground
             if (!swims) b.Blob(new Vec3(0, groundY - 0.03f, 0), 1.0f, 0.04f, 0.75f, 0.35f, 0.5f, 0.22f);    // ground
             float step = seg * 1.4f;
             var start = new Vec3(-(segs - 1) * step * 0.5f * (float)Math.Cos(tilt * 0.5), bodyY, 0);   // the body rises from its hips
@@ -174,6 +174,15 @@ namespace DnaAnd.Gen
                     b.Limb(hip, knee, seg * 0.32f, cr * 0.9f, cg * 0.9f, cb * 0.9f); b.Limb(knee, foot, seg * 0.26f, cr * 0.9f, cg * 0.9f, cb * 0.9f);
                 }
             }
+            // intelligent creatures: something they made, a tool in the hand, and a band of woven cloth round the body
+            if (g.Stage >= 6)
+            {
+                var hand = pts[segs - 1] + new Vec3(legLen * 0.6f, -legLen * 0.5f - seg * 0.3f, seg * 1.1f);
+                b.Limb(hand + new Vec3(-0.05f, -0.25f, 0), hand + new Vec3(0.08f, 0.45f, 0), 0.022f, 0.55f, 0.4f, 0.25f);
+                b.Cone(hand + new Vec3(0.08f, 0.45f, 0), new Vec3(0.15f, 1, 0), 0.12f, 0.04f, 0.75f, 0.75f, 0.78f);
+                float sr = seg * 1.05f;
+                b.Limb(pts[0] - dir * (step * 0.2f), pts[0] + dir * (step * 0.3f), sr, 1 - cr * 0.6f, 0.35f + cb * 0.4f, 0.3f + cg * 0.5f);
+            }
             // fins for water, wings for air
             if (g.Fins > 0.3f)
             {
@@ -202,23 +211,40 @@ namespace DnaAnd.Gen
             b.Radius = extent;
         }
 
-        /// <summary>A family of nine: a first species, then each one a descendant of the one before, many generations on,
-        /// climbing the ladder of life from nerves to big brains. The resemblance shows, and so do the changes.</summary>
-        public static Genome[] Family(ulong seed)
+        public static readonly string[] KindNames = { "viruses", "single cells", "plants", "fungi", "jellies (soft sea life)", "animals", "intelligent creatures" };
+
+        /// <summary>A family of nine of one kind of life: a first species, then each one a descendant of the one before,
+        /// many generations on. The resemblance shows, and so do the changes. Animals climb from nerves to big brains.</summary>
+        public static Genome[] Family(ulong seed, int kind)
         {
-            var r = new Rng(seed ^ 0xFA111EUL);
-            var g = new Genome { Stage = 3, Size = r.Range(0.8f, 1.6f), Speed = r.Range(0.3f, 0.7f), Graze = r.Range(0.3f, 0.8f), Hunt = r.Range(0, 0.6f),
-                R = r.Range(0.35f, 0.95f), G = r.Range(0.3f, 0.8f), B = r.Range(0.2f, 0.7f),
+            var r = new Rng(seed ^ (0xFA111EUL + (ulong)kind * 7919UL));
+            var g = new Genome { Size = r.Range(0.8f, 1.6f), Speed = r.Range(0.3f, 0.7f), Graze = r.Range(0.3f, 0.8f), Hunt = r.Range(0, 0.6f), Coat = r.Range(0, 0.6f),
+                R = r.Range(0.35f, 0.95f), G = r.Range(0.3f, 0.8f), B = r.Range(0.2f, 0.7f), Surface = r.Below(64), Shape = r.Below(3),
                 Segs = r.Range(0.2f, 0.8f), Legs = r.Range(0.3f, 0.9f), LegLen = r.Range(0.2f, 0.8f), Neck = r.Range(0, 0.5f), Tail = r.Range(0.2f, 0.8f),
                 Fins = r.Range(0, 0.7f), Wings = r.Range(0, 0.3f), Head = r.Range(0.2f, 0.6f), Eyes = r.Range(0.1f, 0.6f), Armour = r.Range(0, 0.6f),
-                Upright = r.Range(0, 0.5f), Toxin = r.Range(0, 0.7f), Warm = 0.5f };
+                Upright = r.Range(0, 0.5f), Toxin = r.Range(0, 0.7f), Branch = r.Range(0.2f, 0.9f), Warm = 0.5f };
+            switch (kind)
+            {
+                case 0: g.Stage = 0; break;
+                case 1: g.Stage = 1; g.Photo = r.Range(0, 1f); break;
+                case 2: g.Stage = 2; g.Photo = r.Range(0.6f, 1f); break;
+                case 3: g.Stage = 2; g.Photo = 0.1f; g.Graze = r.Range(0.6f, 1f); g.Speed = r.Range(0, 0.2f); break;
+                case 4: g.Stage = 2; g.Photo = 0.1f; g.Graze = 0.3f; g.Speed = r.Range(0.4f, 0.8f); break;
+                case 5: g.Stage = 3; break;
+                default: g.Stage = 6; g.Legs = r.Range(0.45f, 0.75f); g.Upright = r.Range(0.75f, 1f); g.Head = r.Range(0.6f, 1f); g.Fins = Math.Min(g.Fins, 0.2f); g.Wings = 0; break;
+            }
             var fam = new Genome[9];
             for (int i = 0; i < 9; i++)
             {
                 fam[i] = g;
-                for (int gen = 0; gen < 8; gen++) g = Genome.Mutate(g, r, 4f);
-                g.Stage = Math.Min(5, 3 + (i + 1) / 3);
-                if (g.Stage >= 5) g.Upright = Math.Min(1, g.Upright + 0.15f);
+                int st = g.Stage;
+                for (int gen = 0; gen < 8; gen++) g = Genome.Mutate(g, r, 2f);
+                if (kind == 1 && r.NextDouble() < 0.3) g.Shape = r.Below(3);
+                if (kind == 2) g.Photo = Math.Max(0.55f, g.Photo);
+                if (kind == 3) { g.Photo = 0.1f; g.Graze = Math.Max(0.55f, g.Graze); g.Speed = Math.Min(0.25f, g.Speed); }
+                if (kind == 4) { g.Photo = 0.1f; g.Speed = Math.Max(0.35f, g.Speed); g.Graze = Math.Min(0.45f, g.Graze); }
+                if (kind == 5) g.Stage = Math.Min(5, 3 + (i + 1) / 3); else g.Stage = st;
+                if (kind == 6) { g.Upright = Math.Max(0.7f, g.Upright); g.Legs = Math.Max(0.4f, Math.Min(0.75f, g.Legs)); g.Wings = Math.Min(0.4f, g.Wings); g.Fins = Math.Min(0.25f, g.Fins); g.R = Math.Max(0.4f, g.R); g.G = Math.Max(0.3f, g.G); }
             }
             return fam;
         }

@@ -116,3 +116,7 @@ Append-only. Newest at the bottom.
 
 - The pages for the toolchain, Windows layer, engine core, universe, planet, life sim and god mode now record what is built. Status is partial where built, and verified against the current code.
 - The public docs are updated too: controls (Ctrl + wheel, zoom where the mouse points, Tab, R, N, I, C, M), powers (lightning restarts life), elements (heat and pressure, the icon looks), resource fields (the resource view, species use resources, life-made fuels), Dyson spheres (the world inside), and the air of each world.
+
+## 2026-11-05 — Body builder
+
+- r04b generators: the body builder, bodies from genes, and what intelligent species build (`BodyGen`, `GeneBody`, `CivGen`). Status is now partial.
