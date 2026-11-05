@@ -216,6 +216,20 @@ Powers cost **Souls**. Cost = the power's **tier (T1–T100) × area × strength
 
 ---
 
+## 🖥️ A HUD that stays out of the way
+
+| | |
+|--|--|
+| 🌍 **The world is the screen** | A slim header and an action bar. Everything else opens with a click and drags wherever you like |
+| 🔝 **Header** | Settings, wiki, souls, life, harvested, score, time and date |
+| 🎛️ **Your action bar** | WoW-style: drag any power, tool or brush onto it |
+| ⚗️ **Element tree** | The whole periodic table, ready to paint into the world |
+| 🖌️ **Painter brushes** | Paint elements, water, heat, cold, genes, powers and harvests. Bigger brushes unlock as life spreads |
+
+👉 [The HUD](docs/wiki/hud.md "Header, action bar, panels, brushes")
+
+---
+
 ## ⏱️ Time bends for you
 
 | | |

@@ -167,6 +167,7 @@ Main screen, an in-game wiki of everything in the game, settings, quit, save and
 - Main menu: New World, Continue/Load, Multiplayer, Genebank + Leaderboard, Wiki, Settings, Credits, Quit ("all of the above and wiki and settings, i already told you this and credits").
 - Autosave every 10 minutes and at every headline milestone. Unlimited slots.
 - Settings groups: Graphics, Sound, Controls, Gameplay, Online, Accessibility.
+- **A non-intrusive HUD:** a slim header (settings, wiki, souls, counters, time), a build-your-own WoW-style action bar, click-to-open and drag-to-move panels, an element tree, and painter brushes whose sizes unlock as life spreads (round 18, `docs/wiki/hud.md`).
 - The in-game wiki reads the same pages as `docs/wiki/`.
 - Open-ended: "open ended till u resarts to get a new world and galaxy".
 

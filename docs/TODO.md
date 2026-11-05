@@ -313,10 +313,17 @@ Order: galactic scale down, the same order as the sample sets.
   - Each stage has its own years-per-second.
 
 ### R13 — Game shell
-**Spec:** `wiki/systems/r13-game-shell.md`, `docs/wiki/menus-and-settings.md`, `docs/wiki/controls.md`
+**Spec:** `wiki/systems/r13-game-shell.md`, `docs/wiki/hud.md`, `docs/wiki/menus-and-settings.md`, `docs/wiki/controls.md`
 
 - [ ] 18+ rating shown on the store/release page, installer and main menu: "this is a 18 plus game"
 - [ ] Open-ended play: "open ended till u resarts to get a new world and galaxy"
+- [ ] Non-intrusive HUD, world fills the screen: "and we havent talked about the hud much but it should be intrusive so the game window is as big as possible and everthing is click to open and click hold drag to move and everything is properly wow type of game paly action bar buiold your own with setting and wiki and you main curancy and coutnes and time at the header and all of that and things like the element tree and abilityis to add things liek them and water and head with painter tools and brush sizes unlockable as time goes on making things like harvest and powers effeect bigger areas as time goes on and life stpreads"
+  - [ ] Header bar: settings, wiki, souls, life, harvested, score, time controls, date
+  - [ ] Build-your-own WoW-style action bar, drag-to-slot, rebindable hotkeys, cooldown sweeps
+  - [ ] Click-to-open panels, click-hold-drag to move
+  - [ ] Element tree panel (periodic table)
+  - [ ] Painter tools: element, water, heat, cold, gene, power, harvest brushes
+  - [ ] Brush sizes unlocking as time goes on and life spreads, with bigger areas for harvest and powers
 - [ ] Main screen
   - New World, Continue/Load, Multiplayer, Genebank + Leaderboard, Wiki, Settings, Credits, Quit.
 - [ ] In-game wiki of everything

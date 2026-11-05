@@ -53,3 +53,7 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Space in full
 
 - Space page now has 100 space objects, impacts, the 10x10 world-condition tech matrix, a 100-step travel ladder (to hyperdrives and intergalactic), 100 space resources and 100 kinds of colony. r05 and r10 specs updated.
+
+## 2026-11-05 — HUD
+
+- New player page hud.md: header bar, build-your-own action bar, drag panels, element tree, painter brushes that grow as life spreads. r13 spec updated.
