@@ -637,3 +637,7 @@ Everything the creator has said about this project, in order. Short process repl
 78. **Resource fields meaning:** "when i said fields i meant areas like water in an ocean ore in rock chemicals near volcanos, for everything". A resource field is the place where a resource is naturally found on a world: water in oceans, ore in rock, chemicals near volcanoes. This holds for every resource.
 79. **Resource fields shown two ways:** "option 2 and remember its the ai s that use the resources to play ur just a God and have no use for resources". Every field is a real visible feature on the ground, and a resource view (a key) lights every field in its own colour, buried ones too, with a list of the colours. The AI species use resources. The player is a god and has no use for them.
 80. Coal, oil and gas come only from buried dead life, so they appear only after life has lived and died on a world. Today's lifeless sample worlds have none.
+81. "looks good, but like ive been saying i cant test out the tests, they in error only start open for stil seconds and should stary open correctly until i close them". Cause: the short windows were the automatic checks, which close after a few seconds, and the windows opened for the creator closed when the 2-minute pop-up went unanswered. Fixes:
+    - Windows opened for the creator have no timer and stay open until closed. Keep going or revert is still in the menu.
+    - Automatic checks open small in the bottom-right corner and don't take the keyboard.
+    - `test.cmd` with no number stays open until closed.
