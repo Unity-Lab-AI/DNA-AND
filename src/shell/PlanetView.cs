@@ -107,7 +107,7 @@ namespace DnaAnd.Shell
             var up = new Vec3((float)(-_px / r), (float)(-_py / r), (float)(-_pz / r));       // up points toward the star
             var side = Vec3.Cross(up, _look).Normalized;                                     // to your right
             // look around: drag left and right turns, up and down tilts
-            if (input.LeftDown && (input.MouseDX != 0 || input.MouseDY != 0))
+            if ((input.LeftDown || input.RightDown) && (input.MouseDX != 0 || input.MouseDY != 0))
             {
                 float yaw = input.MouseDX * 0.004f, tilt = -input.MouseDY * 0.004f;
                 _look = (_look * (float)Math.Cos(yaw) + side * (float)Math.Sin(yaw)).Normalized;
@@ -225,7 +225,7 @@ namespace DnaAnd.Shell
         public bool Update(Input input, double dt)
         {
             _time += dt;
-            if (input.WasPressed(Win32.VK_ESCAPE) || input.WasPressed(0x08) || input.RightClicked) return false;
+            if (input.WasPressed(Win32.VK_ESCAPE) || input.WasPressed(0x08)) return false;   // only Esc or Backspace leave; a mouse click never does
             if (input.WasPressed(0x52) && _terrain.Solid && !_terrain.Shell) _terrain = _terrain == _normal ? _fields : _normal;     // R: resource view on or off
             if (input.WasPressed(0x43) && _terrain.Shell && _terrain.Habitable) _centre = !_centre;                  // C: the view from the middle
             if (_centre)
@@ -265,6 +265,7 @@ namespace DnaAnd.Shell
             if (input.IsDown(0x45)) _heading += dt * 0.8;                       // E
             double ch = Math.Cos(_heading), sh = Math.Sin(_heading);
             double north = (fwd * ch - side * sh) * step * dt * 1.2, east = (fwd * sh + side * ch) * step * dt * 1.2;
+            if (input.RightDown) _heading += input.MouseDX * 0.004;       // right-drag: turn
             if (input.LeftDown)
             {
                 // drag the ground: moving the mouse up moves you forward

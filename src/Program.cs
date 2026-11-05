@@ -129,7 +129,11 @@ namespace DnaAnd
                     if (testSpeed >= 0) deep.TestSpeed(testSpeed);
                     testDeep = -1;
                 }
-                if (planet != null) { if (!planet.Update(window.Input, clock.Delta)) { planet.Dispose(); planet = null; } }
+                if (planet != null) { if (!planet.Update(window.Input, clock.Delta))
+                    {
+                        if (viewer.Set == 6) window.Close();          // the Dyson sphere is the whole set: leaving it closes the sample
+                        else { planet.Dispose(); planet = null; }
+                    } }
                 else if (deep == null)
                 {
                     viewer.Update(window.Input, clock.Delta);
