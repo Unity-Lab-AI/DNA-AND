@@ -67,6 +67,7 @@ namespace DnaAnd
             ContentLibrary content = ContentLibrary.Load("content");
             bool big = Array.IndexOf(args, "--big") >= 0;                      // a full-size check, for pictures at the size the player sees
             var window = new Window("DNA-AND", 1600, 900, smokeMs >= 0 && !big);   // timed checks open small and out of the way
+            window.Input.IgnoreReal = smokeMs >= 0;          // timed checks never take the person's keyboard or mouse
             Gpu gpu;
             try { gpu = new Gpu(window.Handle, window.Width, window.Height); }
             catch (Exception ex) { WriteLog("gpu error · " + ex.Message); window.Close(); return 2; }

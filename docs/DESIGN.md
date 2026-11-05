@@ -677,3 +677,5 @@ Everything the creator has said about this project, in order. Short process repl
     5. cities
     6. stations, colonies and ships, built from the species that make them
 104. "dont foget temp and pressure and atmo composiytions". Every element now has its melting and boiling points from standard tables, and samples change state with temperature and pressure, which you can set. Every world kind has its air make-up in content, shown in its Legend.
+105. "make gases clouds liuqids at 70 degress liquids drops and metals metals like bodld copper iron all bars like a stack powerdes for other things and mineral likes design for other things, you get it? not every one just orby rocks". Gases are clouds and liquids are drops. Metals used as metal (gold, copper, iron, the transition and later metals) are stacks of bars. Minerals (the metalloids, iodine, carbon) are crystal clusters. The other solids (reactive metals, sulfur, phosphorus) are powder heaps. What "at 70 degress" means is to be confirmed.
+106. "pur rad sysmbol on those elements". Radioactive elements carry the yellow and black radiation sign on their tile.

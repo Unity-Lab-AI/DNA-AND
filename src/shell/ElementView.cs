@@ -21,10 +21,11 @@ namespace DnaAnd.Shell
         private readonly IntPtr _device;
         private double _tempK = 293.15, _atm = 1;
         private string _builtFor = "";
-        private double _camX = 4.25, _camY = -2.6, _dist = 10;
+        private double _camX = 4.25, _camY = -2.6, _dist = 7.2;
         private int _picked = -1, _hover = -1;
         private Mat4 _vp;
         private int _w = 1, _h = 1;
+        private double _age;      // a click that opened or focused the window is not a pick
         private const float Tile = 0.5f;            // spacing between tiles
 
         public ElementView(Gpu gpu, MeshPipes pipes, ContentLibrary content)
@@ -51,7 +52,7 @@ namespace DnaAnd.Shell
         {
             var sb = new System.Text.StringBuilder("Set 7 of 17: the elements, all 118, as game icons\n\n");
             sb.Append("Now: " + _tempK.ToString("0") + " K (" + C(_tempK) + "), pressure " + _atm.ToString("0.####") + " atmospheres.\n");
-            sb.Append("Solid: a lump in its real colour (metals shine). Liquid: a drop. Gas: glowing in a glass bulb. Lab-made: a small glowing core, it falls apart almost at once. A green rim on the tile: radioactive.\n");
+            sb.Append("Solid: a lump in its real colour (metals shine). Liquid: a drop. Gas: glowing in a glass bulb. Lab-made: a small glowing core, it falls apart almost at once. The yellow and black radiation sign: radioactive.\n");
             sb.Append("Tile edge colours show the family: alkali metals red, alkaline earths orange, transition metals blue-grey, post-transition grey, metalloids teal, nonmetals green, halogens yellow, noble gases violet, lanthanides pink, actinides magenta, never measured dark grey.\n\n");
             if (_picked >= 0)
             {
@@ -76,7 +77,8 @@ namespace DnaAnd.Shell
             if (input.Wheel != 0) _dist = Math.Max(0.5, Math.Min(14, _dist * Math.Pow(0.85, input.Wheel)));
             if (input.LeftDown && (input.MouseDX != 0 || input.MouseDY != 0)) { _camX -= input.MouseDX * _dist * 0.0011; _camY += input.MouseDY * _dist * 0.0011; }
             _hover = Pick(input.MouseX, input.MouseY);
-            if (input.LeftClicked && _hover >= 0) { _picked = _hover; _camX = _els[_picked].Centre.X; _camY = _els[_picked].Centre.Y; _dist = 1.2; }
+            _age += dt;
+            if (input.LeftClicked && _hover >= 0 && _age > 0.6) { _picked = _hover; _camX = _els[_picked].Centre.X; _camY = _els[_picked].Centre.Y; _dist = 1.2; }
         }
 
         /// <summary>Test runs: hotter or colder, and higher or lower pressure, by a factor.</summary>
@@ -172,6 +174,125 @@ namespace DnaAnd.Shell
                 }
         }
 
+
+        // the radiation warning sign: a yellow disc with three black blades around a black centre
+        private void RadSign(Vec3 c, float r)
+        {
+            const int Seg = 36;
+            for (int i = 0; i < Seg; i++)
+            {
+                double a0 = i * Math.PI * 2 / Seg, a1 = (i + 1) * Math.PI * 2 / Seg;
+                var p0 = new Vec3((float)Math.Cos(a0), (float)Math.Sin(a0), 0); var p1 = new Vec3((float)Math.Cos(a1), (float)Math.Sin(a1), 0);
+                Tri(_s, c, c + p0 * r, c + p1 * r, 1f, 0.82f, 0.1f, 1, 0.9f);                          // yellow disc
+                double mid = (a0 + a1) / 2 - Math.PI / 2;
+                double deg = ((mid * 180 / Math.PI) % 120 + 120) % 120;
+                if (deg < 60)                                                                         // three blades, 60 degrees wide, 60 apart
+                {
+                    var q = new Vec3(0, 0, -0.002f);
+                    Tri(_s, c + q + p0 * (r * 0.3f), c + q + p0 * (r * 0.85f), c + q + p1 * (r * 0.85f), 0.05f, 0.05f, 0.05f, 1, 0.9f);
+                    Tri(_s, c + q + p0 * (r * 0.3f), c + q + p1 * (r * 0.85f), c + q + p1 * (r * 0.3f), 0.05f, 0.05f, 0.05f, 1, 0.9f);
+                }
+                Tri(_s, c + new Vec3(0, 0, -0.002f), c + new Vec3(0, 0, -0.002f) + p0 * (r * 0.18f), c + new Vec3(0, 0, -0.002f) + p1 * (r * 0.18f), 0.05f, 0.05f, 0.05f, 1, 0.9f);   // centre
+            }
+        }
+
+        /// <summary>How a solid element is kept: metals used as metal are bars, minerals are crystals, the rest are powders.</summary>
+        private static string Form(ElementSample e)
+        {
+            if (e.Group == "Transition" || e.Group == "Post-transition" || e.Group == "Lanthanide" || e.Group == "Actinide") return "bars";
+            if (e.Group == "Metalloid" || e.Symbol == "I" || e.Symbol == "C") return "crystals";
+            return "powder";                                                         // alkali and alkaline-earth metals, sulfur, phosphorus, selenium
+        }
+
+        // a stack of metal bars: three, two, one; each bar wider at the bottom, its top lit like polished metal
+        private void Bars(Vec3 at, ElementSample e)
+        {
+            float bl = 0.075f, bw = 0.032f, bh = 0.028f;
+            int[] rows = { 3, 2, 1 };
+            for (int layer = 0; layer < 3; layer++)
+                for (int k = 0; k < rows[layer]; k++)
+                {
+                    float x = (k - (rows[layer] - 1) * 0.5f) * (bw * 2.15f);
+                    var c = at + new Vec3(x, -0.1f + layer * bh * 1.05f, 0);
+                    Ingot(c, bl, bw, bh, e.R, e.G, e.B, e.Shiny ? 0.18f : 0.05f);
+                }
+        }
+
+        private void Ingot(Vec3 c, float len, float wid, float hgt, float r, float g, float b, float glow)
+        {
+            float tw = wid * 0.72f, tl = len * 0.86f;                                  // the top is narrower and shorter than the base
+            Vec3 b00 = c + new Vec3(-wid, 0, -len), b10 = c + new Vec3(wid, 0, -len), b11 = c + new Vec3(wid, 0, len), b01 = c + new Vec3(-wid, 0, len);
+            Vec3 t00 = c + new Vec3(-tw, hgt, -tl), t10 = c + new Vec3(tw, hgt, -tl), t11 = c + new Vec3(tw, hgt, tl), t01 = c + new Vec3(-tw, hgt, tl);
+            Quad(_s, t00, t10, t11, t01, r * 1.1f, g * 1.1f, b * 1.1f, glow + 0.1f);     // top face, brightest
+            Quad(_s, b00, b10, t10, t00, r, g, b, glow); Quad(_s, b10, b11, t11, t10, r * 0.85f, g * 0.85f, b * 0.85f, glow);
+            Quad(_s, b11, b01, t01, t11, r, g, b, glow); Quad(_s, b01, b00, t00, t01, r * 0.85f, g * 0.85f, b * 0.85f, glow);
+        }
+
+        // a cluster of pointed six-sided crystals growing out of a small base
+        private void Crystals(Vec3 at, ElementSample e)
+        {
+            var rng = new Rng((ulong)e.Number * 31UL);
+            var basePt = at + new Vec3(0, -0.1f, 0);
+            for (int k = 0; k < 6; k++)
+            {
+                float lean = rng.Range(-0.6f, 0.6f), turn = rng.Range(0, 6.28f), len = rng.Range(0.09f, 0.17f), rad = rng.Range(0.014f, 0.024f);
+                var dir = new Vec3((float)Math.Sin(lean) * (float)Math.Cos(turn), (float)Math.Cos(lean), (float)Math.Sin(lean) * (float)Math.Sin(turn)).Normalized;
+                Prism(basePt + new Vec3(rng.Range(-0.03f, 0.03f), 0, rng.Range(-0.03f, 0.03f)), dir, len, rad, e.R, e.G, e.B, 0.15f);
+            }
+        }
+
+        private void Prism(Vec3 b, Vec3 dir, float len, float rad, float r, float g, float bl, float glow)
+        {
+            var side = Vec3.Cross(dir, Math.Abs(dir.Y) < 0.9f ? new Vec3(0, 1, 0) : new Vec3(1, 0, 0)).Normalized;
+            var side2 = Vec3.Cross(dir, side);
+            var top = b + dir * len; var tip = top + dir * (rad * 2.2f);
+            for (int i = 0; i < 6; i++)
+            {
+                double a0 = i * Math.PI / 3, a1 = (i + 1) * Math.PI / 3;
+                var o0 = (side * (float)Math.Cos(a0) + side2 * (float)Math.Sin(a0)) * rad;
+                var o1 = (side * (float)Math.Cos(a1) + side2 * (float)Math.Sin(a1)) * rad;
+                float k = 0.8f + 0.25f * (i % 2);
+                Quad(_s, b + o0, b + o1, top + o1, top + o0, r * k, g * k, bl * k, glow);
+                Tri(_s, top + o0, top + o1, tip, r * 1.1f, g * 1.1f, bl * 1.1f, 1, glow + 0.1f);
+            }
+        }
+
+        // a heap of powder: a low bumpy cone
+        private void Powder(Vec3 at, ElementSample e)
+        {
+            int seed = e.Number * 17;
+            Ball(_s, at + new Vec3(0, -0.11f, 0), 0.12f, 3, d =>
+            {
+                double rr = Math.Sqrt(d.X * d.X + d.Z * d.Z);
+                float bump = 0.9f + 0.2f * Noise.Fractal(d.X * 6 + seed, d.Y * 6, d.Z * 6, (uint)seed, 2);
+                float y = d.Y > 0 ? (float)(1 - rr) * 0.75f * bump : 0;
+                return new Vec3(d.X * bump, y, d.Z * bump);
+            }, e.R, e.G, e.B, 1, 0.05f, true, seed);
+        }
+
+        // a drop of liquid: round below, coming to a point above
+        private void Drop(Vec3 at, ElementSample e)
+        {
+            Ball(_s, at + new Vec3(0, -0.04f, 0), 0.075f, 3, d =>
+            {
+                if (d.Y <= 0) return d;
+                float k = (float)Math.Pow(1 - d.Y, 1.1);                                // narrows to the tip
+                return new Vec3(d.X * k / Math.Max(0.001f, (float)Math.Sqrt(1 - d.Y * d.Y)) * (float)Math.Sqrt(1 - d.Y * d.Y), d.Y * 1.7f, d.Z * k / Math.Max(0.001f, (float)Math.Sqrt(1 - d.Y * d.Y)) * (float)Math.Sqrt(1 - d.Y * d.Y));
+            }, e.R, e.G, e.B, 1, e.Shiny ? 0.2f : 0.08f, false, 0);
+        }
+
+        // a cloud of gas: soft puffs in the gas's own colour, glowing faintly
+        private void Cloud(Vec3 at, ElementSample e)
+        {
+            var rng = new Rng((ulong)e.Number * 57UL);
+            for (int k = 0; k < 7; k++)
+            {
+                var off = new Vec3(rng.Range(-0.07f, 0.07f), rng.Range(-0.035f, 0.04f), rng.Range(-0.04f, 0.04f));
+                float rad = rng.Range(0.04f, 0.065f);
+                Ball(_g, at + off, rad, 2, d => d, e.R, e.G, e.B, 0.55f, 0.6f, false, 0);
+            }
+        }
+
         private void Rebuild()
         {
             var key = new System.Text.StringBuilder();
@@ -190,27 +311,23 @@ namespace DnaAnd.Shell
                 Box(_s, c + new Vec3(-half, -half, -0.008f), c + new Vec3(half, -half + rim, 0.0f), fam[0], fam[1], fam[2], 0.7f);
                 Box(_s, c + new Vec3(-half, -half, -0.008f), c + new Vec3(-half + rim, half, 0.0f), fam[0], fam[1], fam[2], 0.7f);
                 Box(_s, c + new Vec3(half - rim, -half, -0.008f), c + new Vec3(half, half, 0.0f), fam[0], fam[1], fam[2], 0.7f);
-                if (e.Radioactive) Box(_s, c + new Vec3(-half + rim, -half + rim, -0.004f), c + new Vec3(half - rim, -half + rim * 2, 0.0f), 0.4f, 1f, 0.45f, 0.95f);
+                if (e.Radioactive) RadSign(c + new Vec3(half - 0.07f, -half + 0.07f, -0.012f), 0.045f);
                 // symbol (large, top left) and number (small, top right)
                 Text(_s, e.Symbol, c + new Vec3(-half + 0.035f, half - 0.04f, 0), 0.011f, 0.95f, 0.95f, 0.95f);
                 string num = e.Number.ToString();
                 Text(_s, num, c + new Vec3(half - 0.035f - num.Length * 6 * 0.006f, half - 0.04f, 0), 0.006f, 0.7f, 0.72f, 0.75f);
                 // the sample, sitting on the lower part of the tile
-                var at = c + new Vec3(0, -0.06f, -0.13f);
+                var at = c + new Vec3(0, 0.02f, -0.13f);   // the sample stands in the middle of its tile
                 string state = e.StateAt(_tempK, _atm);
                 if (state == "solid")
                 {
-                    int seed = e.Number * 13;
-                    Ball(_s, at, 0.105f, 2, d => d * (0.8f + 0.35f * Noise.Fractal(d.X * 2 + seed, d.Y * 2, d.Z * 2, (uint)seed, 3)), e.R, e.G, e.B, 1, e.Shiny ? 0.12f : 0, true, seed);
+                    string form = Form(e);
+                    if (form == "bars") Bars(at, e);
+                    else if (form == "crystals") Crystals(at, e);
+                    else Powder(at, e);
                 }
-                else if (state == "liquid")
-                    Ball(_s, at + new Vec3(0, -0.04f, 0), 0.11f, 3, d => new Vec3(d.X * 1.15f, d.Y > 0 ? d.Y * 0.55f : d.Y * 0.25f, d.Z * 1.15f), e.R, e.G, e.B, 1, e.Shiny ? 0.15f : 0.05f, false, 0);
-                else if (state == "gas")
-                {
-                    Ball(_s, at, 0.06f, 2, d => d, e.R, e.G, e.B, 1, 1f, false, 0);                    // the glow of the gas
-                    Ball(_g, at, 0.12f, 3, d => d, 0.75f, 0.85f, 0.95f, 0.22f, 0.3f, false, 0);        // the glass bulb
-                    Box(_s, at + new Vec3(-0.035f, -0.15f, -0.035f), at + new Vec3(0.035f, -0.11f, 0.035f), 0.45f, 0.45f, 0.48f, 0.2f);   // its metal cap
-                }
+                else if (state == "liquid") Drop(at, e);
+                else if (state == "gas") Cloud(at, e);
                 else
                     Ball(_s, at, 0.04f, 1, d => d, 0.55f, 0.95f, 0.75f, 1, 1f, false, 0);                // lab-made: a small glowing core
             }

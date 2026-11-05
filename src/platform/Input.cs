@@ -26,8 +26,12 @@ namespace DnaAnd.Platform
         }
 
         /// <summary>Feeds one window message. Returns true if it was an input message.</summary>
+        /// <summary>Timed test runs ignore the real keyboard and mouse, so the person at the computer is never disturbed by them, and never throws them off.</summary>
+        public bool IgnoreReal;
+
         public bool OnMessage(uint msg, IntPtr wParam, IntPtr lParam)
         {
+            if (IgnoreReal && (msg == Win32.WM_KEYDOWN || msg == Win32.WM_SYSKEYDOWN || msg == Win32.WM_MOUSEMOVE || msg == Win32.WM_LBUTTONDOWN || msg == Win32.WM_RBUTTONDOWN || msg == Win32.WM_MOUSEWHEEL)) return true;
             switch (msg)
             {
                 case Win32.WM_KEYDOWN:
