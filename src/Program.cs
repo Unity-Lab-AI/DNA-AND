@@ -1,6 +1,9 @@
 // DNA-AND · entry point.
 using System;
+using DnaAnd.Core;
 using DnaAnd.Platform;
+using DnaAnd.Render;
+using DnaAnd.Shell;
 
 namespace DnaAnd
 {
@@ -9,23 +12,72 @@ namespace DnaAnd
         [STAThread]
         private static int Main(string[] args)
         {
-            // --smoke <ms>: open the window, then close it on its own after <ms> milliseconds (build check).
-            int smokeMs = -1;
-            for (int i = 0; i + 1 < args.Length; i++)
-                if (args[i] == "--smoke") int.TryParse(args[i + 1], out smokeMs);
+            // --smoke <ms>: a timed test run that closes itself after <ms> milliseconds.
+            int smokeMs = -1; bool testStall = false;
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == "--smoke" && i + 1 < args.Length) int.TryParse(args[i + 1], out smokeMs);
+                if (args[i] == "--test-stall") testStall = true; // proves the watchdog fires
+            }
 
+            try { Win32.SetProcessDpiAwarenessContext(Win32.DPI_PER_MONITOR_AWARE_V2); } catch { }
+            var clock = new Clock();
+            // Safety: force-exit if the main loop stalls 3 s, or if a test overruns its time by 5 s.
+            var watchdog = new Watchdog(clock, 3.0, smokeMs >= 0 ? smokeMs / 1000.0 + 5.0 : -1);
+
+            ContentLibrary content = ContentLibrary.Load("content");
             var window = new Window("DNA-AND", 1600, 900);
-            DateTime start = DateTime.UtcNow;
+            Gpu gpu;
+            try { gpu = new Gpu(window.Handle, window.Width, window.Height); }
+            catch (Exception ex) { WriteLog("gpu error · " + ex.Message); window.Close(); return 2; }
+            BillboardPipeline pipeline; SampleViewer viewer;
+            try
+            {
+                pipeline = new BillboardPipeline(gpu.Device);
+                viewer = new SampleViewer(gpu, pipeline, content, 20261105UL);
+            }
+            catch (Exception ex) { WriteLog("setup error · " + ex.Message); gpu.Dispose(); window.Close(); return 2; }
+
+            double titleTimer = 0; int frames = 0; bool firstFrame = true;
             while (window.Pump())
             {
-                if (smokeMs >= 0 && (DateTime.UtcNow - start).TotalMilliseconds >= smokeMs)
+                clock.Tick();
+                watchdog.Beat();
+
+                if (window.Input.WasPressed(Win32.VK_ESCAPE)) window.Close();
+                if (testStall && clock.Total > 0.5) System.Threading.Thread.Sleep(10000);
+
+                if (window.Resized) { window.Resized = false; gpu.Resize(window.Width, window.Height); }
+                viewer.Update(window.Input, clock.Delta);
+                gpu.BeginFrame(0.005f, 0.006f, 0.012f);
+                viewer.Draw(gpu.Width, gpu.Height, clock.Total);
+                gpu.EndFrame();
+                if (firstFrame) { firstFrame = false; watchdog.Running(); }
+
+                frames++; titleTimer += clock.Delta;
+                if (titleTimer >= 0.5)
                 {
-                    window.Close();
-                    smokeMs = -1;
+                    window.SetTitle(string.Format("{0} · {1:0} fps", viewer.Title, frames / titleTimer));
+                    titleTimer = 0; frames = 0;
                 }
-                Win32.Sleep(1);
+
+                window.Input.EndFrame();
+                if (smokeMs >= 0 && clock.Total * 1000 >= smokeMs) { window.Close(); smokeMs = -1; }
             }
+            viewer.Dispose(); pipeline.Dispose(); gpu.Dispose();
+            watchdog.Stop();
+            WriteLog(string.Format("ok · {0} content entries from {1} files · ran {2:0.00} s · gpu {3}x{4}", content.Entries.Count, content.Files.Count, clock.Total, gpu.Width, gpu.Height));
             return 0;
+        }
+
+        private static void WriteLog(string line)
+        {
+            try
+            {
+                System.IO.Directory.CreateDirectory("build");
+                System.IO.File.WriteAllText(System.IO.Path.Combine("build", "last-run.log"), line + Environment.NewLine);
+            }
+            catch { }
         }
     }
 }

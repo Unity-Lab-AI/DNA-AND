@@ -10,6 +10,10 @@ namespace DnaAnd.Platform
         private readonly Win32.WndProc _proc; // kept alive so Windows can call it
         public IntPtr Handle { get; private set; }
         public bool IsOpen { get; private set; }
+        public readonly Input Input = new Input();
+        public int Width { get { Win32.RECT r; Win32.GetClientRect(Handle, out r); return r.Right - r.Left; } }
+        public int Height { get { Win32.RECT r; Win32.GetClientRect(Handle, out r); return r.Bottom - r.Top; } }
+        public bool Resized;
 
         public Window(string title, int width, int height)
         {
@@ -50,6 +54,8 @@ namespace DnaAnd.Platform
             return IsOpen;
         }
 
+        public void SetTitle(string title) { Win32.SetWindowText(Handle, title); }
+
         public void Close()
         {
             if (Handle != IntPtr.Zero) Win32.DestroyWindow(Handle);
@@ -57,6 +63,8 @@ namespace DnaAnd.Platform
 
         private IntPtr OnMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
         {
+            if (Input.OnMessage(msg, wParam, lParam)) return IntPtr.Zero;
+            if (msg == Win32.WM_SIZE) Resized = true;
             if (msg == Win32.WM_DESTROY)
             {
                 Win32.PostQuitMessage(0);
