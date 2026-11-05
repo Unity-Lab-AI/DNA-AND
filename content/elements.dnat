@@ -1,0 +1,1350 @@
+# DNA-AND content · elements (all 118)
+# researched: IUPAC periodic table (atomic numbers, symbols, names, groups); standard states at room temperature;
+#   natural vs lab-made from standard chemistry references. The in-game uses come from the public Elements page.
+# Spec: docs/CONTENT-FORMAT.md · wiki/systems/r06-planet.md · content/physics.dnat
+
+@element h
+name: Hydrogen
+real: yes
+number: 1
+symbol: H
+period: 1
+group: Nonmetal
+state-at-room-temp: gas
+origin: natural
+in-game: Makes water, fuels stars, part of all life
+
+@element he
+name: Helium
+real: yes
+number: 2
+symbol: He
+period: 1
+group: Noble gas
+state-at-room-temp: gas
+origin: natural
+in-game: Made by stars; light gas for balloons and cooling
+
+@element li
+name: Lithium
+real: yes
+number: 3
+symbol: Li
+period: 2
+group: Alkali metal
+state-at-room-temp: solid
+origin: natural
+in-game: Batteries for tech
+
+@element be
+name: Beryllium
+real: yes
+number: 4
+symbol: Be
+period: 2
+group: Alkaline earth
+state-at-room-temp: solid
+origin: natural
+in-game: Light, strong alloys for spacecraft
+
+@element b
+name: Boron
+real: yes
+number: 5
+symbol: B
+period: 2
+group: Metalloid
+state-at-room-temp: solid
+origin: natural
+in-game: Plant nutrient; strong glass
+
+@element c
+name: Carbon
+real: yes
+number: 6
+symbol: C
+period: 2
+group: Nonmetal
+state-at-room-temp: solid
+origin: natural
+in-game: The backbone of all life; coal, diamond
+
+@element n
+name: Nitrogen
+real: yes
+number: 7
+symbol: N
+period: 2
+group: Nonmetal
+state-at-room-temp: gas
+origin: natural
+in-game: Builds DNA and proteins; most of Earth's air
+
+@element o
+name: Oxygen
+real: yes
+number: 8
+symbol: O
+period: 2
+group: Nonmetal
+state-at-room-temp: gas
+origin: natural
+in-game: Breathing, water, fire
+
+@element f
+name: Fluorine
+real: yes
+number: 9
+symbol: F
+period: 2
+group: Halogen
+state-at-room-temp: gas
+origin: natural
+in-game: Strong teeth and bones; toxic gas in bulk
+
+@element ne
+name: Neon
+real: yes
+number: 10
+symbol: Ne
+period: 2
+group: Noble gas
+state-at-room-temp: gas
+origin: natural
+in-game: Glowing signs in cities
+
+@element na
+name: Sodium
+real: yes
+number: 11
+symbol: Na
+period: 3
+group: Alkali metal
+state-at-room-temp: solid
+origin: natural
+in-game: Salt in the seas; nerves need it
+
+@element mg
+name: Magnesium
+real: yes
+number: 12
+symbol: Mg
+period: 3
+group: Alkaline earth
+state-at-room-temp: solid
+origin: natural
+in-game: Heart of chlorophyll — photosynthesis needs it
+
+@element al
+name: Aluminium
+real: yes
+number: 13
+symbol: Al
+period: 3
+group: Post-transition
+state-at-room-temp: solid
+origin: natural
+in-game: Light metal for aircraft and tech
+
+@element si
+name: Silicon
+real: yes
+number: 14
+symbol: Si
+period: 3
+group: Metalloid
+state-at-room-temp: solid
+origin: natural
+in-game: Rock and sand; computer chips
+
+@element p
+name: Phosphorus
+real: yes
+number: 15
+symbol: P
+period: 3
+group: Nonmetal
+state-at-room-temp: solid
+origin: natural
+in-game: DNA backbone and cell energy
+
+@element s
+name: Sulfur
+real: yes
+number: 16
+symbol: S
+period: 3
+group: Nonmetal
+state-at-room-temp: solid
+origin: natural
+in-game: Proteins; volcanic gas; gunpowder
+
+@element cl
+name: Chlorine
+real: yes
+number: 17
+symbol: Cl
+period: 3
+group: Halogen
+state-at-room-temp: gas
+origin: natural
+in-game: Salt in the seas; poison gas in war
+
+@element ar
+name: Argon
+real: yes
+number: 18
+symbol: Ar
+period: 3
+group: Noble gas
+state-at-room-temp: gas
+origin: natural
+in-game: Inert gas in the air; welding
+
+@element k
+name: Potassium
+real: yes
+number: 19
+symbol: K
+period: 4
+group: Alkali metal
+state-at-room-temp: solid
+origin: natural
+in-game: Plant growth; nerves
+
+@element ca
+name: Calcium
+real: yes
+number: 20
+symbol: Ca
+period: 4
+group: Alkaline earth
+state-at-room-temp: solid
+origin: natural
+in-game: Bones, shells, coral reefs, limestone
+
+@element sc
+name: Scandium
+real: yes
+number: 21
+symbol: Sc
+period: 4
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Light aerospace alloys
+
+@element ti
+name: Titanium
+real: yes
+number: 22
+symbol: Ti
+period: 4
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Strong, light metal for spacecraft
+
+@element v
+name: Vanadium
+real: yes
+number: 23
+symbol: V
+period: 4
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Hard steel
+
+@element cr
+name: Chromium
+real: yes
+number: 24
+symbol: Cr
+period: 4
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Stainless steel
+
+@element mn
+name: Manganese
+real: yes
+number: 25
+symbol: Mn
+period: 4
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Photosynthesis helper; steel
+
+@element fe
+name: Iron
+real: yes
+number: 26
+symbol: Fe
+period: 4
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Blood carries oxygen with it; the Iron Age; planet cores
+
+@element co
+name: Cobalt
+real: yes
+number: 27
+symbol: Co
+period: 4
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Vitamin B12; magnets and batteries
+
+@element ni
+name: Nickel
+real: yes
+number: 28
+symbol: Ni
+period: 4
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Planet cores; alloys
+
+@element cu
+name: Copper
+real: yes
+number: 29
+symbol: Cu
+period: 4
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: The Copper Age; wires for electricity
+
+@element zn
+name: Zinc
+real: yes
+number: 30
+symbol: Zn
+period: 4
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Enzymes; brass and batteries
+
+@element ga
+name: Gallium
+real: yes
+number: 31
+symbol: Ga
+period: 4
+group: Post-transition
+state-at-room-temp: solid
+origin: natural
+in-game: Electronics and solar panels
+
+@element ge
+name: Germanium
+real: yes
+number: 32
+symbol: Ge
+period: 4
+group: Metalloid
+state-at-room-temp: solid
+origin: natural
+in-game: Early electronics
+
+@element as
+name: Arsenic
+real: yes
+number: 33
+symbol: As
+period: 4
+group: Metalloid
+state-at-room-temp: solid
+origin: natural
+in-game: Poison
+
+@element se
+name: Selenium
+real: yes
+number: 34
+symbol: Se
+period: 4
+group: Nonmetal
+state-at-room-temp: solid
+origin: natural
+in-game: Trace nutrient; solar cells
+
+@element br
+name: Bromine
+real: yes
+number: 35
+symbol: Br
+period: 4
+group: Halogen
+state-at-room-temp: liquid
+origin: natural
+in-game: Fire retardants; sea salt
+
+@element kr
+name: Krypton
+real: yes
+number: 36
+symbol: Kr
+period: 4
+group: Noble gas
+state-at-room-temp: gas
+origin: natural
+in-game: Lighting
+
+@element rb
+name: Rubidium
+real: yes
+number: 37
+symbol: Rb
+period: 5
+group: Alkali metal
+state-at-room-temp: solid
+origin: natural
+in-game: Atomic clocks
+
+@element sr
+name: Strontium
+real: yes
+number: 38
+symbol: Sr
+period: 5
+group: Alkaline earth
+state-at-room-temp: solid
+origin: natural
+in-game: Red fireworks
+
+@element y
+name: Yttrium
+real: yes
+number: 39
+symbol: Y
+period: 5
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Lasers and superconductors
+
+@element zr
+name: Zirconium
+real: yes
+number: 40
+symbol: Zr
+period: 5
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Nuclear reactor parts
+
+@element nb
+name: Niobium
+real: yes
+number: 41
+symbol: Nb
+period: 5
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Superconducting magnets
+
+@element mo
+name: Molybdenum
+real: yes
+number: 42
+symbol: Mo
+period: 5
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Nitrogen-fixing enzymes; hard steel
+
+@element tc
+name: Technetium
+real: yes
+number: 43
+symbol: Tc
+period: 5
+group: Transition
+state-at-room-temp: solid
+origin: lab-made (only tiny traces in nature)
+in-game: Radioactive; medical scans
+
+@element ru
+name: Ruthenium
+real: yes
+number: 44
+symbol: Ru
+period: 5
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Electronics
+
+@element rh
+name: Rhodium
+real: yes
+number: 45
+symbol: Rh
+period: 5
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Engine catalysts
+
+@element pd
+name: Palladium
+real: yes
+number: 46
+symbol: Pd
+period: 5
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Catalysts
+
+@element ag
+name: Silver
+real: yes
+number: 47
+symbol: Ag
+period: 5
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Money; kills germs
+
+@element cd
+name: Cadmium
+real: yes
+number: 48
+symbol: Cd
+period: 5
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Batteries; toxic
+
+@element in
+name: Indium
+real: yes
+number: 49
+symbol: In
+period: 5
+group: Post-transition
+state-at-room-temp: solid
+origin: natural
+in-game: Touch screens
+
+@element sn
+name: Tin
+real: yes
+number: 50
+symbol: Sn
+period: 5
+group: Post-transition
+state-at-room-temp: solid
+origin: natural
+in-game: Bronze (with copper)
+
+@element sb
+name: Antimony
+real: yes
+number: 51
+symbol: Sb
+period: 5
+group: Metalloid
+state-at-room-temp: solid
+origin: natural
+in-game: Alloys; toxic
+
+@element te
+name: Tellurium
+real: yes
+number: 52
+symbol: Te
+period: 5
+group: Metalloid
+state-at-room-temp: solid
+origin: natural
+in-game: Solar panels
+
+@element i
+name: Iodine
+real: yes
+number: 53
+symbol: I
+period: 5
+group: Halogen
+state-at-room-temp: solid
+origin: natural
+in-game: Needed for growth; medicine
+
+@element xe
+name: Xenon
+real: yes
+number: 54
+symbol: Xe
+period: 5
+group: Noble gas
+state-at-room-temp: gas
+origin: natural
+in-game: Ion engines for spacecraft
+
+@element cs
+name: Caesium
+real: yes
+number: 55
+symbol: Cs
+period: 6
+group: Alkali metal
+state-at-room-temp: solid
+origin: natural
+in-game: Atomic clocks
+
+@element ba
+name: Barium
+real: yes
+number: 56
+symbol: Ba
+period: 6
+group: Alkaline earth
+state-at-room-temp: solid
+origin: natural
+in-game: Green fireworks; medical scans
+
+@element la
+name: Lanthanum
+real: yes
+number: 57
+symbol: La
+period: 6
+group: Lanthanide
+state-at-room-temp: solid
+origin: natural
+in-game: Camera lenses; batteries
+
+@element ce
+name: Cerium
+real: yes
+number: 58
+symbol: Ce
+period: 6
+group: Lanthanide
+state-at-room-temp: solid
+origin: natural
+in-game: Catalysts; polishing glass
+
+@element pr
+name: Praseodymium
+real: yes
+number: 59
+symbol: Pr
+period: 6
+group: Lanthanide
+state-at-room-temp: solid
+origin: natural
+in-game: Strong magnets
+
+@element nd
+name: Neodymium
+real: yes
+number: 60
+symbol: Nd
+period: 6
+group: Lanthanide
+state-at-room-temp: solid
+origin: natural
+in-game: Super-strong magnets for motors
+
+@element pm
+name: Promethium
+real: yes
+number: 61
+symbol: Pm
+period: 6
+group: Lanthanide
+state-at-room-temp: solid
+origin: lab-made (only tiny traces in nature)
+in-game: Radioactive; nuclear batteries
+
+@element sm
+name: Samarium
+real: yes
+number: 62
+symbol: Sm
+period: 6
+group: Lanthanide
+state-at-room-temp: solid
+origin: natural
+in-game: Magnets
+
+@element eu
+name: Europium
+real: yes
+number: 63
+symbol: Eu
+period: 6
+group: Lanthanide
+state-at-room-temp: solid
+origin: natural
+in-game: Red glow in screens
+
+@element gd
+name: Gadolinium
+real: yes
+number: 64
+symbol: Gd
+period: 6
+group: Lanthanide
+state-at-room-temp: solid
+origin: natural
+in-game: Medical scans
+
+@element tb
+name: Terbium
+real: yes
+number: 65
+symbol: Tb
+period: 6
+group: Lanthanide
+state-at-room-temp: solid
+origin: natural
+in-game: Green glow in screens
+
+@element dy
+name: Dysprosium
+real: yes
+number: 66
+symbol: Dy
+period: 6
+group: Lanthanide
+state-at-room-temp: solid
+origin: natural
+in-game: Magnets that stand heat
+
+@element ho
+name: Holmium
+real: yes
+number: 67
+symbol: Ho
+period: 6
+group: Lanthanide
+state-at-room-temp: solid
+origin: natural
+in-game: Strongest magnetic fields
+
+@element er
+name: Erbium
+real: yes
+number: 68
+symbol: Er
+period: 6
+group: Lanthanide
+state-at-room-temp: solid
+origin: natural
+in-game: Fiber-optic signals
+
+@element tm
+name: Thulium
+real: yes
+number: 69
+symbol: Tm
+period: 6
+group: Lanthanide
+state-at-room-temp: solid
+origin: natural
+in-game: Lasers
+
+@element yb
+name: Ytterbium
+real: yes
+number: 70
+symbol: Yb
+period: 6
+group: Lanthanide
+state-at-room-temp: solid
+origin: natural
+in-game: Atomic clocks
+
+@element lu
+name: Lutetium
+real: yes
+number: 71
+symbol: Lu
+period: 6
+group: Lanthanide
+state-at-room-temp: solid
+origin: natural
+in-game: Medical treatments
+
+@element hf
+name: Hafnium
+real: yes
+number: 72
+symbol: Hf
+period: 6
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Reactor control rods
+
+@element ta
+name: Tantalum
+real: yes
+number: 73
+symbol: Ta
+period: 6
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Electronics
+
+@element w
+name: Tungsten
+real: yes
+number: 74
+symbol: W
+period: 6
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Hardest metal to melt; light bulbs, armor
+
+@element re
+name: Rhenium
+real: yes
+number: 75
+symbol: Re
+period: 6
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Jet and rocket engines
+
+@element os
+name: Osmium
+real: yes
+number: 76
+symbol: Os
+period: 6
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Densest element
+
+@element ir
+name: Iridium
+real: yes
+number: 77
+symbol: Ir
+period: 6
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Left by asteroid strikes
+
+@element pt
+name: Platinum
+real: yes
+number: 78
+symbol: Pt
+period: 6
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Catalysts; wealth
+
+@element au
+name: Gold
+real: yes
+number: 79
+symbol: Au
+period: 6
+group: Transition
+state-at-room-temp: solid
+origin: natural
+in-game: Wealth and trade; electronics
+
+@element hg
+name: Mercury
+real: yes
+number: 80
+symbol: Hg
+period: 6
+group: Transition
+state-at-room-temp: liquid
+origin: natural
+in-game: Liquid metal; poison
+
+@element tl
+name: Thallium
+real: yes
+number: 81
+symbol: Tl
+period: 6
+group: Post-transition
+state-at-room-temp: solid
+origin: natural
+in-game: Poison
+
+@element pb
+name: Lead
+real: yes
+number: 82
+symbol: Pb
+period: 6
+group: Post-transition
+state-at-room-temp: solid
+origin: natural
+in-game: Pipes and shielding; poison
+
+@element bi
+name: Bismuth
+real: yes
+number: 83
+symbol: Bi
+period: 6
+group: Post-transition
+state-at-room-temp: solid
+origin: natural
+in-game: Medicine; low-melting alloys
+
+@element po
+name: Polonium
+real: yes
+number: 84
+symbol: Po
+period: 6
+group: Post-transition
+state-at-room-temp: solid
+origin: natural
+in-game: Highly radioactive
+
+@element at
+name: Astatine
+real: yes
+number: 85
+symbol: At
+period: 6
+group: Halogen
+state-at-room-temp: solid
+origin: natural
+in-game: Rare and radioactive
+
+@element rn
+name: Radon
+real: yes
+number: 86
+symbol: Rn
+period: 6
+group: Noble gas
+state-at-room-temp: gas
+origin: natural
+in-game: Radioactive gas from rock; causes mutations
+
+@element fr
+name: Francium
+real: yes
+number: 87
+symbol: Fr
+period: 7
+group: Alkali metal
+state-at-room-temp: solid
+origin: natural
+in-game: Extremely rare and radioactive
+
+@element ra
+name: Radium
+real: yes
+number: 88
+symbol: Ra
+period: 7
+group: Alkaline earth
+state-at-room-temp: solid
+origin: natural
+in-game: Radioactive glow
+
+@element ac
+name: Actinium
+real: yes
+number: 89
+symbol: Ac
+period: 7
+group: Actinide
+state-at-room-temp: solid
+origin: natural
+in-game: Radioactive; medicine
+
+@element th
+name: Thorium
+real: yes
+number: 90
+symbol: Th
+period: 7
+group: Actinide
+state-at-room-temp: solid
+origin: natural
+in-game: Nuclear fuel; heats planet interiors
+
+@element pa
+name: Protactinium
+real: yes
+number: 91
+symbol: Pa
+period: 7
+group: Actinide
+state-at-room-temp: solid
+origin: natural
+in-game: Rare and radioactive
+
+@element u
+name: Uranium
+real: yes
+number: 92
+symbol: U
+period: 7
+group: Actinide
+state-at-room-temp: solid
+origin: natural
+in-game: Nuclear power and bombs; heats planet interiors
+
+@element np
+name: Neptunium
+real: yes
+number: 93
+symbol: Np
+period: 7
+group: Actinide
+state-at-room-temp: solid
+origin: natural
+in-game: Made in reactors
+unlock: once a civilization first creates it
+
+@element pu
+name: Plutonium
+real: yes
+number: 94
+symbol: Pu
+period: 7
+group: Actinide
+state-at-room-temp: solid
+origin: natural
+in-game: Nuclear bombs; space probe power
+unlock: once a civilization first creates it
+
+@element am
+name: Americium
+real: yes
+number: 95
+symbol: Am
+period: 7
+group: Actinide
+state-at-room-temp: solid
+origin: lab-made
+in-game: Smoke detectors
+unlock: once a civilization first creates it
+
+@element cm
+name: Curium
+real: yes
+number: 96
+symbol: Cm
+period: 7
+group: Actinide
+state-at-room-temp: solid
+origin: lab-made
+in-game: Space probe power
+unlock: once a civilization first creates it
+
+@element bk
+name: Berkelium
+real: yes
+number: 97
+symbol: Bk
+period: 7
+group: Actinide
+state-at-room-temp: solid
+origin: lab-made
+in-game: Lab-made only
+unlock: once a civilization first creates it
+
+@element cf
+name: Californium
+real: yes
+number: 98
+symbol: Cf
+period: 7
+group: Actinide
+state-at-room-temp: solid
+origin: lab-made
+in-game: Starts nuclear reactors
+unlock: once a civilization first creates it
+
+@element es
+name: Einsteinium
+real: yes
+number: 99
+symbol: Es
+period: 7
+group: Actinide
+state-at-room-temp: solid
+origin: lab-made
+in-game: Lab-made only
+unlock: once a civilization first creates it
+
+@element fm
+name: Fermium
+real: yes
+number: 100
+symbol: Fm
+period: 7
+group: Actinide
+state-at-room-temp: solid
+origin: lab-made
+in-game: Lab-made only
+unlock: once a civilization first creates it
+
+@element md
+name: Mendelevium
+real: yes
+number: 101
+symbol: Md
+period: 7
+group: Actinide
+state-at-room-temp: solid
+origin: lab-made
+in-game: Lab-made only
+unlock: once a civilization first creates it
+
+@element no
+name: Nobelium
+real: yes
+number: 102
+symbol: No
+period: 7
+group: Actinide
+state-at-room-temp: solid
+origin: lab-made
+in-game: Lab-made only
+unlock: once a civilization first creates it
+
+@element lr
+name: Lawrencium
+real: yes
+number: 103
+symbol: Lr
+period: 7
+group: Actinide
+state-at-room-temp: solid
+origin: lab-made
+in-game: Lab-made only
+unlock: once a civilization first creates it
+
+@element rf
+name: Rutherfordium
+real: yes
+number: 104
+symbol: Rf
+period: 7
+group: Transition
+state-at-room-temp: unknown
+origin: lab-made
+in-game: Lab-made, lasts seconds
+unlock: once a civilization first creates it
+
+@element db
+name: Dubnium
+real: yes
+number: 105
+symbol: Db
+period: 7
+group: Transition
+state-at-room-temp: unknown
+origin: lab-made
+in-game: Lab-made, lasts seconds
+unlock: once a civilization first creates it
+
+@element sg
+name: Seaborgium
+real: yes
+number: 106
+symbol: Sg
+period: 7
+group: Transition
+state-at-room-temp: unknown
+origin: lab-made
+in-game: Lab-made, lasts seconds
+unlock: once a civilization first creates it
+
+@element bh
+name: Bohrium
+real: yes
+number: 107
+symbol: Bh
+period: 7
+group: Transition
+state-at-room-temp: unknown
+origin: lab-made
+in-game: Lab-made, lasts seconds
+unlock: once a civilization first creates it
+
+@element hs
+name: Hassium
+real: yes
+number: 108
+symbol: Hs
+period: 7
+group: Transition
+state-at-room-temp: unknown
+origin: lab-made
+in-game: Lab-made, lasts seconds
+unlock: once a civilization first creates it
+
+@element mt
+name: Meitnerium
+real: yes
+number: 109
+symbol: Mt
+period: 7
+group: Predicted (never measured)
+state-at-room-temp: unknown
+origin: lab-made
+in-game: Lab-made, lasts moments
+unlock: once a civilization first creates it
+
+@element ds
+name: Darmstadtium
+real: yes
+number: 110
+symbol: Ds
+period: 7
+group: Predicted (never measured)
+state-at-room-temp: unknown
+origin: lab-made
+in-game: Lab-made, lasts moments
+unlock: once a civilization first creates it
+
+@element rg
+name: Roentgenium
+real: yes
+number: 111
+symbol: Rg
+period: 7
+group: Predicted (never measured)
+state-at-room-temp: unknown
+origin: lab-made
+in-game: Lab-made, lasts moments
+unlock: once a civilization first creates it
+
+@element cn
+name: Copernicium
+real: yes
+number: 112
+symbol: Cn
+period: 7
+group: Transition
+state-at-room-temp: unknown
+origin: lab-made
+in-game: Lab-made, lasts moments
+unlock: once a civilization first creates it
+
+@element nh
+name: Nihonium
+real: yes
+number: 113
+symbol: Nh
+period: 7
+group: Predicted (never measured)
+state-at-room-temp: unknown
+origin: lab-made
+in-game: Lab-made, lasts moments
+unlock: once a civilization first creates it
+
+@element fl
+name: Flerovium
+real: yes
+number: 114
+symbol: Fl
+period: 7
+group: Predicted (never measured)
+state-at-room-temp: unknown
+origin: lab-made
+in-game: Lab-made, lasts moments
+unlock: once a civilization first creates it
+
+@element mc
+name: Moscovium
+real: yes
+number: 115
+symbol: Mc
+period: 7
+group: Predicted (never measured)
+state-at-room-temp: unknown
+origin: lab-made
+in-game: Lab-made, lasts moments
+unlock: once a civilization first creates it
+
+@element lv
+name: Livermorium
+real: yes
+number: 116
+symbol: Lv
+period: 7
+group: Predicted (never measured)
+state-at-room-temp: unknown
+origin: lab-made
+in-game: Lab-made, lasts moments
+unlock: once a civilization first creates it
+
+@element ts
+name: Tennessine
+real: yes
+number: 117
+symbol: Ts
+period: 7
+group: Predicted (never measured)
+state-at-room-temp: unknown
+origin: lab-made
+in-game: Lab-made, lasts moments
+unlock: once a civilization first creates it
+
+@element og
+name: Oganesson
+real: yes
+number: 118
+symbol: Og
+period: 7
+group: Noble gas
+state-at-room-temp: unknown
+origin: lab-made
+in-game: Heaviest known element
+unlock: once a civilization first creates it
+
+# ── Generator rules ──
+
+@rule element-protons
+real: rule
+says: an atom's proton count is its element number; neutrons give isotopes (content/physics.dnat)
+
+@rule element-paint
+real: rule
+says: any natural element can be painted into the world from the element tree; lab-made ones (93 and up) unlock once a civilization first creates them
+
+@rule element-chemistry
+real: rule
+says: elements combine by their chemistry into compounds, minerals, air and the molecules of life
+
+@rule element-abundance
+real: rule
+says: hydrogen and helium are by far the most common elements in stars and giants; rocky worlds are mostly oxygen, silicon, iron and magnesium
+
+@rule element-heavy
+real: rule
+says: heavy elements are made in stars and supernovas and spread by them; young galaxies have fewer of them

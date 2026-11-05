@@ -65,7 +65,7 @@ Order: galactic scale down, the same order as the sample sets.
 - [x] Content: Space stations (in `content/space-tech.dnat`)
 - [x] Content: Space colonies (100 kinds on the space page, generator rules in `content/space-tech.dnat`)
 - [x] Content: Spaceships and drives (in `content/space-tech.dnat`)
-- [ ] Content: Cities (seeds, ranges, parts, rules) in `content/`
+- [x] Content: Cities in `content/cities.dnat` (researched)
 - [ ] Content: Intelligent creatures (any kingdom) in `content/life/`
 - [ ] Content: Animals: every phylum → class → order → family → genus → species in `content/life/`
 - [ ] Content: Plants: every phylum down to species in `content/life/`
@@ -74,7 +74,7 @@ Order: galactic scale down, the same order as the sample sets.
 - [ ] Content: Archaea: every phylum down to species in `content/life/`
 - [ ] Content: Bacteria: every phylum down to species in `content/life/`
 - [ ] Content: Viruses: every group down to type in `content/life/`
-- [ ] Content: Elements (all 118) (seeds, ranges, parts, rules) in `content/`
+- [x] Content: Elements, all 118, in `content/elements.dnat`
 - [ ] Then: seeds and rules for the rest of the 100 categories
 - [ ] Content compiler (part of R1): `.dnat` text → our binary
 
