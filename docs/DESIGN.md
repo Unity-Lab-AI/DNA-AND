@@ -669,3 +669,10 @@ Everything the creator has said about this project, in order. Short process repl
 100. "now i cant see anything going in goes all black". Cause: on the first frame inside, the camera had not been placed yet, so it sat at the star and its height became invalid. Fix: the camera is placed before the first picture inside, at a safe height.
 101. "okay its working now". Going in and out of the Dyson sphere works.
 102. "yeah push to both remotes and get on to the rest". Sets 5 and 6 are pushed. Next is set 7: stations, colonies and ships.
+103. **Build order:** "okay well we need to do everything in proper order for the full game". The sample sets that remain go in the order each one depends on the one before:
+    1. elements
+    2. the microscopic world: viruses and microbes, which also fixes being stuck at the deepest zoom
+    3. each kingdom of life: plants, fungi, insects, animals and the rest
+    4. intelligent creatures
+    5. cities
+    6. stations, colonies and ships, built from the species that make them
