@@ -58,3 +58,9 @@ The renderer draws what the live generators build. Every asset is generated on t
 ## 🔨 Built so far
 
 See `src/` and the TODO for what exists. Display safety: windowed only, vsync, Alt+Enter blocked, an in-game watchdog, and timed test runs that are force-closed if they overrun.
+
+## 🎨 Locked styles
+
+| Subject | Style | Decided |
+|---|---|---|
+| Galaxies (all types) | Populous-like (tilted 3D, faceted) | Round 23 |

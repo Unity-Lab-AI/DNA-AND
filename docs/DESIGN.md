@@ -470,6 +470,14 @@ The concern: "we cant have real motion with speed uup time and shit" / "people w
 
 ---
 
+## Round 23: galaxy style locked (verbatim)
+
+"center column is all 100% go for all theri variations of galaxies"
+
+- **Galaxies use the Populous-like style** (tilted 3D, faceted), for every galaxy type, in the sample viewer and the deep zoom.
+
+---
+
 ## How we work (verbatim)
 
 These are the creator's working rules for this repo, each in his own words.
@@ -584,3 +592,4 @@ Everything the creator has said about this project, in order. Short process repl
     - New `play.cmd` with no timer.
     - The set 1 pick is corrected to the center column (Populous-like).
 60. "middle row is 100% trash, center column are best". The barred spiral (middle row) was rebuilt with a thick oval bar, an inner ring and arms from the bar tips. Populous-like (center column) is confirmed.
+61. **Galaxy style locked:** "center column is all 100% go for all theri variations of galaxies"
