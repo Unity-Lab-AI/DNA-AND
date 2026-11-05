@@ -1,8 +1,8 @@
 ---
 title: R3 · Engine core
-status: draft
+status: partial
 sources: [docs/ROADMAP.md#R3, docs/TODO.md#R3]
-last-verified: none (plan only)
+last-verified: fdaea69
 ---
 
 # ⚙️ R3 · Engine Core
@@ -47,4 +47,6 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 
 ## 🔨 Built so far
 
-See `src/` and the TODO for what exists. Display safety: windowed only, vsync, Alt+Enter blocked, an in-game watchdog, and timed test runs that are force-closed if they overrun.
+- Maths: `src/core/MathCore.cs` has vectors, matrices, our own random numbers (SplitMix64 and xoshiro256**) and value noise.
+- Content: `Content.cs` loads the `.dnat` files.
+- Precision: positions are kept relative to whatever the camera is centred on, in double precision. The camera is built from its direction and then moved out, so it stays exact from galaxy size down to a micrometre.

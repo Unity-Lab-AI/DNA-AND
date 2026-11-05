@@ -1,8 +1,8 @@
 ---
 title: R6 · Planet
-status: draft
+status: partial
 sources: [docs/DESIGN.md (rounds 1, 2, 4), docs/LISTS.md, docs/ROADMAP.md#R6]
-last-verified: none (plan only)
+last-verified: fdaea69
 ---
 
 # 🌍 R6 · Planet
@@ -45,3 +45,14 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 - `content/physics.dnat`: 49 entries (The four forces of nature, Particles and atoms, Inside a planet, What moves inside a planet, Atmospheres) and 8 rules
 - `content/resource-fields.dnat`: 26 entries (Made by magma, Made by hot fluids, Made by water and time, Made by weather, Fields in space) and 6 rules
 - `content/elements.dnat`: 118 entries (Main) and 5 rules
+
+## 🔨 Built so far
+
+- **Ground** (`src/gen/PlanetTerrain.cs`): a cube-sphere whose pieces split down to about a micrometre. Height and colour come from our own noise.
+- **Sky and water:** an air glow, turning clouds, weather near the ground, see-through water with a sea floor, and light fading with depth.
+- **Resource fields:** volcanoes, rivers and 16 kinds of field placed by geology, plus the resource view.
+- **Air:** each world kind's air make-up is in content (`air:`).
+- **The fly-down** (`src/shell/PlanetView.cs`):
+  - from orbit to the ground, into the ground (solid colour darkening with depth), and under the sea
+  - sea life at true scale (`src/sim/SeaLife.cs`)
+  - on land, the view fades to black before the microbes

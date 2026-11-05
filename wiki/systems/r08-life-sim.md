@@ -1,8 +1,8 @@
 ---
 title: R8 · Life simulation
-status: draft
+status: partial
 sources: [docs/DESIGN.md (rounds 1, 3, 4), docs/ROADMAP.md#R8]
-last-verified: none (plan only)
+last-verified: fdaea69
 ---
 
 # 🦠 R8 · Life Simulation
@@ -69,3 +69,12 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 - `content/life/animals.dnat`: 84 entries (Body-plan traits, Phyla, Arthropod classes, Insect orders (seeds), Fish classes, Land vertebrate classes, Bird orders (seeds), Mammal orders (seeds)) and 5 rules
 - `content/life/extinct.dnat`: 47 entries (Mass extinctions (the Big Five, and after), The first strange animals, Early fish and the walk onto land, Dinosaurs, Other Mesozoic giants, After the dinosaurs: the age of mammals, Extinct plants) and 5 rules
 - `content/life/intelligent.dnat`: 29 entries (Real thinking animals (seeds), Signs of a mind, What pushes a line toward intelligence) and 5 rules
+
+## 🔨 Built so far
+
+- **A live microbe ecosystem** (`src/sim/MicrobeWorld.cs`). Genomes set size, speed, feeding, poison, defence, coat, the temperature liked, shape and surface.
+- **Breeding:** with mutation and rare big jumps, and families keep their colour.
+- **Selection:** by light, food, temperature, predators and toxins.
+- **Viruses:** they infect by surface match, burst the cell, and mutate.
+- **Scale:** about 600 microbes and 400 viruses, each standing for a crowd of its kind.
+- **Not built yet:** one shared life simulation per planet, starting from its first cells, for every scale to show.

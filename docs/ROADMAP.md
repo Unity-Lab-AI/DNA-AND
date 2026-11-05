@@ -99,7 +99,7 @@ Every asset is built live, on the fly, from data arrays, while life evolves: cre
 ### [ ] R4.5 — Art style samples (before any final art)
 > "things like ingame microbes viruses and intelligernt creature should all have samples 1,2,3 made in 3 diffeernt styles 1,2,3 for a hand ful of things in the game before we go with any one style" / "try a rimworld like and a, populous like, and a stardew like"
 
-The live generators (R4.4) make samples of each subject, opened one set at a time. The first sets compared 3 styles (RimWorld-like, Populous-like, Stardew-like). **Populous-like won and is locked for everything** (`docs/DESIGN.md`, item 67), so the sets that remain show that style only. Sets 1–4 are approved: galaxies, solar systems, stars, and planets with gas giants. Sets 5–17 remain.
+The live generators (R4.4) make samples of each subject, opened one set at a time. The first sets compared 3 styles (RimWorld-like, Populous-like, Stardew-like). **Populous-like won and is locked for everything** (`docs/DESIGN.md`, item 67), so the sets that remain show that style only. Sets 1–8 are approved: galaxies, solar systems, stars, planets and gas giants, resource fields, the Dyson sphere, the elements and the microbes, and they join into one zoom from galaxies to microbes. The rest follow in the order each one depends on the one before: the kingdoms of life, intelligent creatures, cities, then stations, colonies and ships.
 
 - **Live viewer:** our own program in its own window. Pick a subject and see its 9 samples moving and rotatable ("Live viewer, moving (Suggested)").
 - **Direct3D 12** from day one ("Straight to Direct3D 12"), with our own shader-code generator.

@@ -13,6 +13,18 @@ From your very first moment you can **add any element** to your world. What each
 
 > 💡 **Tip:** The big six of life are **C, H, N, O, P, S**. Start there.
 
+🌡️ **Heat and pressure change them.** Every element melts and boils at its real temperature, and pressure moves its boiling point. In the periodic table you can turn the heat and pressure up and down and watch each one turn solid, liquid or gas.
+
+| Look | What it is |
+|---|---|
+| 🧱 A stack of bars | A metal, kept as metal |
+| 💎 A cluster of crystals | A mineral |
+| ⛰️ A heap of powder | A reactive metal or a solid like sulfur |
+| 💧 A drop | A liquid |
+| ☁️ A cloud | A gas, in the colour it glows |
+| ✨ A small glowing core | Made only in laboratories; it falls apart almost at once |
+| ☢️ The radiation sign | Radioactive |
+
 | Color | Group |
 |:-:|---|
 | 🟩 | Nonmetal |

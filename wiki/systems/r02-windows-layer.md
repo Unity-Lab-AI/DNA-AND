@@ -1,8 +1,8 @@
 ---
 title: R2 · Windows layer
-status: draft
+status: partial
 sources: [docs/DESIGN.md (round 2), docs/ROADMAP.md#R2]
-last-verified: none (plan only)
+last-verified: fdaea69
 ---
 
 # 🪟 R2 · Windows Layer
@@ -28,4 +28,9 @@ Mac and Linux each get their own version of this layer. Everything above it stay
 
 ## 🔨 Built so far
 
-See `src/` and the TODO for what exists. Display safety: windowed only, vsync, Alt+Enter blocked, an in-game watchdog, and timed test runs that are force-closed if they overrun.
+- The window and its message pump: `src/platform/Window.cs`.
+- The keyboard and mouse: `Input.cs`. Ctrl + wheel counts each notch eight times.
+- The menu bar: Exit, Keep going or revert, Keepers, Legend.
+- Windows pop-up boxes (`MessageBoxTimeoutW`).
+- The safety watchdog: `Watchdog.cs`.
+- Per-monitor DPI awareness, windowed only.
