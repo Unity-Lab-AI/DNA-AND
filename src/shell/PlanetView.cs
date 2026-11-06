@@ -32,6 +32,9 @@ namespace DnaAnd.Shell
         private SeaBodies _seaBodies;
         /// <summary>Test runs: start life and run it this many years forward at once.</summary>
         public double TestEvolveYears;
+        /// <summary>Test runs: once life is run forward, go to land on the lit side where an intelligent species lives.</summary>
+        public bool TestGoToCiv;
+        private string _testNote = "";
         private string _lifeNote = ""; private double _lifeNoteUntil;
         private bool _wasUnderWater;
         private readonly DnaAnd.Sim.SeaLife _sea = new DnaAnd.Sim.SeaLife();
@@ -244,7 +247,7 @@ namespace DnaAnd.Shell
         {
             get
             {
-                string where = _underWater ? " · under water, " + Size(_waterDepth) + " below the surface" : "";
+                string where = _testNote + (_underWater ? " · under water, " + Size(_waterDepth) + " below the surface" : "");
                 if (_intoGround > 0) where += " · INSIDE THE GROUND, " + Size(_intoGround) + " in (wheel back out to come up)";
                 if (!_underWater && _land != null && _land.Here.Length > 0) where += " · living here: " + _land.Here;
                 if (_underWater && (_sea.Animals.Count > 0 || (_seaBodies != null && _seaBodies.Here.Length > 0)))
@@ -293,6 +296,22 @@ namespace DnaAnd.Shell
                 var sw = System.Diagnostics.Stopwatch.StartNew();                        // a little each frame, so the window keeps answering
                 while (_life.Years < TestEvolveYears && sw.ElapsedMilliseconds < 120) _life.Step(1e6);
                 if (_life.Years >= TestEvolveYears) TestEvolveYears = 0;
+                if (TestEvolveYears == 0 && TestGoToCiv)
+                {
+                    TestGoToCiv = false; _testNote = " · test: no intelligent species on land";
+                    int seaCiv = 0; for (int q = 0; q < 2000; q++) { var rq = new Rng((ulong)q + 9); double a1 = Math.Asin(rq.NextDouble() * 2 - 1), a2 = rq.NextDouble() * 6.283; double qx = Math.Cos(a1) * Math.Cos(a2), qy = Math.Sin(a1), qz = Math.Cos(a1) * Math.Sin(a2); foreach (var kv in _life.At(qx, qy, qz)) if (kv.Key.G.Stage >= 6) { seaCiv++; break; } }
+                    _testNote += " (" + seaCiv + " of 2000 spots have one)";
+                    var rng = new Rng(777);
+                    for (int i = 0; i < 80000; i++)
+                    {
+                        bool litOnly = i < 40000;                                     // lit side first, then anywhere
+                        double la = Math.Asin(rng.NextDouble() * 1.8 - 0.9), lo = rng.NextDouble() * Math.PI * 2;
+                        double x = Math.Cos(la) * Math.Cos(lo), y = Math.Sin(la), z = Math.Cos(la) * Math.Sin(lo);
+                        if ((litOnly && x * _terrain.StarDir[0] + y * _terrain.StarDir[1] + z * _terrain.StarDir[2] < 0.3) || _terrain.GroundAt(x, y, z) < 0.05) continue;
+                        bool civ = false; foreach (var kv in _life.At(x, y, z)) if (kv.Key.G.Stage >= 6) { civ = true; break; }
+                        if (civ) { _lat = la; _lon = lo; _testNote = " · test: went to an intelligent species" + (litOnly ? "" : " (night side)"); break; }
+                    }
+                }
             }
             if (_life != null) _life.Step(dt * _life.YearsPerSecond);
             if (_life != null && input.WasPressed(0x4C))                                      // L: a lightning strike on the spot below

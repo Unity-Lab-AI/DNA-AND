@@ -130,3 +130,4 @@ Append-only. Newest at the bottom.
 - r04b generators: species skin colour kept strong and bright; builds carry the builders' colour.
 - r08 life sim: plants on land grow in thick stands.
 - r08 life sim: the planet's own sea animals swim at true size from their genes (`SeaBodies`).
+- r08 life sim: a test jump to land where an intelligent species lives; its village seen on the ground.
