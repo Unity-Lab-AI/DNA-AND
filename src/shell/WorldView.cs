@@ -537,6 +537,7 @@ namespace DnaAnd.Shell
                 _autoLogT += dt;
                 if (_autoLogT > 1) { _autoLogT = 0; try { System.IO.File.AppendAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "dna_autopath.log"), Title + Environment.NewLine); } catch { } }
             }
+            if (input.RightClicked) { _tKind = -1; _tName = ""; }                    // right click: let go of what you picked
             if (input.WasPressed(0x48)) { _hud.Visible = !_hud.Visible; MenuChanged = true; }   // H: the scale on screen, on or off
             if (input.WasPressed(Win32.VK_ESCAPE)) return false;
             if (input.LeftDown)
@@ -1052,7 +1053,7 @@ namespace DnaAnd.Shell
                     : _ground != null ? "at " + _system.Bodies[_planet].Kind + ", " + Units.Describe(AboveGround()) + " above the ground"
                     : _system != null ? "in the system of a " + _system.StarName + " (" + _system.Bodies.Count + " planets and moons)"
                     : _near >= 0 ? (NearShare() > 0.5 ? "among the stars of " : "near ") + _galaxies[_near].Name : "among the galaxies";
-                return "DNA-AND · one world · " + where + picked + " · nearest thing " + Units.Describe(NearestDistance()) + " away · wheel: fly in or out toward the mouse · drag: circle the pick or look around · W A S D Q E: fly · H: scale on or off · Esc: close";
+                return "DNA-AND · one world · " + where + picked + " · nearest thing " + Units.Describe(NearestDistance()) + " away · wheel: fly in or out toward the mouse · drag: circle the pick or look around · right click: clear the pick · W A S D Q E: fly · H: scale on or off · Esc: close";
             }
         }
 
