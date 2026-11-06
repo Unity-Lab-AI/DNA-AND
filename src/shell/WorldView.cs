@@ -481,7 +481,7 @@ namespace DnaAnd.Shell
         {
             // a click (pressed and let go without dragging) picks what is under the mouse
             if (input.LeftClicked) { _pressed = true; _dragged = false; _pressX = input.MouseX; _pressY = input.MouseY; }
-            if (_pressed && input.LeftDown && Math.Abs(input.MouseX - _pressX) + Math.Abs(input.MouseY - _pressY) > 6) { _dragged = true; _tKind = -1; }   // looking around lets go of the pick
+            if (_pressed && input.LeftDown && Math.Abs(input.MouseX - _pressX) + Math.Abs(input.MouseY - _pressY) > 6) _dragged = true;   // dragging circles round the pick (or looks around if nothing is picked)
             if (_pressed && !input.LeftDown) { _pressed = false; if (!_dragged) Pick(MouseRay(input.MouseX, input.MouseY, w, h), input.MouseX, input.MouseY); }
             // the camera turns smoothly to face what you picked
             double tdx, tdy, tdz, trad;
@@ -515,7 +515,20 @@ namespace DnaAnd.Shell
                 // dragging looks around; by default the view moves the other way to the mouse (like pulling the sky), both ways
                 // can be flipped in the View menu
                 double sx = Settings.Get("invert-left-right", false) ? 1 : -1, sy = Settings.Get("invert-up-down", false) ? -1 : 1;
-                _yaw += sx * input.MouseDX * 0.004; _pitch = Math.Max(-1.55, Math.Min(1.55, _pitch + sy * input.MouseDY * 0.004));
+                double odx, ody, odz, orad;
+                if (_tKind >= 0 && _tKind != 3 && _dragged && TargetFromCamera(out odx, out ody, out odz, out orad) && odx * odx + ody * ody + odz * odz > 0)
+                {
+                    // with something picked: circle round it at the distance you are at, always facing it
+                    // (see a solar system from above, a galaxy edge-on, a planet from any side)
+                    double r = Math.Sqrt(odx * odx + ody * ody + odz * odz);
+                    double ox = -odx / r, oy = -ody / r, oz = -odz / r;                // from the pick to the camera
+                    double th = Math.Atan2(oz, ox) - sx * input.MouseDX * 0.006, ph = Math.Asin(Math.Max(-1, Math.Min(1, oy)));
+                    ph = Math.Max(-1.55, Math.Min(1.55, ph + sy * input.MouseDY * 0.006));
+                    double nx = Math.Cos(ph) * Math.Cos(th) * r, ny = Math.Sin(ph) * r, nz = Math.Cos(ph) * Math.Sin(th) * r;
+                    _ox += nx + odx; _oy += ny + ody; _oz += nz + odz;                  // the camera moves to its new place round the pick
+                    _yaw = Math.Atan2(-nz, -nx); _pitch = Math.Asin(Math.Max(-1, Math.Min(1, -ny / r)));
+                }
+                else { _yaw += sx * input.MouseDX * 0.004; _pitch = Math.Max(-1.55, Math.Min(1.55, _pitch + sy * input.MouseDY * 0.004)); }
             }
             double reach = NearestDistance();
             if (_matterScale > 0)
