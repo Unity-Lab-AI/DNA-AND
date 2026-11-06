@@ -31,6 +31,11 @@ namespace DnaAnd.Sim
         public double Radiation = 0.25;
         /// <summary>Set from the planet's air: how much warmer or colder the world is than Earth's 15 °C, and the oxygen in the air.</summary>
         public double WarmerK, Oxygen = 0.21;
+        /// <summary>The regions' weather, set by the planet's weather each step: rain (1 = average) and ice cover (0 to 1).</summary>
+        public PlanetWeather Weather;
+        public double RegionY(int i) { return PY[i]; }
+        public double RegionWarmth(int i) { return _warm[i]; }
+        public double RegionSea(int i) { return _wet[i]; }
         /// <summary>Plant-like life and early microbes on the whole planet (crowds), for the air.</summary>
         public double Producers, Microbes;
         public const double LightningCost = 4;                     // Lightning is tier 4: tier x area (one strike) x strength (1)
@@ -165,13 +170,16 @@ namespace DnaAnd.Sim
 
         private double Fit(Genome g, int i, Web w)
         {
-            double heat = 1 - Math.Abs(_warm[i] + WarmerK / 60.0 - g.Warm) * 2.2;          // the whole world warms or cools with its air
+            double warmth = Weather != null ? 0.62 + (Weather.TempC[i] - 15) / 40.0 : _warm[i] + WarmerK / 60.0;   // the region's own temperature, from the weather
+            double heat = 1 - Math.Abs(warmth - g.Warm) * 2.2;
             // food: light and nutrients for plant-like life, plant-like life for grazers, other animals for hunters
             double food = g.Photo * _light[i] * (0.4 + w.Nutrients) + g.Graze * (0.3 * w.Nutrients + 0.9 * w.Plants) + g.Hunt * 1.1 * w.Prey;
-            double water = 0.3 + g.Coat * 0.7 + (0.7 - g.Coat * 0.7) * _wet[i];   // the wetter the region, the less a tough coat is needed              // dry land needs a tough coat
+            double wet = Weather != null && _wet[i] < 0.6 ? Math.Min(1, _wet[i] * Weather.Rain[i]) : _wet[i];   // on land, rain decides how wet it is
+            double water = 0.3 + g.Coat * 0.7 + (0.7 - g.Coat * 0.7) * wet;   // the wetter the region, the less a tough coat is needed              // dry land needs a tough coat
             double shield = 1 - Radiation * 0.7 * (1 - _wet[i]);                     // without a magnetic shield, life on dry land is burned by the star
+            double ice = Weather != null ? 1 - Weather.Ice[i] * (_wet[i] > 0.6 ? 0.4 : 0.85) : 1;          // ice: hard on land, sea life lives on under it
             double breath = g.Stage >= 3 ? Math.Min(1, 0.05 + Oxygen / 0.02) : 1;      // animals with nerves and more need oxygen in the air
-            return Math.Max(0, heat) * food * water * shield * breath;
+            return Math.Max(0, heat) * food * water * shield * breath * ice;
         }
 
         /// <summary>One step of the planet's life: growth, competition, spread to neighbours, new species. <paramref name="years"/> long.</summary>

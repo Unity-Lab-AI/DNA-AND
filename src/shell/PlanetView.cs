@@ -31,7 +31,7 @@ namespace DnaAnd.Shell
         private LandLife _land;
         /// <summary>The planet's inside (core, heat, plates, magnetic field), one per planet, on the same clock as its life.</summary>
         public static readonly System.Collections.Generic.Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetCore> Cores = new System.Collections.Generic.Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetCore>();
-        private DnaAnd.Sim.PlanetCore _core; private DnaAnd.Sim.PlanetPlates _plates; private DnaAnd.Sim.PlanetAir _air; private DnaAnd.Core.Chunk _loadedAir; private int _seenEvents; private DnaAnd.Core.Chunk _loadedCore; private string _coreNews = ""; private double _coreNewsUntil;
+        private DnaAnd.Sim.PlanetCore _core; private DnaAnd.Sim.PlanetPlates _plates; private DnaAnd.Sim.PlanetAir _air; private DnaAnd.Sim.PlanetWeather _weather; private DnaAnd.Core.Chunk _loadedAir; private int _seenEvents; private DnaAnd.Core.Chunk _loadedCore; private string _coreNews = ""; private double _coreNewsUntil;
         private SeaBodies _seaBodies;
         /// <summary>Test runs: start life and run it this many years forward at once.</summary>
         public double TestEvolveYears;
@@ -264,7 +264,7 @@ namespace DnaAnd.Shell
                     if (_seaBodies != null && _seaBodies.Here.Length > 0) names.Insert(0, _seaBodies.Here);
                     where += " · in the water around you: " + string.Join(", ", names.ToArray());
                 }
-                if (_core != null) where += " · PLANET: " + _core.Describe() + (_plates != null && _core.Plates ? ", " + _plates.Describe() : "") + (_air != null ? " · " + _air.Describe() : "") + (_time < _coreNewsUntil ? " · NEWS: " + _coreNews : "");
+                if (_core != null) where += " · PLANET: " + _core.Describe() + (_plates != null && _core.Plates ? ", " + _plates.Describe() : "") + (_air != null ? " · " + _air.Describe() : "") + (_weather != null ? ", " + _weather.Describe() : "") + (_time < _coreNewsUntil ? " · NEWS: " + _coreNews : "");
                 if (_life != null)
                 {
                     where += " · LIFE: " + (_life.Sparks == 0 ? "none yet (L: lightning, the first spark is free)" :
@@ -345,6 +345,10 @@ namespace DnaAnd.Shell
                 _air.Advance(_core, _life.Producers, _life.Microbes, _terrain.HasWater);
                 if (_air.Events.Length > 0) { _coreNews = _air.Events; _coreNewsUntil = _time + 8; }
                 _life.WarmerK = _air.TempK - 288; _life.Oxygen = _air.O2;
+                if (_weather == null) { _weather = new DnaAnd.Sim.PlanetWeather(_life.RegionCount); _life.Weather = _weather; }
+                double yps = _life.YearsPerSecond;
+                _weather.Update(_life, _air, _core.Age, _terrain.HasWater, yps < 3 ? (_core.Age % 1.0) : -1);
+                if (_weather.Events.Length > 0) { _coreNews = _weather.Events; _coreNewsUntil = _time + 8; }
                 var lifeHere = _life;
                 _plates.Advance(_core, (x, y, z, share) => lifeHere.Disaster(x, y, z, share));
                 if (_plates.Total != _seenEvents)
