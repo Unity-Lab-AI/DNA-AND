@@ -37,7 +37,7 @@ And somewhere along the way, they start to wonder **who you are**.
 
 | | Era | What happens |
 |:-:|---|---|
-| 🌑 | **The dead world** | You shape a lifeless planet: heat, cold, water, lightning, and any of the 118 elements |
+| 🌑 | **The dead world** | You shape a lifeless planet with heat, cold, water and lightning. Everything else is unlocked by the life that evolves |
 | ✨ | **The spark** | Your first action starts life. It never starts without you |
 | 🦠 | **The microbes** | Cells, viruses and the first wars, fought with chemistry |
 | 🐟 | **The seas** | Shells, spines, eyes and jaws. Schools and reefs |
@@ -247,7 +247,8 @@ Every species that ever lived, on one **circular tree**: your first cell at the 
 
 | | |
 |--|--|
-| 🌑 **Day one** | Lightning, heat, cold, water, spark of life, add genes, and add any element from the periodic table |
+| 🌑 **Day one** | Lightning, heat, cold and water. Nothing else until life unlocks it |
+| ⚗️ **Elements** | Each element unlocks once living things on your world first use it: the chemistry of life first, metals later, lab-made elements when a civilization makes them |
 | 🔓 **100 unlock points** | Each of the 100 stages of life unlocks its own power. Nothing is missing, nothing doubled |
 | 🌋 **Examples** | Fire, flood, drought, volcano, plague, cure, miracle, prophet, stellar flare, supernova, wormhole |
 | 🧬 **Gene powers** | Radiation bursts, viral gene carry, spark of mind. Good outcomes and bad |

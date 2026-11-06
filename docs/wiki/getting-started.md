@@ -44,20 +44,17 @@ You start above a young, lifeless world. Hot rock, raw oceans, a thin sky. Nothi
 | 🔥 | [Fire](god-powers.md) | Warm up a frozen spot |
 | ❄️ | [Cold](god-powers.md) | Cool a boiling one |
 | 💧 | [Water](god-powers.md) | Flood a basin into a sea |
-| ✨ | [Spark of Life](god-powers.md) | Seed the very first cells |
-| 🧬 | [Add Genes](genes-and-dna.md) | Slip new genes into life |
-| ⚗️ | [Add Elements](elements.md) | Drop any of the 118 elements into the world |
+
+That's all you start with. Lightning in the early seas makes the first simple replicators; everything else has to evolve. Adding genes, adding [elements](elements.md) and every other power unlock as life does.
 
 ---
 
 ## 4️⃣ Start life
 
 1. 🌊 Find shallow, warm water.
-2. ⚗️ Add the building blocks: carbon, hydrogen, oxygen, nitrogen.
-3. ⚡ Strike it with lightning.
-4. ✨ Use **Spark of Life**.
+2. ⚡ Strike it with lightning.
 
-If the conditions are right, the first cells appear. If not — try another spot. 🔁
+If the conditions are right, the first simple replicators appear. Everything after them has to evolve. If not — try another spot. 🔁
 
 > 💡 **Tip:** Life is picky. Too hot, too cold, too salty, or missing an element, and your spark fizzles.
 

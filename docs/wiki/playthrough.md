@@ -58,12 +58,13 @@ Bare rock. Boiling seas. Poison air. Nothing alive.
 <!-- IMG: docs/img/dead-planet.png | A top-down view of a barren volcanic world, steam rising from shallow seas -->
 > 🖼️ *A top-down view of a barren volcanic world, steam rising from shallow seas* — rendered by the game's own 3D generator
 
-**Your job:** make the world fit for life. You have the [starting toolkit](god-powers.md#-your-starting-toolkit "Lightning, heat, cold, water, spark of life, add genes, add elements"):
+**Your job:** make the world fit for life. You have the [starting toolkit](god-powers.md#-your-starting-toolkit "Lightning, heat, cold and water"):
 
 1. ❄️ **Cold** the boiling seas down.
 2. 💧 **Water** to fill the low basins into oceans.
-3. ⚗️ **Add Elements:** carbon, nitrogen, phosphorus. All 118 are on the [Elements](elements.md "The full periodic table, and what each element does") page.
-4. ⚡ **Lightning** into the shallows to stir the chemistry.
+3. ⚡ **Lightning** into the shallows to stir the chemistry. The first strike makes the first simple replicators.
+
+That's all a god has on a dead world. From here on, every new power, adding [elements](elements.md "The full periodic table, and what each element does") and genes included, is unlocked by the life that evolves.
 
 > 💡 **Tip:** use [Pause](time.md "Pause, 1x, 10x, 100x, 1,000x and max") ⏸️ often. Shaping a planet goes better slowly.
 
@@ -73,9 +74,9 @@ Bare rock. Boiling seas. Poison air. Nothing alive.
 
 ## 3 · ✨ The spark
 
-Conditions look right: warm shallow water full of chemistry. Cast ✨ **Spark of Life**.
+Conditions look right: warm shallow water full of chemistry. Strike it with ⚡ **Lightning**.
 
-The first cells flicker in a tide pool. The game **slows down automatically** so you can watch this milestone happen.
+The first simple replicators stir in a tide pool. Cells, and everything after, have to evolve from them. The game **slows down automatically** so you can watch this milestone happen.
 
 <!-- IMG: docs/img/first-cells.png | Close zoom into a tide pool, the first glowing single cells drifting in the water -->
 > 🖼️ *Close zoom into a tide pool, the first glowing single cells drifting in the water* — rendered by the game's own 3D generator

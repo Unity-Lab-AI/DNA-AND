@@ -83,7 +83,7 @@ With your first action. Life never starts without you.
 Real-style: A, C, G and T, building every body and behavior. See [Genes & DNA](genes-and-dna.md).
 
 **23. Can I edit a creature's DNA?**  
-Not directly. You **nudge** with powers: add genes, add elements, raise mutation, push evolution toward a trait. Gene powers can go well or badly.
+Not directly. You **nudge** with powers, once life has unlocked them: add genes, add elements, raise mutation, push evolution toward a trait. Gene powers can go well or badly.
 
 **24. Do viruses evolve too?**  
 Yes, and they carry genes between species.
@@ -182,7 +182,7 @@ Yes: wars, conquests, slavery and genocide.
 100. Each has a use, a plus and a minus. See [God Powers](god-powers.md).
 
 **52. What do I start with?**  
-Fire, Cold, Water, Lightning, Spark of Life, adding genes and adding elements.
+Fire, Cold, Water and Lightning. Everything else, adding genes and adding elements included, is unlocked by the life that evolves on your world.
 
 **53. How do powers unlock?**  
 Each of the 100 stages of life unlocks one power.
