@@ -785,3 +785,5 @@ Everything the creator has said about this project, in order. Short process repl
 166. "at full zoom it like screen tears do u see that". Cause: the one-world camera dived faster than the ground's finer pieces were made, so the rough first pieces of land, sea and cloud showed stretched across the screen. The camera now stays above a few steps of the finest ground made under it.
 
 167. "and planet has static ghost like marages on surface at planet zoom". Cause: the ground's depth range ran from very near to eight planet-widths away, too coarse to tell the sea from the shore under it, so they fought and shimmered. It now runs from just in front of the ground to just past the horizon.
+
+168. "i love the scale when u go down to um u should start to see atoms and shit not to mention microbes bacteria and viruses, but like i said life isnt built yet". Below micrometres the zoom carries on into the ground's own matter: grains, the crystals of its real minerals, their molecules, then atoms of the real elements; life's small things (microbes, bacteria, viruses) join once life is built.
