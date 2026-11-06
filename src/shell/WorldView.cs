@@ -643,7 +643,7 @@ namespace DnaAnd.Shell
                 double step = reach * (1 - Math.Pow(0.87, Math.Abs(input.Wheel))) * Math.Sign(input.Wheel);
                 if (input.Wheel < 0) step = -Math.Max(reach, Units.Km(1e-9)) * (Math.Pow(1 / 0.87, -input.Wheel) - 1);   // out from right at the ground: a tiny step, never light-years
                 double altBefore = _ground != null ? AboveGround() / Units.Km(1) : 0;
-                ZoomLog("wheel " + input.Wheel.ToString("0") + " step " + Units.Describe(Math.Abs(step)) + " reach " + Units.Describe(reach) + " pick " + _tKind + ":" + _tIndex + " planet " + _planet + " nearest-body " + _cpBest + " at " + _cpBd.ToString("0.##") + " radii follow " + _followBody + (_ground != null ? " ground-ready " + (_ground.ReadyStep < 1e30 ? _ground.ReadyStep.ToString("0.###") + " km" : "none") + " [" + _ground.BuildStats + "]" : ""));
+                ZoomLog("wheel " + input.Wheel.ToString("0") + " step " + Units.Describe(Math.Abs(step)) + " reach " + Units.Describe(reach) + " pick " + _tKind + ":" + _tIndex + " planet " + _planet + " nearest-body " + _cpBest + " at " + _cpBd.ToString("0.##") + " radii follow " + _followBody + (_ground != null ? " ground-ready " + (_ground.ReadyStep < 1e30 ? ScaleHud.Words(_ground.ReadyStep) : "none") + " height " + ScaleHud.Words(AboveGround() / Units.Km(1)) + " [" + _ground.BuildStats + "]" : ""));
                 _ox += dir.X * step; _oy += dir.Y * step; _oz += dir.Z * step;
                 if (_ground != null)
                 {
