@@ -594,6 +594,7 @@ namespace DnaAnd.Shell
                 double step = reach * (1 - Math.Pow(0.87, Math.Abs(input.Wheel))) * Math.Sign(input.Wheel);
                 if (input.Wheel < 0) step = -Math.Max(reach, 0.01) * (Math.Pow(1 / 0.87, -input.Wheel) - 1);
                 double altBefore = _ground != null ? AboveGround() / Units.Km(1) : 0;
+                ZoomLog("wheel " + input.Wheel.ToString("0") + " step " + Units.Describe(Math.Abs(step)) + " reach " + Units.Describe(reach) + " pick " + _tKind + ":" + _tIndex + " planet " + _planet + " follow " + _followBody + (_ground != null ? " ground-ready " + (_ground.ReadyStep < 1e30 ? _ground.ReadyStep.ToString("0.###") + " km" : "none") : ""));
                 _ox += dir.X * step; _oy += dir.Y * step; _oz += dir.Z * step;
                 if (_ground != null)
                 {
@@ -887,6 +888,19 @@ namespace DnaAnd.Shell
                 case "Moon": return new[] { "rock and dust, iron-poor", "no air", "craters from strikes" };
                 default: return new[] { "rock: silicate crust, iron core", "dust and stone", "air: thin carbon dioxide" };
             }
+        }
+
+        // a short log of each turn of the wheel (where you are and why the step is what it is), in the temp folder, to find
+        // where a zoom stops; kept small (started over past about 200 KB)
+        private void ZoomLog(string what)
+        {
+            try
+            {
+                string f = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "dna_zoom.log");
+                if (System.IO.File.Exists(f) && new System.IO.FileInfo(f).Length > 200000) System.IO.File.Delete(f);
+                System.IO.File.AppendAllText(f, DateTime.Now.ToString("HH:mm:ss.f") + "  " + what + "  |  " + Title.Replace("DNA-AND · one world · ", "").Split(new[] { " · wheel:" }, StringSplitOptions.None)[0] + Environment.NewLine);
+            }
+            catch { }
         }
 
         private List<string> Card()
