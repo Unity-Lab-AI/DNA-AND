@@ -139,3 +139,4 @@ Append-only. Newest at the bottom.
 - r04 renderer: the 10-second journey clip, galaxies to the ground.
 - r03 engine core: the job system, one worker per core on a shared queue.
 - r03 engine core: the save file format (versioned chunks) and the life chunk.
+- r08 life sim: a food web per region (producers, grazers, hunters, nutrients); spreading follows conditions.
