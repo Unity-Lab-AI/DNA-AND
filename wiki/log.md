@@ -132,3 +132,4 @@ Append-only. Newest at the bottom.
 - r08 life sim: the planet's own sea animals swim at true size from their genes (`SeaBodies`).
 - r08 life sim: a test jump to land where an intelligent species lives; its village seen on the ground.
 - r08 life sim: intelligent species go step by step after communication (wild, tribes, villages, towns, cities, space), shown on land.
+- r04b generators: build sample keys 1-5 compare the five ways of building; everything is built on the fly when first seen.
