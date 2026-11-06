@@ -577,7 +577,7 @@ namespace DnaAnd.Shell
                         double ox = Math.Cos(ang) * rr, oz = Math.Sin(ang) * rr, oy = oz * Math.Sin(tilt); oz *= Math.Cos(tilt);
                         double x2 = ox * Math.Cos(turn) - oz * Math.Sin(turn), z2 = ox * Math.Sin(turn) + oz * Math.Cos(turn);
                         bool val = sh == shells - 1; Add(glow, ax0 + x2, cy + oy, az0 + z2, s * 0.0035, (val ? 1f : 0.45f) * cloud, (val ? 0.8f : 0.75f) * cloud, (val ? 0.25f : 1f) * cloud, s);
-                        { int nb = _bodies.Count; AddBody(3, sh + 1, e, ax0 + x2, cy + oy, az0 + z2, ar * 0.05, s); if (_bodies.Count > nb) _bodies[nb].Sym = "electron"; }
+                        { int nb = _bodies.Count; AddBody(3, sh + 1, e, ax0 + x2, cy + oy, az0 + z2, ar * 0.05, s); if (_bodies.Count > nb) _bodies[nb].Sym = "electron:" + focus.Symbol + ":" + shells; }
                     }
                 }
                 // the nucleus: always its real protons (red) and neutrons (grey) packed in a ball, growing as you come in; while
@@ -634,7 +634,7 @@ namespace DnaAnd.Shell
                     }
                     double ox = Math.Cos(ang) * rr, oz = Math.Sin(ang) * rr, oy = oz * si; oz *= ci;
                     Add(glow, x + ox * ct - oz * st, y + oy, z + ox * st + oz * ct, dot, (valence ? 1f : 0.45f) * f, (valence ? 0.8f : 0.75f) * f, (valence ? 0.25f : 1f) * f, s);
-                    { int nb = _bodies.Count; AddBody(3, sh + 1, k, x + ox * ct - oz * st, y + oy, z + ox * st + oz * ct, ar * 0.05, s); if (_bodies.Count > nb) _bodies[nb].Sym = "electron"; }   // every atom's electrons can be picked
+                    { int nb = _bodies.Count; AddBody(3, sh + 1, k, x + ox * ct - oz * st, y + oy, z + ox * st + oz * ct, ar * 0.05, s); if (_bodies.Count > nb) _bodies[nb].Sym = "electron:" + e.Symbol + ":" + shells; }   // every atom's electrons can be picked
                 }
             }
             Add(glow, x, y, z, Math.Max(NucleusRadius(e) * 3, dot * 1.2), 1f * f, 0.75f * f, 0.5f * f, s);   // its nucleus, a spark at the middle
@@ -761,7 +761,9 @@ namespace DnaAnd.Shell
             }
             if (_picked != null && _picked.Kind == 3)
             {
-                L.Add("an electron, in shell " + _picked.I);
+                var ps = (_picked.Sym ?? "electron").Split(':'); var pe = ps.Length > 1 ? El(ps[1]) : null; int pshells = ps.Length > 2 ? int.Parse(ps[2]) : 0;
+                L.Add("an electron of " + (pe != null ? "an atom of " + pe.Name.ToLowerInvariant() + " (" + pe.Symbol + ")" : "an atom"));
+                L.Add("shell " + _picked.I + (pshells > 0 && _picked.I == pshells ? ", its outermost: a valence electron, the kind that bonds" : " of " + Math.Max(pshells, (int)_picked.I)));
                 L.Add("charge -1; mass 1/1836 of a proton");
                 L.Add("a point as far as measured: smaller than 10^-22 m");
                 L.Add("where it is: a cloud of chance round the nucleus");
