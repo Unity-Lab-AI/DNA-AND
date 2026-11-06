@@ -61,15 +61,30 @@ namespace DnaAnd.Gen
         /// <summary>The size (km) of the finest ground piece ready under the camera. The camera may not go lower
         /// than a few of its steps, so it always lands on finished ground and never inside a rough early piece.</summary>
         public double ReadyStep { get; private set; }
-        private readonly StarVertex[] _scratch = new StarVertex[Grid * Grid * 6 + 4 * Grid * 6];
-        private readonly double[] _hx = new double[(Grid + 1) * (Grid + 1)], _hy = new double[(Grid + 1) * (Grid + 1)], _hz = new double[(Grid + 1) * (Grid + 1)];
-        private readonly double[] _hh = new double[(Grid + 1) * (Grid + 1)];
-        private readonly float[] _ca = new float[(Grid + 1) * (Grid + 1)];
-        private readonly float[] _cr = new float[(Grid + 1) * (Grid + 1)], _cg = new float[(Grid + 1) * (Grid + 1)], _cb = new float[(Grid + 1) * (Grid + 1)], _cgl = new float[(Grid + 1) * (Grid + 1)];
+        // the work arrays a piece is built in: one set per thread, so pieces are built in the background on every core
+        private sealed class Work
+        {
+            public readonly StarVertex[] Scratch = new StarVertex[Grid * Grid * 6 + 4 * Grid * 6];
+            public readonly double[] Hx = new double[(Grid + 1) * (Grid + 1)], Hy = new double[(Grid + 1) * (Grid + 1)], Hz = new double[(Grid + 1) * (Grid + 1)], Hh = new double[(Grid + 1) * (Grid + 1)];
+            public readonly float[] Ca = new float[(Grid + 1) * (Grid + 1)], Cr = new float[(Grid + 1) * (Grid + 1)], Cg = new float[(Grid + 1) * (Grid + 1)], Cb = new float[(Grid + 1) * (Grid + 1)], Cgl = new float[(Grid + 1) * (Grid + 1)];
+        }
+        [ThreadStatic] private static Work _work;
+        private static Work W { get { return _work ?? (_work = new Work()); } }
+        private static StarVertex[] _scratch { get { return W.Scratch; } }
+        private static double[] _hx { get { return W.Hx; } }
+        private static double[] _hy { get { return W.Hy; } }
+        private static double[] _hz { get { return W.Hz; } }
+        private static double[] _hh { get { return W.Hh; } }
+        private static float[] _ca { get { return W.Ca; } }
+        private static float[] _cr { get { return W.Cr; } }
+        private static float[] _cg { get { return W.Cg; } }
+        private static float[] _cb { get { return W.Cb; } }
+        private static float[] _cgl { get { return W.Cgl; } }
 
         private sealed class Patch
         {
             public double Cx, Cy, Cz, Edge; public UploadBuffer Buffer; public int Count; public int LastUsed; public int Level; public int Gen;
+            public StarVertex[] Verts;          // built, not yet on the graphics card
         }
 
         public PlanetTerrain(IntPtr device, string kind, string name, uint seed, bool resourceView = false, double radiusKm = 0)
@@ -258,7 +273,7 @@ namespace DnaAnd.Gen
         /// <summary>The plates moving the ground; null: the ground stays where it formed.</summary>
         public DriftFn Drift;
         /// <summary>Craters from impacts: direction (unit x, y, z), radius in km.</summary>
-        public readonly List<double[]> Craters = new List<double[]>();
+        public List<double[]> Craters = new List<double[]>();          // replaced whole (never changed in place): background builders read it
 
         /// <summary>The shape the ground on screen was built for; it lags <see cref="Generation"/> until the new ground is ready.</summary>
         public int DrawnGeneration;
@@ -339,9 +354,10 @@ namespace DnaAnd.Gen
         private double CraterAt(double x, double y, double z)
         {
             double h = 0;
-            for (int k = 0; k < Craters.Count; k++)
+            var cl2 = Craters;
+            for (int k = 0; k < cl2.Count; k++)
             {
-                var c = Craters[k];
+                var c = cl2[k];
                 double d = (1 - (x * c[0] + y * c[1] + z * c[2])) * 2;
                 double rad = c[3] / Radius; if (d > rad * rad * 9) continue;
                 double t = Math.Sqrt(d) / rad;
@@ -362,9 +378,10 @@ namespace DnaAnd.Gen
             }
             if (h > 0 && MountainScale != null) h *= MountainScale(x, y, z);
             h += SeaDropKm;
-            for (int k = 0; k < Craters.Count; k++)
+            var cl = Craters;
+            for (int k = 0; k < cl.Count; k++)
             {
-                var c = Craters[k];
+                var c = cl[k];
                 double d = (1 - (x * c[0] + y * c[1] + z * c[2])) * 2;                 // about the squared angle apart
                 double rad = c[3] / Radius; if (d > rad * rad * 9) continue;
                 double t = Math.Sqrt(d) / rad;                                          // 0 at the middle, 1 at the rim
@@ -509,9 +526,11 @@ namespace DnaAnd.Gen
         [ThreadStatic] private static double _latOverrideT;
         [ThreadStatic] private static bool _latSet;
         private double _latOverride { get { return _latSet ? _latOverrideT : -1; } set { _latOverrideT = value; _latSet = value >= 0; } }
-        private double _land, _mtn, _tint, _shellLand = 0.1, _shellMtn = 1;
+        [ThreadStatic] private static double _land, _mtn, _tint;
+        private double _shellLand = 0.1, _shellMtn = 1;
         /// <summary>The resource field at the last point asked about (index into <see cref="Fields"/>), or -1.</summary>
-        public int LastField { get; private set; }
+        [ThreadStatic] private static int _lastField;
+        public int LastField { get { return _lastField; } private set { _lastField = value; } }
         /// <summary>True: every field lights up in its own colour, buried ones too (the resource view).</summary>
         public readonly bool ResourceView;
         /// <summary>Coal, oil and gas are made from buried life, so they appear only once life has lived and died on this world.</summary>
@@ -830,8 +849,9 @@ namespace DnaAnd.Gen
             return level > 3 || Fbm(x, y, z, _seed + 8100u, 2.2, 3) > 0.47;                       // part-built: whole panels missing
         }
 
-        private bool _makingHull, _drawingHull, _camInside;
-        private int _makeLevel;
+        private bool _drawingHull, _camInside;
+        [ThreadStatic] private static bool _makingHull;
+        [ThreadStatic] private static int _makeLevel;
         /// <summary>Sample views only: cut away the part of a shell facing this direction, so the star inside shows.</summary>
         public double[] Cutaway;
 
@@ -955,10 +975,87 @@ namespace DnaAnd.Gen
                     Skirt(ref v, ka, kb, drop, p);
                 }
             p.Count = v;
-            p.Buffer = new UploadBuffer(_device, (long)v * Marshal.SizeOf(typeof(StarVertex)));
-            p.Buffer.Write(_scratch, v);
+            p.Verts = new StarVertex[v]; Array.Copy(_scratch, p.Verts, v);
             return p;
         }
+
+        // a built piece goes to the graphics card (main thread only)
+        private void Upload(Patch p)
+        {
+            p.Buffer = new UploadBuffer(_device, (long)Math.Max(1, p.Count) * Marshal.SizeOf(typeof(StarVertex)));
+            p.Buffer.Write(p.Verts, p.Count); p.Verts = null;
+        }
+
+        private Patch MakeNow(int layer, int f, int level, long i, long j) { var p = Make(layer, f, level, i, j); Upload(p); return p; }
+
+        // ── background building ──
+        // Missing pieces are asked for while the planet is walked, nearest first; background workers (one per core, from the
+        // job system) build them; each frame takes in whatever is finished. The frame never waits for a piece.
+        private sealed class Ask { public PKey Key; public int Layer, F, Level; public long I, J; public bool Pending; public int Gen; }
+        private readonly object _askLock = new object();
+        private readonly List<Ask> _asks = new List<Ask>();                 // waiting, nearest first (rebuilt every frame)
+        private readonly HashSet<PKey> _inFlight = new HashSet<PKey>();     // being built now
+        private readonly Queue<KeyValuePair<Ask, Patch>> _done = new Queue<KeyValuePair<Ask, Patch>>();
+        private int _workersBusy;
+        private readonly List<Ask> _askedThisFrame = new List<Ask>(); private readonly HashSet<PKey> _askedKeys = new HashSet<PKey>();
+
+        private void AskFor(PKey key, int layer, int f, int level, long i, long j, bool pending)
+        {
+            if (_askedKeys.Add(key)) _askedThisFrame.Add(new Ask { Key = key, Layer = layer, F = f, Level = level, I = i, J = j, Pending = pending, Gen = Generation });
+        }
+
+        // after the walk: the new wish list replaces the old (so pieces no longer needed are not built), and workers start
+        private void StartBuilding()
+        {
+            lock (_askLock)
+            {
+                _asks.Clear();
+                foreach (var a in _askedThisFrame) if (!_inFlight.Contains(a.Key)) _asks.Add(a);
+            }
+            _askedThisFrame.Clear(); _askedKeys.Clear();
+            int want = Math.Max(1, Jobs.Workers - 1);
+            while (_workersBusy < want)
+            {
+                System.Threading.Interlocked.Increment(ref _workersBusy);
+                Jobs.Run(BuildLoop);
+            }
+        }
+
+        private void BuildLoop()
+        {
+            try
+            {
+                while (true)
+                {
+                    Ask a;
+                    lock (_askLock)
+                    {
+                        if (_asks.Count == 0 || _disposed) return;
+                        a = _asks[0]; _asks.RemoveAt(0); _inFlight.Add(a.Key);
+                    }
+                    var p = Make(a.Layer, a.F, a.Level, a.I, a.J);
+                    lock (_askLock) _done.Enqueue(new KeyValuePair<Ask, Patch>(a, p));
+                }
+            }
+            finally { System.Threading.Interlocked.Decrement(ref _workersBusy); }
+        }
+
+        // take in finished pieces: up to a few milliseconds of uploads a frame
+        private void TakeFinished()
+        {
+            var clock = System.Diagnostics.Stopwatch.StartNew();
+            while (clock.Elapsed.TotalMilliseconds < 4)
+            {
+                KeyValuePair<Ask, Patch> d;
+                lock (_askLock) { if (_done.Count == 0) break; d = _done.Dequeue(); _inFlight.Remove(d.Key.Key); }
+                var a = d.Key; var np = d.Value;
+                if (a.Gen != Generation) continue;                                 // built for a shape the planet no longer has
+                Upload(np); np.LastUsed = _frame; np.Gen = a.Gen;
+                if (a.Pending) _pending[a.Key] = np;
+                else { Patch old; if (_cache.TryGetValue(a.Key, out old)) old.Buffer.Dispose(); _cache[a.Key] = np; }
+            }
+        }
+        private volatile bool _disposed;
 
         private void Tri(ref int v, int a, int b, int c)
         {
@@ -1001,18 +1098,15 @@ namespace DnaAnd.Gen
                 // and keep drawing the old one; the whole planet swaps to the new ground at once when every piece is ready
                 if (p.Gen != Generation)
                 {
-                    Patch np;
-                    if (_pending.TryGetValue(key, out np)) return p;
-                    if (mayMake && _budget > 0 && _clock.Elapsed.TotalMilliseconds < _msLimit)
-                    { _budget--; np = Make(layer, f, level, i, j); np.LastUsed = _frame; np.Gen = Generation; _pending[key] = np; }
-                    else _missing++;
+                    if (_pending.ContainsKey(key)) return p;
+                    if (mayMake) AskFor(key, layer, f, level, i, j, true);
+                    _missing++;
                 }
                 return p;
             }
             if (!mayMake) return null;
-            if (level > 1 && (_budget <= 0 || _clock.Elapsed.TotalMilliseconds > _msLimit)) return null;
-            _budget--;
-            p = Make(layer, f, level, i, j); p.LastUsed = _frame; p.Gen = Generation;
+            if (level > 1) { AskFor(key, layer, f, level, i, j, false); return null; }   // built in the background
+            p = MakeNow(layer, f, level, i, j); p.LastUsed = _frame; p.Gen = Generation;
             _cache[key] = p;
             return p;
         }
@@ -1026,6 +1120,7 @@ namespace DnaAnd.Gen
             float fogDist, float fr, float fg, float fb, int x, int y, int w, int h, int newPatchBudget)
         {
             _frame++; _budget = newPatchBudget; _clock.Restart(); _msLimit = newPatchBudget >= 400 ? 10 : 30;
+            TakeFinished();
             // last frame every piece in view had its new form ready: swap the whole planet's ground at once
             if (Generation != DrawnGeneration && _framesWaiting > 0 && _missing == 0) SwapGround();
             if (Generation != DrawnGeneration) _framesWaiting++;
@@ -1044,7 +1139,7 @@ namespace DnaAnd.Gen
                     DrawList(pipes.Solid, 0, camX, camY, camZ, Mat4.Identity, viewRot, proj, lx, ly, lz, fogDist, fr, fg, fb, x, y, w, h);
                     _drawingHull = false;
                 }
-                if (!Habitable || !_camInside && Cutaway == null) { Trim(); return; }
+                if (!Habitable || !_camInside && Cutaway == null) { StartBuilding(); Trim(); return; }
             }
             // the ground (and the sea floor)
             Collect(Ground, camX, camY, camZ, splitFactor);
@@ -1065,6 +1160,7 @@ namespace DnaAnd.Gen
                 DrawList(pipes.Clear, 2, kx, camY, kz, Mat4.RotationY((float)ang), viewRot, proj, clx, ly, clz, fogDist, fr, fg, fb, x, y, w, h);
             }
             if (!Shell) DrawAir(pipes.Glow, camX, camY, camZ, viewRot, proj, lx, ly, lz, x, y, w, h);
+            StartBuilding();
             Trim();
         }
 
@@ -1224,6 +1320,7 @@ namespace DnaAnd.Gen
 
         public void Dispose()
         {
+            _disposed = true; lock (_askLock) _asks.Clear();
             foreach (var p in _cache.Values) p.Buffer.Dispose();
             _cache.Clear();
             foreach (var p in _pending.Values) p.Buffer.Dispose();

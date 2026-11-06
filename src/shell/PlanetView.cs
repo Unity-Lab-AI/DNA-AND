@@ -322,7 +322,8 @@ namespace DnaAnd.Shell
             _plates.MovedYears = _shapeMoved;
             _normal.SeaDropKm = _shapeSea;
             _normal.MountainScale = (x, y, z) => scales[DnaAnd.Sim.PlanetLife.RegionAt(x, y, z)];
-            _normal.Craters.Clear(); foreach (var c in _impacts.Craters) if (c[3] >= 8) _normal.Craters.Add(c);
+            var newCraters = new System.Collections.Generic.List<double[]>(); foreach (var c in _impacts.Craters) if (c[3] >= 8) newCraters.Add(c);
+            _normal.Craters = newCraters;
             _normal.BakeChanges();                                                   // the changes become wavelet terms
             _normal.Generation++;
         }

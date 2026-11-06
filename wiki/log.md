@@ -158,3 +158,4 @@ Append-only. Newest at the bottom.
 - r05/r04: dead stars kept out of young arms (pulsars rarest); the wheel glides; planet handoff at the planet view's own distance; skirts lit; planet changes as wavelet change fields.
 - r04 renderer: the one-world camera begins (universe and galaxies, no handoff).
 - r04 renderer: reversed float depth everywhere; the one world goes on into matter, down to atoms.
+- r04 renderer: ground pieces built in the background on every core; the frame never waits.
