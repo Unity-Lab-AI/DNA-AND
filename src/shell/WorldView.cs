@@ -503,7 +503,7 @@ namespace DnaAnd.Shell
             // a click (pressed and let go without dragging) picks what is under the mouse
             if (input.LeftClicked) { _pressed = true; _dragged = false; _pressX = input.MouseX; _pressY = input.MouseY; }
             if (_pressed && input.LeftDown && Math.Abs(input.MouseX - _pressX) + Math.Abs(input.MouseY - _pressY) > 6) _dragged = true;   // dragging circles round the pick (or looks around if nothing is picked)
-            if (_pressed && !input.LeftDown) { _pressed = false; if (!_dragged) Pick(MouseRay(input.MouseX, input.MouseY, w, h), input.MouseX, input.MouseY); }
+            if (_pressed && !input.LeftDown) { _pressed = false; if (!_dragged) { if (_matterScale > 0) _matter.Pick(input.MouseX, input.MouseY); else Pick(MouseRay(input.MouseX, input.MouseY, w, h), input.MouseX, input.MouseY); } }   // in the matter: a grain or an atom
             // the camera turns smoothly to face what you picked
             double tdx, tdy, tdz, trad;
             if (_tKind >= 0 && !(_pressed && _dragged) && TargetFromCamera(out tdx, out tdy, out tdz, out trad))
@@ -544,7 +544,7 @@ namespace DnaAnd.Shell
                 _autoLogT += dt;
                 if (_autoLogT > 1) { _autoLogT = 0; try { System.IO.File.AppendAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "dna_autopath.log"), Title + Environment.NewLine); } catch { } }
             }
-            if (input.RightClicked) { _tKind = -1; _tName = ""; }                    // right click: let go of what you picked
+            if (input.RightClicked) { if (_matterScale > 0) _matter.Unpick(); else { _tKind = -1; _tName = ""; } }                    // right click: let go of what you picked
             if (input.WasPressed(0x48)) { _hud.Visible = !_hud.Visible; MenuChanged = true; }   // H: the scale on screen, on or off
             if (input.WasPressed(Win32.VK_ESCAPE)) return false;
             if (input.LeftDown)
@@ -894,10 +894,13 @@ namespace DnaAnd.Shell
                 // the planet's real ground, in km around its centre, with the same view turn; near and far follow the height
                 _gpu.ClearDepth();
                 double x, y, z; CamFromPlanet(out x, out y, out z);
-                double alt = Math.Max(1e-9, Math.Sqrt(x * x + y * y + z * z) - _ground.Radius);
+                // the height above the real ground (not sea level: on high land that was kilometres, and the nearest drawing
+                // distance cut away the ground right under you)
+                double alt = Math.Max(1e-9, AboveGround() / Units.Km(1));
                 // the depth range starts a little in front of the ground and ends just past the horizon, so near things (the sea
                 // and the shore just under it) never fight for the same depth and shimmer
-                double horizon = Math.Sqrt(alt * (2 * _ground.Radius + alt)) + Math.Sqrt(2 * _ground.Radius * 30);
+                double altSea = Math.Max(alt, Math.Sqrt(x * x + y * y + z * z) - _ground.Radius);   // the horizon goes by the height above sea level
+                double horizon = Math.Sqrt(altSea * (2 * _ground.Radius + altSea)) + Math.Sqrt(2 * _ground.Radius * 30);
                 Mat4 kproj = Mat4.Perspective(0.9f, w / (float)Math.Max(1, h), (float)Math.Max(alt * 0.15, 1e-9), (float)(horizon * 1.3 + 100));
                 var sd = _system.StarRadius; double lx = -_px, ly = -_py, lz = -_pz, ll = Math.Sqrt(lx * lx + ly * ly + lz * lz);
                 if (ll > 0) { _ground.StarDir[0] = lx / ll; _ground.StarDir[1] = ly / ll; _ground.StarDir[2] = lz / ll; }
@@ -921,6 +924,7 @@ namespace DnaAnd.Shell
                 if (lk.Y > -0.2f) lk = new Vec3(lk.X, -0.2f, lk.Z);               // always looking down into it at least a little
                 Mat4 mview = Mat4.LookAt(new Vec3(0, 0, 0), lk.Normalized, Math.Abs(lk.Normalized.Y) > 0.98f ? new Vec3(0, 0, 1) : new Vec3(0, 1, 0));
                 _matter.Draw(mview, _matterScale, w, h, time);
+                if (_hud.Visible) _hud.DrawCard(_meshes, _matter.Card(), 24 * Math.Max(1, h / 1080.0), 24 * Math.Max(1, h / 1080.0), w, h);   // what you are in, and what you picked
             }
             DrawScale(w, h);
             double mdx, mdy, mdz, mrad, msx, msy;
