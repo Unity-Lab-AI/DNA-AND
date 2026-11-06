@@ -9,7 +9,7 @@ How the game gets built, system by system, all from scratch. 🟡 = draft (plan 
 | 🟡 | [R1 · Seed spec](systems/r01a-seed-spec.md "Exact spec for the hand-typed hex loader") | Step 0: what the seed does, the hex format, its exe layout, how it's proven |
 | 🟡 | [R2 · Windows layer](systems/r02-windows-layer.md "Talking to Windows directly") | Window, input, sound, files, clock, threads, network |
 | 🟡 | [R3 · Engine core](systems/r03-engine-core.md "Math, memory, giant arrays, threads, saves") | The base every system sits on |
-| 🟡 | [R4 · Renderer](systems/r04-renderer.md "AAA 3D graphics from scratch") | Graphics, zoom from microbe to galaxy, the 3D image generator |
+| 🟡 | [R4 · Renderer](systems/r04-renderer.md "AAA 3D graphics from scratch") | Graphics; the one-world camera (galaxies to atoms, no handoffs), the CDF 9/7 coefficient waveform and mode-E, reversed float depth, background ground building, the preview menu |
 | 🟡 | [R4.4 · Live generators](systems/r04b-generators.md "Every asset built on the fly, nothing pre-built") | Creature, city, space tech and 15 more generators (18 in all) |
 | 🟡 | [R4.5 · Style samples](systems/r04-renderer.md#-style-samples-come-first "The style is locked; sets 1-8 approved") | Locked: Populous-like for everything. Sets 1–8 approved (galaxies to microbes, elements, Dyson sphere), the journey built |
 
@@ -17,13 +17,13 @@ How the game gets built, system by system, all from scratch. 🟡 = draft (plan 
 | | Page | What it covers |
 |---|---|---|
 | 🟡 | [R5 · Universe](systems/r05-universe.md "Stars, planets, solar systems, galaxies") | Built in part: universe of galaxies, galaxy, any star, its solar system, the Dyson sphere |
-| 🟡 | [R6 · Planet](systems/r06-planet.md "Earth + unlockable templates") | Built in part: ground to micrometres, sea, air, weather, resource fields, sea life at true scale |
+| 🟡 | [R6 · Planet](systems/r06-planet.md "Earth + unlockable templates") | Built in part: ground to micrometres, sea, air, weather, resource fields, sea life at true scale; the living planet on its own clock (inside, plates, quakes, eruptions, air and climate, water and weather, erosion, impacts) and its ground changing in whole-planet swaps |
 
 ## 🧬 Life
 | | Page | What it covers |
 |---|---|---|
 | 🟡 | [R7 · Genome](systems/r07-genome.md "Real-style DNA") | DNA, mutation, breeding, viruses |
-| 🟡 | [R8 · Life sim](systems/r08-life-sim.md "Viruses to animals, grouped populations") | Layered selfish-gene mini AIs, 100-step grouping ladder, tree of life, populations, evolution |
+| 🟡 | [R8 · Life sim](systems/r08-life-sim.md "Viruses to animals, grouped populations") | Layered selfish-gene mini AIs, 100-step grouping ladder, tree of life, populations, evolution; food web per region; the real-life checklist of what is still missing |
 | 🟡 | [R9 · Civilization](systems/r09-civilization.md "Tribes, culture, politics, war, tech") | Intelligent life of any species, 100 ages, tech tree |
 | 🟡 | [R10 · Space](systems/r10-space.md "Travel, colonies, Dyson spheres") | Spreading across galaxies |
 
