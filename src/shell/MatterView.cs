@@ -600,34 +600,10 @@ namespace DnaAnd.Shell
             if (focus != null && s < AtomRadius(focus) * 4)
             {
                 double ar = AtomRadius(focus), cy = fay, nr = NucleusRadius(focus), ax0 = fax, az0 = faz;
-                int shells = focus.Shells.Length;
+                // its electrons, the same as every atom's system: each a clear dot on its own path in its shells, the valence shell
+                // in gold (the nucleus is drawn below, for real)
                 float cloud = (float)Fade(s, ar * 4, ar * 2);
-                for (int sh = 0; sh < shells; sh++)
-                {
-                    double rr = ar * (sh + 1) / shells;                                    // the shells, outermost at the atom's edge
-                    // the shell itself: a faint glow where its electrons are most likely to be
-                    for (int q = 0; q < 48; q++)
-                    {
-                        double u = q * 2.399963, v = Math.Acos(1 - 2 * (q + 0.5) / 48.0);
-                        Add(glow, ax0 + rr * Math.Sin(v) * Math.Cos(u), cy + rr * Math.Cos(v), az0 + rr * Math.Sin(v) * Math.Sin(u), rr * 0.35, 0.08f * cloud, 0.12f * cloud, 0.22f * cloud, s);
-                    }
-                    // its electrons, each on its own tilted path, the inner ones faster
-                    int ne = focus.Shells[sh];
-                    for (int e = 0; e < ne; e++)
-                    {
-                        double tilt = Hash(sh, e, 31, _seed) * Math.PI, turn = Hash(sh, e, 32, _seed) * Math.PI * 2, ang = time * (2.2 / (sh + 1)) + e * Math.PI * 2 / ne;
-                        // its path: a faint ring, like a planet's orbit in a solar system
-                        for (int q = 0; q < 40; q++)
-                        {
-                            double pa = q * Math.PI * 2 / 40, px = Math.Cos(pa) * rr, pz = Math.Sin(pa) * rr, py = pz * Math.Sin(tilt); pz *= Math.Cos(tilt);
-                            Add(glow, ax0 + px * Math.Cos(turn) - pz * Math.Sin(turn), cy + py, az0 + px * Math.Sin(turn) + pz * Math.Cos(turn), ar * 0.012, 0.1f * cloud, 0.18f * cloud, 0.28f * cloud, s);
-                        }
-                        double ox = Math.Cos(ang) * rr, oz = Math.Sin(ang) * rr, oy = oz * Math.Sin(tilt); oz *= Math.Cos(tilt);
-                        double x2 = ox * Math.Cos(turn) - oz * Math.Sin(turn), z2 = ox * Math.Sin(turn) + oz * Math.Cos(turn);
-                        bool val = sh == shells - 1; Add(glow, ax0 + x2, cy + oy, az0 + z2, s * 0.0035, (val ? 1f : 0.45f) * cloud, (val ? 0.8f : 0.75f) * cloud, (val ? 0.25f : 1f) * cloud, s);
-                        { int nb = _bodies.Count; AddBody(3, sh + 1, e, ax0 + x2, cy + oy, az0 + z2, ar * 0.05, s); if (_bodies.Count > nb) _bodies[nb].Sym = "electron:" + focus.Symbol + ":" + shells; }
-                    }
-                }
+                Cloud(glow, focus, ax0, cy, az0, s, time, 777, Math.Max(0.35f, cloud));
                 // the nucleus: always its real protons (red) and neutrons (grey) packed in a ball, growing as you come in; while
                 // it is too small to see, a small spark marks where it is
                 if (nr / s < 0.004) Add(glow, ax0, cy, az0, s * 0.004, 1f, 0.85f, 0.6f, s);
