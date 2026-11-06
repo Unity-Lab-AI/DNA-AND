@@ -784,7 +784,7 @@ Order: galactic scale down, the same order as the sample sets.
     - [ ] A separate repo with only what builds the universe (no life or DNA-AND project files), two remotes: https://git.unityailab.com/GFourteen/Universe.git and a GitHub repo (to make)
     - [ ] Technical readme and instructions: how to build, change and deploy your own .exe
     - [~] A base readme about the universe and how it works, non-technical, layman-like and fun to read. Drafted: `docs/release/UNIVERSE-README.md`
-    - [ ] The .exe carries all of the public docs for it
+    - [~] The .exe carries all of the public docs for it. Prepared: `release.cmd` puts the plain readme and the build guide in the package's `docs` folder, with `README.txt`; the Help menu carries About, Readme, How it works and Credits
     - [ ] **Credits, readmes and repo links, pushed and released:** "and make sure the apps cedits redadmes technical readmes and documentations and links to the repose for Universe project are made and correctly pushed and deployed a release of the .exe for the full universe and all needed files and documentations of them for public release, but i stell need to test all the fixes weve talked about"
       - [~] The program's Credits and About link the Universe repo (git.unityailab.com/GFourteen/Universe); the GitHub link once that repo is made
       - [ ] Technical readme (build, change, deploy your own .exe) and the public docs, in the repo and inside the .exe
