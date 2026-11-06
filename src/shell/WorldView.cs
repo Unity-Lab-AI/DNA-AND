@@ -379,7 +379,8 @@ namespace DnaAnd.Shell
         }
 
         // what the matter under you is made of, set once for each spot (about a metre across), so its grains stay put
-        private double _matterTop = MatterView.TopKm;                                 // zooming out past this goes back up to the ground
+        private double _matterTop = MatterView.TopKm;
+        private double _spaceScale, _spaceTop;                                          // into a nebula's or cluster's gas: the fine height, and where it began                                 // zooming out past this goes back up to the ground
         private ulong _matterSpot = ulong.MaxValue; private double _mox, _moy, _moz; private int _matterPlanet = -1;
         // where you are from the spot the matter began at (km east and north there)
         private void MatterOffset(out double e, out double n)
@@ -610,7 +611,7 @@ namespace DnaAnd.Shell
             if (_pressed && input.LeftDown && Math.Abs(input.MouseX - _pressX) + Math.Abs(input.MouseY - _pressY) > 6) _dragged = true;   // dragging circles round the pick (or looks around if nothing is picked)
             if (_pressed && !input.LeftDown) { _pressed = false; if (!_dragged)
                 {
-                    if (_matterScale > 0) _matter.Pick(input.MouseX, input.MouseY);                       // in the matter: a grain or an atom
+                    if (_matterScale > 0 || _spaceScale > 0) _matter.Pick(input.MouseX, input.MouseY);    // in the matter or the gas: what is there
                     else if (_ground != null && AboveGround() < Units.Km(MatterView.OverlayKm) && _matter.Pick(input.MouseX, input.MouseY))
                     { _matterScale = Math.Max(MatterView.BottomKm, AboveGround() / Units.Km(1) / 0.6); _matterTop = Math.Max(MatterView.TopKm, _matterScale * 1.1); }   // a grain over the ground: on into the matter, the same picture, flying to it
                     else Pick(MouseRay(input.MouseX, input.MouseY, w, h), input.MouseX, input.MouseY);
@@ -669,7 +670,7 @@ namespace DnaAnd.Shell
                 _autoLogT += dt;
                 if (_autoLogT > 1) { _autoLogT = 0; try { System.IO.File.AppendAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "dna_autopath.log"), Title + Environment.NewLine); } catch { } }
             }
-            if (input.RightClicked) { if (_matterScale > 0) _matter.Unpick(); else { _tKind = -1; _tName = ""; } }                    // right click: let go of what you picked
+            if (input.RightClicked) { if (_matterScale > 0 || _spaceScale > 0) _matter.Unpick(); else { _tKind = -1; _tName = ""; } }                    // right click: let go of what you picked
             if (input.WasPressed(0x48)) { _hud.Visible = !_hud.Visible; MenuChanged = true; }   // H: the scale on screen, on or off
             if (input.WasPressed(Win32.VK_ESCAPE)) return false;
             if (input.LeftDown && (input.MouseDX != 0 || input.MouseDY != 0))
@@ -726,6 +727,17 @@ namespace DnaAnd.Shell
                 }
             }
             Jumped("W A S D Q E");
+            if (_spaceScale > 0)
+            {
+                // in a nebula's or cluster's gas: the same zoom, kept finely enough for atoms; out past where it began, back to space
+                if (input.Wheel != 0) _spaceScale *= Math.Pow(0.87, input.Wheel);
+                if (_spaceScale > _spaceTop) _spaceScale = 0; else _spaceScale = Math.Max(MatterView.BottomKm, _spaceScale);
+                if (input.WasPressed(0x20)) TogglePause();
+                if (input.WasPressed(0xBC)) SetTime(TimeStep - 1);
+                if (input.WasPressed(0xBE)) SetTime(TimeStep + 1);
+                _simYears += dt * TimeSpeeds[TimeStep];
+                return true;
+            }
             if (_matterScale > 0)
             {
                 // below a millimetre or so: the same zoom, with your height kept finely enough for atoms (the wheel moves
@@ -771,6 +783,18 @@ namespace DnaAnd.Shell
                 _matterScale = Math.Max(MatterView.BottomKm, AboveGround() / Units.Km(1) / 0.6);   // the same picture carries on: you are 0.6 of the scale above it
                 _matterTop = Math.Max(MatterView.TopKm, _matterScale * 1.1);
                 return true;
+            }
+            if (_tKind == 5 && input.Wheel > 0)
+            {
+                // into a picked nebula or cluster: once within a kilometre of the point you fly to, on into its gas, the same zoom
+                double qx, qy, qz, qr;
+                if (TargetFromCamera(out qx, out qy, out qz, out qr) && Math.Sqrt(qx * qx + qy * qy + qz * qz) < Units.Km(1))
+                {
+                    int fk = (int)_features[_tIndex][4];
+                    _matter.SetSpace(fk, (ulong)(_tIndex * 7919 + 1) ^ _galaxies[_near].Seed);
+                    _spaceScale = Math.Max(MatterView.BottomKm, Math.Sqrt(qx * qx + qy * qy + qz * qz) / Units.Km(1) / 0.6); _spaceTop = _spaceScale * 1.1;
+                    return true;
+                }
             }
             if (input.Wheel != 0)
             {
@@ -1089,6 +1113,17 @@ namespace DnaAnd.Shell
                 Mat4 ov = MatterFrame(look);
                 _matter.Draw(ov, Math.Max(MatterView.BottomKm, overAlt / 0.6), w, h, time, _meshes, true);
             }
+            if (_spaceScale > 0)
+            {
+                // in a nebula's or cluster's gas: its atoms in front of space (its glow round you still drawn behind)
+                _gpu.ClearDepth();
+                _matter.Light[0] = 0.4f; _matter.Light[1] = 0.7f; _matter.Light[2] = 0.6f;
+                Mat4 sv = Mat4.LookAt(new Vec3(0, 0, 0), new Vec3(0.01f, -1, 0.02f).Normalized, new Vec3(0, 0, 1));
+                _matter.Draw(sv, _spaceScale, w, h, time, _meshes, false);
+                _gpu.ClearDepth();
+                double qx, qy, qr; if (_matter.PickedOnScreen(out qx, out qy, out qr)) _hud.DrawRing(_meshes, qx, qy, Math.Min(qr, h * 0.45), w, h);
+                if (_hud.Visible) _hud.DrawCard(_meshes, _matter.Card(), 24 * Math.Max(1, h / 1080.0), 24 * Math.Max(1, h / 1080.0), w, h);
+            }
             if (_matterScale > 0)
             {
                 // the matter, in front of everything; above a tenth of a millimetre the ground still shows through behind it
@@ -1297,7 +1332,8 @@ namespace DnaAnd.Shell
             get
             {
                 double pdx, pdy, pdz, prad; string picked = _tKind >= 0 && TargetFromCamera(out pdx, out pdy, out pdz, out prad) ? " · going to " + _tName + ", " + Units.Describe(Math.Max(0, Math.Sqrt(pdx * pdx + pdy * pdy + pdz * pdz) - prad)) + " away" : " · click something to go to it";
-                string where = _matterScale > 0 ? "at " + _system.Bodies[_planet].Kind + ", " + ScaleHud.Words(_matterScale * 0.6) + " above the ground: " + _matter.Stage(_matterScale)
+                string where = _spaceScale > 0 ? "in " + _tName + ", " + ScaleHud.Words(_spaceScale * 0.6) + " from the point you dive into: " + _matter.Stage(_spaceScale)
+                    : _matterScale > 0 ? "at " + _system.Bodies[_planet].Kind + ", " + ScaleHud.Words(_matterScale * 0.6) + " above the ground: " + _matter.Stage(_matterScale)
                     : _ground != null ? "at " + _system.Bodies[_planet].Kind + ", " + Units.Describe(AboveGround()) + " above the ground"
                     : _system != null ? "in the system of a " + _system.StarName + " (" + _system.Bodies.Count + " planets and moons)"
                     : _near >= 0 ? (NearShare() > 0.5 ? "among the stars of " : "near ") + _galaxies[_near].Name : "among the galaxies";

@@ -36,6 +36,23 @@ namespace DnaAnd.Shell
         private readonly Dictionary<string, Element> _elements = new Dictionary<string, Element>();
         private List<KeyValuePair<Mineral, double>> _mix; private string _mixId = "";
         private ulong _seed; private bool _noGrains;
+        // in space (a nebula's or cluster's gas) instead of a ground: its kind (0 globular cluster, 1 open cluster, 2 emission
+        // nebula, 3 reflection nebula) and how far apart its atoms are (km)
+        private bool _space; private int _spaceKind; private double _gasSpacing = 1e-6;
+        /// <summary>Into the gas of a nebula or a cluster: about 1,000 atoms a cubic centimetre in an emission nebula (one about every
+        /// millimetre), fewer in a reflection nebula and between a cluster's stars; mostly hydrogen, about 9 in 100 helium, a trace of
+        /// oxygen and nitrogen.</summary>
+        public void SetSpace(int kind, ulong spot)
+        {
+            _space = true; _spaceKind = kind; _seed = spot; _mix = null; _mixId = "space"; _noGrains = true;
+            _gasSpacing = kind == 2 ? 1e-6 : kind == 3 ? 2.2e-6 : 1e-5;                     // 1 mm, 2 mm (100 a cm3), 1 cm (1 a cm3)
+            _fx = _fz = _tfx = _tfz = 0; _picked = null;
+        }
+        private Element GasAtom(long i, long j, long k)
+        {
+            double u = Hash(i, j, k + 90, _seed);
+            return El(u < 0.905 ? "H" : u < 0.995 ? "He" : u < 0.998 ? "O" : "N");
+        }
         // the point you dive into (km, across the ground) and where it is easing to (what you picked)
         private double _fx, _fz, _tfx, _tfz, _lastTime = -1;
         private sealed class Body { public int Kind; public long I, J; public double X, Y, Z, Size; public string Sym; }   // Kind 0 a grain, 1 an atom, 2 a spot   // 0 a grain, 1 an atom
@@ -102,7 +119,7 @@ namespace DnaAnd.Shell
         {
             string id = sea ? "sea" : ice ? "ice" : planetKind;
             if (!_mixes.ContainsKey(id)) id = "desert";
-            _mixId = id; _mix = _mixes.ContainsKey(id) ? _mixes[id] : null; _seed = spot;
+            _space = false; _mixId = id; _mix = _mixes.ContainsKey(id) ? _mixes[id] : null; _seed = spot;
             _fx = _fz = _tfx = _tfz = 0; _picked = null;
             double gk; Grain = _grainKm.TryGetValue(id, out gk) ? gk : 3e-7; _noGrains = Grain <= 0; if (_noGrains) Grain = 3e-7;   // the sea has no grains
         }
@@ -150,6 +167,7 @@ namespace DnaAnd.Shell
         private Element Focus(out double x, out double y, out double z)
         {
             var m = FocusMineral; x = FocusAI * AtomSpacing; z = FocusAJ * AtomSpacing; y = 0;
+            if (_space) { x = y = z = 0; return GasAtom(0, 0, 0); }                     // in the gas: the atom right where you dive
             if (m == null) return null;
             if (Structured(m.Id))
             {
@@ -320,6 +338,11 @@ namespace DnaAnd.Shell
         public string Stage(double s)
         {
             var m = FocusMineral; var e = FocusAtom();
+            if (_space && e != null && s > AtomRadius(e) * 3)
+            {
+                string where = _spaceKind == 2 ? "an emission nebula" : _spaceKind == 3 ? "a reflection nebula" : _spaceKind == 0 ? "a globular cluster" : "an open cluster";
+                return "the gas of " + where + ": one atom about every " + ScaleHud.Words(_gasSpacing) + ", mostly hydrogen; the one ahead " + e.Name.ToLowerInvariant();
+            }
             string mn = m != null ? m.Name.ToLowerInvariant() + " (" + m.Formula + ")" : "rock";
             if (s > Grain * 1.5) return "grains of " + (_mixId == "sea" ? "the sea" : "the ground") + ", this one " + mn;
             if (s > AtomSpacing * 12) return "the surface of a grain of " + mn;
@@ -434,6 +457,19 @@ namespace DnaAnd.Shell
 
         private void Build(double s, double time, List<StarVertex> solid, List<StarVertex> glow, List<StarVertex> mesh, bool overlay)
         {
+            if (_space && s < _gasSpacing * 10 && s > AtomSpacing * 2)
+            {
+                // the gas round you: its atoms, each a point (far too small to see but as a speck), about a millimetre apart
+                double a = _gasSpacing; long n = (long)Math.Min(16, Math.Ceiling(2 * s / a));
+                for (long i = -n; i <= n; i++)
+                    for (long j = -n; j <= n; j++)
+                        for (long k = -n; k <= n; k++)
+                        {
+                            if (i == 0 && j == 0 && k == 0) continue;
+                            var ge = GasAtom(i, j, k); double jx = (Hash(i, j, k + 91, _seed) - 0.5) * a, jy = (Hash(i, j, k + 92, _seed) - 0.5) * a, jz = (Hash(i, j, k + 93, _seed) - 0.5) * a;
+                            Add(glow, i * a + jx, k * a + jy, j * a + jz, s * 0.002, ge.R * 0.6f, ge.G * 0.6f, ge.B * 0.6f, s);
+                        }
+            }
             // grains: lumpy stones, each its own mineral from the mix, scattered (not on a grid) in two layers, the top one
             // resting with its tops at the level you dive into; near ones are lit 3D stones, far ones specks of their colour
             // (once you are down at the grain's own surface it is no longer drawn as a stone: you are at its face)
@@ -828,7 +864,8 @@ namespace DnaAnd.Shell
             L.Add("protons: " + e.Z + ", neutrons: " + (e.A - e.Z) + ", electrons: " + e.Z);
             L.Add("shells: " + string.Join(", ", Array.ConvertAll(e.Shells, x => x.ToString())));
             L.Add("width: about " + ScaleHud.Words(AtomRadius(e) * 2) + ", nucleus " + ScaleHud.Words(NucleusRadius(e) * 2));
-            if (fm != null && Molecules.ContainsKey(fm.Id)) L.Add("in a molecule of " + fm.Formula.Split(' ')[0] + ", in " + fm.Name.ToLowerInvariant());
+            if (_space) { L.Add("in the gas of " + (_spaceKind == 2 ? "an emission nebula (most of its hydrogen ionized by hot stars)" : _spaceKind == 3 ? "a reflection nebula" : "space between a cluster's stars")); L.Add("the next atom: about " + ScaleHud.Words(_gasSpacing) + " away"); }
+            else if (fm != null && Molecules.ContainsKey(fm.Id)) L.Add("in a molecule of " + fm.Formula.Split(' ')[0] + ", in " + fm.Name.ToLowerInvariant());
             else if (fm != null) L.Add("in a grain of " + fm.Name.ToLowerInvariant() + " (" + fm.Formula + ")" + StructureName(fm));
             return L;
         }
