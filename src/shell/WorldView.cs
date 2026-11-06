@@ -22,6 +22,7 @@ namespace DnaAnd.Shell
         private readonly List<StarKind> _kinds;
         private readonly MeshPipes _meshes;
         private readonly ScaleHud _hud;
+        private readonly MatterView _matter; private double _matterScale;     // below the ground's finest piece: how big the view is (km), 0 = not in the matter
         // the planet or moon you have come close to: its real ground, drawn in the same camera (-1: none)
         private int _planet = -1; private PlanetTerrain _ground; private double _px, _py, _pz;   // its centre from the star, in universe units
         private const double PlanetRange = 40;                // within 40 of its radii, the ground is made and drawn
@@ -53,7 +54,7 @@ namespace DnaAnd.Shell
 
         public WorldView(Gpu gpu, BillboardPipeline pipe, MeshPipes meshes, ContentLibrary content, ulong seed)
         {
-            _meshes = meshes; _gpu = gpu; _hud = new ScaleHud(gpu.Device); _dots = new BillboardDrawer(gpu.CommandList, pipe); _content = content;
+            _meshes = meshes; _gpu = gpu; _hud = new ScaleHud(gpu.Device); _matter = new MatterView(gpu, pipe); _dots = new BillboardDrawer(gpu.CommandList, pipe); _content = content;
             var types = new List<string>(); var names = new List<string>();
             foreach (var e in content.OfKind("galaxies.dnat", "galaxy")) { types.Add(e.Id); names.Add(e.Name); }
             if (types.Count == 0) { types.Add("spiral"); names.Add("Spiral galaxy"); }
@@ -109,6 +110,7 @@ namespace DnaAnd.Shell
         // how close the nearest thing is (universe units): a star of the near galaxy, or the edge of the nearest galaxy
         private double NearestDistance()
         {
+            if (_matterScale > 0) return Units.Km(_matterScale) * 0.5;
             double best = double.MaxValue;
             foreach (var g in _galaxies)
             {
@@ -352,6 +354,9 @@ namespace DnaAnd.Shell
                 int pick = -1; for (int i = 0; i < _system.Bodies.Count; i++) if (_system.Bodies[i].Parent < 0 && (pick < 0 || _system.Bodies[i].Kind == "Temperate world")) pick = i;
                 if (pick < 0) return;
                 BodyPos(pick, out tx, out ty, out tz);
+                // come in over its day side: a point a few radii out toward the star
+                double l0 = Math.Sqrt(tx * tx + ty * ty + tz * tz), rr = _system.Bodies[pick].RadiusUnits * 4;
+                if (l0 > 0) { tx -= tx / l0 * rr; ty -= ty / l0 * rr; tz -= tz / l0 * rr; }
             }
             else if (_near >= 0 && _localCount > 0 && NearShare() > 0.9)
             {
@@ -370,6 +375,24 @@ namespace DnaAnd.Shell
             if (input.WasPressed(Win32.VK_ESCAPE)) return false;
             if (input.LeftDown) { _yaw += input.MouseDX * 0.004; _pitch = Math.Max(-1.55, Math.Min(1.55, _pitch - input.MouseDY * 0.004)); }
             double reach = NearestDistance();
+            if (_matterScale > 0)
+            {
+                // in the ground's matter: the wheel shrinks or grows the scale, from a millimetre down inside an atom
+                if (input.Wheel != 0) _matterScale *= Math.Pow(0.87, input.Wheel);
+                if (_matterScale > MatterView.TopKm) _matterScale = 0;                 // back up to the ground
+                else _matterScale = Math.Max(MatterView.BottomKm, _matterScale);
+                ChooseNear(); LocalStars(); ChooseSystem(); ChoosePlanet();
+                return true;
+            }
+            if (_ground != null && input.Wheel > 0 && AboveGround() < Units.Km(1.5e-6) && _ground.Solid)
+            {
+                // at the finest ground: on down into what it is made of
+                double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z);
+                bool sea = _ground.HasWater && _ground.GroundAt(x / r, y / r, z / r) < 0, ice = Math.Abs(y / r) > 0.86;
+                _matter.Set(_ground.Kind, sea, ice, sea ? 0.2f : 0.58f, sea ? 0.4f : 0.5f, sea ? 0.6f : 0.4f);
+                _matterScale = MatterView.TopKm;
+                return true;
+            }
             if (input.Wheel != 0)
             {
                 // fly along the line under the mouse, by a share of the distance to the nearest thing: slower as it comes close, never ending
@@ -560,6 +583,13 @@ namespace DnaAnd.Shell
                 if (ll > 0) { _ground.StarDir[0] = lx / ll; _ground.StarDir[1] = ly / ll; _ground.StarDir[2] = lz / ll; }
                 _ground.Draw(_meshes, x, y, z, view, kproj, time, 3.0 * Math.Max(1, h / 600.0), 0, 0, 0, 0, 0, 0, w, h, 400);
             }
+            if (_matterScale > 0)
+            {
+                // the matter, in front of everything; above a tenth of a millimetre the ground still shows through behind it
+                if (_matterScale < 1e-7) _gpu.ClearNow(0, 0, 0);                    // deep in the matter: only the matter is in view
+                _gpu.ClearDepth();
+                _matter.Draw(view, _matterScale, w, h, time);
+            }
             DrawScale(w, h);
         }
 
@@ -586,7 +616,8 @@ namespace DnaAnd.Shell
         {
             get
             {
-                string where = _ground != null ? "at " + _system.Bodies[_planet].Kind + ", " + Units.Describe(AboveGround()) + " above the ground"
+                string where = _matterScale > 0 ? "inside the ground of " + _system.Bodies[_planet].Kind + ": " + _matter.Stage(_matterScale)
+                    : _ground != null ? "at " + _system.Bodies[_planet].Kind + ", " + Units.Describe(AboveGround()) + " above the ground"
                     : _system != null ? "in the system of a " + _system.StarName + " (" + _system.Bodies.Count + " planets and moons)"
                     : _near >= 0 ? (NearShare() > 0.5 ? "among the stars of " : "near ") + _galaxies[_near].Name : "among the galaxies";
                 return "DNA-AND · one world · " + where + " · nearest thing " + Units.Describe(NearestDistance()) + " away · wheel: fly in or out toward the mouse · drag: look around · H: scale on or off · Esc: close";
@@ -599,7 +630,7 @@ namespace DnaAnd.Shell
             if (_nearBuf != null) _nearBuf.Dispose();
             CloseSystem();
             DropPlanet();
-            _hud.Dispose();
+            _hud.Dispose(); _matter.Dispose();
             if (_localBuf != null) _localBuf.Dispose();
         }
     }
