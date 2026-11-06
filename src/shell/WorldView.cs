@@ -21,6 +21,7 @@ namespace DnaAnd.Shell
         private readonly Gpu _gpu; private readonly BillboardDrawer _dots; private readonly ContentLibrary _content;
         private readonly List<StarKind> _kinds;
         private readonly MeshPipes _meshes;
+        private readonly ScaleHud _hud;
         // the planet or moon you have come close to: its real ground, drawn in the same camera (-1: none)
         private int _planet = -1; private PlanetTerrain _ground; private double _px, _py, _pz;   // its centre from the star, in universe units
         private const double PlanetRange = 40;                // within 40 of its radii, the ground is made and drawn
@@ -52,7 +53,7 @@ namespace DnaAnd.Shell
 
         public WorldView(Gpu gpu, BillboardPipeline pipe, MeshPipes meshes, ContentLibrary content, ulong seed)
         {
-            _meshes = meshes; _gpu = gpu; _dots = new BillboardDrawer(gpu.CommandList, pipe); _content = content;
+            _meshes = meshes; _gpu = gpu; _hud = new ScaleHud(gpu.Device); _dots = new BillboardDrawer(gpu.CommandList, pipe); _content = content;
             var types = new List<string>(); var names = new List<string>();
             foreach (var e in content.OfKind("galaxies.dnat", "galaxy")) { types.Add(e.Id); names.Add(e.Name); }
             if (types.Count == 0) { types.Add("spiral"); names.Add("Spiral galaxy"); }
@@ -291,10 +292,19 @@ namespace DnaAnd.Shell
                 _planet = best;
                 _ground = new PlanetTerrain(_gpu.Device, DeepView.TerrainKind(b.Kind), b.Kind, (uint)(_galaxies[_near].Seed * 977UL + (ulong)_sysStar * 31UL + (ulong)best), false, b.RadiusUnits / Units.Km(1));
             }
-            if (_planet >= 0) BodyPos(_planet, out _px, out _py, out _pz);
+            if (_planet >= 0)
+            {
+                // near a planet the camera rides along with it as it moves round its star, as anything near it would
+                double ox = _px, oy = _py, oz = _pz; bool had = _hadPos;
+                BodyPos(_planet, out _px, out _py, out _pz);
+                if (had) { _ox += _px - ox; _oy += _py - oy; _oz += _pz - oz; }
+                _hadPos = true;
+            }
+            else _hadPos = false;
         }
 
-        private void DropPlanet() { if (_ground != null) { _ground.Dispose(); _ground = null; } _planet = -1; }
+        private bool _hadPos;
+        private void DropPlanet() { _hadPos = false; if (_ground != null) { _ground.Dispose(); _ground = null; } _planet = -1; }
 
         // how far above the planet's ground the camera is (universe units)
         private double AboveGround()
@@ -331,8 +341,32 @@ namespace DnaAnd.Shell
             x = x1 / g.Scale; y = y2 / g.Scale; z = z2 / g.Scale;
         }
 
+        /// <summary>Test runs: the camera turns to the next thing on the way down (the galaxy, a star, a planet, its ground) each frame.</summary>
+        public bool AutoPath;
+        private void AimNext()
+        {
+            double tx, ty, tz;
+            if (_ground != null) { tx = _px; ty = _py; tz = _pz; }                                  // straight down to the ground
+            else if (_system != null)
+            {
+                int pick = -1; for (int i = 0; i < _system.Bodies.Count; i++) if (_system.Bodies[i].Parent < 0 && (pick < 0 || _system.Bodies[i].Kind == "Temperate world")) pick = i;
+                if (pick < 0) return;
+                BodyPos(pick, out tx, out ty, out tz);
+            }
+            else if (_near >= 0 && _localCount > 0 && NearShare() > 0.9)
+            {
+                double d; int k = NearestStar(out d); if (k < 0) return;
+                double ux, uy, uz; StarPos(k, out ux, out uy, out uz); tx = (ux - _ax); ty = (uy - _ay); tz = (uz - _az);
+            }
+            else { var g = _galaxies[0]; tx = g.X - _ax; ty = g.Y - _ay; tz = g.Z - _az; }
+            double dx = tx - _ox, dy = ty - _oy, dz = tz - _oz, l = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+            if (l > 0) { _yaw = Math.Atan2(dz, dx); _pitch = Math.Asin(dy / l); }
+        }
+
         public bool Update(Input input, double dt, int w, int h)
         {
+            if (AutoPath) AimNext();
+            if (input.WasPressed(0x48)) _hud.Visible = !_hud.Visible;                 // H: the scale on screen, on or off
             if (input.WasPressed(Win32.VK_ESCAPE)) return false;
             if (input.LeftDown) { _yaw += input.MouseDX * 0.004; _pitch = Math.Max(-1.55, Math.Min(1.55, _pitch - input.MouseDY * 0.004)); }
             double reach = NearestDistance();
@@ -346,10 +380,19 @@ namespace DnaAnd.Shell
                 double step = reach * (1 - Math.Pow(0.87, Math.Abs(input.Wheel))) * Math.Sign(input.Wheel);
                 if (input.Wheel < 0) step = -Math.Max(reach, 0.01) * (Math.Pow(1 / 0.87, -input.Wheel) - 1);
                 _ox += dir.X * step; _oy += dir.Y * step; _oz += dir.Z * step;
-                if (_ground != null && AboveGround() < 1e-9 * Units.Km(1) * 0 + Units.Km(0.0000005))
+                if (_ground != null)
                 {
-                    // never below the ground: back up along the way you came
-                    _ox -= dir.X * step; _oy -= dir.Y * step; _oz -= dir.Z * step;
+                    // never lower than a few steps of the finest ground already made under you (so you never see the rough
+                    // first pieces stretched across the screen), and never below half a millimetre
+                    double ready = _ground.ReadyStep < 1e30 ? _ground.ReadyStep * 3 : _ground.Radius;
+                    double floorKm = Math.Max(5e-7, ready);
+                    if (AboveGround() < Units.Km(floorKm))
+                    {
+                        double x, y, z; CamFromPlanet(out x, out y, out z);
+                        double r = Math.Sqrt(x * x + y * y + z * z), g = _ground.Solid ? Math.Max(0, _ground.GroundAt(x / r, y / r, z / r)) : 0;
+                        double want = _ground.Radius + g + floorKm, k = Units.Km(1);
+                        _ox = _px + x / r * want * k; _oy = _py + y / r * want * k; _oz = _pz + z / r * want * k;
+                    }
                 }
             }
             _simYears += dt / 20.0;                                                    // one year in 20 seconds, as in the system view
@@ -504,11 +547,23 @@ namespace DnaAnd.Shell
                 _gpu.ClearDepth();
                 double x, y, z; CamFromPlanet(out x, out y, out z);
                 double alt = Math.Max(1e-9, Math.Sqrt(x * x + y * y + z * z) - _ground.Radius);
-                Mat4 kproj = Mat4.Perspective(0.9f, w / (float)Math.Max(1, h), (float)Math.Max(alt * 1e-3, 1e-9), (float)(_ground.Radius * 8 + alt * 4));
+                // the depth range starts a little in front of the ground and ends just past the horizon, so near things (the sea
+                // and the shore just under it) never fight for the same depth and shimmer
+                double horizon = Math.Sqrt(alt * (2 * _ground.Radius + alt)) + Math.Sqrt(2 * _ground.Radius * 30);
+                Mat4 kproj = Mat4.Perspective(0.9f, w / (float)Math.Max(1, h), (float)Math.Max(alt * 0.15, 1e-9), (float)(horizon * 1.3 + 100));
                 var sd = _system.StarRadius; double lx = -_px, ly = -_py, lz = -_pz, ll = Math.Sqrt(lx * lx + ly * ly + lz * lz);
                 if (ll > 0) { _ground.StarDir[0] = lx / ll; _ground.StarDir[1] = ly / ll; _ground.StarDir[2] = lz / ll; }
                 _ground.Draw(_meshes, x, y, z, view, kproj, time, 3.0 * Math.Max(1, h / 600.0), 0, 0, 0, 0, 0, 0, w, h, 400);
             }
+            DrawScale(w, h);
+        }
+
+        // the scale on screen: how many km one pixel spans at the distance of the nearest thing, in the middle of the view
+        private void DrawScale(int w, int h)
+        {
+            double d = Math.Max(1e-30, NearestDistance()) / Units.Km(1), viewKm = 2 * d * Math.Tan(0.45) * w / (double)Math.Max(1, h);
+            _gpu.ClearDepth();
+            _hud.Draw(_meshes, viewKm / Math.Max(1, w), w, h);
         }
 
         private void DrawPoints(UploadBuffer buf, int count, Mat4 vp, Vec3 right, Vec3 up, float sizeScale, float minSize, int w, int h, double time)
@@ -529,7 +584,7 @@ namespace DnaAnd.Shell
                 string where = _ground != null ? "at " + _system.Bodies[_planet].Kind + ", " + Units.Describe(AboveGround()) + " above the ground"
                     : _system != null ? "in the system of a " + _system.StarName + " (" + _system.Bodies.Count + " planets and moons)"
                     : _near >= 0 ? (NearShare() > 0.5 ? "among the stars of " : "near ") + _galaxies[_near].Name : "among the galaxies";
-                return "DNA-AND · one world · " + where + " · nearest thing " + Units.Describe(NearestDistance()) + " away · wheel: fly in or out toward the mouse · drag: look around · Esc: close";
+                return "DNA-AND · one world · " + where + " · nearest thing " + Units.Describe(NearestDistance()) + " away · wheel: fly in or out toward the mouse · drag: look around · H: scale on or off · Esc: close";
             }
         }
 
@@ -539,6 +594,7 @@ namespace DnaAnd.Shell
             if (_nearBuf != null) _nearBuf.Dispose();
             CloseSystem();
             DropPlanet();
+            _hud.Dispose();
             if (_localBuf != null) _localBuf.Dispose();
         }
     }
