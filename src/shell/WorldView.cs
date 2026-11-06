@@ -452,11 +452,25 @@ namespace DnaAnd.Shell
             {
                 // the ground: where the line under the mouse meets the planet
                 double x, y, z; CamFromPlanet(out x, out y, out z);
-                double R = _ground.Radius, b = x * dir.X + y * dir.Y + z * dir.Z, c = x * x + y * y + z * z - R * R, disc = b * b - c;
-                if (disc >= 0)
+                // follow the line of sight down to the real ground (its hills and basins, the sea where there is sea): step out
+                // along it, growing with the distance, until it passes below the ground, then close in on the crossing
+                double alt0 = Math.Max(1e-9, AboveGround() / Units.Km(1)), t0 = 0, t1 = alt0 * 0.05, far = Math.Sqrt(Math.Max(0, (x * x + y * y + z * z) - _ground.Radius * _ground.Radius)) * 1.2 + 50;
+                Func<double, double> above = t =>
                 {
-                    double t = -b - Math.Sqrt(disc);
-                    if (t > 0) { double hx = x + dir.X * t, hy = y + dir.Y * t, hz = z + dir.Z * t, l = Math.Sqrt(hx * hx + hy * hy + hz * hz); _tKind = 3; _tx = hx / l; _ty = hy / l; _tz = hz / l; _tName = "a spot on " + _system.Bodies[_planet].Kind; return; }
+                    double hx = x + dir.X * t, hy = y + dir.Y * t, hz = z + dir.Z * t, l = Math.Sqrt(hx * hx + hy * hy + hz * hz);
+                    return l - _ground.Radius - (_ground.Solid ? Surface(hx / l, hy / l, hz / l) : 0);
+                };
+                bool hit = false;
+                for (int step = 0; step < 400 && t1 < far; step++)
+                {
+                    if (above(t1) <= 0) { hit = true; break; }
+                    t0 = t1; t1 += Math.Max(alt0 * 0.02, t1 * 0.04);
+                }
+                if (hit)
+                {
+                    for (int q = 0; q < 40; q++) { double tm = (t0 + t1) * 0.5; if (above(tm) > 0) t0 = tm; else t1 = tm; }
+                    double hx = x + dir.X * t1, hy = y + dir.Y * t1, hz = z + dir.Z * t1, l = Math.Sqrt(hx * hx + hy * hy + hz * hz);
+                    _tKind = 3; _tx = hx / l; _ty = hy / l; _tz = hz / l; _tName = "a spot on " + _system.Bodies[_planet].Kind; return;
                 }
             }
             if (_system != null)

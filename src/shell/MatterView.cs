@@ -36,7 +36,7 @@ namespace DnaAnd.Shell
         private ulong _seed;
         // the point you dive into (km, across the ground) and where it is easing to (what you picked)
         private double _fx, _fz, _tfx, _tfz, _lastTime = -1;
-        private sealed class Body { public int Kind; public long I, J; public double X, Y, Z, Size; }   // 0 a grain, 1 an atom
+        private sealed class Body { public int Kind; public long I, J; public double X, Y, Z, Size; public string Sym; }   // 0 a grain, 1 an atom
         private readonly List<Body> _bodies = new List<Body>();
         private Mat4 _lastVp; private int _lastW = 1, _lastH = 1; private bool _haveVp;
         private Body _picked;
@@ -137,7 +137,67 @@ namespace DnaAnd.Shell
         }
 
         // the atom right under you: the site of the focus grain's lattice nearest the point you dive into
-        private Element FocusAtom() { return SiteAtom(FocusMineral, FocusAI, FocusAJ, 0); }
+        private Element FocusAtom() { double x, y, z; return Focus(out x, out y, out z); }
+
+        // the atom you dive into and where it is: the nearest atom of the top layer to the point you dive into
+        private Element Focus(out double x, out double y, out double z)
+        {
+            var m = FocusMineral; x = FocusAI * AtomSpacing; z = FocusAJ * AtomSpacing; y = 0;
+            if (m == null) return null;
+            if (Structured(m.Id))
+            {
+                Element best = null; double bd = double.MaxValue;
+                foreach (var at in Crystal(m.Id, _fx, _fz, AtomSpacing * 3, 1))
+                {
+                    if (at.Y < -0.3 * AtomSpacing) continue;                                // the top layer only
+                    double d = (at.X - _fx) * (at.X - _fx) + (at.Z - _fz) * (at.Z - _fz);
+                    if (d < bd) { bd = d; best = at.E; x = at.X; y = at.Y; z = at.Z; }
+                }
+                if (best != null) { y -= AtomRadius(best); return best; }
+            }
+            var e = SiteAtom(m, FocusAI, FocusAJ, 0); y = -AtomRadius(e); return e;
+        }
+
+        // ── real crystal structures, where they are in: rock salt (halite) and the silica network (quartz) ──
+        private sealed class CAtom { public Element E; public double X, Y, Z; }
+        private static bool Structured(string id) { return id == "halite" || id == "quartz"; }
+
+        // the atoms of a structured crystal within reach of (cx, cz), top layer at height 0 and below it 'layers' cells deep
+        private List<CAtom> Crystal(string id, double cx, double cz, double reach, int layers)
+        {
+            var list = new List<CAtom>();
+            if (id == "halite")
+            {
+                // rock salt: sodium and chlorine alternating on a cube grid, 0.282 nm apart
+                double d = 2.82e-13; long n = (long)Math.Min(40, Math.Ceiling(reach / d) + 1), i0 = (long)Math.Round(cx / d), j0 = (long)Math.Round(cz / d);
+                Element na = El("Na"), cl = El("Cl");
+                for (long i = i0 - n; i <= i0 + n; i++)
+                    for (long j = j0 - n; j <= j0 + n; j++)
+                        for (long k = 0; k > -2 * layers - 1; k--)
+                            list.Add(new CAtom { E = ((i + j + k) & 1) == 0 ? na : cl, X = i * d, Y = k * d, Z = j * d });
+            }
+            else if (id == "quartz")
+            {
+                // the silica network: each silicon bonded to four oxygens, each oxygen bridging two silicons (shown here in its
+                // simplest form, cristobalite's cubic cell, 0.716 nm across: silicon on a diamond lattice, oxygen mid-bond)
+                double A = 7.16e-13; long n = (long)Math.Min(12, Math.Ceiling(reach / A) + 1), i0 = (long)Math.Floor(cx / A), j0 = (long)Math.Floor(cz / A);
+                Element si = El("Si"), o = El("O");
+                double[][] fcc = { new[] { 0, 0, 0.0 }, new[] { 0, 0.5, 0.5 }, new[] { 0.5, 0, 0.5 }, new[] { 0.5, 0.5, 0.0 } };
+                double[][] bonds = { new[] { 0.25, 0.25, 0.25 }, new[] { 0.25, -0.25, -0.25 }, new[] { -0.25, 0.25, -0.25 }, new[] { -0.25, -0.25, 0.25 } };
+                for (long i = i0 - n; i <= i0 + n; i++)
+                    for (long j = j0 - n; j <= j0 + n; j++)
+                        for (long k = 0; k > -layers - 1; k--)
+                            foreach (var b in fcc)
+                            {
+                                double bx = (i + b[0]) * A, by = (k + b[1]) * A - A * 0.25, bz = (j + b[2]) * A;
+                                list.Add(new CAtom { E = si, X = bx, Y = by, Z = bz });
+                                list.Add(new CAtom { E = si, X = bx + 0.25 * A, Y = by + 0.25 * A, Z = bz + 0.25 * A });
+                                foreach (var v in bonds) list.Add(new CAtom { E = o, X = bx + v[0] * A * 0.5, Y = by + v[1] * A * 0.5, Z = bz + v[2] * A * 0.5 });
+                            }
+                list.RemoveAll(at => at.Y > 1e-20);                                          // the grain's face: nothing above it
+            }
+            return list;
+        }
 
         // minerals made of separate molecules: each lattice site holds one, its atoms in the molecule's real shape (km, from its
         // first atom, which sits on the site). Network minerals (quartz, feldspar, olivine...) have none: their atoms are the sites.
@@ -246,8 +306,21 @@ namespace DnaAnd.Shell
                 }
             }
             // the mineral's atoms, rows about 0.25 nm apart, in its real ratio; one atom right at the point you dive into
-            var focus = FocusAtom();
-            if (fm != null && s < AtomSpacing * 14)
+            double fax, fay, faz; var focus = Focus(out fax, out fay, out faz);
+            if (fm != null && s < AtomSpacing * 14 && Structured(fm.Id))
+            {
+                float f = (float)Fade(s, AtomSpacing * 14, AtomSpacing * 9);
+                foreach (var at in Crystal(fm.Id, _fx, _fz, 1.8 * s, 1))
+                {
+                    double ar = AtomRadius(at.E), ay = at.Y - ar;
+                    bool inFocus = at.E == focus && Math.Abs(at.X - fax) < 1e-20 && Math.Abs(ay - fay) < 1e-20 && Math.Abs(at.Z - faz) < 1e-20 && s < ar * 4;
+                    if (inFocus) continue;
+                    float sh = (float)(1 + 0.6 * at.Y / AtomSpacing * 0.25); sh = Math.Max(0.45f, sh);
+                    Add(solid, at.X, ay, at.Z, ar * 0.62, at.E.R * sh * f, at.E.G * sh * f, at.E.B * sh * f, s);
+                    if (at.Y > -0.3 * AtomSpacing) { AddBody(1, 0, 0, at.X, ay, at.Z, ar, s); if (_bodies.Count > 0) _bodies[_bodies.Count - 1].Sym = at.E.Symbol; }
+                }
+            }
+            else if (fm != null && s < AtomSpacing * 14)
             {
                 double a = AtomSpacing; long n = (long)Math.Min(30, Math.Ceiling(1.8 * s / a) + 1), ai0 = FocusAI, aj0 = FocusAJ;
                 float f = (float)Fade(s, AtomSpacing * 14, AtomSpacing * 9);
@@ -274,13 +347,13 @@ namespace DnaAnd.Shell
                                 Add(solid, i * a, k * a - ar, j * a, ar * 0.55, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
                             }
                             else Add(solid, i * a, k * a - ar, j * a, ar * 0.9, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
-                            if (k == 0) AddBody(1, i, j, i * a, -ar, j * a, ar, s);
+                            if (k == 0) { int nb = _bodies.Count; AddBody(1, i, j, i * a, -ar, j * a, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = el.Symbol; }
                         }
             }
             // the atom under you, from inside: its electrons in their shells, moving round it, and its nucleus at the middle
             if (focus != null && s < AtomRadius(focus) * 4)
             {
-                double ar = AtomRadius(focus), cy = -ar, nr = NucleusRadius(focus), ax0 = FocusAI * AtomSpacing, az0 = FocusAJ * AtomSpacing;
+                double ar = AtomRadius(focus), cy = fay, nr = NucleusRadius(focus), ax0 = fax, az0 = faz;
                 int shells = focus.Shells.Length;
                 float cloud = (float)Fade(s, ar * 4, ar * 2);
                 for (int sh = 0; sh < shells; sh++)
@@ -344,7 +417,7 @@ namespace DnaAnd.Shell
             Build(scaleKm, time, solid, glow);
             Put(solid, ref _sv, ref _solidBuf); Put(glow, ref _gv, ref _glowBuf);
             Mat4 vp = view * Mat4.Perspective(0.9f, w / (float)Math.Max(1, h), 0.001f, 200f);
-            _lastVp = vp; _lastW = w; _lastH = h; _haveVp = true; _scale = scaleKm;
+            _lastVp = vp; _lastW = w; _lastH = h; _haveVp = true; _scale = scaleKm; _lastView = view;
             var right = new Vec3(view.M11, view.M21, view.M31); var up = new Vec3(view.M12, view.M22, view.M32);
             var c = new float[BillboardPipeline.ConstantCount];
             c[0] = vp.M11; c[1] = vp.M12; c[2] = vp.M13; c[3] = vp.M14; c[4] = vp.M21; c[5] = vp.M22; c[6] = vp.M23; c[7] = vp.M24;
@@ -355,7 +428,7 @@ namespace DnaAnd.Shell
             c[26] = 0; if (glow.Count > 0) _dots.Draw(_glowBuf, glow.Count, c, 0, 0, w, h);      // electrons, their shells and the nucleus's spark: glows
         }
 
-        private double _scale = TopKm;
+        private double _scale = TopKm; private Mat4 _lastView;
 
         /// <summary>Picks the grain or atom under the mouse (within about 24 pixels): the point you dive into eases to it.
         /// False if nothing is there.</summary>
@@ -372,7 +445,22 @@ namespace DnaAnd.Shell
                 double rpx = b.Size / _scale / cw / Math.Tan(0.45) * _lastH * 0.5;            // its own size on screen counts too
                 if (d2 < Math.Max(best, rpx * rpx) && (pick == null || d2 < best)) { best = d2; pick = b; }
             }
-            if (pick == null) return false;
+            if (pick == null)
+            {
+                // nothing right there: the spot you clicked on the surface (where the line under the mouse meets it)
+                var v = _lastView; var right = new Vec3(v.M11, v.M21, v.M31); var up = new Vec3(v.M12, v.M22, v.M32); var fwd = Vec3.Cross(up, right).Normalized;
+                double t = Math.Tan(0.45), nx = mx / (double)Math.Max(1, _lastW) * 2 - 1, ny = 1 - my / (double)Math.Max(1, _lastH) * 2, aspect = _lastW / (double)Math.Max(1, _lastH);
+                for (int sign = 0; sign < 2; sign++)
+                {
+                    var f = sign == 0 ? fwd : new Vec3(-fwd.X, -fwd.Y, -fwd.Z);
+                    var d = (f + right * (float)(nx * t * aspect) + up * (float)(ny * t)).Normalized;
+                    float cw = d.X * m.M14 + d.Y * m.M24 + d.Z * m.M34 + m.M44;              // in front of you?
+                    if (cw <= 0 || d.Y >= -1e-4f) continue;
+                    double k = -0.6 / d.Y;                                                   // the surface lies 0.6 below you
+                    _picked = null; _tfx = _fx + d.X * k * _scale; _tfz = _fz + d.Z * k * _scale; return true;
+                }
+                return false;
+            }
             _picked = pick; _tfx = pick.X; _tfz = pick.Z; return true;
         }
 
@@ -393,7 +481,7 @@ namespace DnaAnd.Shell
                 L.Add("ground: " + (_mixes.ContainsKey(_mixId) ? _mixId : "rock"));
                 return L;
             }
-            var e = _picked != null && _picked.Kind == 1 ? SiteAtom(FocusMineral, _picked.I, _picked.J, 0) : FocusAtom();
+            var e = _picked != null && _picked.Kind == 1 && _picked.Sym != null ? El(_picked.Sym) : FocusAtom();
             var fm = FocusMineral;
             if (e == null) return L;
             L.Add((_picked != null ? "an atom of " : "under you: ") + e.Name.ToLowerInvariant() + " (" + e.Symbol + ")");
@@ -402,7 +490,7 @@ namespace DnaAnd.Shell
             L.Add("shells: " + string.Join(", ", Array.ConvertAll(e.Shells, x => x.ToString())));
             L.Add("width: about " + ScaleHud.Words(AtomRadius(e) * 2) + ", nucleus " + ScaleHud.Words(NucleusRadius(e) * 2));
             if (fm != null && Molecules.ContainsKey(fm.Id)) L.Add("in a molecule of " + fm.Formula.Split(' ')[0] + ", in " + fm.Name.ToLowerInvariant());
-            else if (fm != null) L.Add("in a grain of " + fm.Name.ToLowerInvariant() + " (" + fm.Formula + ")");
+            else if (fm != null) L.Add("in a grain of " + fm.Name.ToLowerInvariant() + " (" + fm.Formula + ")" + (fm.Id == "halite" ? ", a rock-salt crystal" : fm.Id == "quartz" ? ", a silica network" : ""));
             return L;
         }
 
