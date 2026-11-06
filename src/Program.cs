@@ -142,6 +142,7 @@ namespace DnaAnd
             }
             if (testPlanet >= 0) { planet = new PlanetView(gpu, meshes, pipeline, viewer.TerrainAt(testPlanet), viewer.FieldTerrainAt(testPlanet), viewer.Set == 5 || testFieldView); planet.TestEvolveYears = testEvolve; planet.TestGoToCiv = Array.IndexOf(args, "--tociv") >= 0; int sli = Array.IndexOf(args, "--savelife"); if (sli >= 0 && sli + 1 < args.Length) planet.TestSaveLife = args[sli + 1]; int lli = Array.IndexOf(args, "--loadlife"); if (lli >= 0 && lli + 1 < args.Length) planet.TestLoadLife = args[lli + 1]; int csi = Array.IndexOf(args, "--civstep"); if (csi >= 0 && csi + 1 < args.Length) int.TryParse(args[csi + 1], out planet.TestCivStep); for (int k = 0; k < testJumps; k++) planet.JumpToNextField(); if (testAlt > 0) planet.SetAltitude(testAlt); int si = Array.IndexOf(args, "--undersea"); if (si >= 0 && si + 1 < args.Length) planet.GoUnderSea(double.Parse(args[si + 1], System.Globalization.CultureInfo.InvariantCulture)); }
             UniverseView universe = journey ? new UniverseView(gpu, pipeline, content, Seed) : null;
+            WorldView world = Array.IndexOf(args, "--world") >= 0 ? new WorldView(gpu, pipeline, content, Seed) : null;   // the one world: one camera through every scale
             if (journey && Array.IndexOf(args, "--test-system") >= 0) { deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(0), viewer.NameOf(0), Seed); deep.TestJourney(gpu.Width, gpu.Height); }
             if (testDeep >= 0) deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(testDeep), viewer.NameOf(testDeep), Seed + (ulong)testDeep * 7919UL);
             while (window.Pump())
@@ -185,7 +186,8 @@ namespace DnaAnd
                 if (backFrom >= 0 && clock.Total >= backFrom && clock.Total < backFrom + backFor) window.Input.Notch(-1);
                 if (clickAt >= 0 && clock.Total >= clickAt) { window.Input.MouseX = (int)(clickX * gpu.Width); window.Input.MouseY = (int)(clickY * gpu.Height); window.Input.LeftClicked = true; clickAt = -1; }
                 window.Input.Glide(clock.Delta, window.Input.IsDown(0x11));      // the wheel glides in smoothly; hold Ctrl: eight times as fast, in every view
-                if (style != null) style.Update(window.Input, clock.Delta, gpu.Width, gpu.Height);
+                if (world != null) { if (!world.Update(window.Input, clock.Delta, gpu.Width, gpu.Height)) window.Close(); }
+                else if (style != null) style.Update(window.Input, clock.Delta, gpu.Width, gpu.Height);
                 else if (microbes != null) microbes.Update(window.Input, clock.Delta);
                 else if (elements != null) elements.Update(window.Input, clock.Delta);
                 else if (planet != null) { if (!planet.Update(window.Input, clock.Delta))
@@ -248,7 +250,8 @@ namespace DnaAnd
                     deep.HandOff = -1;
                 }
                 gpu.BeginFrame(0.005f, 0.006f, 0.012f);
-                if (style != null) style.Draw(gpu, gpu.Width, gpu.Height, clock.Total);
+                if (world != null) world.Draw(gpu.Width, gpu.Height, clock.Total);
+                else if (style != null) style.Draw(gpu, gpu.Width, gpu.Height, clock.Total);
                 else if (microbes != null) microbes.Draw(gpu, gpu.Width, gpu.Height, clock.Total);
                 else if (elements != null) elements.Draw(gpu, gpu.Width, gpu.Height, clock.Total);
                 else if (planet != null) planet.Draw(gpu, gpu.Width, gpu.Height);
@@ -275,7 +278,7 @@ namespace DnaAnd
                 frames++; titleTimer += clock.Delta;
                 if (titleTimer >= 0.5)
                 {
-                    lastTitle = string.Format("{0} · {1:0} fps", style != null ? style.Title : microbes != null ? microbes.Title : elements != null ? elements.Title : planet != null ? planet.Title : deep == null ? (universe != null ? universe.Title : viewer.Title) : deep.Title, frames / titleTimer);
+                    lastTitle = string.Format("{0} · {1:0} fps", world != null ? world.Title : style != null ? style.Title : microbes != null ? microbes.Title : elements != null ? elements.Title : planet != null ? planet.Title : deep == null ? (universe != null ? universe.Title : viewer.Title) : deep.Title, frames / titleTimer);
                     window.SetTitle(lastTitle);
                     titleTimer = 0; frames = 0;
                 }
