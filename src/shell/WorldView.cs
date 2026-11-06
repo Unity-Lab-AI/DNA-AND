@@ -583,7 +583,21 @@ namespace DnaAnd.Shell
                 } }
             // the camera turns smoothly to face what you picked
             double tdx, tdy, tdz, trad;
-            if (_tKind >= 0 && !(_pressed && _dragged) && TargetFromCamera(out tdx, out tdy, out tdz, out trad))
+            bool amongGrains = _ground != null && (_matterScale > 0 || AboveGround() < Units.Km(MatterView.OverlayKm));
+            if (amongGrains && !(_pressed && _dragged))
+            {
+                // among the grains: the view tilts down to look at them (about 70 degrees down, the way you face kept), so what
+                // lies under you, and what you pick there, is in view
+                double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z);
+                double ux = x / r, uy = y / r, uz = z / r; var lk0 = Look; double d0 = lk0.X * ux + lk0.Y * uy + lk0.Z * uz;
+                double hx = lk0.X - ux * d0, hy = lk0.Y - uy * d0, hz = lk0.Z - uz * d0, hl = Math.Sqrt(hx * hx + hy * hy + hz * hz);
+                if (hl < 1e-6) { hx = -uz; hy = 0; hz = ux; hl = Math.Sqrt(hx * hx + hz * hz); if (hl < 1e-6) { hx = 1; hl = 1; } }
+                double dn = Math.Sin(70 * Math.PI / 180), fl = Math.Cos(70 * Math.PI / 180);
+                double wx = hx / hl * fl - ux * dn, wy = hy / hl * fl - uy * dn, wz = hz / hl * fl - uz * dn;
+                double wantYaw = Math.Atan2(wz, wx), wantPitch = Math.Asin(Math.Max(-1, Math.Min(1, wy))), k = 1 - Math.Exp(-dt * 4);
+                _yaw += Math.IEEERemainder(wantYaw - _yaw, 2 * Math.PI) * k; _pitch += (wantPitch - _pitch) * k;
+            }
+            else if (_tKind >= 0 && !(_pressed && _dragged) && TargetFromCamera(out tdx, out tdy, out tdz, out trad))
             {
                 double l = Math.Sqrt(tdx * tdx + tdy * tdy + tdz * tdz);
                 if (l > 0 && _tKind == 2 && _tIndex == _planet && _ground != null)
