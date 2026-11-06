@@ -128,6 +128,9 @@ namespace DnaAnd.Shell
 
         // the atom right under you: one of the focus grain's own atoms (picked from its formula by the spot)
         private long FocusGI { get { return (long)Math.Round(_fx / Grain); } }
+        // the grain you dive into: its size, and its shade (so its face can carry on in exactly its colour)
+        private double FocusRad { get { return Grain * (0.3 + 0.2 * Hash(FocusGI * 2, FocusGJ * 2, 1, _seed)); } }
+        private float FocusShade { get { return (float)(0.75 + 0.35 * Hash(FocusGI * 2, FocusGJ * 2, 4, _seed)); } }
         private long FocusGJ { get { return (long)Math.Round(_fz / Grain); } }
         private Mineral FocusMineral { get { return GrainMineral(FocusGI, FocusGJ); } }
         private long FocusAI { get { return (long)Math.Round(_fx / AtomSpacing); } }
@@ -433,6 +436,7 @@ namespace DnaAnd.Shell
                         {
                             long gi = i * 2 + layer, gj = j * 2 + layer;                       // each layer's own grains
                             var m = GrainMineral(gi, gj); if (m == null) continue;
+                            if (layer == 0 && i == gi0 && j == gj0 && s < FocusRad * 0.6) continue;   // it fills the view: its own face takes over
                             double rad = Grain * (0.3 + 0.2 * Hash(gi, gj, 1, _seed));
                             double gx = (i + layer * 0.5 + (Hash(gi, gj, 2, _seed) - 0.5) * 0.55) * Grain, gz = (j + layer * 0.5 + (Hash(gi, gj, 3, _seed) - 0.5) * 0.55) * Grain;
                             double gy = layer == 0 ? -rad * (0.85 + 0.3 * Hash(gi, gj, 5, _seed)) : -Grain * 0.75 - rad * 0.6;
@@ -451,7 +455,7 @@ namespace DnaAnd.Shell
             // the focus grain's surface: detail at every size, fixed in place (cells of powers of ten, two at a time, blended),
             // in the grain's colour; its finest cells take on the colours of its atoms
             var fm = FocusMineral;
-            if (fm != null && s < Grain * 1.5 && s > AtomSpacing * 8)
+            if (fm != null && (s < FocusRad * 0.6 || _noGrains) && s > AtomSpacing * 8)
             {
                 double c1 = Math.Pow(10, Math.Floor(Math.Log10(s / 30))), frac = Math.Log10(s / 30) - Math.Floor(Math.Log10(s / 30));
                 double atomish = Fade(s, AtomSpacing * 200, AtomSpacing * 20);
@@ -467,14 +471,14 @@ namespace DnaAnd.Shell
                             double x = i * c, z = j * c;
                             if ((x - _fx) * (x - _fx) + (z - _fz) * (z - _fz) > 2.6 * s * s) continue;
                             long ci = (long)Math.Floor(x / c), cj = (long)Math.Floor(z / c);
-                            float sh = (float)(0.7 + 0.45 * Hash(ci, cj, (long)Math.Round(Math.Log10(c) * 10), _seed));
+                            float sh = (float)(0.9 + 0.2 * Hash(ci, cj, (long)Math.Round(Math.Log10(c) * 10), _seed));   // gentle, so it carries on from the stone
                             // below about 300 nm the face shows its atomic terraces: flat patches tens of nm wide, each a layer
                             // (0.3 nm) above or below its neighbours
                             double ty = 0;
                             if (c < 3e-10) { const double tw = 4e-11; long ti = (long)Math.Floor(x / tw), tj = (long)Math.Floor(z / tw); ty = -Math.Floor(Hash(ti, tj, 60, _seed) * 4) * 3e-13; sh *= (float)(1 + ty / 3e-13 * 0.08); }
-                            float r = fm.R, g = fm.G, b = fm.B;
+                            float fsh = FocusShade, r = fm.R * fsh, g = fm.G * fsh, b = fm.B * fsh;             // the stone's own colour, carried on
                             if (atomish > 0) { var ae = El(fm.Atoms[(int)(Hash(ci, cj, 5, _seed) * fm.Atoms.Length) % fm.Atoms.Length]); if (ae != null) { r = (float)(r * (1 - atomish) + ae.R * atomish); g = (float)(g * (1 - atomish) + ae.G * atomish); b = (float)(b * (1 - atomish) + ae.B * atomish); } }
-                            float f = (float)(wgt * Fade(s, Grain * 1.5, Grain * 0.6) * (1 - Fade(s, AtomSpacing * 14, AtomSpacing * 8)));
+                            float f = (float)(1 - Fade(s, AtomSpacing * 14, AtomSpacing * 8));
                             if (f > 0.01) { Add(solid, x, ty - c * 0.05, z, c * 0.72, r * sh, g * sh, b * sh, s); if (solid.Count > 0) { var tv = solid[solid.Count - 1]; tv.A = 0.5f; solid[solid.Count - 1] = tv; } }   // a flat tile of the face
                         }
                 }
