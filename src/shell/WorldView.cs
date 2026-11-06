@@ -499,6 +499,21 @@ namespace DnaAnd.Shell
             if (_tKind >= 0 && !(_pressed && _dragged) && TargetFromCamera(out tdx, out tdy, out tdz, out trad))
             {
                 double l = Math.Sqrt(tdx * tdx + tdy * tdy + tdz * tdz);
+                if (l > 0 && _tKind == 2 && _tIndex == _planet && _ground != null)
+                {
+                    // coming down to the picked planet: from a tenth of its radius the view levels out from its middle toward
+                    // its horizon (about 15 degrees below it), keeping the way you face, so you see the land ahead, not your feet
+                    double alt = AboveGround() / Units.Km(1), lev = Math.Max(0, Math.Min(1, 1 - alt / (_ground.Radius * 0.1)));
+                    lev = lev * lev * (3 - 2 * lev);
+                    double ux = -tdx / l, uy = -tdy / l, uz = -tdz / l;                 // up: from the planet's middle to you
+                    var lk0 = Look; double dot = lk0.X * ux + lk0.Y * uy + lk0.Z * uz;
+                    double hx = lk0.X - ux * dot, hy = lk0.Y - uy * dot, hz = lk0.Z - uz * dot, hl = Math.Sqrt(hx * hx + hy * hy + hz * hz);
+                    if (hl < 1e-6) { hx = -uz; hy = 0; hz = ux; hl = Math.Sqrt(hx * hx + hz * hz); if (hl < 1e-6) { hx = 1; hl = 1; } }
+                    double down = Math.Sin(15 * Math.PI / 180), flat = Math.Cos(15 * Math.PI / 180);
+                    double wx = hx / hl * flat - ux * down, wy = hy / hl * flat - uy * down, wz = hz / hl * flat - uz * down;
+                    tdx = tdx / l * (1 - lev) + wx * lev; tdy = tdy / l * (1 - lev) + wy * lev; tdz = tdz / l * (1 - lev) + wz * lev;
+                    l = Math.Sqrt(tdx * tdx + tdy * tdy + tdz * tdz);
+                }
                 if (l > 0)
                 {
                     double wantYaw = Math.Atan2(tdz, tdx), wantPitch = Math.Asin(Math.Max(-1, Math.Min(1, tdy / l)));
@@ -550,7 +565,7 @@ namespace DnaAnd.Shell
                 if (mf != 0 || mr != 0 || mu != 0)
                 {
                     _tKind = -1;                                                       // flying yourself lets go of the pick
-                    var f = Look; var rt = Vec3.Cross(f, new Vec3(0, 1, 0)).Normalized; var upv = Vec3.Cross(rt, f).Normalized;
+                    var f = Look; var rt = Vec3.Cross(f, ViewUp()).Normalized; var upv = Vec3.Cross(rt, f).Normalized;
                     double sp = reach * 0.5 * dt * (input.IsDown(0x10) ? 4 : 1);
                     _ox += (f.X * mf + rt.X * mr + upv.X * mu) * sp; _oy += (f.Y * mf + rt.Y * mr + upv.Y * mu) * sp; _oz += (f.Z * mf + rt.Z * mr + upv.Z * mu) * sp;
                     if (_ground != null && AboveGround() < Units.Km(5e-7))
@@ -669,10 +684,23 @@ namespace DnaAnd.Shell
             return best;
         }
 
+        // the view's up: the universe's up in space; near a planet's ground, the planet's own up (so its horizon is level)
+        private Vec3 ViewUp()
+        {
+            var wu = new Vec3(0, 1, 0);
+            if (_ground == null) return wu;
+            double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z); if (r <= 0) return wu;
+            double alt = r - _ground.Radius, k = Math.Max(0, Math.Min(1, 1 - alt / (_ground.Radius * 0.1)));
+            var lu = new Vec3((float)(x / r), (float)(y / r), (float)(z / r));
+            var u = new Vec3(wu.X * (float)(1 - k) + lu.X * (float)k, wu.Y * (float)(1 - k) + lu.Y * (float)k, wu.Z * (float)(1 - k) + lu.Z * (float)k);
+            var lk = Look; if (Math.Abs(Vec3.Dot(u.Normalized, lk)) > 0.995f) return Math.Abs(lk.Y) < 0.9f ? wu : new Vec3(1, 0, 0);
+            return u.Normalized;
+        }
+
         private Vec3 MouseRay(int mx, int my, int w, int h)
         {
             double nx = mx / (double)Math.Max(1, w) * 2 - 1, ny = 1 - my / (double)Math.Max(1, h) * 2, t = Math.Tan(0.45), aspect = w / (double)Math.Max(1, h);
-            var f = Look; var right = Vec3.Cross(f, new Vec3(0, 1, 0)).Normalized; var up = Vec3.Cross(right, f).Normalized;
+            var f = Look; var right = Vec3.Cross(f, ViewUp()).Normalized; var up = Vec3.Cross(right, f).Normalized;
             return (f + right * (float)(nx * t * aspect) + up * (float)(ny * t)).Normalized;
         }
 
@@ -765,7 +793,7 @@ namespace DnaAnd.Shell
         public void Draw(int w, int h, double time)
         {
             var look = Look;
-            Mat4 view = Mat4.LookAt(new Vec3(0, 0, 0), look, new Vec3(0, 1, 0));
+            Mat4 view = Mat4.LookAt(new Vec3(0, 0, 0), look, ViewUp());
             double reach = Math.Max(1e-12, NearestDistance());
             Mat4 proj = Mat4.Perspective(0.9f, w / (float)Math.Max(1, h), (float)(reach * 1e-3), (float)(Spread * 6));
             Mat4 vp = view * proj;
@@ -856,9 +884,9 @@ namespace DnaAnd.Shell
             {
                 double l = Math.Sqrt(mdx * mdx + mdy * mdy + mdz * mdz);
                 double rpx = Math.Max(14 * Math.Max(1, h / 1080.0), mrad / Math.Max(1e-30, l) / Math.Tan(0.45) * h * 0.5 * 1.25);
-                rpx = Math.Min(rpx, h * 0.45);
-                _hud.DrawRing(_meshes, msx, msy, rpx, w, h);
-                if (_hud.Visible) _hud.DrawCard(_meshes, Card(), msx + rpx + 12 * Math.Max(1, h / 1080.0), msy - rpx, w, h);   // what it is, beside it
+                bool fills = rpx > h * 0.45;                                           // bigger than the view: no ring, the card sits top left
+                if (!fills) _hud.DrawRing(_meshes, msx, msy, rpx, w, h);
+                if (_hud.Visible) { if (fills) _hud.DrawCard(_meshes, Card(), 24 * Math.Max(1, h / 1080.0), 24 * Math.Max(1, h / 1080.0), w, h); else _hud.DrawCard(_meshes, Card(), msx + rpx + 12 * Math.Max(1, h / 1080.0), msy - rpx, w, h); }
             }
         }
 

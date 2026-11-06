@@ -69,7 +69,7 @@ float4 PS(VO i) : SV_Target
         float a = (pow(edge, 3) * 1.1 + 0.08) * day;
         return float4(i.col.rgb * a, 1);
     }
-    float lit = 0.06 + 0.94 * saturate(dot(n, light.xyz));
+    float lit = 0.18 + 0.82 * saturate(dot(n, light.xyz));      // the night side still shows, dimly, by starlight and skyglow
     if (misc.z > 1.5 && misc.z < 2.5)
     {
         // clouds scatter light through themselves: lit from the star's side of the planet, glowing grey from below
