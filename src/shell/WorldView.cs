@@ -247,13 +247,30 @@ namespace DnaAnd.Shell
             }
             if (bestL >= 0 && bl < bd) { dist = Math.Sqrt(bl) * _galaxies[_near].Scale; return 1000000 + bestL; }
             if (best >= 0) dist = Math.Sqrt(bd) * _galaxies[_near].Scale;
+            // a star cluster's own stars round you (index from 2,000,000 up), so each can open into its solar system too
+            for (int q = 0; q < _cstars.Count; q++)
+            {
+                var cs = _cstars[q]; double dx = cs[0] - _cx, dy = cs[1] - _cy, dz = cs[2] - _cz, d = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+                if (d < dist) { dist = d; best = 2000000 + q; }
+            }
             return best;
         }
 
         // where a star of the near galaxy sits in the universe
-        private void StarPos(int k, out double x, out double y, out double z) { var s = k >= 1000000 ? _localList[k - 1000000] : _nearLocal[k]; ToUniverse(_galaxies[_near], s.X, s.Y, s.Z, out x, out y, out z); }
-        private int StarKindOf(int k) { return k >= 1000000 ? _localKind[k - 1000000] : _nearKinds[k]; }
-        private ulong StarSeed(int k) { return k >= 1000000 ? (ulong)_localId[k - 1000000] : (ulong)k; }
+        private void StarPos(int k, out double x, out double y, out double z)
+        {
+            if (k >= 2000000) { var cs = _cstars[k - 2000000]; x = cs[0]; y = cs[1]; z = cs[2]; return; }   // a cluster's star: already in universe units
+            var s = k >= 1000000 ? _localList[k - 1000000] : _nearLocal[k]; ToUniverse(_galaxies[_near], s.X, s.Y, s.Z, out x, out y, out z);
+        }
+        // a cluster star's kind: in a globular, red giants, orange K and yellow G stars; in an open cluster, blue-white B and white A stars
+        private int ClusterKind(double[] cs)
+        {
+            string id = cs[3] == 0 ? (cs[4] < 0.1 ? "red-giant" : cs[4] < 0.4 ? "k-type" : "g-type") : (cs[4] < 0.3 ? "b-type" : "a-type");
+            for (int i = 0; i < _kinds.Count; i++) if (_kinds[i].Id == id) return i;
+            return 0;
+        }
+        private int StarKindOf(int k) { return k >= 2000000 ? ClusterKind(_cstars[k - 2000000]) : k >= 1000000 ? _localKind[k - 1000000] : _nearKinds[k]; }
+        private ulong StarSeed(int k) { if (k >= 2000000) { var cs = _cstars[k - 2000000]; return (ulong)(long)(cs[0] / Units.Km(1e6)) * 73856093UL ^ (ulong)(long)(cs[2] / Units.Km(1e6)) * 19349663UL ^ 0xC1C1UL; } return k >= 1000000 ? (ulong)_localId[k - 1000000] : (ulong)k; }
 
         // open the system of the star you have come close to (and anchor the camera on it), or close it when you leave
         private void ChooseSystem()

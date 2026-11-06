@@ -51,13 +51,18 @@ namespace DnaAnd.Gen
                     list.Add(Star(c + new Vec3(rng.Gaussian(), rng.Gaussian(), rng.Gaussian()) * (r * (float)Math.Abs(rng.Gaussian()) * 0.6f), 0f, 1f, 0.75f, 0.45f, rng.Range(0.05f, 0.2f)));
                 clusterCount++; if (features != null) features.Add(new double[] { c.X, c.Y, c.Z, r, 0 });
             }
-            if (!spiral) return list.ToArray();
-            int opens = 60 + rng.Int(40), nebulas = 40 + rng.Int(30);
+            // star-forming galaxies have nebulae and young clusters (spirals along their arms, irregular and other gas-rich kinds
+            // scattered through their disc, starbursts the most); lenticulars a few; ellipticals, with little gas left, almost none
+            string t = galaxyType.ToLowerInvariant();
+            bool irregular = t.Contains("irregular") || t.Contains("magellanic") || t.Contains("blue-compact") || t.Contains("green-pea") || t.Contains("jellyfish") || t.Contains("starburst") || t.Contains("ring") || t.Contains("interacting") || t.Contains("peculiar");
+            double many = t.Contains("starburst") || t.Contains("green-pea") ? 3 : spiral ? 1 : irregular ? 0.6 : t.Contains("lenticular") ? 0.08 : t.Contains("elliptical") || t.Contains("spheroidal") || t == "cd" ? 0.02 : 0.15;
+            int opens = (int)((60 + rng.Int(40)) * many), nebulas = (int)((40 + rng.Int(30)) * many);
+            if (opens + nebulas == 0) return list.ToArray();
             for (int k = 0; k < opens + nebulas; k++)
             {
                 // place along the arms, where young stars and nebulas live (content rule: nebula-place)
                 float rr = (float)Math.Pow(rng.NextDouble(), 0.7) * 0.85f + 0.1f;
-                float ang = rng.Int(2) * (float)Math.PI + (float)Math.Log(rr / 0.05f + 1) * 3.2f + rng.Gaussian() * 0.25f;
+                float ang = spiral ? rng.Int(2) * (float)Math.PI + (float)Math.Log(rr / 0.05f + 1) * 3.2f + rng.Gaussian() * 0.25f : (float)(rng.NextDouble() * Math.PI * 2);   // on the arms, or anywhere in the disc
                 var c = new Vec3((float)Math.Cos(ang) * rr, rng.Gaussian() * 0.01f, (float)Math.Sin(ang) * rr);
                 if (k < opens)
                 {
@@ -69,7 +74,7 @@ namespace DnaAnd.Gen
                 else
                 {
                     // emission nebula: soft red glow; some reflection nebulas: blue (content: nebulas.dnat)
-                    bool emission = rng.NextDouble() < 0.75;
+                    bool emission = rng.NextDouble() < (spiral || irregular ? 0.75 : 0.2);   // without young hot stars, mostly dust lit by old ones
                     float r = (float)(rng.Range(40, 300) / Units.LightYearsPerUnit);
                     for (int i = 0; i < 120; i++)
                         list.Add(Star(c + new Vec3(rng.Gaussian(), rng.Gaussian() * 0.5f, rng.Gaussian()) * r, r * 2.5f,
