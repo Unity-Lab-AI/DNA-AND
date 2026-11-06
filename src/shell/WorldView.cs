@@ -379,6 +379,7 @@ namespace DnaAnd.Shell
         }
 
         // what the matter under you is made of, set once for each spot (about a metre across), so its grains stay put
+        private double _matterTop = MatterView.TopKm;                                 // zooming out past this goes back up to the ground
         private ulong _matterSpot = ulong.MaxValue; private double _mox, _moy, _moz; private int _matterPlanet = -1;
         // where you are from the spot the matter began at (km east and north there)
         private void MatterOffset(out double e, out double n)
@@ -571,7 +572,13 @@ namespace DnaAnd.Shell
             // a click (pressed and let go without dragging) picks what is under the mouse
             if (input.LeftClicked) { _pressed = true; _dragged = false; _pressX = input.MouseX; _pressY = input.MouseY; }
             if (_pressed && input.LeftDown && Math.Abs(input.MouseX - _pressX) + Math.Abs(input.MouseY - _pressY) > 6) _dragged = true;   // dragging circles round the pick (or looks around if nothing is picked)
-            if (_pressed && !input.LeftDown) { _pressed = false; if (!_dragged) { if (_matterScale > 0) _matter.Pick(input.MouseX, input.MouseY); else Pick(MouseRay(input.MouseX, input.MouseY, w, h), input.MouseX, input.MouseY); } }   // in the matter: a grain or an atom
+            if (_pressed && !input.LeftDown) { _pressed = false; if (!_dragged)
+                {
+                    if (_matterScale > 0) _matter.Pick(input.MouseX, input.MouseY);                       // in the matter: a grain or an atom
+                    else if (_ground != null && AboveGround() < Units.Km(MatterView.OverlayKm) && _matter.Pick(input.MouseX, input.MouseY))
+                    { _matterScale = Math.Max(MatterView.BottomKm, AboveGround() / Units.Km(1) / 0.6); _matterTop = Math.Max(MatterView.TopKm, _matterScale * 1.02); }   // a grain over the ground: on into the matter, the same picture, flying to it
+                    else Pick(MouseRay(input.MouseX, input.MouseY, w, h), input.MouseX, input.MouseY);
+                } }
             // the camera turns smoothly to face what you picked
             double tdx, tdy, tdz, trad;
             if (_tKind >= 0 && !(_pressed && _dragged) && TargetFromCamera(out tdx, out tdy, out tdz, out trad))
@@ -674,7 +681,7 @@ namespace DnaAnd.Shell
             {
                 // in the ground's matter: the wheel shrinks or grows the scale, from a millimetre down inside an atom
                 if (input.Wheel != 0) _matterScale *= Math.Pow(0.87, input.Wheel);
-                if (_matterScale > MatterView.TopKm) _matterScale = 0;                 // back up to the ground
+                if (_matterScale > _matterTop) _matterScale = 0;                       // back up to the ground, where you came in
                 else _matterScale = Math.Max(MatterView.BottomKm, _matterScale);
                 ChooseNear(); LocalStars(); ChooseSystem(); FollowBody(); ChoosePlanet();
                 return true;
@@ -686,6 +693,7 @@ namespace DnaAnd.Shell
                 bool sea = _ground.HasWater && _ground.GroundAt(x / r, y / r, z / r) < 0, ice = Math.Abs(y / r) > 0.86;
                 SetMatter();
                 _matterScale = Math.Max(MatterView.BottomKm, AboveGround() / Units.Km(1) / 0.6);   // the same picture carries on: you are 0.6 of the scale above it
+                _matterTop = Math.Max(MatterView.TopKm, _matterScale * 1.02);
                 return true;
             }
             if (input.Wheel != 0)
