@@ -42,3 +42,6 @@ build/
 
 # Build output (made by build.cmd)
 /build/
+
+# release packages (made by release.cmd)
+release/
