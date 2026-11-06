@@ -75,6 +75,30 @@ namespace DnaAnd.Shell
             pipes.Solid.Draw(_buf, n, c2, 0, 0, w, h);
         }
 
+        private UploadBuffer _ringBuf; private StarVertex[] _ringV = new StarVertex[0];
+        /// <summary>A ring of small marks round a point on screen (the thing you picked), in pixels.</summary>
+        public void DrawRing(MeshPipes pipes, double x, double y, double radius, int w, int h)
+        {
+            var list = new List<StarVertex>(); float px = Math.Max(1, h / 540f), s2 = 2.2f * px;
+            int n = 32;
+            for (int i = 0; i < n; i++)
+            {
+                if (i % 4 == 3) continue;                                            // a ring broken into dashes
+                double a = i * Math.PI * 2 / n;
+                Quad(list, (float)(x + Math.Cos(a) * radius) - s2 / 2, (float)(y + Math.Sin(a) * radius) - s2 / 2, s2, s2, 0.55f, 0.95f, 1f);
+            }
+            int cnt = list.Count;
+            if (_ringV.Length < cnt) _ringV = new StarVertex[cnt + 64];
+            list.CopyTo(_ringV);
+            if (_ringBuf == null || _ringBuf.Bytes < (long)cnt * Marshal.SizeOf(typeof(StarVertex))) { if (_ringBuf != null) _ringBuf.Dispose(); _ringBuf = new UploadBuffer(_device, (long)(cnt + 64) * Marshal.SizeOf(typeof(StarVertex))); }
+            _ringBuf.Write(_ringV, cnt);
+            var m = Mat4.Identity; m.M11 = 2f / w; m.M22 = -2f / h; m.M33 = 0; m.M41 = -1; m.M42 = 1; m.M43 = 0.0001f; m.M44 = 1;
+            var c2 = new float[BillboardPipeline.ConstantCount];
+            c2[0] = m.M11; c2[5] = m.M22; c2[10] = m.M33; c2[12] = m.M41; c2[13] = m.M42; c2[14] = m.M43; c2[15] = m.M44;
+            c2[18] = 1; c2[22] = 1;
+            pipes.Solid.Draw(_ringBuf, cnt, c2, 0, 0, w, h);
+        }
+
         private static void Quad(List<StarVertex> l, float x, float y, float sw, float sh, float r, float g, float b)
         {
             var a = new StarVertex { X = x, Y = y, Z = 0, Size = 1, R = r, G = g, B = b, A = 1 };
@@ -82,6 +106,6 @@ namespace DnaAnd.Shell
             l.Add(a); l.Add(bq); l.Add(c); l.Add(a); l.Add(c); l.Add(d);
         }
 
-        public void Dispose() { if (_buf != null) _buf.Dispose(); }
+        public void Dispose() { if (_buf != null) _buf.Dispose(); if (_ringBuf != null) _ringBuf.Dispose(); }
     }
 }
