@@ -229,10 +229,14 @@ namespace DnaAnd.Shell
         private void ChooseSystem()
         {
             double d; int k = NearestStar(out d);
-            if (_system != null && (k != _sysStar && d < SystemRange * 0.5 || DistToSysStar() > SystemRange * 1.5)) CloseSystem();
+            if (_system != null && (k != _sysStar && d < SystemRange * 0.5 || DistToSysStar() > SystemRange * 1.5))
+            {
+                ZoomLog("SYSTEM CLOSED: " + (DistToSysStar() > SystemRange * 1.5 ? "left it, " + Units.Describe(DistToSysStar()) + " from its star" : "another star " + k + " (was " + _sysStar + ") within " + Units.Describe(d)));
+                CloseSystem();
+            }
             if (_system == null && k >= 0 && d < SystemRange)
             {
-                _sysStar = k;
+                _sysStar = k; ZoomLog("SYSTEM OPENED: star " + k + " at " + Units.Describe(d));
                 var kind = _kinds[Math.Max(0, Math.Min(_kinds.Count - 1, StarKindOf(k)))];
                 _system = SpaceGen.System(_content, kind, _galaxies[_near].Seed * 31UL + StarSeed(k));
                 _bodyVerts = new StarVertex[_system.Bodies.Count + 1];
@@ -619,11 +623,11 @@ namespace DnaAnd.Shell
                 }
             }
             _simYears += dt / 20.0;                                                    // one year in 20 seconds, as in the system view
-            ChooseNear();
-            LocalStars();
-            ChooseSystem();
-            ChoosePlanet();
-            FollowBody();
+            Mark(); ChooseNear(); Jumped("ChooseNear");
+            LocalStars(); Jumped("LocalStars");
+            ChooseSystem(); Jumped("ChooseSystem");
+            ChoosePlanet(); Jumped("ChoosePlanet");
+            FollowBody(); Jumped("FollowBody");
             return true;
         }
 
@@ -892,6 +896,16 @@ namespace DnaAnd.Shell
 
         // a short log of each turn of the wheel (where you are and why the step is what it is), in the temp folder, to find
         // where a zoom stops; kept small (started over past about 200 KB)
+        // for the log: a camera jump of over a million km in one step of the update says which step did it
+        private double _mx, _my, _mz;
+        private void Mark() { _mx = _cx; _my = _cy; _mz = _cz; }
+        private void Jumped(string step)
+        {
+            double dx = _cx - _mx, dy = _cy - _my, dz = _cz - _mz, d = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+            if (d > Units.Km(1e6) || double.IsNaN(d)) ZoomLog("JUMP " + Units.Describe(d) + " in " + step);
+            Mark();
+        }
+
         private void ZoomLog(string what)
         {
             try
