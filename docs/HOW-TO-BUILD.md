@@ -41,7 +41,7 @@ That's it. Nothing to download or install.
 
 ▶️ **Normal play:** run `play.cmd`, or double-click `build\DNA-AND.exe`. There's no timer at all.
 
-The game always runs in a window and never changes your display settings, so closing it is always a full revert.
+The game always runs in a window and never changes your display settings, so closing it is always a full revert. It opens maximized, so it draws at your screen's full resolution.
 
 `build.cmd` runs the C# compiler from Windows' own .NET Framework folder over everything in `src/`. Nothing outside the repo and Windows is used.
 
