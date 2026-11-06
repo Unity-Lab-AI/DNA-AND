@@ -404,7 +404,8 @@ namespace DnaAnd.Shell
 
         // what the matter under you is made of, set once for each spot (about a metre across), so its grains stay put
         private double _matterTop = MatterView.TopKm;
-        private double _spaceScale, _spaceTop;                                          // into a nebula's or cluster's gas: the fine height, and where it began                                 // zooming out past this goes back up to the ground
+        private double _spaceScale, _spaceTop;
+        private double _matterClock;                                                    // the matter's own clock: the game's time, so pausing freezes every electron and quark                                          // into a nebula's or cluster's gas: the fine height, and where it began                                 // zooming out past this goes back up to the ground
         private ulong _matterSpot = ulong.MaxValue; private double _mox, _moy, _moz; private int _matterPlanet = -1;
         // where you are from the spot the matter began at (km east and north there)
         private void MatterOffset(out double e, out double n)
@@ -829,6 +830,7 @@ namespace DnaAnd.Shell
                 if (input.WasPressed(0xBC)) SetTime(TimeStep - 1);
                 if (input.WasPressed(0xBE)) SetTime(TimeStep + 1);
                 _simYears += dt * TimeSpeeds[TimeStep];
+                if (TimeStep > 0) _matterClock += dt;
                 return true;
             }
             if (_matterScale > 0)
@@ -855,6 +857,7 @@ namespace DnaAnd.Shell
                 if (input.WasPressed(0xBC)) SetTime(TimeStep - 1);
                 if (input.WasPressed(0xBE)) SetTime(TimeStep + 1);
                 _simYears += dt * TimeSpeeds[TimeStep];
+                if (TimeStep > 0) _matterClock += dt;
                 if (_matterScale > _matterTop)
                 {
                     // high enough again for the plain height: the camera goes on from exactly the height the fine one had
@@ -952,6 +955,7 @@ namespace DnaAnd.Shell
             if (input.WasPressed(0xBC)) SetTime(TimeStep - 1);                        // , slower
             if (input.WasPressed(0xBE)) SetTime(TimeStep + 1);                        // . faster
             _simYears += dt * TimeSpeeds[TimeStep];                                    // time runs at the speed chosen
+            if (TimeStep > 0) _matterClock += dt;
             ChooseNear(); Jumped("ChooseNear"); ClusterStars();
             LocalStars(); Jumped("LocalStars");
             ChooseSystem(); Jumped("ChooseSystem");
@@ -1284,7 +1288,7 @@ namespace DnaAnd.Shell
                 // a centimetre over the ground: its grains begin to show, lying over it, specks that grow as you come down
                 SetMatter(); _gpu.ClearDepth();
                 Mat4 ov = MatterFrame(look);
-                _matter.Draw(ov, Math.Max(MatterView.BottomKm, overAlt / 0.6), w, h, time, _meshes, true);
+                _matter.Draw(ov, Math.Max(MatterView.BottomKm, overAlt / 0.6), w, h, _matterClock, _meshes, true);
             }
             if (_spaceScale > 0)
             {
@@ -1295,7 +1299,7 @@ namespace DnaAnd.Shell
                 _matter.Light[0] = 0.4f; _matter.Light[1] = 0.7f; _matter.Light[2] = 0.6f;
                 var slk = Look; _matter.SetEye(slk.X, slk.Y, slk.Z);                     // in the gas too: your eye goes round the point you dive into
                 Mat4 sv = Mat4.LookAt(new Vec3(0, 0, 0), slk, Math.Abs(slk.Y) > 0.98f ? new Vec3(0, 0, 1) : new Vec3(0, 1, 0));
-                _matter.Draw(sv, _spaceScale, w, h, time, _meshes, false);
+                _matter.Draw(sv, _spaceScale, w, h, _matterClock, _meshes, false);
                 _gpu.ClearDepth();
                 double qx, qy, qr; if (_matter.PickedOnScreen(out qx, out qy, out qr)) _hud.DrawRing(_meshes, qx, qy, Math.Min(qr, h * 0.45), w, h);
                 if (_hud.Visible) _hud.DrawCard(_meshes, _matter.Card(), 24 * Math.Max(1, h / 1080.0), 24 * Math.Max(1, h / 1080.0), w, h);
@@ -1306,7 +1310,7 @@ namespace DnaAnd.Shell
                 if (_matterScale < 1e-7) _gpu.ClearNow(0, 0, 0);                    // deep in the matter: only the matter is in view
                 _gpu.ClearDepth();
                 Mat4 mview = MatterFrame(look);
-                _matter.Draw(mview, _matterScale, w, h, time, _meshes, false);
+                _matter.Draw(mview, _matterScale, w, h, _matterClock, _meshes, false);
                 _gpu.ClearDepth();                                                     // its ring and card on top of the grains
                 double qx, qy, qr; if (_matter.PickedOnScreen(out qx, out qy, out qr)) _hud.DrawRing(_meshes, qx, qy, Math.Min(qr, h * 0.45), w, h);   // what you picked, ringed
                 if (_hud.Visible) _hud.DrawCard(_meshes, _matter.Card(), 24 * Math.Max(1, h / 1080.0), 24 * Math.Max(1, h / 1080.0), w, h);   // what you are in, and what you picked

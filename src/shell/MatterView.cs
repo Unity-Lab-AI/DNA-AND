@@ -53,7 +53,7 @@ namespace DnaAnd.Shell
             double core = 0.33 + 30 * Math.Exp(-Math.Pow(fromCentre / 0.25, 2));
             double perCc = kind == 2 ? 300 * core : kind == 3 ? 100 * core : kind == 4 ? 1000 * core : kind == 5 ? 3 * core : kind == 6 ? 300 * core : 1;   // planetary nebulae up to tens of thousands, remnants thin and hot, dark clouds dense
             _gasSpacing = 1e-5 / Math.Pow(perCc, 1 / 3.0);                                   // km between atoms (a centimetre is 1e-5 km)
-            _fx = _fz = _tfx = _tfz = 0; _picked = null;
+            _fx = _fz = _tfx = _tfz = _fy = _tfy = 0; _picked = null;
         }
         private Element GasAtom(long i, long j, long k)
         {
@@ -66,7 +66,7 @@ namespace DnaAnd.Shell
             return El(u < 0.905 ? "H" : u < 0.995 ? "He" : u < 0.998 ? "O" : "N");
         }
         // the point you dive into (km, across the ground) and where it is easing to (what you picked)
-        private double _fx, _fz, _tfx, _tfz, _lastTime = -1;
+        private double _fx, _fz, _tfx, _tfz, _fy, _tfy, _lastTime = -1;   // (and its height, so a pick in any layer is gone to)
         private sealed class Body { public int Kind; public long I, J; public double X, Y, Z, Size; public string Sym; }   // Kind 0 a grain, 1 an atom, 2 a spot   // 0 a grain, 1 an atom
         private readonly List<Body> _bodies = new List<Body>();
         private Mat4 _lastVp; private int _lastW = 1, _lastH = 1; private bool _haveVp;
@@ -132,7 +132,7 @@ namespace DnaAnd.Shell
             string id = sea ? "sea" : ice ? "ice" : planetKind;
             if (!_mixes.ContainsKey(id)) id = "desert";
             _space = false; _mixId = id; _mix = _mixes.ContainsKey(id) ? _mixes[id] : null; _seed = spot;
-            _fx = _fz = _tfx = _tfz = 0; _picked = null;
+            _fx = _fz = _tfx = _tfz = _fy = _tfy = 0; _picked = null;
             double gk; Grain = _grainKm.TryGetValue(id, out gk) ? gk : 3e-7; _noGrains = Grain <= 0; if (_noGrains) Grain = 3e-7;   // the sea has no grains
         }
 
@@ -179,6 +179,11 @@ namespace DnaAnd.Shell
         private Element Focus(out double x, out double y, out double z)
         {
             var m = FocusMineral; x = FocusAI * AtomSpacing; z = FocusAJ * AtomSpacing; y = 0;
+            if (_picked != null && (_picked.Kind == 1 || _picked.Kind == 7) && _picked.Sym != null)
+            {
+                // the atom you picked (or the atom of the nucleus you picked): that one, where it is
+                var pe = El(_picked.Sym); if (pe != null) { x = _picked.X; y = _picked.Y - _yOff; z = _picked.Z; if (_picked.Kind == 1) y += 0; return pe; }
+            }
             if (_space) { x = y = z = 0; return GasAtom(0, 0, 0); }                     // in the gas: the atom right where you dive
             if (m == null) return null;
             if (Structured(m.Id))
@@ -386,7 +391,7 @@ namespace DnaAnd.Shell
         private void Add(List<StarVertex> l, double x, double y, double z, double size, float r, float g, float b, double s)
         {
             x -= _fx; z -= _fz;                                                             // around the point you dive into
-            double vx = x / s + _ex, vy = (y + _yOff) / s + _ey, vz = z / s + _ez, vs = size / s;        // view units: one unit = the scale; you are 0.6 above the surface under you
+            double vx = x / s + _ex, vy = (y + _yOff - _fy) / s + _ey, vz = z / s + _ez, vs = size / s;        // view units: one unit = the scale; you are 0.6 above the surface under you
             if (Math.Abs(vx - _ex) > 60 || Math.Abs(vz - _ez) > 60 || vy - _ey < -60 || (vs < 2e-4 && size > 1e-20) || vs > 400) return;   // (electrons are points: kept as the smallest dot on screen)
             l.Add(new StarVertex { X = (float)vx, Y = (float)vy, Z = (float)vz, Size = (float)vs, R = r, G = g, B = b, A = 1 });
         }
@@ -477,7 +482,7 @@ namespace DnaAnd.Shell
                     double x0 = -half + a * step, z0 = -half + b * step;
                     float t = (float)(0.93 + 0.14 * Hash((long)Math.Floor((_fx + x0) / (step * 4)), (long)Math.Floor((_fz + z0) / (step * 4)), 61, _seed)) * sh;
                     float r = m.R * t, g = m.G * t, bl = m.B * t;
-                    Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)((-half + aa * step) / s + _ex), Y = (float)((hy[aa, bb] + _yOff) / s + _ey), Z = (float)((-half + bb * step) / s + _ez), R = r, G = g, B = bl, A = 1 };
+                    Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)((-half + aa * step) / s + _ex), Y = (float)((hy[aa, bb] + _yOff - _fy) / s + _ey), Z = (float)((-half + bb * step) / s + _ez), R = r, G = g, B = bl, A = 1 };
                     mesh.Add(v(a, b)); mesh.Add(v(a + 1, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b + 1));
                 }
         }
@@ -511,7 +516,7 @@ namespace DnaAnd.Shell
             for (int k = 0; k < _ico.Length; k++)
             {
                 double rr = GrainSurface(gi, gj, rad, _ico[k].X, _ico[k].Y, _ico[k].Z, rad * 0.2);   // the same surface as close in, coarse
-                pts[k * 3] = (cx + _ico[k].X * rr - _fx) / s + _ex; pts[k * 3 + 1] = (cy + _ico[k].Y * rr + _yOff) / s + _ey; pts[k * 3 + 2] = (cz + _ico[k].Z * rr - _fz) / s + _ez;
+                pts[k * 3] = (cx + _ico[k].X * rr - _fx) / s + _ex; pts[k * 3 + 1] = (cy + _ico[k].Y * rr + _yOff - _fy) / s + _ey; pts[k * 3 + 2] = (cz + _ico[k].Z * rr - _fz) / s + _ez;
             }
             foreach (int k in _icoTri) l.Add(new StarVertex { X = (float)pts[k * 3], Y = (float)pts[k * 3 + 1], Z = (float)pts[k * 3 + 2], Size = 0, R = r, G = g, B = b, A = 1 });
         }
@@ -526,7 +531,7 @@ namespace DnaAnd.Shell
             foreach (int k in f)
             {
                 double x = p[k][0] * ct - p[k][2] * st, z = p[k][0] * st + p[k][2] * ct;
-                l.Add(new StarVertex { X = (float)((cx + x - _fx) / s + _ex), Y = (float)((cy + p[k][1] + _yOff) / s + _ey), Z = (float)((cz + z - _fz) / s + _ez), Size = 0, R = r, G = g, B = b, A = 1 });
+                l.Add(new StarVertex { X = (float)((cx + x - _fx) / s + _ex), Y = (float)((cy + p[k][1] + _yOff - _fy) / s + _ey), Z = (float)((cz + z - _fz) / s + _ez), Size = 0, R = r, G = g, B = b, A = 1 });
             }
         }
 
@@ -793,7 +798,7 @@ namespace DnaAnd.Shell
             _lastH = h;
             // the point you dive into eases across to what you picked
             double dt = _lastTime < 0 ? 0 : Math.Max(0, Math.Min(0.1, time - _lastTime)); _lastTime = time;
-            double k = 1 - Math.Exp(-dt * 4); _fx += (_tfx - _fx) * k; _fz += (_tfz - _fz) * k;
+            double k = 1 - Math.Exp(-dt * 4); _fx += (_tfx - _fx) * k; _fz += (_tfz - _fz) * k; _fy += (_tfy - _fy) * k;
             var solid = new List<StarVertex>(20000); var glow = new List<StarVertex>(2000); var mesh = pipes != null ? new List<StarVertex>(60000) : null;
             _bodies.Clear();
             Build(scaleKm, time, solid, glow, mesh, overlay);
@@ -830,7 +835,7 @@ namespace DnaAnd.Shell
             double best = Math.Pow(24 * Math.Max(1, _lastH / 1080.0), 2); Body pick = null; var m = _lastVp;
             foreach (var b in _bodies)
             {
-                float x = (float)((b.X - _fx) / _scale + _ex), y = (float)(b.Y / _scale + _ey), z = (float)((b.Z - _fz) / _scale + _ez);
+                float x = (float)((b.X - _fx) / _scale + _ex), y = (float)((b.Y - _fy) / _scale + _ey), z = (float)((b.Z - _fz) / _scale + _ez);
                 float cx = x * m.M11 + y * m.M21 + z * m.M31 + m.M41, cy = x * m.M12 + y * m.M22 + z * m.M32 + m.M42, cw = x * m.M14 + y * m.M24 + z * m.M34 + m.M44;
                 if (cw <= 0) continue;
                 double sx = (cx / cw * 0.5 + 0.5) * _lastW, sy = (0.5 - cy / cw * 0.5) * _lastH, d2 = (sx - mx) * (sx - mx) + (sy - my) * (sy - my);
@@ -854,12 +859,12 @@ namespace DnaAnd.Shell
                 }
                 return false;
             }
-            _picked = pick; if (pick.Kind < 3 || pick.Kind == 6 || pick.Kind == 7) { _tfx = pick.X; _tfz = pick.Z; } return true;   // grains, atoms, molecules and nuclei are flown to; electrons, nucleons and quarks only named   // grains and atoms are flown to; electrons, nucleons and quarks are only named
+            _picked = pick; _tfx = pick.X; _tfz = pick.Z; _tfy = pick.Kind == 0 ? 0 : pick.Y; return true;   // whatever you pick is gone to, in any layer (a grain: to its top)   // grains and atoms are flown to; electrons, nucleons and quarks are only named
         }
 
         /// <summary>Puts the point you dive into right under you (km east and north of where this spot's matter began), so the
         /// grains pass by as you fly over them.</summary>
-        public void Follow(double east, double north) { _fx = _tfx = east; _fz = _tfz = north; _picked = null; }
+        public void Follow(double east, double north) { _fx = _tfx = east; _fz = _tfz = north; _fy = _tfy = 0; _picked = null; }
 
         /// <summary>Moves the point under you (km east and north), as W A S D fly you across.</summary>
         public void Move(double east, double north) { _fx += east; _fz += north; _tfx = _fx; _tfz = _fz; }
@@ -869,7 +874,7 @@ namespace DnaAnd.Shell
         {
             sx = sy = rpx = 0; if (_picked == null || !_haveVp) return false; var m = _lastVp;
             if (_picked.Kind == 0 && _scale < Grain * 0.35) return false;               // you are at its face: no ring round it
-            float x = (float)((_picked.X - _fx) / _scale + _ex), y = (float)(_picked.Y / _scale + _ey), z = (float)((_picked.Z - _fz) / _scale + _ez);
+            float x = (float)((_picked.X - _fx) / _scale + _ex), y = (float)((_picked.Y - _fy) / _scale + _ey), z = (float)((_picked.Z - _fz) / _scale + _ez);
             float cx = x * m.M11 + y * m.M21 + z * m.M31 + m.M41, cy = x * m.M12 + y * m.M22 + z * m.M32 + m.M42, cw = x * m.M14 + y * m.M24 + z * m.M34 + m.M44;
             if (cw <= 0) return false;
             sx = (cx / cw * 0.5 + 0.5) * _lastW; sy = (0.5 - cy / cw * 0.5) * _lastH;
@@ -877,7 +882,7 @@ namespace DnaAnd.Shell
         }
 
         /// <summary>Lets go of the pick (the point you dive into stays where it is).</summary>
-        public void Unpick() { _picked = null; _tfx = _fx; _tfz = _fz; }
+        public void Unpick() { _picked = null; _tfx = _fx; _tfz = _fz; _tfy = _fy; }
 
         /// <summary>The information card: what you are in, and what you picked.</summary>
         public List<string> Card()
