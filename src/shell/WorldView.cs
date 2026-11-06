@@ -640,16 +640,16 @@ namespace DnaAnd.Shell
             if (input.WasPressed(Win32.VK_ESCAPE)) return false;
             if (input.LeftDown && (input.MouseDX != 0 || input.MouseDY != 0))
             {
-                // one rule for dragging at every scale: what is under the mouse stays under the mouse. The view turns by the turn
-                // that takes the line under the mouse now back onto the line it was under a moment ago; with something picked, the
-                // camera circles round it by that same turn (so its surface moves with your hand). The View menu can flip either way.
+                // one rule for dragging at every scale: the camera goes the way the mouse goes (drag down, the view pans down;
+                // drag left, it turns left), by as much as the mouse moved across the view; with something picked, the camera
+                // circles round it the same way. The View menu can flip either way.
                 int dxm = Settings.Get("invert-left-right", false) ? -input.MouseDX : input.MouseDX, dym = Settings.Get("invert-up-down", false) ? -input.MouseDY : input.MouseDY;
                 var d1 = MouseRay(input.MouseX, input.MouseY, w, h); var d0 = MouseRay(input.MouseX - dxm, input.MouseY - dym, w, h);
                 var axis = Vec3.Cross(d1, d0); float al = axis.Length;
                 if (al > 1e-9f)
                 {
                     axis = new Vec3(axis.X / al, axis.Y / al, axis.Z / al);
-                    double ang = Math.Atan2(al, Vec3.Dot(d1, d0));
+                    double ang = -Math.Atan2(al, Vec3.Dot(d1, d0));                      // the camera goes the way the mouse goes
                     var f = Turn(Look, axis, ang);
                     double odx, ody, odz, orad;
                     bool circle = _tKind >= 0 && _tKind != 3 && _dragged && !(_ground != null && (_matterScale > 0 || AboveGround() < Units.Km(MatterView.OverlayKm)))
