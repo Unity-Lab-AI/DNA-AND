@@ -328,7 +328,7 @@ namespace DnaAnd.Shell
         {
             x -= _fx; z -= _fz;                                                             // around the point you dive into
             double vx = x / s, vy = y / s - 0.6, vz = z / s, vs = size / s;                  // view units: one unit = the scale; you are 0.6 above
-            if (Math.Abs(vx) > 60 || Math.Abs(vz) > 60 || vy < -60 || vs < 2e-4 || vs > 400) return;
+            if (Math.Abs(vx) > 60 || Math.Abs(vz) > 60 || vy < -60 || (vs < 2e-4 && size > 1e-20) || vs > 400) return;   // (electrons are points: kept as the smallest dot on screen)
             l.Add(new StarVertex { X = (float)vx, Y = (float)vy, Z = (float)vz, Size = (float)vs, R = r, G = g, B = b, A = 1 });
         }
 
@@ -552,7 +552,7 @@ namespace DnaAnd.Shell
                         }
                         double ox = Math.Cos(ang) * rr, oz = Math.Sin(ang) * rr, oy = oz * Math.Sin(tilt); oz *= Math.Cos(tilt);
                         double x2 = ox * Math.Cos(turn) - oz * Math.Sin(turn), z2 = ox * Math.Sin(turn) + oz * Math.Cos(turn);
-                        Add(glow, ax0 + x2, cy + oy, az0 + z2, ar * 0.06, 0.4f * cloud, 0.75f * cloud, 1f * cloud, s);
+                        Add(glow, ax0 + x2, cy + oy, az0 + z2, 1e-21, 0.5f * cloud, 0.75f * cloud, 1f * cloud, s);
                     }
                 }
                 // the nucleus: a bright spark from afar; close in, its protons (red) and neutrons (grey) packed in a ball
@@ -585,7 +585,7 @@ namespace DnaAnd.Shell
                 {
                     double tilt = Hash(key + sh, k, 33, _seed) * Math.PI, turn = Hash(key + sh, k, 34, _seed) * Math.PI * 2, ang = time * (2.2 / (sh + 1)) + k * Math.PI * 2 / ne;
                     double ox = Math.Cos(ang) * rr, oz = Math.Sin(ang) * rr, oy = oz * Math.Sin(tilt); oz *= Math.Cos(tilt);
-                    Add(glow, x + ox * Math.Cos(turn) - oz * Math.Sin(turn), y + oy, z + ox * Math.Sin(turn) + oz * Math.Cos(turn), ar * 0.05, 0.4f * f, 0.75f * f, 1f * f, s);
+                    Add(glow, x + ox * Math.Cos(turn) - oz * Math.Sin(turn), y + oy, z + ox * Math.Sin(turn) + oz * Math.Cos(turn), 1e-21, 0.5f * f, 0.75f * f, 1f * f, s);
                 }
             }
         }
