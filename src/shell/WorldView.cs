@@ -513,7 +513,7 @@ namespace DnaAnd.Shell
         {
             double reachPx = 24 * Math.Max(1, _lastH / 1080.0), best = reachPx * reachPx; int kind = -1, idx = 0; double tx = 0, ty = 0, tz = 0, trad = 0; string name = "";
             Func<double, double, double, double> near = (dx, dy, dz) => { double sx, sy; if (!ToScreen(dx, dy, dz, out sx, out sy)) return double.MaxValue; return (sx - mx) * (sx - mx) + (sy - my) * (sy - my); };
-            if (_tKind == 5 && _near >= 0 && _tIndex < _features.Count && _ground == null)
+            if (_tKind == 5 && _near >= 0 && _tIndex >= 0 && _tIndex < _features.Count && _ground == null)
             {
                 // inside a picked nebula or cluster: a click is a point in its gas, right where you click, at the depth you are at
                 // (a star only if you click right on it), so the wheel flies there and on into its atoms
@@ -626,6 +626,20 @@ namespace DnaAnd.Shell
                     double d2 = near(dx, dy, dz), allow = Math.Max(reachPx, sizePx);
                     if (d2 < allow * allow && (kind < 0 || d2 < best)) { best = d2; kind = 0; idx = i; name = g.Name; }
                 }
+            if (_cstars.Count > 0)
+            {
+                // a star of the cluster round you: it takes the click ahead of the cluster itself
+                double tight = Math.Pow(12 * Math.Max(1, _lastH / 1080.0), 2), cb = tight; int ci = -1;
+                for (int q = 0; q < _cstars.Count; q++) { var cs = _cstars[q]; double d2 = near((cs[0] - _ax) - _ox, (cs[1] - _ay) - _oy, (cs[2] - _az) - _oz); if (d2 < cb) { cb = d2; ci = q; } }
+                if (ci >= 0) { var cs = _cstars[ci]; bool old = cs[3] == 0; kind = 1; tx = cs[0]; ty = cs[1]; tz = cs[2]; trad = Units.Km(696000 * (old && cs[4] < 0.1 ? 20 : 1)); name = old ? (cs[4] < 0.1 ? "a red giant of the cluster" : cs[4] < 0.4 ? "an old orange star of the cluster" : "an old yellow star of the cluster") : "a young blue-white star of the cluster"; }
+            }
+            if (kind < 0 && _near >= 0 && NearShare() > 0.5)
+            {
+                // nothing there but the space between the stars: that point, at the depth of the nearest thing, to fly to and into its gas
+                double depth = Math.Max(Units.Km(1000), NearestDistance());
+                _tKind = 5; _tIndex = -1; _tx = _ax + _ox + dir.X * depth; _ty = _ay + _oy + dir.Y * depth; _tz = _az + _oz + dir.Z * depth; _tRadius = 0;
+                _tName = "a point in the space between the stars"; return;
+            }
             if (kind < 0) return;
             _tKind = kind; _tIndex = idx; _tx = tx; _ty = ty; _tz = tz; _tRadius = trad; _tName = name;
         }
@@ -837,10 +851,15 @@ namespace DnaAnd.Shell
                 double qx, qy, qz, qr;
                 if (TargetFromCamera(out qx, out qy, out qz, out qr) && Math.Sqrt(qx * qx + qy * qy + qz * qz) < Units.Km(1))
                 {
-                    int fk = (int)_features[_tIndex][4];
-                    var gq = _galaxies[_near]; var fq = _features[_tIndex]; double cux, cuy, cuz; ToUniverse(gq, fq[0], fq[1], fq[2], out cux, out cuy, out cuz);
-                    double fromC = Math.Sqrt((_tx - cux) * (_tx - cux) + (_ty - cuy) * (_ty - cuy) + (_tz - cuz) * (_tz - cuz)) / Math.Max(1e-30, fq[3] * gq.Scale);   // how far from its middle you dive in
-                    _matter.SetSpace(fk, (ulong)(_tIndex * 7919 + 1) ^ gq.Seed, Math.Min(1, fromC));
+                    var gq = _galaxies[_near];
+                    if (_tIndex < 0) _matter.SetSpace(4, (ulong)(_tx / Units.Km(1e6)) ^ gq.Seed, 1);   // the space between the stars
+                    else
+                    {
+                        int fk = (int)_features[_tIndex][4];
+                        var fq = _features[_tIndex]; double cux, cuy, cuz; ToUniverse(gq, fq[0], fq[1], fq[2], out cux, out cuy, out cuz);
+                        double fromC = Math.Sqrt((_tx - cux) * (_tx - cux) + (_ty - cuy) * (_ty - cuy) + (_tz - cuz) * (_tz - cuz)) / Math.Max(1e-30, fq[3] * gq.Scale);   // how far from its middle you dive in
+                        _matter.SetSpace(fk, (ulong)(_tIndex * 7919 + 1) ^ gq.Seed, Math.Min(1, fromC));
+                    }
                     _spaceScale = Math.Max(MatterView.BottomKm, Math.Sqrt(qx * qx + qy * qy + qz * qz) / Units.Km(1) / 0.6); _spaceTop = _spaceScale * 1.1;
                     return true;
                 }
@@ -901,7 +920,7 @@ namespace DnaAnd.Shell
             if (input.WasPressed(0xBC)) SetTime(TimeStep - 1);                        // , slower
             if (input.WasPressed(0xBE)) SetTime(TimeStep + 1);                        // . faster
             _simYears += dt * TimeSpeeds[TimeStep];                                    // time runs at the speed chosen
-            ChooseNear(); Jumped("ChooseNear");
+            ChooseNear(); Jumped("ChooseNear"); ClusterStars();
             LocalStars(); Jumped("LocalStars");
             ChooseSystem(); Jumped("ChooseSystem");
             // ride along with the body first, then see which one you are at: planets move about a hundred thousand km a frame,
@@ -1021,6 +1040,48 @@ namespace DnaAnd.Shell
             }
         }
 
+        // inside a star cluster: its own stars made round you at its real density (a globular cluster's core about 1,000 stars a
+        // cubic light-year, thinning outward; an open cluster's a few), stable (each from its own cell), in universe units
+        private readonly List<double[]> _cstars = new List<double[]>(); private UploadBuffer _cstarBuf; private StarVertex[] _cstarV = new StarVertex[0];
+        private int _cstarFeature = -1; private double _cgx = double.NaN, _cgy, _cgz, _cstarHalf;
+        private void ClusterStars()
+        {
+            int inF = -1; double ly = Units.Km(9.4607e12);
+            if (_near >= 0)
+            {
+                var g = _galaxies[_near];
+                for (int q = 0; q < _features.Count; q++)
+                {
+                    if (_features[q][4] > 1) continue;                                         // clusters only
+                    double ux, uy, uz; ToUniverse(g, _features[q][0], _features[q][1], _features[q][2], out ux, out uy, out uz);
+                    double dx = ux - (_ax + _ox), dy = uy - (_ay + _oy), dz = uz - (_az + _oz), R = _features[q][3] * g.Scale;
+                    if (dx * dx + dy * dy + dz * dz < R * R * 2.25) { inF = q; break; }
+                }
+            }
+            if (inF < 0) { _cstars.Clear(); _cstarFeature = -1; return; }
+            var gg = _galaxies[_near]; var ft = _features[inF]; double cx, cy, cz; ToUniverse(gg, ft[0], ft[1], ft[2], out cx, out cy, out cz);
+            double Rc = ft[3] * gg.Scale, core = Rc * (ft[4] == 0 ? 0.08 : 0.3), n0 = ft[4] == 0 ? 1000 : 3;   // stars a cubic light-year at its middle
+            double px = _ax + _ox - cx, py = _ay + _oy - cy, pz = _az + _oz - cz, r2 = px * px + py * py + pz * pz;
+            double nHere = n0 * Math.Pow(1 + r2 / (core * core), -2.5);                       // thinning outward (a Plummer sphere)
+            double half = Math.Max(0.05 * ly, Math.Pow(4000 / Math.Max(1e-6, nHere), 1 / 3.0) * 0.5 * ly);   // about 4,000 stars round you
+            if (inF == _cstarFeature && !double.IsNaN(_cgx) && Math.Abs(px - _cgx) + Math.Abs(py - _cgy) + Math.Abs(pz - _cgz) < half * 0.25 && Math.Abs(half / _cstarHalf - 1) < 0.5) return;
+            _cstarFeature = inF; _cgx = px; _cgy = py; _cgz = pz; _cstarHalf = half; _cstars.Clear();
+            double cell = half / 4; long i0 = (long)Math.Floor(px / cell), j0 = (long)Math.Floor(py / cell), k0 = (long)Math.Floor(pz / cell);
+            for (long i = i0 - 4; i <= i0 + 4; i++)
+                for (long j = j0 - 4; j <= j0 + 4; j++)
+                    for (long k = k0 - 4; k <= k0 + 4; k++)
+                    {
+                        double mx = (i + 0.5) * cell, my = (j + 0.5) * cell, mz = (k + 0.5) * cell;
+                        double expect = n0 * Math.Pow(1 + (mx * mx + my * my + mz * mz) / (core * core), -2.5) * Math.Pow(cell / ly, 3);
+                        ulong h = (ulong)(i * 73856093L ^ j * 19349663L ^ k * 83492791L ^ inF * 2654435761L) ^ gg.Seed;
+                        var rng = new Rng(h); int count = (int)Math.Floor(expect) + (rng.NextDouble() < expect - Math.Floor(expect) ? 1 : 0);
+                        for (int c = 0; c < count && _cstars.Count < 12000; c++)
+                        {
+                            double sx = cx + (i + rng.NextDouble()) * cell, sy = cy + (j + rng.NextDouble()) * cell, sz = cz + (k + rng.NextDouble()) * cell;
+                            double t = rng.NextDouble(); _cstars.Add(new[] { sx, sy, sz, ft[4], t });
+                        }
+                    }
+        }
         private UploadBuffer _structBuf; private int _structCount; private List<double[]> _features = new List<double[]>();   // the near galaxy's clusters and nebulae
         private readonly object _extraLock = new object(); private StarVertex[] _extra; private int[] _extraKinds; private int _extraFor = -1;
 
@@ -1089,6 +1150,20 @@ namespace DnaAnd.Shell
             double inside = InsideShare();
             if (_near >= 0 && _structBuf != null && _structCount > 0 && NearShare() > 0.2)
                 DrawPoints(_structBuf, _structCount, Placement(_galaxies[_near]) * vp, right, up, 1f, 0.0016f, w, h, time);   // its clusters and nebulae
+            if (_cstars.Count > 0)
+            {
+                // the cluster's own stars round you: old red and orange giants and yellow stars in a globular, young blue-white in an open one
+                if (_cstarV.Length < _cstars.Count) _cstarV = new StarVertex[_cstars.Count + 1024];
+                for (int q = 0; q < _cstars.Count; q++)
+                {
+                    var cs = _cstars[q]; bool old = cs[3] == 0; double t = cs[4];
+                    float r = old ? (t < 0.4 ? 1f : 1f) : 0.7f, g2 = old ? (t < 0.4 ? 0.55f : 0.85f) : 0.82f, b2 = old ? (t < 0.4 ? 0.3f : 0.6f) : 1f;
+                    _cstarV[q] = new StarVertex { X = (float)((cs[0] - _ax) - _ox), Y = (float)((cs[1] - _ay) - _oy), Z = (float)((cs[2] - _az) - _oz), Size = (float)Units.Km(696000 * (old && t < 0.1 ? 20 : 1)), R = r, G = g2, B = b2, A = 1 };
+                }
+                if (_cstarBuf == null || _cstarBuf.Bytes < (long)_cstars.Count * Stride) { if (_cstarBuf != null) _cstarBuf.Dispose(); _cstarBuf = new UploadBuffer(_gpu.Device, (long)(_cstars.Count + 1024) * Stride); }
+                _cstarBuf.Write(_cstarV, _cstars.Count);
+                DrawPoints(_cstarBuf, _cstars.Count, vp, right, up, 1f, 0.0022f, w, h, time);
+            }
             if (_near >= 0 && _localCount > 0 && inside > 0)
             {
                 // the real stars of this space at their real sizes (a small point from afar, never smaller than a dot on screen)
@@ -1350,6 +1425,14 @@ namespace DnaAnd.Shell
                 bool here = _ground != null && _planet == _tIndex;
                 foreach (var m in MakeUp(b.Kind, here ? _ground.HasWater : b.Kind == "Temperate world")) L.Add(m);
                 if (here) { L.Add("air: " + (_ground.AirKm > 0 ? "about " + _ground.AirKm.ToString("0") + " km deep" : "none") + (_ground.HasClouds ? ", clouds" : "")); }
+                L.Add("distance: " + Units.Describe(dist));
+            }
+            else if (_tKind == 5 && _tIndex < 0)
+            {
+                L.Add("a point between the stars of " + (_near >= 0 ? _galaxies[_near].Name : "the galaxy"));
+                L.Add("the gas here: about 1 atom a cubic centimetre");
+                L.Add("mostly hydrogen, some helium, a little dust");
+                L.Add("the nearest star: " + Units.Describe(NearestDistance()) + " away");
                 L.Add("distance: " + Units.Describe(dist));
             }
             else if (_tKind == 5 && _tIndex < _features.Count)

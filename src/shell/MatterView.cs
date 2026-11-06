@@ -351,7 +351,7 @@ namespace DnaAnd.Shell
             var m = FocusMineral; var e = FocusAtom();
             if (_space && e != null && s > AtomRadius(e) * 3)
             {
-                string where = _spaceKind == 2 ? "an emission nebula" : _spaceKind == 3 ? "a reflection nebula" : _spaceKind == 0 ? "a globular cluster" : "an open cluster";
+                string where = _spaceKind == 2 ? "an emission nebula" : _spaceKind == 3 ? "a reflection nebula" : _spaceKind == 0 ? "a globular cluster" : _spaceKind == 1 ? "an open cluster" : "the space between the stars";
                 return "the gas of " + where + ": one atom about every " + ScaleHud.Words(_gasSpacing) + ", mostly hydrogen; the one ahead " + e.Name.ToLowerInvariant();
             }
             string mn = m != null ? m.Name.ToLowerInvariant() + " (" + m.Formula + ")" : "rock";
@@ -946,7 +946,7 @@ namespace DnaAnd.Shell
             L.Add("protons: " + e.Z + ", neutrons: " + (e.A - e.Z) + ", electrons: " + e.Z);
             L.Add("shells: " + string.Join(", ", Array.ConvertAll(e.Shells, x => x.ToString())));
             L.Add("width: about " + ScaleHud.Words(AtomRadius(e) * 2) + ", nucleus " + ScaleHud.Words(NucleusRadius(e) * 2));
-            if (_space) { L.Add("in the gas of " + (_spaceKind == 2 ? "an emission nebula (most of its hydrogen ionized by hot stars)" : _spaceKind == 3 ? "a reflection nebula" : "space between a cluster's stars")); double inView = Math.Pow(_scale * 1.2 / _gasSpacing, 3), perCc = Math.Pow(1e-5 / _gasSpacing, 3);
+            if (_space) { L.Add("in the gas of " + (_spaceKind == 2 ? "an emission nebula (most of its hydrogen ionized by hot stars)" : _spaceKind == 3 ? "a reflection nebula" : _spaceKind == 4 ? "the space between the stars" : "space between a cluster's stars")); double inView = Math.Pow(_scale * 1.2 / _gasSpacing, 3), perCc = Math.Pow(1e-5 / _gasSpacing, 3);
                 L.Add("about " + perCc.ToString(perCc < 10 ? "0.#" : "N0") + " atoms a cubic centimetre (air has 25 billion billion)");
                 L.Add(inView >= 2 ? "in view: about " + Big(inView) + " atoms, far too thin to see" : "in view: the one atom ahead of you");
                 L.Add("each about " + ScaleHud.Words(_gasSpacing) + " from the next"); }
