@@ -1434,7 +1434,18 @@ namespace DnaAnd.Shell
         private Mat4 MatterFrame(Vec3 look)
         {
             double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z);
-            var upL = new Vec3((float)(x / r), (float)(y / r), (float)(z / r));
+            var upR = new Vec3((float)(x / r), (float)(y / r), (float)(z / r));
+            var east0 = Vec3.Cross(Math.Abs(upR.Y) < 0.99f ? new Vec3(0, 1, 0) : new Vec3(1, 0, 0), upR).Normalized; var north0 = Vec3.Cross(upR, east0).Normalized;
+            // the grains lie on the real ground: their bed takes the land's own slope here (from the ground's height half a metre
+            // either way), so the matter is the land going on down, not a flat layer laid over it
+            var upL = upR;
+            if (_ground != null && _ground.Solid)
+            {
+                double d = 5e-4, R = _ground.Radius;
+                Func<Vec3, double> H = v => { double l = Math.Sqrt(v.X * (double)v.X + v.Y * (double)v.Y + v.Z * (double)v.Z); return Surface(v.X / l, v.Y / l, v.Z / l); };
+                double he = (H(upR + east0 * (float)(d / R)) - H(upR - east0 * (float)(d / R))) / (2 * d), hn = (H(upR + north0 * (float)(d / R)) - H(upR - north0 * (float)(d / R))) / (2 * d);
+                if (!double.IsNaN(he) && !double.IsNaN(hn) && Math.Abs(he) < 20 && Math.Abs(hn) < 20) upL = (upR - east0 * (float)he - north0 * (float)hn).Normalized;
+            }
             var east = Vec3.Cross(Math.Abs(upL.Y) < 0.99f ? new Vec3(0, 1, 0) : new Vec3(1, 0, 0), upL).Normalized; var north = Vec3.Cross(upL, east).Normalized;
             var lk = new Vec3(Vec3.Dot(look, east), Vec3.Dot(look, upL), Vec3.Dot(look, north));
             if (lk.Y > -0.15f) lk = new Vec3(lk.X, -0.15f, lk.Z);                     // never from below the surface
