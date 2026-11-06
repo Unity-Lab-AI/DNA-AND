@@ -539,7 +539,7 @@ namespace DnaAnd.Shell
                 double ex = (cux - _ax) - _ox, ey = (cuy - _ay) - _oy, ez = (cuz - _az) - _oz, toCentre = Math.Sqrt(ex * ex + ey * ey + ez * ez);
                 if (toCentre < ft[3] * g.Scale * 1.2)
                 {
-                    double tight = Math.Pow(6 * Math.Max(1, _lastH / 1080.0), 2);
+                    double tight = Math.Pow(16 * Math.Max(1, _lastH / 1080.0), 2);
                     for (int k = 0; k < _localCount; k++)
                     {
                         var s0 = _localList[k]; double ux, uy, uz; ToUniverse(g, s0.X, s0.Y, s0.Z, out ux, out uy, out uz);
@@ -636,7 +636,7 @@ namespace DnaAnd.Shell
                     var ft = g.Features[q]; double ux, uy, uz; ToUniverse(g, ft[0], ft[1], ft[2], out ux, out uy, out uz);
                     double dx = (ux - _ax) - _ox, dy = (uy - _ay) - _oy, dz = (uz - _az) - _oz, l = Math.Sqrt(dx * dx + dy * dy + dz * dz);
                     double sizePx = ft[3] * g.Scale / Math.Max(1e-12, l) / Math.Tan(0.45) * _lastH * 0.5, d2 = near(dx, dy, dz), allow = Math.Max(reachPx, sizePx);
-                    if (d2 < allow * allow && (kind < 0 || d2 < best)) { best = d2; kind = 5; idx = q; tx = ux; ty = uy; tz = uz; trad = ft[3] * g.Scale; name = nm[(int)ft[4]] + " of " + g.Name; pickGal = gi; }
+                    if (d2 < allow * allow && kind != 1 && (kind < 0 || d2 < best)) { best = d2; kind = 5; idx = q; tx = ux; ty = uy; tz = uz; trad = ft[3] * g.Scale; name = nm[(int)ft[4]] + " of " + g.Name; pickGal = gi; }
                 }
             }
             if (_near >= 0 && (kind < 0 || kind == 1) && NearShare() > 0.2)
@@ -648,7 +648,7 @@ namespace DnaAnd.Shell
                     var ft = _features[q]; double ux, uy, uz; ToUniverse(g, ft[0], ft[1], ft[2], out ux, out uy, out uz);
                     double dx = (ux - _ax) - _ox, dy = (uy - _ay) - _oy, dz = (uz - _az) - _oz, l = Math.Sqrt(dx * dx + dy * dy + dz * dz);
                     double sizePx = ft[3] * g.Scale / Math.Max(1e-12, l) / Math.Tan(0.45) * _lastH * 0.5, d2 = near(dx, dy, dz), allow = Math.Max(reachPx, sizePx);
-                    if (d2 < allow * allow && (kind < 0 || d2 < best || (kind == 1 && sizePx > reachPx * 2))) { best = d2; kind = 5; idx = q; tx = ux; ty = uy; tz = uz; trad = ft[3] * g.Scale; name = names[(int)ft[4]]; pickGal = _near; }
+                    if (d2 < allow * allow && kind != 1 && (kind < 0 || d2 < best)) { best = d2; kind = 5; idx = q; tx = ux; ty = uy; tz = uz; trad = ft[3] * g.Scale; name = names[(int)ft[4]]; pickGal = _near; }
                 }
             }
             if (kind < 0)

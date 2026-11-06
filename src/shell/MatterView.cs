@@ -53,7 +53,7 @@ namespace DnaAnd.Shell
             double core = 0.33 + 30 * Math.Exp(-Math.Pow(fromCentre / 0.25, 2));
             double perCc = kind == 2 ? 300 * core : kind == 3 ? 100 * core : kind == 4 ? 1000 * core : kind == 5 ? 3 * core : kind == 6 ? 300 * core : 1;   // planetary nebulae up to tens of thousands, remnants thin and hot, dark clouds dense
             _gasSpacing = 1e-5 / Math.Pow(perCc, 1 / 3.0);                                   // km between atoms (a centimetre is 1e-5 km)
-            _fx = _fz = _tfx = _tfz = _fy = _tfy = 0; _picked = null; _overrideMineral = null;
+            _fx = _fz = _tfx = _tfz = _fy = _tfy = 0; _picked = null;
         }
         private Element GasAtom(long i, long j, long k)
         {
@@ -161,9 +161,27 @@ namespace DnaAnd.Shell
         private double FocusRad { get { return Grain * (0.3 + 0.2 * Hash(FocusGI * 2, FocusGJ * 2, 1, _seed)); } }
         private float FocusShade { get { return (float)(0.75 + 0.35 * Hash(FocusGI * 2, FocusGJ * 2, 4, _seed)); } }
         private long FocusGJ { get { return (long)Math.Round(_fz / Grain); } }
-        private Mineral FocusMineral { get { if (_overrideMineral != null) return _overrideMineral; return GrainMineral(FocusGI, FocusGJ); } }
+        private Mineral FocusMineral { get { return MaterialAt(_fx, _fz); } }
+        // what the matter is at a point of the surface: a thing lying there (a clay platelet is kaolinite, a coating or a
+        // nanoparticle hematite, the water film water), else the grain's own mineral; worked out from where the point is, never
+        // from what you picked
+        private Mineral MaterialAt(double x, double z)
+        {
+            for (int t = 0; t < SurfThings.Length; t++)
+            {
+                var st = SurfThings[t]; string id = ThingMineral(st.Id); Mineral om; if (id == null || !_minerals.TryGetValue(id, out om)) continue;
+                double cell = st.Hi * 4; long ci = (long)Math.Floor(x / cell), cj = (long)Math.Floor(z / cell);
+                for (long i = ci - 1; i <= ci + 1; i++)
+                    for (long j = cj - 1; j <= cj + 1; j++)
+                    {
+                        if (Hash(i, j, 100 + t, _seed) > st.Chance) continue;
+                        double tx = (i + Hash(i, j, 101 + t, _seed)) * cell, tz = (j + Hash(i, j, 102 + t, _seed)) * cell, size = st.Lo + (st.Hi - st.Lo) * Hash(i, j, 103 + t, _seed);
+                        if ((tx - x) * (tx - x) + (tz - z) * (tz - z) < size * size * 0.25) return om;
+                    }
+            }
+            return GrainMineral(FocusGI, FocusGJ);
+        }
         // a thing on the grain picked (a clay platelet, a coating, a nanoparticle, the water film): its own mineral is what you go into
-        private Mineral _overrideMineral;
         private static string ThingMineral(string thing) { return thing == "clay-platelet" ? "kaolinite" : thing == "iron-coating" || thing == "nanoparticle" ? "hematite" : thing == "water" || thing == "fluid-inclusion" ? "water-ice" : null; }
         private long FocusAI { get { return (long)Math.Round(_fx / AtomSpacing); } }
         private long FocusAJ { get { return (long)Math.Round(_fz / AtomSpacing); } }
@@ -182,25 +200,21 @@ namespace DnaAnd.Shell
         private Element Focus(out double x, out double y, out double z)
         {
             var m = FocusMineral; x = FocusAI * AtomSpacing; z = FocusAJ * AtomSpacing; y = 0;
-            if (_picked != null && (_picked.Kind == 1 || _picked.Kind == 7) && _picked.Sym != null)
-            {
-                // the atom you picked (or the atom of the nucleus you picked): that one, where it is
-                var pe = El(_picked.Sym); if (pe != null) { x = _picked.X; y = _picked.Y - _yOff; z = _picked.Z; if (_picked.Kind == 1) y += 0; return pe; }
-            }
             if (_space) { x = y = z = 0; return GasAtom(0, 0, 0); }                     // in the gas: the atom right where you dive
             if (m == null) return null;
             if (Structured(m.Id))
             {
-                Element best = null; double bd = double.MaxValue;
+                // the atom nearest the point you dive into, in any layer (worked out from where it is)
+                Element best = null; double bd = double.MaxValue, fy = _fy - _yOff;
                 foreach (var at in Crystal(m.Id, _fx, _fz, AtomSpacing * 3, 1))
                 {
-                    if (at.Y < -0.3 * AtomSpacing) continue;                                // the top layer only
-                    double d = (at.X - _fx) * (at.X - _fx) + (at.Z - _fz) * (at.Z - _fz);
-                    if (d < bd) { bd = d; best = at.E; x = at.X; y = at.Y; z = at.Z; }
+                    double ay = at.Y - AtomRadius(at.E), d = (at.X - _fx) * (at.X - _fx) + (ay - fy) * (ay - fy) + (at.Z - _fz) * (at.Z - _fz);
+                    if (d < bd) { bd = d; best = at.E; x = at.X; y = ay; z = at.Z; }
                 }
-                if (best != null) { y -= AtomRadius(best); return best; }
+                if (best != null) return best;
             }
-            var e = SiteAtom(m, FocusAI, FocusAJ, 0); y = -AtomRadius(e); return e;
+            long fk = (long)Math.Max(-2, Math.Min(0, Math.Round((_fy - _yOff) / AtomSpacing)));   // the layer you are at
+            var e = SiteAtom(m, FocusAI, FocusAJ, fk); y = fk * AtomSpacing - AtomRadius(e); return e;
         }
 
         // ── real crystal structures, where they are in: rock salt (halite) and the silica network (quartz) ──
@@ -516,11 +530,10 @@ namespace DnaAnd.Shell
                     for (long j = cj0 - n; j <= cj0 + n; j++)
                     {
                         if (Hash(i, j, 100 + t, _seed) > st.Chance) continue;
-                        bool isPicked = _picked != null && _picked.Kind == 8 && _picked.Sym == st.Id && _picked.I == i && _picked.J == j;
                         double x = (i + Hash(i, j, 101 + t, _seed)) * cell, z = (j + Hash(i, j, 102 + t, _seed)) * cell, size = st.Lo + (st.Hi - st.Lo) * Hash(i, j, 103 + t, _seed), top;
                         if (!GrainTop(fgi, fgj, fgx, fgy, fgz, frad, x, z, Math.Max(size * 0.5, AtomSpacing), out top)) continue;
                         double y = st.Sunk ? top - size * 0.3 : st.Flat ? top + size * 0.02 : top + size * 0.5;
-                        if (isPicked && s < size * 0.4) continue;                                   // you are at it: its own atoms show instead
+                        if (s < size * 0.4 && (x - _fx) * (x - _fx) + (z - _fz) * (z - _fz) < size * size * 0.25) continue;   // you are at it: its own atoms show instead (by where you are)
                         if (st.Id == "water")
                         {
                             // a water molecule: its oxygen and two hydrogens, bent at 104.5 degrees, each turned its own way
@@ -925,13 +938,12 @@ namespace DnaAnd.Shell
                 return false;
             }
             _picked = pick; _tfx = pick.X; _tfz = pick.Z; _tfy = pick.Kind == 0 ? 0 : pick.Y;
-            if (pick.Kind == 8) { Mineral om; var id = ThingMineral(pick.Sym); _overrideMineral = id != null && _minerals.TryGetValue(id, out om) ? om : null; } else if (pick.Kind == 0) _overrideMineral = null;
             return true;   // whatever you pick is gone to, in any layer (a grain: to its top)   // grains and atoms are flown to; electrons, nucleons and quarks are only named
         }
 
         /// <summary>Puts the point you dive into right under you (km east and north of where this spot's matter began), so the
         /// grains pass by as you fly over them.</summary>
-        public void Follow(double east, double north) { _fx = _tfx = east; _fz = _tfz = north; _fy = _tfy = 0; _picked = null; _overrideMineral = null; }
+        public void Follow(double east, double north) { _fx = _tfx = east; _fz = _tfz = north; _fy = _tfy = 0; _picked = null; }
 
         /// <summary>Moves the point under you (km east and north), as W A S D fly you across.</summary>
         public void Move(double east, double north) { _fx += east; _fz += north; _tfx = _fx; _tfz = _fz; }
@@ -949,7 +961,7 @@ namespace DnaAnd.Shell
         }
 
         /// <summary>Lets go of the pick (the point you dive into stays where it is).</summary>
-        public void Unpick() { _picked = null; _overrideMineral = null; _tfx = _fx; _tfz = _fz; _tfy = _fy; }
+        public void Unpick() { _picked = null; _tfx = _fx; _tfz = _fz; _tfy = _fy; }
 
         /// <summary>The information card: what you are in, and what you picked.</summary>
         public List<string> Card()
