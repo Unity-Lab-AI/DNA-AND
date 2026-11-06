@@ -46,6 +46,36 @@ namespace DnaAnd.Shell
         private int _sysStar = -1; private SpaceGen.StarSystem _system; private int[] _nearKinds;
         private UploadBuffer _sysStatic, _sysBodies; private StarVertex[] _bodyVerts, _staticShifted; private int _bodyCount;
         private double _simYears;
+        // ── time: how fast it runs (years a second of yours), from paused to ten years a second; an hour a second at first ──
+        public static readonly double[] TimeSpeeds = { 0, 1 / 31557600.0, 60 / 31557600.0, 3600 / 31557600.0, 86400 / 31557600.0, 7 * 86400 / 31557600.0, 30.44 * 86400 / 31557600.0, 1 / 20.0, 1, 10 };
+        public static readonly string[] TimeNames = { "paused", "real time", "a minute a second", "an hour a second", "a day a second", "a week a second", "a month a second", "a year in 20 seconds", "a year a second", "ten years a second" };
+        public int TimeStep = 3; private int _timeBeforePause = 3;
+        /// <summary>Pauses, or carries on at the speed it had.</summary>
+        public void TogglePause() { if (TimeStep == 0) TimeStep = _timeBeforePause; else { _timeBeforePause = TimeStep; TimeStep = 0; } MenuChanged = true; }
+        public void SetTime(int step) { TimeStep = Math.Max(0, Math.Min(TimeSpeeds.Length - 1, step)); if (TimeStep > 0) _timeBeforePause = TimeStep; MenuChanged = true; }
+
+        // a body's day in hours: rocky worlds 10 to 40, giants 9 to 17, moons turn once each orbit (one face to their planet)
+        private double DayHours(int i)
+        {
+            var b = _system.Bodies[i];
+            if (b.Parent >= 0) return Math.Max(1, b.Period * 8766);
+            double u = ((ulong)(_sysStar * 7919L + i * 104729L) * 0x9E3779B97F4A7C15UL >> 40) / (double)(1UL << 24);
+            bool giant = b.Kind.Contains("giant") || b.Kind.Contains("Jupiter");
+            return giant ? 9 + 8 * u : 10 + 30 * u;
+        }
+
+        // the planet's own turn now (radians): the starlight turns the other way across its ground
+        private double Spin(int i) { return 2 * Math.PI * (_simYears * 8766.0 / DayHours(i)) % (2 * Math.PI); }
+
+        /// <summary>The local time of day where you are on the ground (hours, 0 to 24), or -1 when not at a planet.</summary>
+        public double LocalHour()
+        {
+            if (_ground == null) return -1;
+            double x, y, z; CamFromPlanet(out x, out y, out z);
+            double sx = _ground.StarDir[0], sz = _ground.StarDir[2];
+            double a = Math.Atan2(z, x) - Math.Atan2(sz, sx);                               // noon where the star is overhead
+            double h = 12 + a / (2 * Math.PI) * 24; h %= 24; if (h < 0) h += 24; return h;
+        }
         private StarSurface _starSurf; private StarVertex[] _starCorona, _starSurfVerts; private UploadBuffer _coronaBuf, _surfBuf;
         private static readonly double SystemRange = Units.Au(2000);
         // the galaxy whose own stars are being shown (or -1), and those stars in its own frame
@@ -687,7 +717,10 @@ namespace DnaAnd.Shell
                 }
             }
             Jumped("the wheel");
-            _simYears += dt / 20.0;                                                    // one year in 20 seconds, as in the system view
+            if (input.WasPressed(0x20)) TogglePause();                                 // Space: pause, or carry on
+            if (input.WasPressed(0xBC)) SetTime(TimeStep - 1);                        // , slower
+            if (input.WasPressed(0xBE)) SetTime(TimeStep + 1);                        // . faster
+            _simYears += dt * TimeSpeeds[TimeStep];                                    // time runs at the speed chosen
             ChooseNear(); Jumped("ChooseNear");
             LocalStars(); Jumped("LocalStars");
             ChooseSystem(); Jumped("ChooseSystem");
@@ -919,7 +952,12 @@ namespace DnaAnd.Shell
                 double horizon = Math.Sqrt(altSea * (2 * _ground.Radius + altSea)) + Math.Sqrt(2 * _ground.Radius * 30);
                 Mat4 kproj = Mat4.Perspective(0.9f, w / (float)Math.Max(1, h), (float)Math.Max(alt * 0.15, 1e-9), (float)(horizon * 1.3 + 100));
                 var sd = _system.StarRadius; double lx = -_px, ly = -_py, lz = -_pz, ll = Math.Sqrt(lx * lx + ly * ly + lz * lz);
-                if (ll > 0) { _ground.StarDir[0] = lx / ll; _ground.StarDir[1] = ly / ll; _ground.StarDir[2] = lz / ll; }
+                if (ll > 0)
+                {
+                    // the starlight's way, turned back by the planet's own spin, so its days pass over the ground
+                    double sp = -Spin(_planet), c0 = Math.Cos(sp), s0 = Math.Sin(sp), sx = lx / ll, sz = lz / ll;
+                    _ground.StarDir[0] = sx * c0 - sz * s0; _ground.StarDir[1] = ly / ll; _ground.StarDir[2] = sx * s0 + sz * c0;
+                }
                 GroundLight();
                 // what the ground needs to detail: only what is in view (the view's half-angle, corner to corner)
                 var lk = Look; if (_ground.ViewDir == null) _ground.ViewDir = new double[3];
@@ -1108,7 +1146,8 @@ namespace DnaAnd.Shell
                     : _ground != null ? "at " + _system.Bodies[_planet].Kind + ", " + Units.Describe(AboveGround()) + " above the ground"
                     : _system != null ? "in the system of a " + _system.StarName + " (" + _system.Bodies.Count + " planets and moons)"
                     : _near >= 0 ? (NearShare() > 0.5 ? "among the stars of " : "near ") + _galaxies[_near].Name : "among the galaxies";
-                return "DNA-AND · one world · " + where + picked + " · nearest thing " + Units.Describe(NearestDistance()) + " away · wheel: fly in or out toward the mouse · drag: circle the pick or look around · right click: clear the pick · W A S D Q E: fly · H: scale on or off · Esc: close · card " + (int)Math.Round(Window.GpuBusy * 100) + "% busy (GPU use " + (int)Math.Round(Window.GpuUse * 100) + "%)";
+                double hr = LocalHour(); string when = " · time: " + TimeNames[TimeStep] + (hr >= 0 ? ", " + ((int)hr).ToString("00") + ":" + ((int)(hr % 1 * 60)).ToString("00") + " here" : "");
+                return "DNA-AND · one world · " + where + when + picked + " · nearest thing " + Units.Describe(NearestDistance()) + " away · wheel: fly in or out toward the mouse · drag: circle the pick or look around · right click: clear the pick · W A S D Q E: fly · H: scale on or off · Esc: close · card " + (int)Math.Round(Window.GpuBusy * 100) + "% busy (GPU use " + (int)Math.Round(Window.GpuUse * 100) + "%)";
             }
         }
 

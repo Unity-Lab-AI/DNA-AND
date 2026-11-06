@@ -166,13 +166,15 @@ namespace DnaAnd
 
                 if (deep == null && planet == null && window.Input.WasPressed(Win32.VK_ESCAPE)) window.Close();
                 // the review menu: rebuilt whenever the set or the keepers change
-                if (world != null) { if (menuDirty || world.MenuChanged) { window.SetWorldMenu(world.ScaleOn); menuDirty = false; world.MenuChanged = false; } }
+                if (world != null) { if (menuDirty || world.MenuChanged) { Window.TimeNames = WorldView.TimeNames; Window.TimeStep = world.TimeStep; window.SetWorldMenu(world.ScaleOn); menuDirty = false; world.MenuChanged = false; } }
                 else if (viewer.Set != menuSet || menuDirty) { window.SetReviewMenu(viewer.KeeperLabels(), viewer.KeeperTicks()); menuSet = viewer.Set; menuDirty = false; }
                 int cmd = window.MenuCommand; window.MenuCommand = 0;
                 bool askNow = false;
                 if (cmd == Window.CmdExit) { endReason = "closed with the Exit button"; window.Close(); }
                 else if (cmd == Window.CmdAskNow) askNow = true;
                 else if (cmd == Window.CmdLegend) window.Tell(style != null ? style.Legend() : microbes != null ? microbes.Legend() : elements != null ? elements.Legend() : planet != null ? planet.Legend() : viewer.Legend(), "DNA-AND · Legend");
+                else if (cmd == Window.CmdPause && world != null) world.TogglePause();
+                else if (cmd >= Window.CmdTimeBase && cmd < Window.CmdTimeBase + 16 && world != null) world.SetTime(cmd - Window.CmdTimeBase);
                 else if (cmd >= Window.CmdGpuBase && cmd < Window.CmdGpuBase + Window.GpuPercents.Length) { Window.GpuUse = Window.GpuPercents[cmd - Window.CmdGpuBase] / 100.0; Settings.Set("gpu-use", Window.GpuPercents[cmd - Window.CmdGpuBase]); menuDirty = true; }
                 else if (cmd >= Window.CmdScaleBase && cmd < Window.CmdScaleBase + Window.ScalePercents.Length) { window.RenderScale = Window.ScalePercents[cmd - Window.CmdScaleBase] / 100.0; menuDirty = true; }
                 // the documents open in their own viewer window, beside the game

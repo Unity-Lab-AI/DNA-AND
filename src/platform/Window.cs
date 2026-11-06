@@ -59,7 +59,9 @@ namespace DnaAnd.Platform
             Win32.DrawMenuBar(Handle);
         }
 
-        public const int CmdAbout = 200, CmdReadme = 201, CmdCredits = 202, CmdScaleHud = 203, CmdInvertX = 204, CmdInvertY = 205, CmdHowItWorks = 206;
+        public const int CmdAbout = 200, CmdReadme = 201, CmdCredits = 202, CmdScaleHud = 203, CmdInvertX = 204, CmdInvertY = 205, CmdHowItWorks = 206, CmdPause = 207;
+        public const int CmdTimeBase = 90;    // time speed i is CmdTimeBase + i
+        public static string[] TimeNames = new string[0]; public static int TimeStep;
         /// <summary>The preview's menu bar: Exit; View (the scale on screen, render scale); Help (Readme, Credits, About).</summary>
         public void SetWorldMenu(bool scaleOn)
         {
@@ -76,6 +78,12 @@ namespace DnaAnd.Platform
             Win32.AppendMenu(gpuMenu, Win32.MF_SEPARATOR, IntPtr.Zero, null);
             Win32.AppendMenu(gpuMenu, Win32.MF_STRING | 0x1u, IntPtr.Zero, "now: card " + (int)Math.Round(GpuBusy * 100) + "% busy, detail " + (int)Math.Round(Detail * 100) + "%");
             Win32.AppendMenu(view, Win32.MF_POPUP, gpuMenu, "GPU use");
+            IntPtr timeMenu = Win32.CreatePopupMenu();
+            Win32.AppendMenu(timeMenu, Win32.MF_STRING | (TimeStep == 0 ? Win32.MF_CHECKED : 0), (IntPtr)CmdPause, "Pause\tSpace");
+            Win32.AppendMenu(timeMenu, Win32.MF_SEPARATOR, IntPtr.Zero, null);
+            for (int i = 1; i < TimeNames.Length; i++) Win32.AppendMenu(timeMenu, Win32.MF_STRING | (TimeStep == i ? Win32.MF_CHECKED : 0), (IntPtr)(CmdTimeBase + i), TimeNames[i]);
+            Win32.AppendMenu(timeMenu, Win32.MF_SEPARATOR, IntPtr.Zero, null);
+            Win32.AppendMenu(timeMenu, Win32.MF_STRING | 0x1u, IntPtr.Zero, "slower: ,   faster: .");
             Win32.AppendMenu(view, Win32.MF_SEPARATOR, IntPtr.Zero, null);
             Win32.AppendMenu(view, Win32.MF_STRING | (Settings.Get("invert-left-right", false) ? Win32.MF_CHECKED : 0), (IntPtr)CmdInvertX, "Invert left-right drag");
             Win32.AppendMenu(view, Win32.MF_STRING | (Settings.Get("invert-up-down", false) ? Win32.MF_CHECKED : 0), (IntPtr)CmdInvertY, "Invert up-down drag");
@@ -86,6 +94,7 @@ namespace DnaAnd.Platform
             Win32.AppendMenu(help, Win32.MF_STRING, (IntPtr)CmdAbout, "About DNA-AND");
             Win32.AppendMenu(bar, Win32.MF_STRING, (IntPtr)CmdExit, "Exit");
             Win32.AppendMenu(bar, Win32.MF_POPUP, view, "View");
+            Win32.AppendMenu(bar, Win32.MF_POPUP, timeMenu, "Time");
             Win32.AppendMenu(bar, Win32.MF_POPUP, help, "Help");
             Win32.SetMenu(Handle, bar);
             if (_menu != IntPtr.Zero) Win32.DestroyMenu(_menu);
