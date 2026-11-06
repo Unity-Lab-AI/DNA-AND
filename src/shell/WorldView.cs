@@ -531,6 +531,27 @@ namespace DnaAnd.Shell
                 else { _yaw += sx * input.MouseDX * 0.004; _pitch = Math.Max(-1.55, Math.Min(1.55, _pitch + sy * input.MouseDY * 0.004)); }
             }
             double reach = NearestDistance();
+            if (_matterScale <= 0)
+            {
+                // W A S D, Q and E: fly like a first-person game, at a speed scaled to the nearest thing (half its distance a
+                // second, Shift four times faster), so it feels the same among galaxies as a metre above the ground
+                double mf = (input.IsDown(0x57) ? 1 : 0) - (input.IsDown(0x53) ? 1 : 0), mr = (input.IsDown(0x44) ? 1 : 0) - (input.IsDown(0x41) ? 1 : 0), mu = (input.IsDown(0x45) ? 1 : 0) - (input.IsDown(0x51) ? 1 : 0);
+                if (mf != 0 || mr != 0 || mu != 0)
+                {
+                    _tKind = -1;                                                       // flying yourself lets go of the pick
+                    var f = Look; var rt = Vec3.Cross(f, new Vec3(0, 1, 0)).Normalized; var upv = Vec3.Cross(rt, f).Normalized;
+                    double sp = reach * 0.5 * dt * (input.IsDown(0x10) ? 4 : 1);
+                    _ox += (f.X * mf + rt.X * mr + upv.X * mu) * sp; _oy += (f.Y * mf + rt.Y * mr + upv.Y * mu) * sp; _oz += (f.Z * mf + rt.Z * mr + upv.Z * mu) * sp;
+                    if (_ground != null && AboveGround() < Units.Km(5e-7))
+                    {
+                        // never through the ground: back up to half a millimetre above it
+                        double x, y, z; CamFromPlanet(out x, out y, out z);
+                        double r = Math.Sqrt(x * x + y * y + z * z), g = _ground.Solid ? Math.Max(0, _ground.GroundAt(x / r, y / r, z / r)) : 0;
+                        double want = _ground.Radius + g + 5e-7, k = Units.Km(1);
+                        _ox = _px + x / r * want * k; _oy = _py + y / r * want * k; _oz = _pz + z / r * want * k;
+                    }
+                }
+            }
             if (_matterScale > 0)
             {
                 // in the ground's matter: the wheel shrinks or grows the scale, from a millimetre down inside an atom
@@ -855,7 +876,7 @@ namespace DnaAnd.Shell
                     : _ground != null ? "at " + _system.Bodies[_planet].Kind + ", " + Units.Describe(AboveGround()) + " above the ground"
                     : _system != null ? "in the system of a " + _system.StarName + " (" + _system.Bodies.Count + " planets and moons)"
                     : _near >= 0 ? (NearShare() > 0.5 ? "among the stars of " : "near ") + _galaxies[_near].Name : "among the galaxies";
-                return "DNA-AND · one world · " + where + picked + " · nearest thing " + Units.Describe(NearestDistance()) + " away · wheel: fly in or out toward the mouse · drag: look around · H: scale on or off · Esc: close";
+                return "DNA-AND · one world · " + where + picked + " · nearest thing " + Units.Describe(NearestDistance()) + " away · wheel: fly in or out toward the mouse · drag: circle the pick or look around · W A S D Q E: fly · H: scale on or off · Esc: close";
             }
         }
 
