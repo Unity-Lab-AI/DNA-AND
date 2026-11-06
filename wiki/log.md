@@ -148,3 +148,4 @@ Append-only. Newest at the bottom.
 - r06 planet: water and weather per region (temperature, rain belts, ice, ice ages, sea level, hurricanes, seasons), feeding life.
 - r06 planet: ocean currents, upwelling and tides, feeding sea life.
 - r06 planet: erosion, soil, river mud and the rock cycle per region, feeding life.
+- r06 planet: impacts at real rates with the heavy bombardment, and the brightening star; deep microbes survive.

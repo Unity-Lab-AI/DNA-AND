@@ -17,7 +17,9 @@ namespace DnaAnd.Sim
         public double CO2 = 10;          // × 280 ppm; a young world's air is rich in it
         public double O2 = 0;            // share of the air (Earth today 0.21)
         public double CH4 = 1;           // × 0.7 ppm
-        public double BaseK;             // temperature with no greenhouse at all (Earth: 255 K)
+        public double BaseK;             // temperature with no greenhouse at all (Earth: 255 K), at the star's brightness today (4.6 billion years)
+        public double StarNow = 1;       // the star's brightness now against today's (a young star is dimmer)
+        public double DarkK;             // cooling from dust and soot after a great impact
         public double TempK;             // average surface temperature
         public bool Runaway, Snowball;
         public string Events = "";
@@ -34,7 +36,7 @@ namespace DnaAnd.Sim
             // thicker air holds more heat, and water vapour boosts it once the seas are warm
             double warm = 33 * Math.Pow(Math.Max(0.001, Pressure), 0.35) + 4.0 * Math.Log(Math.Max(1e-4, CO2), 2) + 0.6 * Math.Log(Math.Max(1e-3, CH4), 2);
             if (Runaway) warm += 400;
-            TempK = BaseK + warm;
+            TempK = BaseK * Math.Pow(StarNow, 0.25) + warm - DarkK;
         }
 
         /// <summary>Runs the air to the planet's new age. <paramref name="producers"/>: plant-like life on the planet (crowds),
@@ -45,6 +47,8 @@ namespace DnaAnd.Sim
             if (_age < 0) { _age = core.Age; Work(); return; }
             double years = core.Age - _age; _age = core.Age;
             if (years <= 0) return;
+            // the star brightens as it ages: about 30% dimmer when young than at 4.6 billion years, brighter after
+            StarNow = 1 / (1 + 0.4 * (1 - core.Age / 4.6e9));
             // carbon dioxide: in from volcanoes, out by rain on rock (needs liquid water; faster when warm and when plates make new rock)
             double outgas = 1e-6 * core.Volcanism;
             if (hasWater && !Snowball && !Runaway)
@@ -103,7 +107,7 @@ namespace DnaAnd.Sim
         public string Describe()
         {
             return "air " + Pressure.ToString("0.00") + " bar, carbon dioxide " + (CO2 * 280).ToString("0") + " ppm, oxygen " + (O2 * 100).ToString("0.0") + "%, methane " + (CH4 * 0.7).ToString("0.0") + " ppm, " +
-                   (TempK - 273.15).ToString("0") + " °C" + (Runaway ? " (runaway greenhouse)" : Snowball ? " (frozen over)" : "");
+                   (TempK - 273.15).ToString("0") + " °C, star " + (StarNow * 100).ToString("0") + "% of today's" + (Runaway ? " (runaway greenhouse)" : Snowball ? " (frozen over)" : "");
         }
 
         public Chunk Save()

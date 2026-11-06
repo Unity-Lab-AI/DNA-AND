@@ -234,7 +234,7 @@ Order: galactic scale down, the same order as the sample sets.
   - [ ] small-makeup-by-distance: stony asteroids are more common close to the star, dark carbon-rich ones farther out, icy bodies beyond the frost line
   - [ ] small-comet-source: short-period comets come from the Kuiper belt and scattered disk; long-period comets fall in from the Oort cloud
   - [ ] small-comet-tails: comets grow a coma and two tails only near their star; the ion tail always points away from the star
-  - [ ] small-impacts: near-planet asteroids and falling comets can hit worlds; impact size and effect follow the 10 impact sizes on the space page
+  - [~] small-impacts: near-planet asteroids and falling comets can hit worlds; impact size and effect follow the 10 impact sizes on the space page (built on the planet's clock: `src/sim/PlanetImpacts.cs`; not yet from the real asteroids and comets of the system)
   - [ ] small-meteorites: a meteorite's type follows the asteroid it came from; carbon-rich ones can deliver the chemistry of life
   - [ ] small-resources: metal asteroids are mined for metals, icy bodies and comets for water and fuel, carbon-rich asteroids for life chemistry
 - [ ] Build from `content/nebulas.dnat`: all 12 entries (The five main kinds, Star-forming structures) and these rules:
@@ -373,8 +373,8 @@ Order: galactic scale down, the same order as the sample sets.
   - [x] Soil forms from worn rock (and later from life): faster when warm and wet, five times faster under plants, thin on steep and icy ground; soil feeds land life and river mud feeds coastal seas
   - [ ] Landslides, floods, sinkholes and coastlines that move
 - **From outside**
-  - [ ] Impacts: meteorites, asteroids and comets hit, leaving craters and changing the climate (sizes from the space page)
-  - [ ] The star's flares and wind; the star ageing
+  - [x] Impacts: meteorites, asteroids and comets hit, leaving craters and changing the climate (sizes from the space page): the 10 sizes at real rates for Earth today, far more in the young heavy bombardment, bigger worlds hit more; each size does its harm to life (to a mass extinction), great ones darken and cool the world; microbes deep in rock and at vents always survive (`src/sim/PlanetImpacts.cs`; craters on the ground still to draw)
+  - [~] The star's flares and wind; the star ageing (built: the star brightens with age, about 30% dimmer when young than at 4.6 billion years, warming the world; flares and wind still to come)
 - **Everything feeds everything**
   - [ ] Each process changes the others and the life on the world: plates make mountains, mountains change rain, rain feeds rivers, rivers carry nutrients to the sea; volcanoes and impacts cause die-offs; ice ages move life toward the warm middle
   - [ ] Resource fields form and change with this geology over time (magma makes ores, hot fluids make veins, seas lay down sediments)

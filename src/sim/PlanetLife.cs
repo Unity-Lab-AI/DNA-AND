@@ -331,10 +331,31 @@ namespace DnaAnd.Sim
             if (share >= 0.5) for (int k = 0; k < _cells.Length; k++) Kill(k, 0.15);
         }
 
+        /// <summary>A disaster for the whole world (a great impact): every region loses this share of its life.</summary>
+        public void GlobalKill(double share)
+        {
+            for (int k = 0; k < _cells.Length; k++)
+            {
+                // microbes deep in the rock and at sea-floor vents ride out even the worst: a few of each stay alive
+                var cell = _cells[k]; var ids = new List<int>(cell.Keys);
+                foreach (int id in ids)
+                {
+                    double n = cell[id] * (1 - share);
+                    if (All[id].G.Stage <= 1) n = Math.Max(n, Math.Min(cell[id], 0.1));
+                    if (n < 0.05) cell.Remove(id); else cell[id] = n;
+                }
+            }
+        }
+
         private void Kill(int i, double share)
         {
             var cell = _cells[i]; var ids = new List<int>(cell.Keys);
-            foreach (int id in ids) { double n = cell[id] * (1 - share); if (n < 0.05) cell.Remove(id); else cell[id] = n; }
+            foreach (int id in ids)
+            {
+                double n = cell[id] * (1 - share);
+                if (All[id].G.Stage <= 1) n = Math.Max(n, Math.Min(cell[id], 0.1));   // microbes deep in the rock and at vents ride it out
+                if (n < 0.05) cell.Remove(id); else cell[id] = n;
+            }
         }
 
         private int Neighbour(int i) { return Near[i][_rng.Below(6)]; }
