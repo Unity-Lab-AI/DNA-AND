@@ -49,7 +49,7 @@ namespace DnaAnd.Platform
             Win32.DrawMenuBar(Handle);
         }
 
-        public const int CmdAbout = 200, CmdReadme = 201, CmdCredits = 202, CmdScaleHud = 203, CmdInvertX = 204, CmdInvertY = 205;
+        public const int CmdAbout = 200, CmdReadme = 201, CmdCredits = 202, CmdScaleHud = 203, CmdInvertX = 204, CmdInvertY = 205, CmdHowItWorks = 206;
         /// <summary>The preview's menu bar: Exit; View (the scale on screen, render scale); Help (Readme, Credits, About).</summary>
         public void SetWorldMenu(bool scaleOn)
         {
@@ -62,6 +62,7 @@ namespace DnaAnd.Platform
             Win32.AppendMenu(view, Win32.MF_STRING | (Settings.Get("invert-left-right", false) ? Win32.MF_CHECKED : 0), (IntPtr)CmdInvertX, "Invert left-right drag");
             Win32.AppendMenu(view, Win32.MF_STRING | (Settings.Get("invert-up-down", false) ? Win32.MF_CHECKED : 0), (IntPtr)CmdInvertY, "Invert up-down drag");
             Win32.AppendMenu(help, Win32.MF_STRING, (IntPtr)CmdReadme, "Readme");
+            Win32.AppendMenu(help, Win32.MF_STRING, (IntPtr)CmdHowItWorks, "How it works (waveform, infinite zoom)");
             Win32.AppendMenu(help, Win32.MF_STRING, (IntPtr)CmdCredits, "Credits");
             Win32.AppendMenu(help, Win32.MF_SEPARATOR, IntPtr.Zero, null);
             Win32.AppendMenu(help, Win32.MF_STRING, (IntPtr)CmdAbout, "About DNA-AND");

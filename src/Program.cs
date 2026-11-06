@@ -167,6 +167,7 @@ namespace DnaAnd
                 else if (cmd == Window.CmdLegend) window.Tell(style != null ? style.Legend() : microbes != null ? microbes.Legend() : elements != null ? elements.Legend() : planet != null ? planet.Legend() : viewer.Legend(), "DNA-AND · Legend");
                 else if (cmd >= Window.CmdScaleBase && cmd < Window.CmdScaleBase + Window.ScalePercents.Length) { window.RenderScale = Window.ScalePercents[cmd - Window.CmdScaleBase] / 100.0; menuDirty = true; }
                 else if (cmd == Window.CmdAbout) window.Tell(PreviewText.About, "About DNA-AND");
+                else if (cmd == Window.CmdHowItWorks) window.Tell(PreviewText.HowItWorks, "DNA-AND · How it works");
                 else if (cmd == Window.CmdReadme) window.Tell(PreviewText.Readme, "DNA-AND · Readme");
                 else if (cmd == Window.CmdCredits) window.Tell(PreviewText.Credits, "DNA-AND · Credits");
                 else if (cmd == Window.CmdInvertX) { Settings.Set("invert-left-right", !Settings.Get("invert-left-right", false)); menuDirty = true; }
