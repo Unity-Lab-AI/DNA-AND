@@ -35,7 +35,8 @@ namespace DnaAnd.Shell
             if (km >= 1e-6) return Num(km * 1e6) + " mm";
             if (km >= 1e-9) return Num(km * 1e9) + " micrometres";
             if (km >= 1e-12) return Num(km * 1e12) + " nanometres";
-            return Num(km * 1e15) + " picometres";
+            if (km >= 1e-15) return Num(km * 1e15) + " picometres";
+            return Num(km * 1e18) + " femtometres";
         }
 
         private static string Num(double v) { return v >= 1000 ? v.ToString("N0") : v >= 10 ? v.ToString("0") : v.ToString("0.#"); }

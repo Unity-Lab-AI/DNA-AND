@@ -1,0 +1,185 @@
+# DNA-AND content · minerals and what each kind of ground is made of
+# researched: standard mineralogy (mineral formulas as in mineral reference tables); crust make-up from geology
+#   references (Earth's continental crust is mostly feldspars and quartz, with pyroxene, clays, micas, calcite and
+#   iron oxides; basalt is mostly pyroxene, calcic plagioclase and olivine; the Moon's highlands are anorthite-rich,
+#   its seas basalt with ilmenite; Mars's dust is basalt minerals reddened by hematite; icy worlds are water ice with
+#   frozen carbon dioxide, nitrogen and methane). Shares are rough parts per 100 of the grains.
+# Each grain of ground is one mineral, picked from its ground's mix; zooming into it shows that mineral's own atoms.
+# atoms: the formula's atoms written out one by one (its real ratio); colour: the grain's colour as seen (0 to 1).
+# Spec: docs/CONTENT-FORMAT.md · content/elements.dnat · content/geology.dnat
+
+@mineral quartz
+name: Quartz
+formula: SiO2
+atoms: Si O O
+colour: 0.86 0.82 0.74
+
+@mineral albite
+name: Albite (sodium feldspar)
+formula: NaAlSi3O8
+atoms: Na Al Si Si Si O O O O O O O O
+colour: 0.9 0.88 0.84
+
+@mineral orthoclase
+name: Orthoclase (potassium feldspar)
+formula: KAlSi3O8
+atoms: K Al Si Si Si O O O O O O O O
+colour: 0.88 0.7 0.62
+
+@mineral anorthite
+name: Anorthite (calcium feldspar)
+formula: CaAl2Si2O8
+atoms: Ca Al Al Si Si O O O O O O O O
+colour: 0.82 0.82 0.8
+
+@mineral forsterite
+name: Olivine (forsterite)
+formula: Mg2SiO4
+atoms: Mg Mg Si O O O O
+colour: 0.55 0.66 0.3
+
+@mineral fayalite
+name: Olivine (fayalite)
+formula: Fe2SiO4
+atoms: Fe Fe Si O O O O
+colour: 0.42 0.38 0.2
+
+@mineral enstatite
+name: Pyroxene (enstatite)
+formula: MgSiO3
+atoms: Mg Si O O O
+colour: 0.4 0.38 0.3
+
+@mineral augite
+name: Pyroxene (augite)
+formula: CaMgSi2O6
+atoms: Ca Mg Si Si O O O O O O
+colour: 0.22 0.22 0.2
+
+@mineral kaolinite
+name: Clay (kaolinite)
+formula: Al2Si2O5(OH)4
+atoms: Al Al Si Si O O O O O O O O O H H H H
+colour: 0.84 0.78 0.66
+
+@mineral biotite
+name: Mica (biotite)
+formula: KMg3AlSi3O10(OH)2
+atoms: K Mg Mg Mg Al Si Si Si O O O O O O O O O O O O H H
+colour: 0.25 0.2 0.14
+
+@mineral calcite
+name: Calcite
+formula: CaCO3
+atoms: Ca C O O O
+colour: 0.94 0.92 0.86
+
+@mineral hematite
+name: Hematite
+formula: Fe2O3
+atoms: Fe Fe O O O
+colour: 0.6 0.22 0.14
+
+@mineral magnetite
+name: Magnetite
+formula: Fe3O4
+atoms: Fe Fe Fe O O O O
+colour: 0.16 0.16 0.17
+
+@mineral ilmenite
+name: Ilmenite
+formula: FeTiO3
+atoms: Fe Ti O O O
+colour: 0.18 0.17 0.17
+
+@mineral pyrite
+name: Pyrite
+formula: FeS2
+atoms: Fe S S
+colour: 0.8 0.7 0.36
+
+@mineral gypsum
+name: Gypsum
+formula: CaSO4·2H2O
+atoms: Ca S O O O O O O H H H H
+colour: 0.95 0.94 0.9
+
+@mineral halite
+name: Halite (rock salt)
+formula: NaCl
+atoms: Na Cl
+colour: 0.95 0.93 0.93
+
+@mineral sulfur
+name: Sulfur
+formula: S8
+atoms: S S S S S S S S
+colour: 0.92 0.84 0.2
+
+@mineral water-ice
+name: Water ice
+formula: H2O
+atoms: O H H
+colour: 0.88 0.93 0.98
+
+@mineral sea-water
+name: Sea water
+formula: H2O with dissolved salt
+atoms: O H H O H H O H H O H H O H H O H H O H H O H H O H H Na Cl
+colour: 0.2 0.4 0.6
+
+@mineral dry-ice
+name: Carbon dioxide ice
+formula: CO2
+atoms: C O O
+colour: 0.94 0.94 0.94
+
+@mineral nitrogen-ice
+name: Nitrogen ice
+formula: N2
+atoms: N N
+colour: 0.92 0.88 0.86
+
+@mineral methane-ice
+name: Methane ice
+formula: CH4
+atoms: C H H H H
+colour: 0.82 0.74 0.66
+
+# ── what each kind of ground is made of: mineral share, mineral share, ... (parts per 100) ──
+
+@mix temperate
+name: Land of a temperate world
+minerals: quartz 25, albite 18, orthoclase 14, kaolinite 12, augite 6, biotite 5, calcite 8, hematite 5, magnetite 3, forsterite 2, gypsum 2
+
+@mix desert
+name: Dry rocky ground
+minerals: quartz 22, hematite 14, albite 14, augite 14, forsterite 10, enstatite 6, magnetite 6, gypsum 6, halite 4, calcite 4
+
+@mix lava
+name: Fresh basalt and lava rock
+minerals: augite 28, anorthite 26, forsterite 18, fayalite 6, magnetite 10, ilmenite 6, sulfur 4, pyrite 2
+
+@mix snowball
+name: Frozen ground
+minerals: water-ice 70, dry-ice 10, nitrogen-ice 5, methane-ice 5, forsterite 5, enstatite 5
+
+@mix moon
+name: Moon ground
+minerals: anorthite 40, augite 22, forsterite 14, ilmenite 14, fayalite 5, quartz 5
+
+@mix tidally-locked
+name: Ground of a tidally locked world
+minerals: augite 22, anorthite 18, quartz 14, hematite 14, forsterite 12, water-ice 10, magnetite 10
+
+@mix ocean
+name: Sea floor
+minerals: augite 30, anorthite 25, forsterite 15, calcite 15, kaolinite 10, pyrite 5
+
+@mix sea
+name: The sea
+minerals: sea-water 100
+
+@mix ice
+name: Sea ice and ice sheets
+minerals: water-ice 100

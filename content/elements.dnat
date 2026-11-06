@@ -1,6 +1,7 @@
 # DNA-AND content · elements (all 118)
 # researched: IUPAC periodic table (atomic numbers, symbols, names, groups); standard states at room temperature;
-#   natural vs lab-made from standard chemistry references; melting and boiling points in kelvin at 1 atmosphere
+#   natural vs lab-made from standard chemistry references; mass-number: the most common (or, for elements with no
+#   stable form, the longest-lived) isotope, so protons = number and neutrons = mass-number - number; melting and boiling points in kelvin at 1 atmosphere
 #   from standard reference tables (CRC Handbook values, rounded); "unknown" where never measured. The in-game uses come from the public Elements page.
 # Spec: docs/CONTENT-FORMAT.md · wiki/systems/r06-planet.md · content/physics.dnat
 
@@ -8,6 +9,7 @@
 name: Hydrogen
 real: yes
 number: 1
+mass-number: 1
 symbol: H
 period: 1
 group: Nonmetal
@@ -21,6 +23,7 @@ boil-k: 20
 name: Helium
 real: yes
 number: 2
+mass-number: 4
 symbol: He
 period: 1
 group: Noble gas
@@ -34,6 +37,7 @@ boil-k: 4
 name: Lithium
 real: yes
 number: 3
+mass-number: 7
 symbol: Li
 period: 2
 group: Alkali metal
@@ -47,6 +51,7 @@ boil-k: 1615
 name: Beryllium
 real: yes
 number: 4
+mass-number: 9
 symbol: Be
 period: 2
 group: Alkaline earth
@@ -60,6 +65,7 @@ boil-k: 2742
 name: Boron
 real: yes
 number: 5
+mass-number: 11
 symbol: B
 period: 2
 group: Metalloid
@@ -73,6 +79,7 @@ boil-k: 4200
 name: Carbon
 real: yes
 number: 6
+mass-number: 12
 symbol: C
 period: 2
 group: Nonmetal
@@ -86,6 +93,7 @@ boil-k: 3915
 name: Nitrogen
 real: yes
 number: 7
+mass-number: 14
 symbol: N
 period: 2
 group: Nonmetal
@@ -99,6 +107,7 @@ boil-k: 77
 name: Oxygen
 real: yes
 number: 8
+mass-number: 16
 symbol: O
 period: 2
 group: Nonmetal
@@ -112,6 +121,7 @@ boil-k: 90
 name: Fluorine
 real: yes
 number: 9
+mass-number: 19
 symbol: F
 period: 2
 group: Halogen
@@ -125,6 +135,7 @@ boil-k: 85
 name: Neon
 real: yes
 number: 10
+mass-number: 20
 symbol: Ne
 period: 2
 group: Noble gas
@@ -138,6 +149,7 @@ boil-k: 27
 name: Sodium
 real: yes
 number: 11
+mass-number: 23
 symbol: Na
 period: 3
 group: Alkali metal
@@ -151,6 +163,7 @@ boil-k: 1156
 name: Magnesium
 real: yes
 number: 12
+mass-number: 24
 symbol: Mg
 period: 3
 group: Alkaline earth
@@ -164,6 +177,7 @@ boil-k: 1363
 name: Aluminium
 real: yes
 number: 13
+mass-number: 27
 symbol: Al
 period: 3
 group: Post-transition
@@ -177,6 +191,7 @@ boil-k: 2792
 name: Silicon
 real: yes
 number: 14
+mass-number: 28
 symbol: Si
 period: 3
 group: Metalloid
@@ -190,6 +205,7 @@ boil-k: 3538
 name: Phosphorus
 real: yes
 number: 15
+mass-number: 31
 symbol: P
 period: 3
 group: Nonmetal
@@ -203,6 +219,7 @@ boil-k: 550
 name: Sulfur
 real: yes
 number: 16
+mass-number: 32
 symbol: S
 period: 3
 group: Nonmetal
@@ -216,6 +233,7 @@ boil-k: 718
 name: Chlorine
 real: yes
 number: 17
+mass-number: 35
 symbol: Cl
 period: 3
 group: Halogen
@@ -229,6 +247,7 @@ boil-k: 239
 name: Argon
 real: yes
 number: 18
+mass-number: 40
 symbol: Ar
 period: 3
 group: Noble gas
@@ -242,6 +261,7 @@ boil-k: 87
 name: Potassium
 real: yes
 number: 19
+mass-number: 39
 symbol: K
 period: 4
 group: Alkali metal
@@ -255,6 +275,7 @@ boil-k: 1032
 name: Calcium
 real: yes
 number: 20
+mass-number: 40
 symbol: Ca
 period: 4
 group: Alkaline earth
@@ -268,6 +289,7 @@ boil-k: 1757
 name: Scandium
 real: yes
 number: 21
+mass-number: 45
 symbol: Sc
 period: 4
 group: Transition
@@ -281,6 +303,7 @@ boil-k: 3109
 name: Titanium
 real: yes
 number: 22
+mass-number: 48
 symbol: Ti
 period: 4
 group: Transition
@@ -294,6 +317,7 @@ boil-k: 3560
 name: Vanadium
 real: yes
 number: 23
+mass-number: 51
 symbol: V
 period: 4
 group: Transition
@@ -307,6 +331,7 @@ boil-k: 3680
 name: Chromium
 real: yes
 number: 24
+mass-number: 52
 symbol: Cr
 period: 4
 group: Transition
@@ -320,6 +345,7 @@ boil-k: 2944
 name: Manganese
 real: yes
 number: 25
+mass-number: 55
 symbol: Mn
 period: 4
 group: Transition
@@ -333,6 +359,7 @@ boil-k: 2334
 name: Iron
 real: yes
 number: 26
+mass-number: 56
 symbol: Fe
 period: 4
 group: Transition
@@ -346,6 +373,7 @@ boil-k: 3134
 name: Cobalt
 real: yes
 number: 27
+mass-number: 59
 symbol: Co
 period: 4
 group: Transition
@@ -359,6 +387,7 @@ boil-k: 3200
 name: Nickel
 real: yes
 number: 28
+mass-number: 58
 symbol: Ni
 period: 4
 group: Transition
@@ -372,6 +401,7 @@ boil-k: 3186
 name: Copper
 real: yes
 number: 29
+mass-number: 63
 symbol: Cu
 period: 4
 group: Transition
@@ -385,6 +415,7 @@ boil-k: 2835
 name: Zinc
 real: yes
 number: 30
+mass-number: 64
 symbol: Zn
 period: 4
 group: Transition
@@ -398,6 +429,7 @@ boil-k: 1180
 name: Gallium
 real: yes
 number: 31
+mass-number: 69
 symbol: Ga
 period: 4
 group: Post-transition
@@ -411,6 +443,7 @@ boil-k: 2477
 name: Germanium
 real: yes
 number: 32
+mass-number: 74
 symbol: Ge
 period: 4
 group: Metalloid
@@ -424,6 +457,7 @@ boil-k: 3106
 name: Arsenic
 real: yes
 number: 33
+mass-number: 75
 symbol: As
 period: 4
 group: Metalloid
@@ -437,6 +471,7 @@ boil-k: 887
 name: Selenium
 real: yes
 number: 34
+mass-number: 80
 symbol: Se
 period: 4
 group: Nonmetal
@@ -450,6 +485,7 @@ boil-k: 958
 name: Bromine
 real: yes
 number: 35
+mass-number: 79
 symbol: Br
 period: 4
 group: Halogen
@@ -463,6 +499,7 @@ boil-k: 332
 name: Krypton
 real: yes
 number: 36
+mass-number: 84
 symbol: Kr
 period: 4
 group: Noble gas
@@ -476,6 +513,7 @@ boil-k: 120
 name: Rubidium
 real: yes
 number: 37
+mass-number: 85
 symbol: Rb
 period: 5
 group: Alkali metal
@@ -489,6 +527,7 @@ boil-k: 961
 name: Strontium
 real: yes
 number: 38
+mass-number: 88
 symbol: Sr
 period: 5
 group: Alkaline earth
@@ -502,6 +541,7 @@ boil-k: 1655
 name: Yttrium
 real: yes
 number: 39
+mass-number: 89
 symbol: Y
 period: 5
 group: Transition
@@ -515,6 +555,7 @@ boil-k: 3609
 name: Zirconium
 real: yes
 number: 40
+mass-number: 90
 symbol: Zr
 period: 5
 group: Transition
@@ -528,6 +569,7 @@ boil-k: 4682
 name: Niobium
 real: yes
 number: 41
+mass-number: 93
 symbol: Nb
 period: 5
 group: Transition
@@ -541,6 +583,7 @@ boil-k: 5017
 name: Molybdenum
 real: yes
 number: 42
+mass-number: 98
 symbol: Mo
 period: 5
 group: Transition
@@ -554,6 +597,7 @@ boil-k: 4912
 name: Technetium
 real: yes
 number: 43
+mass-number: 98
 symbol: Tc
 period: 5
 group: Transition
@@ -567,6 +611,7 @@ boil-k: 4538
 name: Ruthenium
 real: yes
 number: 44
+mass-number: 102
 symbol: Ru
 period: 5
 group: Transition
@@ -580,6 +625,7 @@ boil-k: 4423
 name: Rhodium
 real: yes
 number: 45
+mass-number: 103
 symbol: Rh
 period: 5
 group: Transition
@@ -593,6 +639,7 @@ boil-k: 3968
 name: Palladium
 real: yes
 number: 46
+mass-number: 106
 symbol: Pd
 period: 5
 group: Transition
@@ -606,6 +653,7 @@ boil-k: 3236
 name: Silver
 real: yes
 number: 47
+mass-number: 107
 symbol: Ag
 period: 5
 group: Transition
@@ -619,6 +667,7 @@ boil-k: 2435
 name: Cadmium
 real: yes
 number: 48
+mass-number: 114
 symbol: Cd
 period: 5
 group: Transition
@@ -632,6 +681,7 @@ boil-k: 1040
 name: Indium
 real: yes
 number: 49
+mass-number: 115
 symbol: In
 period: 5
 group: Post-transition
@@ -645,6 +695,7 @@ boil-k: 2345
 name: Tin
 real: yes
 number: 50
+mass-number: 120
 symbol: Sn
 period: 5
 group: Post-transition
@@ -658,6 +709,7 @@ boil-k: 2875
 name: Antimony
 real: yes
 number: 51
+mass-number: 121
 symbol: Sb
 period: 5
 group: Metalloid
@@ -671,6 +723,7 @@ boil-k: 1860
 name: Tellurium
 real: yes
 number: 52
+mass-number: 130
 symbol: Te
 period: 5
 group: Metalloid
@@ -684,6 +737,7 @@ boil-k: 1261
 name: Iodine
 real: yes
 number: 53
+mass-number: 127
 symbol: I
 period: 5
 group: Halogen
@@ -697,6 +751,7 @@ boil-k: 457
 name: Xenon
 real: yes
 number: 54
+mass-number: 132
 symbol: Xe
 period: 5
 group: Noble gas
@@ -710,6 +765,7 @@ boil-k: 165
 name: Caesium
 real: yes
 number: 55
+mass-number: 133
 symbol: Cs
 period: 6
 group: Alkali metal
@@ -723,6 +779,7 @@ boil-k: 944
 name: Barium
 real: yes
 number: 56
+mass-number: 138
 symbol: Ba
 period: 6
 group: Alkaline earth
@@ -736,6 +793,7 @@ boil-k: 2170
 name: Lanthanum
 real: yes
 number: 57
+mass-number: 139
 symbol: La
 period: 6
 group: Lanthanide
@@ -749,6 +807,7 @@ boil-k: 3737
 name: Cerium
 real: yes
 number: 58
+mass-number: 140
 symbol: Ce
 period: 6
 group: Lanthanide
@@ -762,6 +821,7 @@ boil-k: 3716
 name: Praseodymium
 real: yes
 number: 59
+mass-number: 141
 symbol: Pr
 period: 6
 group: Lanthanide
@@ -775,6 +835,7 @@ boil-k: 3793
 name: Neodymium
 real: yes
 number: 60
+mass-number: 142
 symbol: Nd
 period: 6
 group: Lanthanide
@@ -788,6 +849,7 @@ boil-k: 3347
 name: Promethium
 real: yes
 number: 61
+mass-number: 145
 symbol: Pm
 period: 6
 group: Lanthanide
@@ -801,6 +863,7 @@ boil-k: 3273
 name: Samarium
 real: yes
 number: 62
+mass-number: 152
 symbol: Sm
 period: 6
 group: Lanthanide
@@ -814,6 +877,7 @@ boil-k: 2067
 name: Europium
 real: yes
 number: 63
+mass-number: 153
 symbol: Eu
 period: 6
 group: Lanthanide
@@ -827,6 +891,7 @@ boil-k: 1802
 name: Gadolinium
 real: yes
 number: 64
+mass-number: 158
 symbol: Gd
 period: 6
 group: Lanthanide
@@ -840,6 +905,7 @@ boil-k: 3546
 name: Terbium
 real: yes
 number: 65
+mass-number: 159
 symbol: Tb
 period: 6
 group: Lanthanide
@@ -853,6 +919,7 @@ boil-k: 3503
 name: Dysprosium
 real: yes
 number: 66
+mass-number: 164
 symbol: Dy
 period: 6
 group: Lanthanide
@@ -866,6 +933,7 @@ boil-k: 2840
 name: Holmium
 real: yes
 number: 67
+mass-number: 165
 symbol: Ho
 period: 6
 group: Lanthanide
@@ -879,6 +947,7 @@ boil-k: 2993
 name: Erbium
 real: yes
 number: 68
+mass-number: 166
 symbol: Er
 period: 6
 group: Lanthanide
@@ -892,6 +961,7 @@ boil-k: 3141
 name: Thulium
 real: yes
 number: 69
+mass-number: 169
 symbol: Tm
 period: 6
 group: Lanthanide
@@ -905,6 +975,7 @@ boil-k: 2223
 name: Ytterbium
 real: yes
 number: 70
+mass-number: 174
 symbol: Yb
 period: 6
 group: Lanthanide
@@ -918,6 +989,7 @@ boil-k: 1469
 name: Lutetium
 real: yes
 number: 71
+mass-number: 175
 symbol: Lu
 period: 6
 group: Lanthanide
@@ -931,6 +1003,7 @@ boil-k: 3675
 name: Hafnium
 real: yes
 number: 72
+mass-number: 180
 symbol: Hf
 period: 6
 group: Transition
@@ -944,6 +1017,7 @@ boil-k: 4876
 name: Tantalum
 real: yes
 number: 73
+mass-number: 181
 symbol: Ta
 period: 6
 group: Transition
@@ -957,6 +1031,7 @@ boil-k: 5731
 name: Tungsten
 real: yes
 number: 74
+mass-number: 184
 symbol: W
 period: 6
 group: Transition
@@ -970,6 +1045,7 @@ boil-k: 5828
 name: Rhenium
 real: yes
 number: 75
+mass-number: 187
 symbol: Re
 period: 6
 group: Transition
@@ -983,6 +1059,7 @@ boil-k: 5869
 name: Osmium
 real: yes
 number: 76
+mass-number: 192
 symbol: Os
 period: 6
 group: Transition
@@ -996,6 +1073,7 @@ boil-k: 5285
 name: Iridium
 real: yes
 number: 77
+mass-number: 193
 symbol: Ir
 period: 6
 group: Transition
@@ -1009,6 +1087,7 @@ boil-k: 4701
 name: Platinum
 real: yes
 number: 78
+mass-number: 195
 symbol: Pt
 period: 6
 group: Transition
@@ -1022,6 +1101,7 @@ boil-k: 4098
 name: Gold
 real: yes
 number: 79
+mass-number: 197
 symbol: Au
 period: 6
 group: Transition
@@ -1035,6 +1115,7 @@ boil-k: 3129
 name: Mercury
 real: yes
 number: 80
+mass-number: 202
 symbol: Hg
 period: 6
 group: Transition
@@ -1048,6 +1129,7 @@ boil-k: 630
 name: Thallium
 real: yes
 number: 81
+mass-number: 205
 symbol: Tl
 period: 6
 group: Post-transition
@@ -1061,6 +1143,7 @@ boil-k: 1746
 name: Lead
 real: yes
 number: 82
+mass-number: 208
 symbol: Pb
 period: 6
 group: Post-transition
@@ -1074,6 +1157,7 @@ boil-k: 2022
 name: Bismuth
 real: yes
 number: 83
+mass-number: 209
 symbol: Bi
 period: 6
 group: Post-transition
@@ -1087,6 +1171,7 @@ boil-k: 1837
 name: Polonium
 real: yes
 number: 84
+mass-number: 209
 symbol: Po
 period: 6
 group: Post-transition
@@ -1100,6 +1185,7 @@ boil-k: 1235
 name: Astatine
 real: yes
 number: 85
+mass-number: 210
 symbol: At
 period: 6
 group: Halogen
@@ -1113,6 +1199,7 @@ boil-k: 610
 name: Radon
 real: yes
 number: 86
+mass-number: 222
 symbol: Rn
 period: 6
 group: Noble gas
@@ -1126,6 +1213,7 @@ boil-k: 211
 name: Francium
 real: yes
 number: 87
+mass-number: 223
 symbol: Fr
 period: 7
 group: Alkali metal
@@ -1139,6 +1227,7 @@ boil-k: 950
 name: Radium
 real: yes
 number: 88
+mass-number: 226
 symbol: Ra
 period: 7
 group: Alkaline earth
@@ -1152,6 +1241,7 @@ boil-k: 2010
 name: Actinium
 real: yes
 number: 89
+mass-number: 227
 symbol: Ac
 period: 7
 group: Actinide
@@ -1165,6 +1255,7 @@ boil-k: 3471
 name: Thorium
 real: yes
 number: 90
+mass-number: 232
 symbol: Th
 period: 7
 group: Actinide
@@ -1178,6 +1269,7 @@ boil-k: 5061
 name: Protactinium
 real: yes
 number: 91
+mass-number: 231
 symbol: Pa
 period: 7
 group: Actinide
@@ -1191,6 +1283,7 @@ boil-k: 4300
 name: Uranium
 real: yes
 number: 92
+mass-number: 238
 symbol: U
 period: 7
 group: Actinide
@@ -1204,6 +1297,7 @@ boil-k: 4404
 name: Neptunium
 real: yes
 number: 93
+mass-number: 237
 symbol: Np
 period: 7
 group: Actinide
@@ -1218,6 +1312,7 @@ boil-k: 4273
 name: Plutonium
 real: yes
 number: 94
+mass-number: 244
 symbol: Pu
 period: 7
 group: Actinide
@@ -1232,6 +1327,7 @@ boil-k: 3501
 name: Americium
 real: yes
 number: 95
+mass-number: 243
 symbol: Am
 period: 7
 group: Actinide
@@ -1246,6 +1342,7 @@ boil-k: 2880
 name: Curium
 real: yes
 number: 96
+mass-number: 247
 symbol: Cm
 period: 7
 group: Actinide
@@ -1260,6 +1357,7 @@ boil-k: 3383
 name: Berkelium
 real: yes
 number: 97
+mass-number: 247
 symbol: Bk
 period: 7
 group: Actinide
@@ -1274,6 +1372,7 @@ boil-k: 2900
 name: Californium
 real: yes
 number: 98
+mass-number: 251
 symbol: Cf
 period: 7
 group: Actinide
@@ -1288,6 +1387,7 @@ boil-k: 1743
 name: Einsteinium
 real: yes
 number: 99
+mass-number: 252
 symbol: Es
 period: 7
 group: Actinide
@@ -1302,6 +1402,7 @@ boil-k: 1269
 name: Fermium
 real: yes
 number: 100
+mass-number: 257
 symbol: Fm
 period: 7
 group: Actinide
@@ -1316,6 +1417,7 @@ boil-k: unknown
 name: Mendelevium
 real: yes
 number: 101
+mass-number: 258
 symbol: Md
 period: 7
 group: Actinide
@@ -1330,6 +1432,7 @@ boil-k: unknown
 name: Nobelium
 real: yes
 number: 102
+mass-number: 259
 symbol: No
 period: 7
 group: Actinide
@@ -1344,6 +1447,7 @@ boil-k: unknown
 name: Lawrencium
 real: yes
 number: 103
+mass-number: 262
 symbol: Lr
 period: 7
 group: Actinide
@@ -1358,6 +1462,7 @@ boil-k: unknown
 name: Rutherfordium
 real: yes
 number: 104
+mass-number: 267
 symbol: Rf
 period: 7
 group: Transition
@@ -1372,6 +1477,7 @@ boil-k: unknown
 name: Dubnium
 real: yes
 number: 105
+mass-number: 268
 symbol: Db
 period: 7
 group: Transition
@@ -1386,6 +1492,7 @@ boil-k: unknown
 name: Seaborgium
 real: yes
 number: 106
+mass-number: 269
 symbol: Sg
 period: 7
 group: Transition
@@ -1400,6 +1507,7 @@ boil-k: unknown
 name: Bohrium
 real: yes
 number: 107
+mass-number: 270
 symbol: Bh
 period: 7
 group: Transition
@@ -1414,6 +1522,7 @@ boil-k: unknown
 name: Hassium
 real: yes
 number: 108
+mass-number: 269
 symbol: Hs
 period: 7
 group: Transition
@@ -1428,6 +1537,7 @@ boil-k: unknown
 name: Meitnerium
 real: yes
 number: 109
+mass-number: 278
 symbol: Mt
 period: 7
 group: Predicted (never measured)
@@ -1442,6 +1552,7 @@ boil-k: unknown
 name: Darmstadtium
 real: yes
 number: 110
+mass-number: 281
 symbol: Ds
 period: 7
 group: Predicted (never measured)
@@ -1456,6 +1567,7 @@ boil-k: unknown
 name: Roentgenium
 real: yes
 number: 111
+mass-number: 282
 symbol: Rg
 period: 7
 group: Predicted (never measured)
@@ -1470,6 +1582,7 @@ boil-k: unknown
 name: Copernicium
 real: yes
 number: 112
+mass-number: 285
 symbol: Cn
 period: 7
 group: Transition
@@ -1484,6 +1597,7 @@ boil-k: unknown
 name: Nihonium
 real: yes
 number: 113
+mass-number: 286
 symbol: Nh
 period: 7
 group: Predicted (never measured)
@@ -1498,6 +1612,7 @@ boil-k: unknown
 name: Flerovium
 real: yes
 number: 114
+mass-number: 289
 symbol: Fl
 period: 7
 group: Predicted (never measured)
@@ -1512,6 +1627,7 @@ boil-k: unknown
 name: Moscovium
 real: yes
 number: 115
+mass-number: 290
 symbol: Mc
 period: 7
 group: Predicted (never measured)
@@ -1526,6 +1642,7 @@ boil-k: unknown
 name: Livermorium
 real: yes
 number: 116
+mass-number: 293
 symbol: Lv
 period: 7
 group: Predicted (never measured)
@@ -1540,6 +1657,7 @@ boil-k: unknown
 name: Tennessine
 real: yes
 number: 117
+mass-number: 294
 symbol: Ts
 period: 7
 group: Predicted (never measured)
@@ -1554,6 +1672,7 @@ boil-k: unknown
 name: Oganesson
 real: yes
 number: 118
+mass-number: 294
 symbol: Og
 period: 7
 group: Noble gas

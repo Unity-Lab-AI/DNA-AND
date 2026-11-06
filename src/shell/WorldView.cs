@@ -54,7 +54,7 @@ namespace DnaAnd.Shell
 
         public WorldView(Gpu gpu, BillboardPipeline pipe, MeshPipes meshes, ContentLibrary content, ulong seed)
         {
-            _meshes = meshes; _gpu = gpu; _hud = new ScaleHud(gpu.Device); _matter = new MatterView(gpu, pipe); _dots = new BillboardDrawer(gpu.CommandList, pipe); _content = content;
+            _meshes = meshes; _gpu = gpu; _hud = new ScaleHud(gpu.Device); _matter = new MatterView(gpu, pipe, content); _dots = new BillboardDrawer(gpu.CommandList, pipe); _content = content;
             var types = new List<string>(); var names = new List<string>();
             foreach (var e in content.OfKind("galaxies.dnat", "galaxy")) { types.Add(e.Id); names.Add(e.Name); }
             if (types.Count == 0) { types.Add("spiral"); names.Add("Spiral galaxy"); }
@@ -615,7 +615,8 @@ namespace DnaAnd.Shell
                 // at the finest ground: on down into what it is made of
                 double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z);
                 bool sea = _ground.HasWater && _ground.GroundAt(x / r, y / r, z / r) < 0, ice = Math.Abs(y / r) > 0.86;
-                _matter.Set(_ground.Kind, sea, ice, sea ? 0.2f : 0.58f, sea ? 0.4f : 0.5f, sea ? 0.6f : 0.4f);
+                ulong spot = (ulong)(long)(x / r * 1e7) * 73856093UL ^ (ulong)(long)(y / r * 1e7) * 19349663UL ^ (ulong)(long)(z / r * 1e7) * 83492791UL;   // the same place, the same grains
+                _matter.Set(_system.Bodies[_planet].Kind == "Moon" ? "moon" : _ground.Kind, sea, ice, sea ? 0.2f : 0.58f, sea ? 0.4f : 0.5f, sea ? 0.6f : 0.4f, spot);
                 _matterScale = MatterView.TopKm;
                 return true;
             }
