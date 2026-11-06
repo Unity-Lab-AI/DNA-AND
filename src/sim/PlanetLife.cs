@@ -301,6 +301,22 @@ namespace DnaAnd.Sim
             foreach (var sp in All.Values) { Alive++; if (sp.G.Stage > TopStage) TopStage = sp.G.Stage; }
         }
 
+        /// <summary>A disaster at a spot (a great eruption or quake): kills a share of the life in that region and half that in
+        /// its neighbours. A share of a half or more also darkens and cools the whole world, so everywhere loses some.</summary>
+        public void Disaster(double x, double y, double z, double share)
+        {
+            int i = RegionAt(x, y, z);
+            Kill(i, share);
+            foreach (int j in Near[i]) Kill(j, share * 0.5);
+            if (share >= 0.5) for (int k = 0; k < _cells.Length; k++) Kill(k, 0.15);
+        }
+
+        private void Kill(int i, double share)
+        {
+            var cell = _cells[i]; var ids = new List<int>(cell.Keys);
+            foreach (int id in ids) { double n = cell[id] * (1 - share); if (n < 0.05) cell.Remove(id); else cell[id] = n; }
+        }
+
         private int Neighbour(int i) { return Near[i][_rng.Below(6)]; }
 
         /// <summary>The species living at a spot, most numerous first, with how many crowds of each.</summary>

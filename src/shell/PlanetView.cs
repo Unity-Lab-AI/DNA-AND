@@ -31,7 +31,7 @@ namespace DnaAnd.Shell
         private LandLife _land;
         /// <summary>The planet's inside (core, heat, plates, magnetic field), one per planet, on the same clock as its life.</summary>
         public static readonly System.Collections.Generic.Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetCore> Cores = new System.Collections.Generic.Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetCore>();
-        private DnaAnd.Sim.PlanetCore _core; private DnaAnd.Core.Chunk _loadedCore; private string _coreNews = ""; private double _coreNewsUntil;
+        private DnaAnd.Sim.PlanetCore _core; private DnaAnd.Sim.PlanetPlates _plates; private int _seenEvents; private DnaAnd.Core.Chunk _loadedCore; private string _coreNews = ""; private double _coreNewsUntil;
         private SeaBodies _seaBodies;
         /// <summary>Test runs: start life and run it this many years forward at once.</summary>
         public double TestEvolveYears;
@@ -264,7 +264,7 @@ namespace DnaAnd.Shell
                     if (_seaBodies != null && _seaBodies.Here.Length > 0) names.Insert(0, _seaBodies.Here);
                     where += " · in the water around you: " + string.Join(", ", names.ToArray());
                 }
-                if (_core != null) where += " · PLANET: " + _core.Describe() + (_time < _coreNewsUntil ? " · NEWS: " + _coreNews : "");
+                if (_core != null) where += " · PLANET: " + _core.Describe() + (_plates != null && _core.Plates ? ", " + _plates.Describe() : "") + (_time < _coreNewsUntil ? " · NEWS: " + _coreNews : "");
                 if (_life != null)
                 {
                     where += " · LIFE: " + (_life.Sparks == 0 ? "none yet (L: lightning, the first spark is free)" :
@@ -334,6 +334,14 @@ namespace DnaAnd.Shell
                     if (_loadedCore != null) { _core.Load(_loadedCore); _loadedCore = null; }
                 }
                 _core.Age = 2e8 + _life.Years; _core.Update();
+                if (_plates == null) _plates = new DnaAnd.Sim.PlanetPlates(_terrain.Radius, 992);
+                var lifeHere = _life;
+                _plates.Advance(_core, (x, y, z, share) => lifeHere.Disaster(x, y, z, share));
+                if (_plates.Total != _seenEvents)
+                {
+                    _seenEvents = _plates.Total;
+                    _coreNews = (_core.Events.Length > 0 ? _core.Events + "; " : "") + _plates.Recent[_plates.Recent.Count - 1].What; _coreNewsUntil = _time + 6;
+                }
                 if (_core.Events.Length > 0) { _coreNews = _core.Events; _coreNewsUntil = _time + 8; }
                 _life.Radiation = _core.Radiation;
             }

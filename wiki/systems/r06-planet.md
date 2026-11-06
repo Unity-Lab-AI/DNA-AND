@@ -62,9 +62,9 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 | Process | In the code now | To build (TODO R6b) |
 |---|---|---|
 | Inside (core, mantle, crust, heat) | `src/sim/PlanetCore.cs`: heat that runs out (Earth today = 1, bigger planets hold it longer), magma ocean when young, molten outer core and growing solid inner core, plates or a stagnant lid; shown in the title, saved as the `CORE` chunk | Layers from size and makeup; heat that cools over billions of years |
-| Plates | Mountain belts placed once by noise | Moving plates, drift, ridges, trenches, faults, supercontinents |
-| Earthquakes | Nothing | Quakes along edges and faults, tsunamis |
-| Volcanoes | Placed once, never erupt | Eruptions over time, ash, new land, island chains |
+| Plates | `src/sim/PlanetPlates.cs`: 8 to 15 plates turning at 1 to 10 cm a year; every edge spreading, crashing or sliding (the ground does not move yet) | Moving plates, drift, ridges, trenches, faults, supercontinents |
+| Earthquakes | Along edges, real magnitude counts (one magnitude 8 a year on Earth), tsunamis on oceanic crashing edges, magnitude 9 harms nearby life | Quakes along edges and faults, tsunamis |
+| Volcanoes | Placed once on the ground; erupting over time on edges and hot spots (VEI 7 per 1,000 years, VEI 8 per 50,000), killing nearby life; super-eruptions cool the world | Eruptions over time, ash, new land, island chains |
 | Magnetic field | Geodynamo from a liquid outer core and spin; random flips about every 450,000 years; the shield sets how much radiation reaches dry land (harming land life) | Geodynamo, magnetosphere, air stripping, auroras, flips |
 | Air | A glowing shell, fixed | Layers, greenhouse, escape, gases from volcanoes, carbon-silicate cycle |
 | Water and weather | Seas fixed; rain and snow are pictures | Water cycle, winds, storms, currents, tides, ice ages, sea level |

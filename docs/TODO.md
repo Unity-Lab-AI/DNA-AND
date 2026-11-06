@@ -344,10 +344,10 @@ Order: galactic scale down, the same order as the sample sets.
   - [~] Magma: where it forms, rises and pools; magma oceans on young or very hot worlds (built: the magma-ocean age; where magma pools still to come)
 - **Plates**
   - [x] Plate tectonics or a stagnant lid, decided by the heat inside (and size and water)
-  - [ ] Plates that move over time: continents drift, split, crash together and form supercontinents
-  - [ ] Plate edges: spreading ridges, trenches where one plate dives under another, mountain ranges where they crash, faults where they slide past
-  - [ ] Earthquakes along plate edges and faults, with real sizes (magnitude) and tsunamis from undersea quakes
-  - [ ] Volcanoes at plate edges and hot spots that erupt over time: lava, ash clouds that cool the world, new land, island chains
+  - [~] Plates that move over time: continents drift, split, crash together and form supercontinents (built: 8 to 15 plates, each turning about its own axis at 1 to 10 cm a year, `src/sim/PlanetPlates.cs`; the ground itself does not move yet)
+  - [~] Plate edges: spreading ridges, trenches where one plate dives under another, mountain ranges where they crash, faults where they slide past (built: every edge is spreading, crashing or sliding from how its plates move; not yet shaping the ground)
+  - [x] Earthquakes along plate edges and faults, with real sizes (magnitude) and tsunamis from undersea quakes (counts fall tenfold per magnitude, about one magnitude 8 a year on Earth, up to 9.5 on crashing edges; magnitude 9 quakes harm life nearby)
+  - [~] Volcanoes at plate edges and hot spots that erupt over time: lava, ash clouds that cool the world, new land, island chains (built: great eruptions once in 1,000 years and super-eruptions once in 50,000, more on a hotter world, killing life nearby and, for super-eruptions, cooling the whole world; new land and island chains still to come)
   - [ ] Hot springs, geysers and deep-sea vents (where life can start)
 - **The magnetic shield**
   - [x] The geodynamo: a molten, churning outer core makes the magnetic field (needs a liquid outer core and spin; stronger with plates)
