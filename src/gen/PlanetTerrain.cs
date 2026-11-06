@@ -212,16 +212,28 @@ namespace DnaAnd.Gen
             }
             // drifting plates: the ground here is the ground that was carried here from where its plate started
             double ox = x, oy = y, oz = z, edgeAt = 9; int edgeKind = 2;
-            if (Drift != null && Solid) Drift(ox, oy, oz, out x, out y, out z, out edgeAt, out edgeKind);
+            double x2 = x, y2 = y, z2 = z, share = 1;
+            if (Drift != null && Solid) Drift(ox, oy, oz, out x, out y, out z, out x2, out y2, out z2, out share, out edgeAt, out edgeKind);
             if (Drift != null && Solid) _latOverride = Math.Abs(oy);                // climate follows where the ground is now
             double h = HeightBase(x, y, z, layers, out r, out g, out b, out glow);
             if (!Solid) { LastField = -1; return h; }
             h = Landforms(x, y, z, h, layers, ref r, ref g, ref b, ref glow);
+            if (share < 1)
+            {
+                // near a plate edge, the ground of both plates is blended, half and half right on the edge, so the two join
+                // smoothly instead of standing as a cliff
+                float r2, g2, b2, gl2;
+                double h2 = HeightBase(x2, y2, z2, layers, out r2, out g2, out b2, out gl2);
+                h2 = Landforms(x2, y2, z2, h2, layers, ref r2, ref g2, ref b2, ref gl2);
+                float w = (float)share;
+                h = h * share + h2 * (1 - share); r = r * w + r2 * (1 - w); g = g * w + g2 * (1 - w); b = b * w + b2 * (1 - w); glow = glow * w + gl2 * (1 - w);
+            }
             if (edgeAt < 1)
             {
-                // at plate edges the ground is remade: plates pulling apart open a deep sea-floor ridge, crashing plates crumple up mountains
+                // plate edges shape the ground: pulling apart, a deep ridge under the sea and a shallow rift valley on land;
+                // crashing, mountains crumple up
                 double t = 1 - edgeAt, s2 = t * t * (3 - 2 * t);
-                if (edgeKind == 0) { h = h * (1 - s2) + (-2.6 + 0.6 * t) * s2; if (h < 0) { r = 0.18f; g = 0.2f; b = 0.22f; } }
+                if (edgeKind == 0) { if (h < 0) { h = h * (1 - s2) + (-2.6 + 0.6 * t) * s2; r = 0.18f; g = 0.2f; b = 0.22f; } else h -= 0.35 * s2; }
                 else if (edgeKind == 1) { h = Math.Max(h, 0) + 3.5 * s2; double rock = Math.Min(1, s2 * 1.5); r = (float)(r * (1 - rock) + 0.5 * rock); g = (float)(g * (1 - rock) + 0.47 * rock); b = (float)(b * (1 - rock) + 0.43 * rock); }
             }
             LastField = ClassifyField(x, y, z, h, layers, ref r, ref g, ref b, ref glow);
@@ -239,9 +251,10 @@ namespace DnaAnd.Gen
         public double SeaDropKm;
         /// <summary>How tall each place's mountains now stand against how they began (from erosion and uplift); null: unchanged.</summary>
         public Func<double, double, double, double> MountainScale;
-        /// <summary>Where the ground at a spot came from, as its plate carried it (unit vectors), and how near a plate edge the
+        /// <summary>Where the ground at a spot came from, as its plate carried it, and where the neighbouring plate's would have
+        /// come from (both unit vectors), how much of the spot is its own plate's ground (1 well inside, a half on the edge), how near a plate edge the
         /// spot is (0 on the edge, 1 or more well inside) and what kind of edge (0 spreading, 1 crashing, 2 sliding).</summary>
-        public delegate void DriftFn(double x, double y, double z, out double bx, out double by, out double bz, out double edge, out int kind);
+        public delegate void DriftFn(double x, double y, double z, out double bx, out double by, out double bz, out double bx2, out double by2, out double bz2, out double share, out double edge, out int kind);
         /// <summary>The plates moving the ground; null: the ground stays where it formed.</summary>
         public DriftFn Drift;
         /// <summary>Craters from impacts: direction (unit x, y, z), radius in km.</summary>
@@ -257,8 +270,9 @@ namespace DnaAnd.Gen
                 double d = (1 - (x * c[0] + y * c[1] + z * c[2])) * 2;                 // about the squared angle apart
                 double rad = c[3] / Radius; if (d > rad * rad * 9) continue;
                 double t = Math.Sqrt(d) / rad;                                          // 0 at the middle, 1 at the rim
-                double depth = c[3] * 0.2;                                              // a bowl a fifth as deep as its radius
-                h += t < 1 ? -depth * (1 - t * t) + depth * 0.25 : depth * 0.25 * Math.Exp(-(t - 1) * 4);   // bowl, raised rim, fading outside
+                double depth = Math.Min(4, 0.3 + c[3] * 0.025);                       // real big craters are shallow: a few km deep at most, flat-floored
+                double bowl = t < 0.6 ? 1 : 1 - (t - 0.6) / 0.4 * ((t - 0.6) / 0.4);       // a flat floor, then walls rising to the rim
+                h += t < 1 ? -depth * Math.Max(0, bowl) + depth * 0.15 * t * t : depth * 0.15 * Math.Exp(-(t - 1) * 3);   // floor, walls, a low rim fading into the land
             }
             return h;
         }

@@ -198,7 +198,7 @@ namespace DnaAnd.Shell
             float sr = _terrain.AirR * 0.55f, sg = _terrain.AirG * 0.6f, sb = _terrain.AirB * 0.75f;
             float fogDist = airT > 0.01 ? (float)(far * 0.9) : 0;
             gpu.ClearNow(sr * airT, sg * airT, sb * airT);
-            _terrain.Draw(_pipes, _px, _py, _pz, view, proj, _time, 3.0, fogDist, sr, sg, sb, 0, 0, width, height, 400);
+            _terrain.Draw(_pipes, _px, _py, _pz, view, proj, _time, 3.0 * Detail(height), fogDist, sr, sg, sb, 0, 0, width, height, 400);
             DrawStructure(gpu, view, proj, _px, _py, _pz, width, height);
         }
 
@@ -299,19 +299,21 @@ namespace DnaAnd.Shell
         // Checked every few seconds; when it has changed enough, the ground is remade a few pieces at a time
         private void ReshapeGround()
         {
+            if (!ShowDrift) return;                                                  // live reshaping is off: the ground rebuilt in patches as it changed
             if (_time < _shapeCheck || _surface == null || _weather == null) return;
             _shapeCheck = _time + 3;
             int n = _life.RegionCount;
             if (_shapeScales == null) { _shapeScales = new double[n]; for (int i = 0; i < n; i++) _shapeScales[i] = 1; }
             bool changed = false;
             double sea = Math.Max(0, -_weather.SeaLevelM) / 1000.0;
-            if (Math.Abs(sea - _shapeSea) > 0.01) { _shapeSea = sea; changed = true; }
-            for (int i = 0; i < n; i++) if (Math.Abs(_surface.Scale(i) - _shapeScales[i]) > 0.05) { _shapeScales[i] = _surface.Scale(i); changed = true; }
+            if (_shown > 300 && Math.Abs(sea - _shapeSea) > 0.01) { _shapeSea = sea; changed = true; }
+            if (_shown > 300) for (int i = 0; i < n; i++) if (Math.Abs(_surface.Scale(i) - _shapeScales[i]) > 0.05) { _shapeScales[i] = _surface.Scale(i); changed = true; }
             if (_impacts.Craters.Count != _shapeCraters) { _shapeCraters = _impacts.Craters.Count; changed = true; }
             // the plates carry the continents: once they have moved about 20 km more (on a 6,000 km world), the ground is remade
             if (_core.Plates) _plates.MovedYears = _core.Age - 2e8;
-            if (Math.Abs(_plates.MovedYears - _shapeMoved) * 5e-5 > 20) { _shapeMoved = _plates.MovedYears; changed = true; }
-            if (_normal.Drift == null) { var pp = _plates; _normal.Drift = pp.Back; }
+            if (ShowDrift && _shown > 300 && Math.Abs(_plates.MovedYears - _shapeMoved) * 5e-5 > _shown * 0.04) { _shapeMoved = _plates.MovedYears; changed = true; }
+            // drifting continents are not shown yet: at game speeds the land churned every few seconds; the plates still run underneath
+            if (ShowDrift && _normal.Drift == null) { var pp = _plates; _normal.Drift = pp.Back; }
             if (!changed) return;
             var scales = (double[])_shapeScales.Clone();
             _normal.SeaDropKm = _shapeSea;
@@ -319,6 +321,14 @@ namespace DnaAnd.Shell
             _normal.Craters.Clear(); _normal.Craters.AddRange(_impacts.Craters);
             _normal.Generation++;
         }
+
+        // ground pieces split by how big they look on screen in pixels, so a facet stays about the same size at any
+        // resolution: a 2,000-pixel-tall picture gets finer ground than a 600-pixel one (tuned at 600 pixels tall)
+        /// <summary>Whether the ground you see re-forms as the planet changes (drift, seas, mountains, craters). Off: the ground
+        /// rebuilt in patches while you watched. Test runs turn it on with --reshape.</summary>
+        public static bool ShowDrift = Array.IndexOf(Environment.GetCommandLineArgs(), "--reshape") >= 0;
+
+        private static double Detail(int height) { return Math.Max(1, height / 600.0); }
 
         public bool Update(Input input, double dt)
         {
@@ -523,7 +533,7 @@ namespace DnaAnd.Shell
                 return;
             }
             gpu.ClearNow(sr * airT, sg * airT, sb * airT);
-            _terrain.Draw(_pipes, cx, cy, cz, view, proj, _time, 3.0, fogDist, sr, sg, sb, 0, 0, width, height, 400);
+            _terrain.Draw(_pipes, cx, cy, cz, view, proj, _time, 3.0 * Detail(height), fogDist, sr, sg, sb, 0, 0, width, height, 400);
             if (_terrain.Shell) DrawStructure(gpu, view, proj, cx, cy, cz, width, height);
             DrawWeather(view, proj, up, northV, eastV, width, height);
             if (_underWater) DrawSea(gpu, view, proj, cx, cy, cz, up, width, height);
@@ -550,7 +560,7 @@ namespace DnaAnd.Shell
             Mat4 view = Mat4.LookAt(new Vec3(0, 0, 0), look, new Vec3(0, 1, 0));
             Mat4 proj = Mat4.Perspective(1.3f, width / (float)Math.Max(1, height), (float)(R * 0.02), (float)(R * 3));
             gpu.ClearNow(0.01f, 0.012f, 0.02f);
-            _terrain.Draw(_pipes, cx, cy, cz, view, proj, _time, 2.2, 0, 0, 0, 0, 0, 0, width, height, 30);
+            _terrain.Draw(_pipes, cx, cy, cz, view, proj, _time, 2.2 * Detail(height), 0, 0, 0, 0, 0, 0, width, height, 30);
             DrawStructure(gpu, view, proj, cx, cy, cz, width, height);
         }
 

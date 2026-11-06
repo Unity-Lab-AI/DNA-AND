@@ -73,9 +73,12 @@ namespace DnaAnd.Sim
 
         /// <summary>Where the ground at a spot came from: the spot turned back about its plate's axis by how far the plate has
         /// moved, and how near the edge of its plate it is (0 on the edge, 1 a few hundred km in) and the edge's kind.</summary>
-        public void Back(double x, double y, double z, out double bx, out double by, out double bz, out double edge, out int kind)
+        public void Back(double x, double y, double z, out double bx, out double by, out double bz, out double bx2, out double by2, out double bz2, out double share, out double edge, out int kind)
         {
             int a, b; double da, db; Nearest2(new[] { x, y, z }, out a, out b, out da, out db);
+            Turn(Plates[b], x, y, z, out bx2, out by2, out bz2);
+            double band = Math.Min(1, (db - da) / 0.006);                                // blend the two plates' ground across a narrow band
+            share = 0.5 + 0.5 * band * band * (3 - 2 * band);
             var pl = Plates[a];
             double ang = -pl.Rate * MovedYears;                                      // turn back by the angle it has turned
             double c = Math.Cos(ang), s = Math.Sin(ang), k = pl.Ax * x + pl.Ay * y + pl.Az * z;
@@ -84,6 +87,16 @@ namespace DnaAnd.Sim
             bz = z * c + (pl.Ax * y - pl.Ay * x) * s + pl.Az * k * (1 - c);
             edge = (db - da) / 0.01;
             kind = EdgeKind(a, b, x, y, z);
+        }
+
+        // a spot turned back about a plate's axis by how far that plate has moved
+        private void Turn(Plate pl, double x, double y, double z, out double bx, out double by, out double bz)
+        {
+            double ang = -pl.Rate * MovedYears;
+            double c = Math.Cos(ang), s = Math.Sin(ang), k = pl.Ax * x + pl.Ay * y + pl.Az * z;
+            bx = x * c + (pl.Ay * z - pl.Az * y) * s + pl.Ax * k * (1 - c);
+            by = y * c + (pl.Az * x - pl.Ax * z) * s + pl.Ay * k * (1 - c);
+            bz = z * c + (pl.Ax * y - pl.Ay * x) * s + pl.Az * k * (1 - c);
         }
 
         // how two plates move against each other at a spot: spreading, crashing or sliding
