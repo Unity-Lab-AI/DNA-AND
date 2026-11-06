@@ -629,7 +629,7 @@ namespace DnaAnd.Shell
                 // a cluster or nebula of another galaxy near enough to see them
                 var g = _galaxies[gi]; if (gi == _near || g.Features == null) continue;
                 double gdx = g.X - _cx, gdy = g.Y - _cy, gdz = g.Z - _cz; if (Math.Sqrt(gdx * gdx + gdy * gdy + gdz * gdz) / g.Scale > 60) continue;
-                string[] nm = { "a globular cluster", "an open cluster", "an emission nebula", "a reflection nebula" };
+                string[] nm = { "a globular cluster", "an open cluster", "an emission nebula", "a reflection nebula", "a planetary nebula", "a supernova remnant", "a dark nebula" };
                 for (int q = 0; q < g.Features.Count; q++)
                 {
                     var ft = g.Features[q]; double ux, uy, uz; ToUniverse(g, ft[0], ft[1], ft[2], out ux, out uy, out uz);
@@ -641,7 +641,7 @@ namespace DnaAnd.Shell
             if (_near >= 0 && (kind < 0 || kind == 1) && NearShare() > 0.2)
             {
                 // a star cluster or a nebula of the near galaxy: by its place on screen, or anywhere on it
-                var g = _galaxies[_near]; string[] names = { "a globular cluster", "an open cluster", "an emission nebula", "a reflection nebula" };
+                var g = _galaxies[_near]; string[] names = { "a globular cluster", "an open cluster", "an emission nebula", "a reflection nebula", "a planetary nebula", "a supernova remnant", "a dark nebula" };
                 for (int q = 0; q < _features.Count; q++)
                 {
                     var ft = _features[q]; double ux, uy, uz; ToUniverse(g, ft[0], ft[1], ft[2], out ux, out uy, out uz);
@@ -884,13 +884,13 @@ namespace DnaAnd.Shell
                 if (TargetFromCamera(out qx, out qy, out qz, out qr) && Math.Sqrt(qx * qx + qy * qy + qz * qz) < Units.Km(1))
                 {
                     var gq = _galaxies[_near];
-                    if (_tIndex < 0 || _tGal != _near) _matter.SetSpace(4, (ulong)(_tx / Units.Km(1e6)) ^ gq.Seed, 1);   // the space between the stars
+                    if (_tIndex < 0 || _tGal != _near) _matter.SetSpace(9, (ulong)(_tx / Units.Km(1e6)) ^ gq.Seed, 1);   // the space between the stars
                     else
                     {
                         int fk = (int)_features[_tIndex][4];
                         var fq = _features[_tIndex]; double cux, cuy, cuz; ToUniverse(gq, fq[0], fq[1], fq[2], out cux, out cuy, out cuz);
                         double fromC = Math.Sqrt((_tx - cux) * (_tx - cux) + (_ty - cuy) * (_ty - cuy) + (_tz - cuz) * (_tz - cuz)) / Math.Max(1e-30, fq[3] * gq.Scale);   // how far from its middle you dive in
-                        _matter.SetSpace(fk, (ulong)(_tIndex * 7919 + 1) ^ gq.Seed, Math.Min(1, fromC));
+                        _matter.SetSpace(fk, (ulong)(_tIndex * 7919 + 1) ^ gq.Seed, Math.Min(1, fromC), fq.Length > 5 ? SpaceGen.Composition(fk, fq[5]) : null);
                     }
                     _spaceScale = Math.Max(MatterView.BottomKm, Math.Sqrt(qx * qx + qy * qy + qz * qz) / Units.Km(1) / 0.6); _spaceTop = _spaceScale * 1.1;
                     return true;
@@ -1187,14 +1187,14 @@ namespace DnaAnd.Shell
             }
             double inside = InsideShare();
             {
-                // every galaxy's clusters and nebulae, for the 16 nearest within about 60 of their sizes (one made new each frame at most)
+                // every galaxy's clusters and nebulae, for the 8 nearest within about 60 of their sizes (one made new each frame at most)
                 int drawn = 0; bool made = false;
                 var order = new List<KeyValuePair<double, int>>();
                 for (int i = 0; i < _galaxies.Count; i++) { var g = _galaxies[i]; double dx = g.X - _cx, dy = g.Y - _cy, dz = g.Z - _cz, d = Math.Sqrt(dx * dx + dy * dy + dz * dz) / g.Scale; if (d < 60) order.Add(new KeyValuePair<double, int>(d, i)); }
                 order.Sort((a, b) => a.Key.CompareTo(b.Key));
                 foreach (var kv in order)
                 {
-                    if (drawn >= 16) break; var g = _galaxies[kv.Value];
+                    if (drawn >= 8) break; var g = _galaxies[kv.Value];
                     if (g.Features == null) { if (made) continue; EnsureStruct(g); made = true; }
                     if (g.StructCount > 0) { DrawPoints(g.Struct, g.StructCount, Placement(g) * vp, right, up, 1f, 0.0016f, w, h, time); drawn++; }
                 }
@@ -1495,10 +1495,20 @@ namespace DnaAnd.Shell
                 L.Add(_tName.Substring(_tName.IndexOf(' ') + 1, 1).ToUpperInvariant() + _tName.Substring(_tName.IndexOf(' ') + 2));
                 L.Add("id: " + (fk < 2 ? "C-" : "N-") + (_galaxies[_tGal].Seed & 0xFFF).ToString("X3") + "-" + (_tIndex + 1)); L.Add("in " + _galaxies[_tGal].Name);
                 L.Add("width: about " + ly.ToString("N0") + " light-years");
+                var ftg = _galaxies[_tGal].Features[_tIndex];
+                if (fk >= 2 && ftg.Length > 5)
+                {
+                    // what it is made of, its largest parts
+                    var parts = SpaceGen.Composition(fk, ftg[5]); Array.Sort(parts, (a, b) => b.Share.CompareTo(a.Share));
+                    for (int q = 0; q < Math.Min(parts.Length, fk == 6 ? 6 : 4); q++) L.Add((parts[q].Share * 100).ToString(parts[q].Share < 0.01 ? "0.0" : "0") + "% " + parts[q].Name);
+                }
                 if (fk == 0) { L.Add("hundreds of thousands of stars"); L.Add("ancient: among the oldest stars of the galaxy"); L.Add("in the halo, round the galaxy's middle"); }
                 else if (fk == 1) { L.Add("a few hundred young stars, born together"); L.Add("in the arms, drifting apart over time"); }
                 else if (fk == 2) { L.Add("glowing hydrogen, lit by hot young stars"); L.Add("where new stars are being born"); }
-                else { L.Add("dust lit blue by nearby stars' light"); L.Add("it shines by reflection, not its own glow"); }
+                else if (fk == 3) { L.Add("dust lit blue by nearby stars' light"); L.Add("it shines by reflection, not its own glow"); }
+                else if (fk == 4) { L.Add("a shell of gas puffed off by a dying star"); L.Add("the star's hot core, a white dwarf, lights it"); L.Add("it fades in some tens of thousands of years"); }
+                else if (fk == 5) { L.Add("the expanding shell of an exploded star"); L.Add("hot gas, still racing outward"); L.Add("it seeds space with heavy elements"); }
+                else { L.Add("a cold cloud of dust and molecules"); L.Add("dark: it hides the stars behind it"); L.Add("stars are being born deep inside"); }
                 L.Add("distance: " + Units.Describe(dist));
             }
             else if (_tKind == 4 && _system != null)

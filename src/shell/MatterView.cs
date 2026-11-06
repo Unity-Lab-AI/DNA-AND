@@ -42,18 +42,27 @@ namespace DnaAnd.Shell
         /// <summary>Into the gas of a nebula or a cluster: about 1,000 atoms a cubic centimetre in an emission nebula (one about every
         /// millimetre), fewer in a reflection nebula and between a cluster's stars; mostly hydrogen, about 9 in 100 helium, a trace of
         /// oxygen and nitrogen.</summary>
-        public void SetSpace(int kind, ulong spot, double fromCentre)
+        public void SetSpace(int kind, ulong spot, double fromCentre) { SetSpace(kind, spot, fromCentre, null); }
+        private SpaceGen.Part[] _gasParts;
+        public void SetSpace(int kind, ulong spot, double fromCentre, SpaceGen.Part[] parts)
         {
+            _gasParts = parts;
             _space = true; _spaceKind = kind; _seed = spot; _mix = null; _mixId = "space"; _noGrains = true;
             // denser at the middle: an emission nebula about 9,000 atoms a cubic centimetre at its centre down to about 100 at its edge,
             // a reflection nebula about 3,000 to 30; between a cluster's stars about 1 (fromCentre: 0 the middle, 1 the edge)
-            double perCc = kind == 2 ? 300 * (0.33 + 30 * Math.Exp(-Math.Pow(fromCentre / 0.25, 2))) : kind == 3 ? 100 * (0.3 + 30 * Math.Exp(-Math.Pow(fromCentre / 0.25, 2))) : 1;
+            double core = 0.33 + 30 * Math.Exp(-Math.Pow(fromCentre / 0.25, 2));
+            double perCc = kind == 2 ? 300 * core : kind == 3 ? 100 * core : kind == 4 ? 1000 * core : kind == 5 ? 3 * core : kind == 6 ? 300 * core : 1;   // planetary nebulae up to tens of thousands, remnants thin and hot, dark clouds dense
             _gasSpacing = 1e-5 / Math.Pow(perCc, 1 / 3.0);                                   // km between atoms (a centimetre is 1e-5 km)
             _fx = _fz = _tfx = _tfz = 0; _picked = null;
         }
         private Element GasAtom(long i, long j, long k)
         {
             double u = Hash(i, j, k + 90, _seed);
+            if (_gasParts != null)
+            {
+                // its own make-up (hydrogen most, then its oxygen, sulfur, nitrogen, iron, or its molecules' carbon, oxygen and nitrogen)
+                foreach (var q in _gasParts) { u -= q.Share; if (u <= 0) { var e = El(q.El); if (e != null) return e; } }
+            }
             return El(u < 0.905 ? "H" : u < 0.995 ? "He" : u < 0.998 ? "O" : "N");
         }
         // the point you dive into (km, across the ground) and where it is easing to (what you picked)
@@ -351,7 +360,8 @@ namespace DnaAnd.Shell
             var m = FocusMineral; var e = FocusAtom();
             if (_space && e != null && s > AtomRadius(e) * 3)
             {
-                string where = _spaceKind == 2 ? "an emission nebula" : _spaceKind == 3 ? "a reflection nebula" : _spaceKind == 0 ? "a globular cluster" : _spaceKind == 1 ? "an open cluster" : "the space between the stars";
+                string[] kinds = { "a globular cluster", "an open cluster", "an emission nebula", "a reflection nebula", "a planetary nebula", "a supernova remnant", "a dark nebula" };
+                string where = _spaceKind >= 0 && _spaceKind < kinds.Length ? kinds[_spaceKind] : "the space between the stars";
                 return "the gas of " + where + ": one atom about every " + ScaleHud.Words(_gasSpacing) + ", mostly hydrogen; the one ahead " + e.Name.ToLowerInvariant();
             }
             string mn = m != null ? m.Name.ToLowerInvariant() + " (" + m.Formula + ")" : "rock";
@@ -951,7 +961,8 @@ namespace DnaAnd.Shell
             L.Add("protons: " + e.Z + ", neutrons: " + (e.A - e.Z) + ", electrons: " + e.Z);
             L.Add("shells: " + string.Join(", ", Array.ConvertAll(e.Shells, x => x.ToString())));
             L.Add("width: about " + ScaleHud.Words(AtomRadius(e) * 2) + ", nucleus " + ScaleHud.Words(NucleusRadius(e) * 2));
-            if (_space) { L.Add("in the gas of " + (_spaceKind == 2 ? "an emission nebula (most of its hydrogen ionized by hot stars)" : _spaceKind == 3 ? "a reflection nebula" : _spaceKind == 4 ? "the space between the stars" : "space between a cluster's stars")); double inView = Math.Pow(_scale * 1.2 / _gasSpacing, 3), perCc = Math.Pow(1e-5 / _gasSpacing, 3);
+            if (_space && _gasParts != null) { var top = (SpaceGen.Part[])_gasParts.Clone(); Array.Sort(top, (a, b) => b.Share.CompareTo(a.Share)); L.Add("made of: " + top[0].Name + ", " + top[1].Name + (top.Length > 2 ? ", " + top[2].Name : "")); }
+            if (_space) { L.Add("in the gas of " + (_spaceKind == 2 ? "an emission nebula (most of its hydrogen ionized by hot stars)" : _spaceKind == 3 ? "a reflection nebula" : _spaceKind == 4 ? "a planetary nebula (its gas glowing from the white dwarf at its middle)" : _spaceKind == 5 ? "a supernova remnant (hot, racing outward)" : _spaceKind == 6 ? "a dark nebula (cold, mostly molecules of hydrogen)" : _spaceKind == 9 ? "the space between the stars" : "space between a cluster's stars")); double inView = Math.Pow(_scale * 1.2 / _gasSpacing, 3), perCc = Math.Pow(1e-5 / _gasSpacing, 3);
                 L.Add("about " + perCc.ToString(perCc < 10 ? "0.#" : "N0") + " atoms a cubic centimetre (air has 25 billion billion)");
                 L.Add(inView >= 2 ? "in view: about " + Big(inView) + " atoms, far too thin to see" : "in view: the one atom ahead of you");
                 L.Add("each about " + ScaleHud.Words(_gasSpacing) + " from the next"); }

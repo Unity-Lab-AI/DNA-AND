@@ -35,52 +35,122 @@ namespace DnaAnd.Gen
 
         /// <summary>The same, and each cluster and nebula as one feature (galaxy units: x, y, z, radius, kind: 0 globular cluster,
         /// 1 open cluster, 2 emission nebula, 3 reflection nebula), for picking.</summary>
+        /// <summary>What a nebula is made of, by its kind and its own mix u (0 to 1): each part's name, its element (for its gas),
+        /// its share, and the colour it shines or shows in. Emission: hydrogen glowing deep red (H-alpha), oxygen teal-green ([O III]),
+        /// sulfur and nitrogen deeper reds; planetary: oxygen green-blue strongest, hydrogen and nitrogen red rims; supernova
+        /// remnants: hydrogen with the star's own oxygen, sulfur, silicon and iron; dark clouds: molecular hydrogen, carbon monoxide,
+        /// water ice, ammonia, methanol and ethanol (alcohols), formaldehyde, hydrogen cyanide, and dust; reflection: dust scattering blue.</summary>
+        public sealed class Part { public string Name, El; public double Share; public float R, G, B; public Part(string n, string e, double s, float r, float g, float b) { Name = n; El = e; Share = s; R = r; G = g; B = b; } }
+        public static Part[] Composition(int kind, double u)
+        {
+            Part[] p;
+            switch (kind)
+            {
+                case 2: p = new[] { new Part("hydrogen (glowing red)", "H", 0.55 + 0.25 * (1 - u), 1f, 0.18f, 0.25f), new Part("oxygen (teal-green)", "O", 0.05 + 0.3 * u, 0.15f, 1f, 0.8f), new Part("sulfur (deep red)", "S", 0.02 + 0.06 * (1 - u), 0.75f, 0.08f, 0.1f), new Part("nitrogen (red)", "N", 0.03 + 0.07 * u, 1f, 0.3f, 0.3f), new Part("helium", "He", 0.09, 0.9f, 0.85f, 1f) }; break;
+                case 3: p = new[] { new Part("dust: silicate and carbon grains (scattering blue)", "Si", 0.6, 0.35f, 0.5f, 1f), new Part("hydrogen", "H", 0.3, 0.5f, 0.55f, 0.9f), new Part("helium", "He", 0.1, 0.6f, 0.65f, 1f) }; break;
+                case 4: p = new[] { new Part("oxygen (green-blue)", "O", 0.3 + 0.25 * u, 0.2f, 1f, 0.75f), new Part("hydrogen (red)", "H", 0.3, 1f, 0.2f, 0.3f), new Part("nitrogen (red rim)", "N", 0.08 + 0.15 * (1 - u), 1f, 0.35f, 0.3f), new Part("helium", "He", 0.12, 0.6f, 0.7f, 1f) }; break;
+                case 5: p = new[] { new Part("hydrogen (red)", "H", 0.35, 1f, 0.25f, 0.3f), new Part("oxygen (teal)", "O", 0.2 + 0.2 * u, 0.2f, 0.9f, 0.85f), new Part("sulfur (deep red)", "S", 0.1, 0.8f, 0.1f, 0.15f), new Part("silicon", "Si", 0.08, 0.7f, 0.6f, 0.5f), new Part("iron", "Fe", 0.05 + 0.1 * (1 - u), 0.9f, 0.5f, 0.3f), new Part("neon", "Ne", 0.05, 1f, 0.45f, 0.2f) }; break;
+                case 6: p = new[] { new Part("molecular hydrogen (H2)", "H", 0.7, 0.3f, 0.2f, 0.15f), new Part("carbon monoxide (CO)", "C", 0.08, 0.35f, 0.22f, 0.16f), new Part("water ice (H2O)", "O", 0.06, 0.4f, 0.4f, 0.45f), new Part("ammonia (NH3)", "N", 0.02, 0.35f, 0.3f, 0.25f),
+                    new Part("methanol (CH3OH, an alcohol)", "C", 0.015 + 0.02 * u, 0.4f, 0.28f, 0.2f), new Part("ethanol (C2H5OH, an alcohol)", "C", 0.002 + 0.008 * u, 0.4f, 0.3f, 0.2f), new Part("formaldehyde (H2CO)", "O", 0.006, 0.35f, 0.25f, 0.2f), new Part("hydrogen cyanide (HCN)", "N", 0.004, 0.3f, 0.25f, 0.2f), new Part("vinyl alcohol and propanol (alcohols)", "C", 0.001 + 0.002 * u, 0.4f, 0.3f, 0.2f), new Part("ethyl formate (the raspberry ester)", "C", 0.0005 + 0.001 * u, 0.4f, 0.3f, 0.22f), new Part("dust grains", "Si", 0.1, 0.25f, 0.16f, 0.1f) }; break;
+                default: p = new[] { new Part("hydrogen", "H", 0.9, 1f, 1f, 1f), new Part("helium", "He", 0.1, 1f, 1f, 1f) }; break;
+            }
+            double sum = 0; foreach (var q in p) sum += q.Share; foreach (var q in p) q.Share /= sum;
+            return p;
+        }
+        // a nebula's colour: its parts' colours by their shares
+        public static void Colour(int kind, double u, out float r, out float g, out float b)
+        {
+            r = g = b = 0; foreach (var q in Composition(kind, u)) { r += q.R * (float)q.Share; g += q.G * (float)q.Share; b += q.B * (float)q.Share; }
+            float m = Math.Max(0.01f, Math.Max(r, Math.Max(g, b))); r /= m; g /= m; b /= m;
+        }
+
         public static StarVertex[] Structures(string galaxyType, ulong seed, List<StarKind> kinds, out int clusterCount, out int nebulaCount, List<double[]> features)
         {
+            // every kind of body a galaxy holds, in its real numbers for its kind (sampled, so the sky stays light), each a feature
+            // (x, y, z, radius, kind): 0 globular cluster, 1 open cluster, 2 emission nebula, 3 reflection nebula, 4 planetary nebula,
+            // 5 supernova remnant, 6 dark nebula (a cold cloud of dust and molecules). Real counts for a galaxy like ours: about 150
+            // globular clusters, thousands of open clusters, nebulae and dark clouds, hundreds of planetary nebulae seen (thousands
+            // there), a few hundred supernova remnants; a giant elliptical thousands of globulars, few young things, but planetary
+            // nebulae and remnants from its old stars.
             var rng = new Rng(seed ^ 0xC1u);
             var list = new List<StarVertex>();
-            bool spiral = galaxyType.Contains("spiral");
+            string t = galaxyType.ToLowerInvariant();
+            bool spiral = t.Contains("spiral");
+            bool irregular = t.Contains("irregular") || t.Contains("magellanic") || t.Contains("blue-compact") || t.Contains("green-pea") || t.Contains("jellyfish") || t.Contains("starburst") || t.Contains("ring") || t.Contains("interacting") || t.Contains("peculiar");
+            bool elliptical = t.Contains("elliptical") || t.Contains("spheroidal") || t == "cd" || t.Contains("lenticular");
+            bool giant = t.Contains("giant") || t == "cd";
+            bool dwarf = t.Contains("dwarf") || t.Contains("ultra-diffuse");
+            double young = t.Contains("starburst") || t.Contains("green-pea") ? 3 : spiral ? 1 : irregular ? 0.7 : t.Contains("lenticular") ? 0.05 : elliptical ? 0.01 : 0.2;   // how much it is still making stars
+            double size = giant ? 3 : dwarf ? 0.15 : 1;
+            // researched counts: the Milky Way about 150-180 globular clusters, a few tens of thousands of open clusters (about 10,000
+            // known), about 10,000-30,000 planetary nebulae (about 3,500 known), about 1,000 supernova remnants (about 300 known);
+            // a giant elliptical like M87 about 12,000-15,000 globular clusters
+            int globulars = (int)((giant ? 12000 : elliptical ? 600 : dwarf ? 8 : 160) * (0.8 + 0.4 * rng.NextDouble()));
+            int opens = (int)(3000 * young * size), emis = (int)(2000 * young * size), refl = (int)(500 * young * size), dark = (int)(3000 * young * size);
+            int planetary = (int)(3000 * size), remnants = (int)((300 + 700 * young) * size);
             clusterCount = 0; nebulaCount = 0;
-            int globulars = 30 + rng.Int(20);
+            Func<Vec3> disc = () =>
+            {
+                // in the disc: on the arms for a spiral, anywhere for the rest
+                float rr = (float)Math.Pow(rng.NextDouble(), 0.7) * 0.85f + 0.1f;
+                float ang = spiral ? rng.Int(2) * (float)Math.PI + (float)Math.Log(rr / 0.05f + 1) * 3.2f + rng.Gaussian() * 0.25f : (float)(rng.NextDouble() * Math.PI * 2);
+                return new Vec3((float)Math.Cos(ang) * rr, rng.Gaussian() * (elliptical ? 0.3f : 0.01f), (float)Math.Sin(ang) * rr);
+            };
+            Func<Vec3> old = () => elliptical ? new Vec3(rng.Gaussian() * 0.35f, rng.Gaussian() * 0.3f, rng.Gaussian() * 0.35f) : disc();   // among the old stars
+            float ly = (float)(1 / Units.LightYearsPerUnit);
+            double mix = 0;                                                               // the next body's own mix (its make-up)
+            Action<Vec3, float, int> add = (c, r, kind) => { if (features != null) features.Add(new double[] { c.X, c.Y, c.Z, r, kind, mix }); };
             for (int g = 0; g < globulars; g++)
             {
-                // halo: tight balls of ancient stars (content: globular clusters in the halo)
-                var c = new Vec3(rng.Gaussian() * 0.5f, rng.Gaussian() * 0.35f, rng.Gaussian() * 0.5f);
-                float r = (float)(60 / Units.LightYearsPerUnit);
-                for (int i = 0; i < 500; i++)
-                    list.Add(Star(c + new Vec3(rng.Gaussian(), rng.Gaussian(), rng.Gaussian()) * (r * (float)Math.Abs(rng.Gaussian()) * 0.6f), 0f, 1f, 0.75f, 0.45f, rng.Range(0.05f, 0.2f)));
-                clusterCount++; if (features != null) features.Add(new double[] { c.X, c.Y, c.Z, r, 0 });
+                // halo: tight balls of ancient stars
+                var c = new Vec3(rng.Gaussian() * 0.5f, rng.Gaussian() * 0.35f, rng.Gaussian() * 0.5f); float r = 60 * ly;
+                int pts = globulars > 3000 ? 6 : globulars > 300 ? 20 : 40;   // drawn lightly, so even thousands stay smooth
+                for (int i = 0; i < pts; i++) list.Add(Star(c + new Vec3(rng.Gaussian(), rng.Gaussian(), rng.Gaussian()) * (r * (float)Math.Abs(rng.Gaussian()) * 0.6f), 0f, 1f, 0.75f, 0.45f, rng.Range(0.05f, 0.2f)));
+                clusterCount++; add(c, r, 0);
             }
-            // star-forming galaxies have nebulae and young clusters (spirals along their arms, irregular and other gas-rich kinds
-            // scattered through their disc, starbursts the most); lenticulars a few; ellipticals, with little gas left, almost none
-            string t = galaxyType.ToLowerInvariant();
-            bool irregular = t.Contains("irregular") || t.Contains("magellanic") || t.Contains("blue-compact") || t.Contains("green-pea") || t.Contains("jellyfish") || t.Contains("starburst") || t.Contains("ring") || t.Contains("interacting") || t.Contains("peculiar");
-            double many = t.Contains("starburst") || t.Contains("green-pea") ? 3 : spiral ? 1 : irregular ? 0.6 : t.Contains("lenticular") ? 0.08 : t.Contains("elliptical") || t.Contains("spheroidal") || t == "cd" ? 0.02 : 0.15;
-            int opens = (int)((60 + rng.Int(40)) * many), nebulas = (int)((40 + rng.Int(30)) * many);
-            if (opens + nebulas == 0) return list.ToArray();
-            for (int k = 0; k < opens + nebulas; k++)
+            for (int k = 0; k < opens; k++)
             {
-                // place along the arms, where young stars and nebulas live (content rule: nebula-place)
-                float rr = (float)Math.Pow(rng.NextDouble(), 0.7) * 0.85f + 0.1f;
-                float ang = spiral ? rng.Int(2) * (float)Math.PI + (float)Math.Log(rr / 0.05f + 1) * 3.2f + rng.Gaussian() * 0.25f : (float)(rng.NextDouble() * Math.PI * 2);   // on the arms, or anywhere in the disc
-                var c = new Vec3((float)Math.Cos(ang) * rr, rng.Gaussian() * 0.01f, (float)Math.Sin(ang) * rr);
-                if (k < opens)
+                var c = disc(); float r = 15 * ly;
+                for (int i = 0; i < 6; i++) list.Add(Star(c + new Vec3(rng.Gaussian(), rng.Gaussian() * 0.4f, rng.Gaussian()) * r, 0f, 0.7f, 0.8f, 1f, rng.Range(0.1f, 0.35f)));
+                clusterCount++; add(c, r, 1);
+            }
+            for (int k = 0; k < emis + refl; k++)
+            {
+                // emission nebulae: hydrogen glowing red round hot young stars; reflection nebulae: dust lit blue
+                bool emission = k < emis; var c = disc(); float r = rng.Range(40, 300) * ly;
+                mix = rng.NextDouble(); float cr, cg, cb; Colour(emission ? 2 : 3, mix, out cr, out cg, out cb);   // its colours from what it is made of
+                for (int i = 0; i < 8; i++)
                 {
-                    float r = (float)(15 / Units.LightYearsPerUnit);
-                    for (int i = 0; i < 60; i++)
-                        list.Add(Star(c + new Vec3(rng.Gaussian(), rng.Gaussian() * 0.4f, rng.Gaussian()) * r, 0f, 0.7f, 0.8f, 1f, rng.Range(0.1f, 0.35f)));
-                    clusterCount++; if (features != null) features.Add(new double[] { c.X, c.Y, c.Z, r, 1 });
+                    // each part of it glows in its own part's colour (oxygen's teal toward its middle, hydrogen's red throughout)
+                    var parts = Composition(emission ? 2 : 3, mix); var pp = parts[(int)(rng.NextDouble() * parts.Length) % parts.Length];
+                    float wr = (cr + pp.R) * 0.5f, wg = (cg + pp.G) * 0.5f, wb = (cb + pp.B) * 0.5f;
+                    list.Add(Star(c + new Vec3(rng.Gaussian(), rng.Gaussian() * 0.5f, rng.Gaussian()) * r * (pp.El == "O" ? 0.6f : 1f), r * 2.5f, wr, wg, wb, 0.03f));
                 }
-                else
-                {
-                    // emission nebula: soft red glow; some reflection nebulas: blue (content: nebulas.dnat)
-                    bool emission = rng.NextDouble() < (spiral || irregular ? 0.75 : 0.2);   // without young hot stars, mostly dust lit by old ones
-                    float r = (float)(rng.Range(40, 300) / Units.LightYearsPerUnit);
-                    for (int i = 0; i < 120; i++)
-                        list.Add(Star(c + new Vec3(rng.Gaussian(), rng.Gaussian() * 0.5f, rng.Gaussian()) * r, r * 2.5f,
-                            emission ? 1f : 0.35f, emission ? 0.25f : 0.5f, emission ? 0.35f : 1f, 0.025f));
-                    nebulaCount++; if (features != null) features.Add(new double[] { c.X, c.Y, c.Z, r * 1.5, emission ? 2 : 3 });
-                }
+                nebulaCount++; add(c, r * 1.5f, emission ? 2 : 3);
+            }
+            for (int k = 0; k < dark; k++)
+            {
+                // dark nebulae: cold clouds of dust and molecules, shown by the faint dusky glow at their edges (stars are born inside)
+                var c = disc(); float r = rng.Range(5, 60) * ly;
+                mix = rng.NextDouble(); float dr, dg, db; Colour(6, mix, out dr, out dg, out db);
+                for (int i = 0; i < 3; i++) list.Add(Star(c + new Vec3(rng.Gaussian(), rng.Gaussian() * 0.4f, rng.Gaussian()) * r, r * 1.8f, dr * 0.4f, dg * 0.4f, db * 0.4f, 0.02f));
+                nebulaCount++; add(c, r * 1.3f, 6);
+            }
+            for (int k = 0; k < planetary; k++)
+            {
+                // planetary nebulae: glowing shells a light-year or so across, puffed off by dying stars like the Sun (in every galaxy)
+                var c = old(); float r = rng.Range(0.3f, 1.5f) * ly;
+                mix = rng.NextDouble(); float pr, pg, pb; Colour(4, mix, out pr, out pg, out pb);
+                for (int i = 0; i < 4; i++) { var d = new Vec3(rng.Gaussian(), rng.Gaussian(), rng.Gaussian()).Normalized; list.Add(Star(c + d * r, r * 0.8f, pr, pg, pb, 0.06f)); }
+                nebulaCount++; add(c, r * 1.2f, 4);
+            }
+            for (int k = 0; k < remnants; k++)
+            {
+                // supernova remnants: expanding shells tens of light-years across, from stars that exploded
+                var c = rng.NextDouble() < young / (young + 0.3) ? disc() : old(); float r = rng.Range(10, 80) * ly;
+                mix = rng.NextDouble(); float sr, sg, sb; Colour(5, mix, out sr, out sg, out sb);
+                for (int i = 0; i < 6; i++) { var d = new Vec3(rng.Gaussian(), rng.Gaussian(), rng.Gaussian()).Normalized; list.Add(Star(c + d * r, r * 0.5f, sr, sg, sb, 0.03f)); }
+                nebulaCount++; add(c, r * 1.1f, 5);
             }
             return list.ToArray();
         }
