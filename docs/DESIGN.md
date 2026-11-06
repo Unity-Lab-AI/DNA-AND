@@ -835,3 +835,5 @@ Everything the creator has said about this project, in order. Short process repl
 191. "im clicking all over the planet suface at 500km and its only letting me select a single point on the planet not correctly where ever i want". The line under the mouse was built from its own left-right, mirrored against the drawn view (the same slip that had swapped A and D), so a click on the ground landed somewhere else. It now uses the screen's own right and up as the view was last drawn, and so do A and D.
 
 192. "and i need a way like right click to clear sleection". A right click lets go of what you picked (its ring and card go, and the camera stops turning to it).
+
+193. "at 100m the planet started disapearing and i could see through it". The ground is drawn as flat pieces about ReadyStep across, which can stand above the true ground; since the floor only slowed the descent (182), the camera could sink inside them and see through them from below. The wheel and W A S D Q E now keep at least 0.6 of a piece above the ground until finer pieces are made, close enough that they are asked for.

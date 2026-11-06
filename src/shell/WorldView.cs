@@ -582,12 +582,13 @@ namespace DnaAnd.Shell
                     var f = Look; var rt = _haveAxes ? _viewRight : Vec3.Cross(f, ViewUp()).Normalized; var upv = _haveAxes ? _viewUp : Vec3.Cross(rt, f).Normalized;
                     double sp = reach * 0.5 * dt * (input.IsDown(0x10) ? 4 : 1);
                     _ox += (f.X * mf + rt.X * mr + upv.X * mu) * sp; _oy += (f.Y * mf + rt.Y * mr + upv.Y * mu) * sp; _oz += (f.Z * mf + rt.Z * mr + upv.Z * mu) * sp;
-                    if (_ground != null && AboveGround() < Units.Km(5e-7))
+                    double fk = _ground != null ? Math.Max(5e-7, _ground.ReadyStep < 1e30 ? _ground.ReadyStep * 0.6 : 0) : 0;
+                    if (_ground != null && AboveGround() < Units.Km(fk))
                     {
-                        // never through the ground: back up to half a millimetre above it
+                        // never through the ground, nor into its drawn pieces: back up above them
                         double x, y, z; CamFromPlanet(out x, out y, out z);
                         double r = Math.Sqrt(x * x + y * y + z * z), g = _ground.Solid ? Math.Max(0, _ground.GroundAt(x / r, y / r, z / r)) : 0;
-                        double want = _ground.Radius + g + 5e-7, k = Units.Km(1);
+                        double want = _ground.Radius + g + fk, k = Units.Km(1);
                         _ox = _px + x / r * want * k; _oy = _py + y / r * want * k; _oz = _pz + z / r * want * k;
                     }
                 }
@@ -643,7 +644,9 @@ namespace DnaAnd.Shell
                     // across the screen), but never push you back and always let each notch close in a tenth, so the finer
                     // ground is asked for and catches up; never below half a millimetre
                     double ready = _ground.ReadyStep < 1e30 ? _ground.ReadyStep * 3 : 0;
-                    double floorKm = Math.Max(5e-7, Math.Min(ready, altBefore * 0.9));
+                    // ...but never inside the drawn ground: its pieces are flat triangles about ReadyStep across that can stand above
+                    // the true ground, so stay at least 0.6 of a step above it until finer pieces are made (close enough to ask for them)
+                    double floorKm = Math.Max(5e-7, Math.Min(ready, Math.Max(altBefore * 0.9, ready / 3 * 0.6)));
                     {
                         // over the sea: no lower than a metre above the water, until the dive under the sea is in the one world
                         double cx0, cy0, cz0; CamFromPlanet(out cx0, out cy0, out cz0); double r0 = Math.Sqrt(cx0 * cx0 + cy0 * cy0 + cz0 * cz0);
