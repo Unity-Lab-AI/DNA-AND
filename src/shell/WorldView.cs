@@ -788,7 +788,7 @@ namespace DnaAnd.Shell
                         // at the picked planet's ground, the steps go by the height above the ground, all the way down;
                         // from afar, by the distance to just outside it
                         bool atIt = _tKind == 2 && _tIndex == _planet && _ground != null;
-                        reach = atIt ? AboveGround() : Math.Max(fl - frad * 1.2, fl * 1e-6);
+                        reach = atIt ? AboveGround() : Math.Max(fl - (_tKind == 5 ? 0 : frad * 1.2), fl * 1e-6);   // clusters and nebulae are clouds: flown into, not stopped at
                     }
                 }
                 // a star close to the line you point along (within about 4 degrees) is flown at straight, not past
