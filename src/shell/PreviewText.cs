@@ -11,7 +11,7 @@ namespace DnaAnd.Shell
             "This preview is the universe only: a dead universe, fully made, with no life, gameplay or interface yet.\n\n" +
             "Everything is made live from a seed by our own code: no outside code, no stored pictures. It is one camera with true infinite zoom, no separate views and no loading screens; detail comes from our own coefficient waveform engine (the CDF 9/7 wavelet) and endless self-similar detail (mode-E).\n\n" +
             "Help > How it works explains the waveform, the infinite zoom, how precision holds from galaxies to atoms, and the living planet.\n\n" +
-            "Made by the Unity AI Lab team.\nhttps://unityailab.com";
+            "Made by the Unity AI Lab team.\nhttps://unityailab.com\nThe Universe project: https://git.unityailab.com/GFourteen/Universe";
 
         public const string Readme =
             "How to use the preview\n\n" +
@@ -57,6 +57,7 @@ namespace DnaAnd.Shell
             "Alfreddo: engineer, agentic systems, researcher\n" +
             "Red: engineer, security, sys admin\n\n" +
             "The coefficient waveform engine and mode-E come from the lab's own Uni Vs Matics engine.\n\n" +
+            "The Universe project, with everything to build your own: https://git.unityailab.com/GFourteen/Universe\n\n" +
             "Unity AI Lab Git: https://git.unityailab.com\nUnity AI Lab on GitHub: https://github.com/Unity-Lab-AI";
     }
 }
