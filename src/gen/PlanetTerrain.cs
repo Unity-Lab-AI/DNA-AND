@@ -105,7 +105,11 @@ namespace DnaAnd.Gen
         }
 
         // ── each kind of world's ground, air and clouds, from content/terrain.dnat (none named in code) ──
-        public sealed class TerrainKindData { public double Radius = 6371, CloudKm = 9, AirKm = 110, CloudThick = 1, BaseK = 255; public bool Solid = true, Water, Clouds = true; public float[] Air = { 0.35f, 0.56f, 1f }, Cloud = { 0.97f, 0.97f, 0.97f }, Rock = { 0.4f, 0.38f, 0.36f }; }
+        public sealed class TerrainKindData { public double Radius = 6371, CloudKm = 9, AirKm = 110, CloudThick = 1, BaseK = 255; public bool Solid = true, Water, Clouds = true; public float[] Air = { 0.35f, 0.56f, 1f }, Cloud = { 0.97f, 0.97f, 0.97f }, Rock = { 0.4f, 0.38f, 0.36f };
+            public double LandShare = 0.06, CloudShift, DayHours = 24, Tides = 0.5, Bands = 19, GreatStorm = 1;
+            public bool Molten, Dunes, FrozenSea, SnowPatches, Locked, PolarIce = true, Dry, TropicalSoil, Life = true, ManyVolcanoes;
+            public double[][] Ground;                  // land colours by height: below h, r g b, and 1 if the ground's patchiness tints it
+            public float[] BandLow = { 0.42f, 0.26f, 0.16f }, BandHigh = { 0.96f, 0.88f, 0.78f }, Storm = { 0.96f, 0.93f, 0.86f }, River = { 0.1f, 0.3f, 0.5f }; }
         private static readonly Dictionary<string, TerrainKindData> Kinds = new Dictionary<string, TerrainKindData>();
         private TerrainKindData _tk;
         public static TerrainKindData TerrainKind(string kind) { TerrainKindData t; return Kinds.TryGetValue(kind ?? "", out t) ? t : Kinds.TryGetValue("default", out t) ? t : new TerrainKindData(); }
@@ -122,6 +126,24 @@ namespace DnaAnd.Gen
                 t.Radius = d("radius-km", 6371); t.CloudKm = d("cloud-km", 9); t.AirKm = d("air-km", 110); t.CloudThick = d("cloud-thickness", 1); t.BaseK = d("base-k", 255);
                 t.Solid = g("solid") != "no"; t.Water = g("water") == "yes"; t.Clouds = g("clouds") != "no";
                 t.Air = c("air-colour", t.Air); t.Cloud = c("cloud-colour", t.Cloud); t.Rock = c("rock-colour", t.Rock);
+                Func<string, bool, bool> yes = (k, f) => { var v = g(k); return v == "" ? f : v == "yes"; };
+                t.LandShare = d("land-share", 0.06); t.CloudShift = d("cloud-shift", 0); t.DayHours = d("day-hours", 24); t.Tides = d("tides", 0.5);
+                t.Bands = d("bands", 19); t.GreatStorm = d("great-storm", 1);
+                t.Molten = yes("molten", false); t.Dunes = yes("dunes", false); t.FrozenSea = yes("frozen-sea", false); t.SnowPatches = yes("snow-patches", false);
+                t.Locked = yes("tidally-locked", false); t.PolarIce = yes("polar-ice", true); t.Dry = yes("dry", false); t.TropicalSoil = yes("tropical-soil", false);
+                t.Life = yes("life", true); t.ManyVolcanoes = g("volcanoes") == "many";
+                t.BandLow = c("band-dark", t.BandLow); t.BandHigh = c("band-light", t.BandHigh); t.Storm = c("storm-colour", t.Storm); t.River = c("river-colour", t.River);
+                var gl = g("ground");
+                if (gl.Length > 0)
+                {
+                    var bands = new List<double[]>();
+                    foreach (var part in gl.Split(';'))
+                    {
+                        var w = part.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries); if (w.Length < 4) continue;
+                        var row = new double[5]; for (int q = 0; q < 4; q++) double.TryParse(w[q], fs, ci, out row[q]); row[4] = w.Length > 4 && w[4] == "tinted" ? 1 : 0; bands.Add(row);
+                    }
+                    if (bands.Count > 0) t.Ground = bands.ToArray();
+                }
                 Kinds[e.Id] = t;
             }
         }
@@ -424,50 +446,45 @@ namespace DnaAnd.Gen
             double land, h;
             switch (Kind)
             {
-                case "ocean": land = cont - 0.38; break;
-                case "desert": land = cont + 0.2; break;
-                case "lava": case "snowball": land = cont + 0.1; break;
                 case "dyson-shell": land = cont + _shellLand; break;   // each terraformed section has its own share of land
-                default: land = cont + 0.06; break;            // Earth-like: about a third land
+                default: land = cont + _tk.LandShare; break;   // from its kind (terrain.dnat): Earth-like about a third land
             }
             double mtn = ridge * ridge * Smooth(0, 0.35, land) * (Kind == "dyson-shell" ? _shellMtn : 1);
             _land = land; _mtn = mtn; _tint = tint;
             h = land * 3.2 + mtn * 7.5 + mtn * (mtnFine - 0.5) * 2.2 + detail * (0.12 + 0.35 * Smooth(0, 0.4, land) + 0.6 * mtn) + micro;
-            if (Kind == "desert")
+            if (_tk.Dunes)
             {
                 double dune = Math.Sin(x * 900 + Fbm(x, y, z, _seed + 3u, 30, 3) * 40) * 0.5 + 0.5;  // long dune ridges
                 h += dune * 0.06 * Smooth(0.0, 0.3, 0.9 - ridge);
             }
             float tv = (float)(0.9 + 0.2 * tint);
-            switch (Kind)
+            // the ground of this kind of world (terrain.dnat): molten, frozen seas, a locked day and night side, then its colours by height
+            if (_tk.Molten)
             {
-                case "lava":
-                    double crack = Ridged(x, y, z, _seed + 900u, 5, 4 + Math.Min(fine, 8));
-                    if (crack > 0.9 - 0.04 * Math.Min(1, fine / 10.0) && h < 3) { r = 1f; g = (float)(0.3 + 0.35 * tint); b = 0.06f; glow = 0.9f; return h - 0.03; }   // glowing cracks and rivers
-                    if (h < -0.3) { r = 1f; g = (float)(0.35 + 0.3 * tint); b = 0.08f; glow = 0.95f; h = -0.3; }   // molten lowlands
-                    else { r = 0.16f * tv; g = 0.12f * tv; b = 0.11f * tv; if (h > 4) { r = 0.3f * tv; g = 0.26f * tv; b = 0.24f * tv; } }  // black crust, ash peaks
-                    return h;
-                case "desert":
-                    if (h < -1.2) { r = 0.92f; g = 0.9f; b = 0.84f; }                                                 // salt flats in the old sea beds
-                    else if (h < 2.0) { r = 0.82f * tv; g = 0.6f * tv; b = 0.36f * tv; }                               // sand
-                    else { r = 0.6f * tv; g = 0.36f * tv; b = 0.24f * tv; }                                            // red rock
-                    return h;
-                case "snowball":
-                    if (h < 0) { r = 0.78f * tv; g = 0.88f * tv; b = 0.97f; return 0; }                                // frozen sea: flat ice
-                    if (h > 2.5 || tint > 0.55) { r = 0.95f; g = 0.96f; b = 1f; } else { r = 0.42f * tv; g = 0.43f * tv; b = 0.47f * tv; }
-                    return h;
-                case "tidally-locked":
-                    {
-                        double day = x * StarDir[0] + y * StarDir[1] + z * StarDir[2];
-                        if (day > 0.3) { if (h < 0) h = h * 0.5; r = 0.55f * tv; g = 0.28f * tv; b = 0.14f * tv; return h; }      // scorched, its seas boiled away
-                        if (day < -0.2) { if (h < 0) { r = 0.8f; g = 0.88f; b = 0.96f; return 0; } r = 0.92f; g = 0.94f; b = 0.98f; return h; }  // frozen night side
-                        break;                                                                                                // twilight ring: water and bare land
-                    }
+                double crack = Ridged(x, y, z, _seed + 900u, 5, 4 + Math.Min(fine, 8));
+                if (crack > 0.9 - 0.04 * Math.Min(1, fine / 10.0) && h < 3) { r = 1f; g = (float)(0.3 + 0.35 * tint); b = 0.06f; glow = 0.9f; return h - 0.03; }   // glowing cracks and rivers
+                if (h < -0.3) { r = 1f; g = (float)(0.35 + 0.3 * tint); b = 0.08f; glow = 0.95f; return -0.3; }   // molten lowlands
+            }
+            if (_tk.FrozenSea && h < 0) { r = 0.78f * tv; g = 0.88f * tv; b = 0.97f; return 0; }                // frozen sea: flat ice
+            if (_tk.SnowPatches && (h > 2.5 || tint > 0.55)) { r = 0.95f; g = 0.96f; b = 1f; return h; }        // snow lying in patches
+            if (_tk.Locked)
+            {
+                double day = x * StarDir[0] + y * StarDir[1] + z * StarDir[2];
+                if (day > 0.3) { if (h < 0) h = h * 0.5; r = 0.55f * tv; g = 0.28f * tv; b = 0.14f * tv; return h; }      // scorched, its seas boiled away
+                if (day < -0.2) { if (h < 0) { r = 0.8f; g = 0.88f; b = 0.96f; return 0; } r = 0.92f; g = 0.94f; b = 0.98f; return h; }  // frozen night side
+            }
+            if (_tk.Ground != null && !(_tk.Locked) && !(HasWater && h < 0))
+            {
+                r = g = b = 0.5f;
+                foreach (var band in _tk.Ground)
+                    if (h < band[0] || band == _tk.Ground[_tk.Ground.Length - 1])
+                    { float k = band[4] > 0 ? tv : 1; r = (float)band[1] * k; g = (float)band[2] * k; b = (float)band[3] * k; break; }
+                return h;
             }
             if (h < 0)
             {
-                if (lat > 0.9 && Kind != "tidally-locked") { r = 0.85f; g = 0.9f; b = 0.95f; return 0.002; }   // sea ice near the poles, floating on top
-                if (Kind == "tidally-locked")
+                if (lat > 0.9 && _tk.PolarIce) { r = 0.85f; g = 0.9f; b = 0.95f; return 0.002; }   // sea ice near the poles, floating on top
+                if (_tk.Locked)
                 {
                     // the twilight ring keeps its water painted on (no separate sea surface on this world)
                     double depth = Math.Min(1, -h / 4);
@@ -500,12 +517,11 @@ namespace DnaAnd.Gen
             double wx = Fbm(x, y, z, _seed + 11u, 2.5, 4 + extra) - 0.5, wz = Fbm(x, y, z, _seed + 12u, 2.5, 4 + extra) - 0.5;
             double curl = Fbm(x + wx * 0.6, y, z + wz * 0.6, _seed + 13u, 7, 3 + extra) - 0.5;
             double yy = y + wx * 0.06 + curl * 0.05;
-            double band = Math.Sin(yy * (Kind == "ice-giant" ? 9 : 19) + curl * 4) * 0.5 + 0.5;
+            double band = Math.Sin(yy * _tk.Bands + curl * 4) * 0.5 + 0.5;
             double fine = Fbm(x + wx, y * 6, z + wz, _seed + 14u, 12, 3 + extra);
             band = band * 0.8 + fine * 0.2;
-            if (Kind == "ice-giant") { r = (float)(0.25 + 0.14 * band); g = (float)(0.48 + 0.14 * band); b = (float)(0.85 + 0.12 * band); }
-            else if (Kind == "hot-jupiter") { r = (float)(0.32 + 0.5 * band); g = (float)(0.13 + 0.24 * band); b = (float)(0.09 + 0.1 * band); }
-            else { r = (float)(0.42 + 0.54 * band); g = (float)(0.26 + 0.62 * band); b = (float)(0.16 + 0.62 * band); }   // brown belts, cream zones
+            // its dark belts and light zones, in this kind's colours (terrain.dnat)
+            r = (float)(_tk.BandLow[0] + (_tk.BandHigh[0] - _tk.BandLow[0]) * band); g = (float)(_tk.BandLow[1] + (_tk.BandHigh[1] - _tk.BandLow[1]) * band); b = (float)(_tk.BandLow[2] + (_tk.BandHigh[2] - _tk.BandLow[2]) * band);
             // storms: round swirling ovals, one great one and many small ones
             var rng = new Rng(_seed ^ 0x570CUL);
             for (int k = 0; k < 14; k++)
@@ -517,8 +533,8 @@ namespace DnaAnd.Gen
                 if (d > size) continue;
                 double t = 1 - d / size, swirl = Math.Sin(d / size * 14 + Math.Atan2(dy, dx + dz) * 2) * 0.5 + 0.5;
                 float sr, sg, sb;
-                if (Kind == "ice-giant") { sr = 0.08f; sg = 0.15f; sb = 0.42f; }                 // dark storms, like Neptune's
-                else if (k == 0) { sr = 0.82f; sg = 0.38f; sb = 0.26f; }                          // the great red storm
+                if (k == 0 && _tk.GreatStorm > 0.5) { sr = 0.82f; sg = 0.38f; sb = 0.26f; }       // the great red storm
+                else if (_tk.GreatStorm <= 0.5) { sr = _tk.Storm[0]; sg = _tk.Storm[1]; sb = _tk.Storm[2]; }   // this kind's storms (dark, like Neptune's)
                 else { sr = 0.96f; sg = 0.93f; sb = 0.86f; }                                      // white ovals
                 float m = (float)(Math.Min(1, t * 2.5) * (0.75 + 0.25 * swirl));
                 r += (sr - r) * m; g += (sg - g) * m; b += (sb - b) * m;
@@ -590,8 +606,8 @@ namespace DnaAnd.Gen
                 bool belt = _mtn > 0.15, hotspot = rng.NextDouble() < 0.25;
                 if (!belt && !hotspot) continue;
                 if (h0 < -2.5 && Kind != "ocean") continue;
-                list.Add(new Volcano { X = x, Y = y, Z = z, Size = (Kind == "lava" ? 0.012 : 0.007) * (0.6 + rng.NextDouble()) * 6371 / Radius,
-                    Tall = Kind == "lava" ? 3 + rng.NextDouble() * 6 : 2 + rng.NextDouble() * 4, Active = Kind == "lava" || rng.NextDouble() < 0.4 });
+                list.Add(new Volcano { X = x, Y = y, Z = z, Size = (_tk.ManyVolcanoes ? 0.012 : 0.007) * (0.6 + rng.NextDouble()) * 6371 / Radius,
+                    Tall = _tk.ManyVolcanoes ? 3 + rng.NextDouble() * 6 : 2 + rng.NextDouble() * 4, Active = _tk.ManyVolcanoes || rng.NextDouble() < 0.4 });
             }
             _volcanoes = list.ToArray();
         }
@@ -634,8 +650,7 @@ namespace DnaAnd.Gen
                 {
                     _river = (line - width) / (1 - width);
                     h -= 0.03 + 0.05 * _river;
-                    if (Kind == "desert") { r = 0.7f; g = 0.55f; b = 0.38f; }            // dry river beds
-                    else { r = 0.1f; g = 0.3f; b = 0.5f; }                                  // river water
+                    r = _tk.River[0]; g = _tk.River[1]; b = _tk.River[2];                  // river water, or a dry bed (terrain.dnat)
                 }
                 else if (line > width - 0.006) _river = -1;                               // the river banks
             }
@@ -652,7 +667,7 @@ namespace DnaAnd.Gen
         {
             double lat = _latOverride >= 0 ? _latOverride : Math.Abs(y), land = _land, mtn = _mtn;
             if (HasWater && h < -0.0001 && lat < 0.9) return FieldIndex("ocean-water");
-            if (lat > 0.86 + 0.05 * _tint || Kind == "snowball" && h <= 0.0001) return FieldIndex("ice-field");
+            if (lat > 0.86 + 0.05 * _tint || _tk.FrozenSea && h <= 0.0001) return FieldIndex("ice-field");
             if (_vent > 0.3) { r = 0.95f; g = 0.85f; b = 0.15f; if (_activeVent) { r = 1f; g = 0.42f; b = 0.08f; } return FieldIndex("volcanic-sulfide"); }   // yellow sulfur crust
             if (_volcano > 0.25) { if (Spot(x, y, z, 2, 30, 0.55)) { r = 0.85f; g = 0.55f; b = 0.2f; } return FieldIndex("epithermal"); }   // hot-spring stains
             if (_river < 0) { if (Spot(x, y, z, 7, 200, 0.62)) { r = 0.9f; g = 0.78f; b = 0.3f; } return FieldIndex("placer"); }   // glints of gold in the banks
@@ -663,10 +678,10 @@ namespace DnaAnd.Gen
                 if (Spot(x, y, z, 5, 35, 0.64)) { r = 0.3f; g = 0.55f; b = 0.45f; return FieldIndex("skarn"); }        // green copper stains
                 if (Spot(x, y, z, 6, 50, 0.66)) return FieldIndex("pegmatite");
             }
-            bool dry = Kind == "desert" || Kind == "tidally-locked";
+            bool dry = _tk.Dry;
             if (dry && h < -0.8) return FieldIndex("evaporite");                                      // the salt flats (already white)
             if (!dry && h > 0 && h < 0.06 && lat < 0.45 && Spot(x, y, z, 8, 25, 0.62)) { r = 0.93f; g = 0.92f; b = 0.88f; return FieldIndex("evaporite"); }   // salt pans by the sea
-            if (Kind == "temperate" || Kind == "ocean")
+            if (_tk.TropicalSoil)
                 if (lat < 0.32 && h > 0.04 && h < 1.2 && mtn < 0.15) { r = 0.62f; g = 0.26f; b = 0.14f; return FieldIndex("laterite"); }   // red tropical soil
             if (land > 0.25 && mtn < 0.08)
             {
@@ -772,7 +787,7 @@ namespace DnaAnd.Gen
                 if (day < 0.45 || day > 0.8) continue;           // a lower star: hills throw shading
                 float r, g, b, gl;
                 double h = Height(x, y, z, 8, out r, out g, out b, out gl);
-                double score = (h > 0.15 && h < 1.8 ? 1 : 0) - Math.Abs(h - 0.8) * 0.2 + (Kind == "lava" && gl > 0 ? -1 : 0);
+                double score = (h > 0.15 && h < 1.8 ? 1 : 0) - Math.Abs(h - 0.8) * 0.2 + (_tk.Molten && gl > 0 ? -1 : 0);
                 if (score > best) { best = score; lat = la; lon = lo; }
             }
         }
@@ -789,9 +804,8 @@ namespace DnaAnd.Gen
             }
             double c = Fbm(x, y, z, _seed + 500u, 2.4, 7) + 0.1 * Math.Cos(y * 7);
             if (Shell) c -= 0.1;                                     // shells: scattered clouds, so the land shows
-            if (Kind == "lava") c += 0.12;
-            if (Kind == "snowball") c -= 0.08;
-            if (Kind == "tidally-locked") { double day = x * StarDir[0] + y * StarDir[1] + z * StarDir[2]; c += 0.25 * Smooth(-0.3, 0.3, day) - 0.18; }
+            c += _tk.CloudShift;                                     // more cloud or less, by its kind (terrain.dnat)
+            if (_tk.Locked) { double day = x * StarDir[0] + y * StarDir[1] + z * StarDir[2]; c += 0.25 * Smooth(-0.3, 0.3, day) - 0.18; }
             return Smooth(0.54, 0.7, c);
         }
 
