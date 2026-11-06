@@ -31,6 +31,11 @@ namespace DnaAnd.Gen
     {
         // ── galaxy structures: globular clusters, open clusters, nebulas ──
         public static StarVertex[] Structures(string galaxyType, ulong seed, List<StarKind> kinds, out int clusterCount, out int nebulaCount)
+        { return Structures(galaxyType, seed, kinds, out clusterCount, out nebulaCount, null); }
+
+        /// <summary>The same, and each cluster and nebula as one feature (galaxy units: x, y, z, radius, kind: 0 globular cluster,
+        /// 1 open cluster, 2 emission nebula, 3 reflection nebula), for picking.</summary>
+        public static StarVertex[] Structures(string galaxyType, ulong seed, List<StarKind> kinds, out int clusterCount, out int nebulaCount, List<double[]> features)
         {
             var rng = new Rng(seed ^ 0xC1u);
             var list = new List<StarVertex>();
@@ -44,7 +49,7 @@ namespace DnaAnd.Gen
                 float r = (float)(60 / Units.LightYearsPerUnit);
                 for (int i = 0; i < 500; i++)
                     list.Add(Star(c + new Vec3(rng.Gaussian(), rng.Gaussian(), rng.Gaussian()) * (r * (float)Math.Abs(rng.Gaussian()) * 0.6f), 0f, 1f, 0.75f, 0.45f, rng.Range(0.05f, 0.2f)));
-                clusterCount++;
+                clusterCount++; if (features != null) features.Add(new double[] { c.X, c.Y, c.Z, r, 0 });
             }
             if (!spiral) return list.ToArray();
             int opens = 60 + rng.Int(40), nebulas = 40 + rng.Int(30);
@@ -59,7 +64,7 @@ namespace DnaAnd.Gen
                     float r = (float)(15 / Units.LightYearsPerUnit);
                     for (int i = 0; i < 60; i++)
                         list.Add(Star(c + new Vec3(rng.Gaussian(), rng.Gaussian() * 0.4f, rng.Gaussian()) * r, 0f, 0.7f, 0.8f, 1f, rng.Range(0.1f, 0.35f)));
-                    clusterCount++;
+                    clusterCount++; if (features != null) features.Add(new double[] { c.X, c.Y, c.Z, r, 1 });
                 }
                 else
                 {
@@ -69,7 +74,7 @@ namespace DnaAnd.Gen
                     for (int i = 0; i < 120; i++)
                         list.Add(Star(c + new Vec3(rng.Gaussian(), rng.Gaussian() * 0.5f, rng.Gaussian()) * r, r * 2.5f,
                             emission ? 1f : 0.35f, emission ? 0.25f : 0.5f, emission ? 0.35f : 1f, 0.025f));
-                    nebulaCount++;
+                    nebulaCount++; if (features != null) features.Add(new double[] { c.X, c.Y, c.Z, r * 1.5, emission ? 2 : 3 });
                 }
             }
             return list.ToArray();

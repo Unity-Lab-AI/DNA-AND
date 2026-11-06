@@ -479,7 +479,7 @@ namespace DnaAnd.Shell
         {
             dx = dy = dz = 0; radius = 0;
             if (_tKind == 0) { var g = _galaxies[_tIndex]; dx = (g.X - _ax) - _ox; dy = (g.Y - _ay) - _oy; dz = (g.Z - _az) - _oz; radius = g.Scale * 0.3; return true; }
-            if (_tKind == 1 || _tKind == 4) { dx = (_tx - _ax) - _ox; dy = (_ty - _ay) - _oy; dz = (_tz - _az) - _oz; radius = _tRadius; return true; }   // a star, or a spot in a belt
+            if (_tKind == 1 || _tKind == 4 || _tKind == 5) { dx = (_tx - _ax) - _ox; dy = (_ty - _ay) - _oy; dz = (_tz - _az) - _oz; radius = _tRadius; return true; }   // a star, or a spot in a belt
             if (_tKind == 2 && _system != null && _tIndex < _system.Bodies.Count)
             { double x, y, z; BodyPos(_tIndex, out x, out y, out z); dx = x - _ox; dy = y - _oy; dz = z - _oz; radius = _system.Bodies[_tIndex].RadiusUnits; return true; }
             if (_tKind == 3 && _ground != null)
@@ -577,6 +577,18 @@ namespace DnaAnd.Shell
                         double d2 = near((ux - _ax) - _ox, (uy - _ay) - _oy, (uz - _az) - _oz);
                         if (d2 < best) { best = d2; kind = 1; tx = ux; ty = uy; tz = uz; trad = Units.Km(696000); name = "a " + _kinds[_nearKinds[k]].Name; }
                     }
+            }
+            if (_near >= 0 && (kind < 0 || kind == 1) && NearShare() > 0.2)
+            {
+                // a star cluster or a nebula of the near galaxy: by its place on screen, or anywhere on it
+                var g = _galaxies[_near]; string[] names = { "a globular cluster", "an open cluster", "an emission nebula", "a reflection nebula" };
+                for (int q = 0; q < _features.Count; q++)
+                {
+                    var ft = _features[q]; double ux, uy, uz; ToUniverse(g, ft[0], ft[1], ft[2], out ux, out uy, out uz);
+                    double dx = (ux - _ax) - _ox, dy = (uy - _ay) - _oy, dz = (uz - _az) - _oz, l = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+                    double sizePx = ft[3] * g.Scale / Math.Max(1e-12, l) / Math.Tan(0.45) * _lastH * 0.5, d2 = near(dx, dy, dz), allow = Math.Max(reachPx, sizePx);
+                    if (d2 < allow * allow && (kind < 0 || d2 < best || (kind == 1 && sizePx > reachPx * 2))) { best = d2; kind = 5; idx = q; tx = ux; ty = uy; tz = uz; trad = ft[3] * g.Scale; name = names[(int)ft[4]]; }
+                }
             }
             if (kind < 0)
                 for (int i = 0; i < _galaxies.Count; i++)
@@ -917,6 +929,11 @@ namespace DnaAnd.Shell
                         lock (_extraLock) { _extraFor = forGalaxy; _extra = extra; _extraKinds = ek; }
                     });
                     BuildGrid();
+                    // its star clusters and nebulae, in place among its stars
+                    int cc, nc; _features = new List<double[]>();
+                    var st = SpaceGen.Structures(g.Type, g.Seed, _kinds, out cc, out nc, _features);
+                    if (_structBuf != null) _structBuf.Dispose();
+                    _structCount = st.Length; _structBuf = new UploadBuffer(_gpu.Device, (long)Math.Max(1, st.Length) * Stride); if (st.Length > 0) _structBuf.Write(st, st.Length);
                 }
             }
             // the rest of the near galaxy's stars, when they are ready: added after the ones already shown (nothing changes on screen)
@@ -931,6 +948,7 @@ namespace DnaAnd.Shell
             }
         }
 
+        private UploadBuffer _structBuf; private int _structCount; private List<double[]> _features = new List<double[]>();   // the near galaxy's clusters and nebulae
         private readonly object _extraLock = new object(); private StarVertex[] _extra; private int[] _extraKinds; private int _extraFor = -1;
 
         // the grid used to find the nearest star of the near galaxy
@@ -996,6 +1014,8 @@ namespace DnaAnd.Shell
                 DrawPoints(buf, count, Placement(g) * vp, right, up, 0.006f * g.Scale * shrink * glow, 0.0016f, w, h, time, 0.012f);
             }
             double inside = InsideShare();
+            if (_near >= 0 && _structBuf != null && _structCount > 0 && NearShare() > 0.2)
+                DrawPoints(_structBuf, _structCount, Placement(_galaxies[_near]) * vp, right, up, 1f, 0.0016f, w, h, time);   // its clusters and nebulae
             if (_near >= 0 && _localCount > 0 && inside > 0)
             {
                 // the real stars of this space at their real sizes (a small point from afar, never smaller than a dot on screen)
@@ -1237,6 +1257,18 @@ namespace DnaAnd.Shell
                 if (here) { L.Add("air: " + (_ground.AirKm > 0 ? "about " + _ground.AirKm.ToString("0") + " km deep" : "none") + (_ground.HasClouds ? ", clouds" : "")); }
                 L.Add("distance: " + Units.Describe(dist));
             }
+            else if (_tKind == 5 && _tIndex < _features.Count)
+            {
+                int fk = (int)_features[_tIndex][4]; double ly = _tRadius * 2 / Units.Km(9.4607e12);
+                L.Add(_tName.Substring(_tName.IndexOf(' ') + 1, 1).ToUpperInvariant() + _tName.Substring(_tName.IndexOf(' ') + 2));
+                L.Add("id: " + (fk < 2 ? "C-" : "N-") + (_galaxies[_near].Seed & 0xFFF).ToString("X3") + "-" + (_tIndex + 1));
+                L.Add("width: about " + ly.ToString("N0") + " light-years");
+                if (fk == 0) { L.Add("hundreds of thousands of stars"); L.Add("ancient: among the oldest stars of the galaxy"); L.Add("in the halo, round the galaxy's middle"); }
+                else if (fk == 1) { L.Add("a few hundred young stars, born together"); L.Add("in the arms, drifting apart over time"); }
+                else if (fk == 2) { L.Add("glowing hydrogen, lit by hot young stars"); L.Add("where new stars are being born"); }
+                else { L.Add("dust lit blue by nearby stars' light"); L.Add("it shines by reflection, not its own glow"); }
+                L.Add("distance: " + Units.Describe(dist));
+            }
             else if (_tKind == 4 && _system != null)
             {
                 var sy = _system; bool ast = _tName == "the asteroid belt", kui = _tName == "the Kuiper belt";
@@ -1277,7 +1309,7 @@ namespace DnaAnd.Shell
         public void Dispose()
         {
             foreach (var g in _galaxies) g.Far.Dispose();
-            if (_nearBuf != null) _nearBuf.Dispose();
+            if (_nearBuf != null) _nearBuf.Dispose(); if (_structBuf != null) _structBuf.Dispose();
             CloseSystem();
             DropPlanet();
             _hud.Dispose(); _matter.Dispose();
