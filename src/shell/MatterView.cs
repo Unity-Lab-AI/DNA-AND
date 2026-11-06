@@ -9,6 +9,7 @@
 //   the nucleus: its real protons and neutrons (from the element's most common isotope, content/elements.dnat).
 // (Microbes, bacteria and viruses join when life is built.)
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using DnaAnd.Core;
@@ -29,7 +30,7 @@ namespace DnaAnd.Shell
         private const double AtomSpacing = 2.5e-13; // about 0.25 nm between atoms in a crystal
         private const double Nucleon = 0.85e-18;    // a proton's or neutron's radius, about 0.85 femtometres
 
-        private sealed class Mineral { public string Id, Name, Formula; public string[] Atoms; public float R, G, B; }
+        private sealed class Mineral { public string Id, Name, Formula; public string[] Atoms; public float R, G, B, Lustre = 1; }
         private sealed class Element { public string Symbol, Name; public int Z, A; public float R, G, B; public int[] Shells; }
         private readonly Dictionary<string, Mineral> _minerals = new Dictionary<string, Mineral>();
         private readonly Dictionary<string, List<KeyValuePair<Mineral, double>>> _mixes = new Dictionary<string, List<KeyValuePair<Mineral, double>>>();
@@ -96,7 +97,18 @@ namespace DnaAnd.Shell
                 var col = e.Get("colour", "0.7 0.7 0.7").Split(' ');
                 var m = new Mineral { Id = e.Id, Name = e.Name, Formula = e.Get("formula", ""), Atoms = e.Get("atoms", "Si O O").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries) };
                 float r, g, b; float.TryParse(col[0], out r); float.TryParse(col.Length > 1 ? col[1] : col[0], out g); float.TryParse(col.Length > 2 ? col[2] : col[0], out b);
-                m.R = r; m.G = g; m.B = b; _minerals[m.Id] = m;
+                m.R = r; m.G = g; m.B = b; m.Lustre = LustreCode(e.Get("lustre", "earthy"), e.Get("clarity", "opaque")); _minerals[m.Id] = m;
+            }
+            foreach (var e in content.OfKind("minerals.dnat", "surface"))
+            {
+                Mineral om; if (!_minerals.TryGetValue(e.Get("mineral", ""), out om)) continue;
+                double lo, hi; if (!e.TryRange("size-km", out lo, out hi)) continue;
+                double ch, bl, ang; double.TryParse(e.Get("chance", "0.5"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out ch);
+                double.TryParse(e.Get("bond-nm", "0.1"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out bl);
+                double.TryParse(e.Get("angle", "180"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out ang);
+                string shape = e.Get("shape", "round");
+                _surf.Add(new SurfThing { Id = e.Id, Name = e.Name, M = om, Lo = lo, Hi = hi, Chance = ch, Flat = shape == "flat", Molecule = shape == "molecule",
+                    Bond = bl * 1e-12, Angle = ang, About = e.Get("about", "").Split('|').Select(q => q.Trim()).Where(q => q.Length > 0).ToArray() });
             }
             foreach (var e in content.OfKind("minerals.dnat", "mix"))
             {
@@ -167,9 +179,9 @@ namespace DnaAnd.Shell
         // from what you picked
         private Mineral MaterialAt(double x, double z)
         {
-            for (int t = 0; t < SurfThings.Length; t++)
+            for (int t = 0; t < _surf.Count; t++)
             {
-                var st = SurfThings[t]; string id = ThingMineral(st.Id); Mineral om; if (id == null || !_minerals.TryGetValue(id, out om)) continue;
+                var st = _surf[t]; var om = st.M;
                 double cell = st.Hi * 4; long ci = (long)Math.Floor(x / cell), cj = (long)Math.Floor(z / cell);
                 for (long i = ci - 1; i <= ci + 1; i++)
                     for (long j = cj - 1; j <= cj + 1; j++)
@@ -182,7 +194,14 @@ namespace DnaAnd.Shell
             return GrainMineral(FocusGI, FocusGJ);
         }
         // a thing on the grain picked (a clay platelet, a coating, a nanoparticle, the water film): its own mineral is what you go into
-        private static string ThingMineral(string thing) { return thing == "clay-platelet" ? "kaolinite" : thing == "iron-coating" || thing == "nanoparticle" ? "hematite" : thing == "water" || thing == "fluid-inclusion" ? "water-ice" : null; }
+        // a mineral's lustre and clarity as one number the mesh shader reads (see MeshPipeline): tenths the lustre, hundredths the clarity
+        private static float LustreCode(string lustre, string clarity)
+        {
+            double l = lustre == "vitreous" || lustre == "adamantine" ? 0.9 : lustre == "metallic" || lustre == "submetallic" ? 0.8 : lustre == "pearly" || lustre == "silky" ? 0.7
+                : lustre == "resinous" || lustre == "waxy" || lustre == "greasy" ? 0.6 : lustre == "wet" ? 0.5 : 1.0;
+            if (l >= 1) return 1;
+            return (float)(l + (clarity == "clear" ? 0.02 : clarity == "translucent" ? 0.01 : 0) + 0.002);
+        }
         private long FocusAI { get { return (long)Math.Round(_fx / AtomSpacing); } }
         private long FocusAJ { get { return (long)Math.Round(_fz / AtomSpacing); } }
         private Element SiteAtom(Mineral m, long i, long j, long k)
@@ -518,28 +537,22 @@ namespace DnaAnd.Shell
                     double x0 = at(a), z0 = at(b);
                     float t = (float)(0.93 + 0.14 * Hash((long)Math.Floor((_fx + x0) / (step * 4)), (long)Math.Floor((_fz + z0) / (step * 4)), 61, _seed)) * sh;
                     float r = m.R * t, g = m.G * t, bl = m.B * t;
-                    Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)(at(aa) / s + _ex), Y = (float)((hy[aa, bb] + _yOff - _fy) / s + _ey), Z = (float)(at(bb) / s + _ez), Size = nrm[aa, bb], R = r, G = g, B = bl, A = 1 };
+                    Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)(at(aa) / s + _ex), Y = (float)((hy[aa, bb] + _yOff - _fy) / s + _ey), Z = (float)(at(bb) / s + _ez), Size = nrm[aa, bb], R = r, G = g, B = bl, A = m.Lustre };
                     mesh.Add(v(a, b)); mesh.Add(v(a + 1, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b + 1));
                 }
         }
 
         // ── what sits on a grain's surface, each at its real size, fixed in place (from its cell), each pickable ──
-        // (name, smallest and largest size across in km, how many per cell (cell = 4 of its largest size), colour, flat?)
-        private sealed class SurfThing { public string Id, Name; public double Lo, Hi, Chance; public float R, G, B; public bool Flat; }
-        private static readonly SurfThing[] SurfThings =
-        {
-            new SurfThing { Id = "clay-platelet", Name = "a clay platelet (kaolinite)", Lo = 2e-10, Hi = 2e-9, Chance = 0.6, R = 0.85f, G = 0.8f, B = 0.7f, Flat = true },
-            new SurfThing { Id = "iron-coating", Name = "an iron-oxide coating", Lo = 1e-10, Hi = 1e-9, Chance = 0.5, R = 0.65f, G = 0.28f, B = 0.14f, Flat = true },
-            new SurfThing { Id = "nanoparticle", Name = "an iron-oxide nanoparticle", Lo = 5e-12, Hi = 5e-11, Chance = 0.5, R = 0.55f, G = 0.25f, B = 0.15f },
-            new SurfThing { Id = "water", Name = "a water molecule of the surface film", Lo = 2.8e-13, Hi = 3.2e-13, Chance = 0.6, R = 0.9f, G = 0.2f, B = 0.15f },
-        };
+        // (all of them from content/minerals.dnat @surface: what it is made of, its sizes, how common, its shape, what it is)
+        private sealed class SurfThing { public string Id, Name; public Mineral M; public double Lo, Hi, Chance, Bond, Angle; public bool Flat, Molecule; public string[] About; }
+        private readonly List<SurfThing> _surf = new List<SurfThing>();
         private double _clock;                                                             // the matter's time, for the electrons of things drawn here
         private void SurfaceThings(List<StarVertex> solid, List<StarVertex> glow, double s)
         {
             long fgi, fgj; double fgx, fgy, fgz, frad; FocusGrain(out fgi, out fgj, out fgx, out fgy, out fgz, out frad);
-            for (int t = 0; t < SurfThings.Length; t++)
+            for (int t = 0; t < _surf.Count; t++)
             {
-                var st = SurfThings[t];
+                var st = _surf[t];
                 if (st.Hi / s < 0.004 || st.Lo / s > 3) continue;                           // only at sizes where it shows
                 double cell = st.Hi * 4; long n = (long)Math.Ceiling(2 * s / cell);
                 if (n > 40) continue;
@@ -552,10 +565,12 @@ namespace DnaAnd.Shell
                         if (!GrainTop(fgi, fgj, fgx, fgy, fgz, frad, x, z, Math.Max(size * 0.5, AtomSpacing), out top)) continue;
                         double y = st.Flat ? top + size * 0.08 + AtomSpacing : top + size * 0.5;
                         if (s < size * 0.4 && (x - _fx) * (x - _fx) + (z - _fz) * (z - _fz) < size * size * 0.25) continue;   // you are at it: its own atoms show instead (by where you are)
-                        if (st.Id == "water")
+                        if (st.Molecule && st.M.Atoms.Length >= 3)
                         {
-                            // a water molecule: its oxygen and two hydrogens, bent at 104.5 degrees, each turned its own way
-                            var o = El("O"); var hh = El("H"); double oh = 0.957e-13, half = 104.5 / 2 * Math.PI / 180, turn = Hash(i, j, 104, _seed) * Math.PI * 2;
+                            // a molecule drawn atom by atom from its mineral's formula: the first atom in the middle, the next two at the
+                            // bond length and angle the data gives, each molecule turned its own way
+                            var o = El(st.M.Atoms[0]); var hh = El(st.M.Atoms[1]); if (o == null || hh == null) continue;
+                            double oh = st.Bond, half = st.Angle / 2 * Math.PI / 180, turn = Hash(i, j, 104, _seed) * Math.PI * 2;
                             double ball = 1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2);               // close in, each atom becomes its own system
                             float cf = (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2);
                             if (ball > 0.03) Add(solid, x, y, z, 0.66e-13 * ball, o.R, o.G, o.B, s);
@@ -569,7 +584,7 @@ namespace DnaAnd.Shell
                         }
                         else
                         {
-                            Add(solid, x, y, z, size * 0.5 / 0.75, st.R, st.G, st.B, s);
+                            Add(solid, x, y, z, size * 0.5 / 0.75, st.M.R, st.M.G, st.M.B, s);
                             if (st.Flat && solid.Count > 0) { var tv = solid[solid.Count - 1]; tv.A = 0.5f; solid[solid.Count - 1] = tv; }   // a flat plate or skin on the surface
                         }
                         int nb = _bodies.Count; AddBody(8, i, j, x, y, z, size * 0.5, s); if (_bodies.Count > nb) _bodies[nb].Sym = st.Id;
@@ -1055,17 +1070,10 @@ namespace DnaAnd.Shell
             }
             if (_picked != null && _picked.Kind == 8)
             {
-                var st = Array.Find(SurfThings, q => q.Id == _picked.Sym); if (st == null) return L;
-                L.Add(st.Name.Substring(st.Name.IndexOf(' ') + 1, 1).ToUpperInvariant() + st.Name.Substring(st.Name.IndexOf(' ') + 2));
+                var st = _surf.Find(q => q.Id == _picked.Sym); if (st == null) return L;
+                L.Add(st.Name);
                 L.Add("width: about " + ScaleHud.Words(_picked.Size * 2));
-                switch (st.Id)
-                {
-                    case "fluid-inclusion": L.Add("a bubble of water or gas trapped in the crystal as it grew"); L.Add("it keeps a sample of the fluid of its birth"); break;
-                    case "clay-platelet": L.Add("a thin six-sided plate, Al2Si2O5(OH)4"); L.Add("left by water slowly weathering feldspar"); break;
-                    case "iron-coating": L.Add("a skin of iron oxide (hematite, goethite)"); L.Add("it colours sand red, orange and yellow"); break;
-                    case "nanoparticle": L.Add("a speck of hematite or goethite, Fe2O3 / FeOOH"); L.Add("a few thousand atoms of iron and oxygen"); break;
-                    default: L.Add("H2O, bent at 104.5 degrees"); L.Add("from the air: every mineral surface wears a film"); L.Add("one or two molecules thick"); break;
-                }
+                L.AddRange(st.About);
                 return L;
             }
             if (_picked != null && _picked.Kind == 6)

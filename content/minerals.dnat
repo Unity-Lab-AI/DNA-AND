@@ -9,6 +9,8 @@
 #   clay below 0.0039 mm; dune sand mostly 0.2 to 0.5 mm; the Moon's dust about 0.04 to 0.1 mm; snow grains 0.1 to 2 mm).
 # Crystal faces step down in single layers about 0.2 to 0.3 nm high, with flat terraces between usually 10 to 100 nm wide.
 # atoms: the formula's atoms written out one by one (its real ratio); colour: the grain's colour as seen (0 to 1).
+# lustre: how its surface takes light (mineral reference tables: vitreous like glass, metallic, pearly, resinous, waxy,
+#   earthy (dull), wet); clarity: clear, translucent or opaque. Every grain, stone and thing is drawn by these, never by name.
 # Spec: docs/CONTENT-FORMAT.md · content/elements.dnat · content/geology.dnat
 
 @mineral quartz
@@ -16,138 +18,184 @@ name: Quartz
 formula: SiO2
 atoms: Si O O
 colour: 0.86 0.82 0.74
+lustre: vitreous
+clarity: clear
 
 @mineral albite
 name: Albite (sodium feldspar)
 formula: NaAlSi3O8
 atoms: Na Al Si Si Si O O O O O O O O
 colour: 0.9 0.88 0.84
+lustre: vitreous
+clarity: translucent
 
 @mineral orthoclase
 name: Orthoclase (potassium feldspar)
 formula: KAlSi3O8
 atoms: K Al Si Si Si O O O O O O O O
 colour: 0.88 0.7 0.62
+lustre: vitreous
+clarity: translucent
 
 @mineral anorthite
 name: Anorthite (calcium feldspar)
 formula: CaAl2Si2O8
 atoms: Ca Al Al Si Si O O O O O O O O
 colour: 0.82 0.82 0.8
+lustre: vitreous
+clarity: translucent
 
 @mineral forsterite
 name: Olivine (forsterite)
 formula: Mg2SiO4
 atoms: Mg Mg Si O O O O
 colour: 0.55 0.66 0.3
+lustre: vitreous
+clarity: translucent
 
 @mineral fayalite
 name: Olivine (fayalite)
 formula: Fe2SiO4
 atoms: Fe Fe Si O O O O
 colour: 0.42 0.38 0.2
+lustre: vitreous
+clarity: translucent
 
 @mineral enstatite
 name: Pyroxene (enstatite)
 formula: MgSiO3
 atoms: Mg Si O O O
 colour: 0.4 0.38 0.3
+lustre: vitreous
+clarity: translucent
 
 @mineral augite
 name: Pyroxene (augite)
 formula: CaMgSi2O6
 atoms: Ca Mg Si Si O O O O O O
 colour: 0.22 0.22 0.2
+lustre: vitreous
+clarity: opaque
 
 @mineral kaolinite
 name: Clay (kaolinite)
 formula: Al2Si2O5(OH)4
 atoms: Al Al Si Si O O O O O O O O O H H H H
 colour: 0.84 0.78 0.66
+lustre: earthy
+clarity: opaque
 
 @mineral biotite
 name: Mica (biotite)
 formula: KMg3AlSi3O10(OH)2
 atoms: K Mg Mg Mg Al Si Si Si O O O O O O O O O O O O H H
 colour: 0.25 0.2 0.14
+lustre: pearly
+clarity: translucent
 
 @mineral calcite
 name: Calcite
 formula: CaCO3
 atoms: Ca C O O O
 colour: 0.94 0.92 0.86
+lustre: vitreous
+clarity: clear
 
 @mineral hematite
 name: Hematite
 formula: Fe2O3
 atoms: Fe Fe O O O
 colour: 0.6 0.22 0.14
+lustre: metallic
+clarity: opaque
 
 @mineral magnetite
 name: Magnetite
 formula: Fe3O4
 atoms: Fe Fe Fe O O O O
 colour: 0.16 0.16 0.17
+lustre: metallic
+clarity: opaque
 
 @mineral ilmenite
 name: Ilmenite
 formula: FeTiO3
 atoms: Fe Ti O O O
 colour: 0.18 0.17 0.17
+lustre: metallic
+clarity: opaque
 
 @mineral pyrite
 name: Pyrite
 formula: FeS2
 atoms: Fe S S
 colour: 0.8 0.7 0.36
+lustre: metallic
+clarity: opaque
 
 @mineral gypsum
 name: Gypsum
 formula: CaSO4·2H2O
 atoms: Ca S O O O O O O H H H H
 colour: 0.95 0.94 0.9
+lustre: pearly
+clarity: clear
 
 @mineral halite
 name: Halite (rock salt)
 formula: NaCl
 atoms: Na Cl
 colour: 0.95 0.93 0.93
+lustre: vitreous
+clarity: clear
 
 @mineral sulfur
 name: Sulfur
 formula: S8
 atoms: S S S S S S S S
 colour: 0.92 0.84 0.2
+lustre: resinous
+clarity: translucent
 
 @mineral water-ice
 name: Water ice
 formula: H2O
 atoms: O H H
 colour: 0.88 0.93 0.98
+lustre: vitreous
+clarity: clear
 
 @mineral sea-water
 name: Sea water
 formula: H2O with dissolved salt
 atoms: O H H O H H O H H O H H O H H O H H O H H O H H O H H Na Cl
 colour: 0.2 0.4 0.6
+lustre: wet
+clarity: clear
 
 @mineral dry-ice
 name: Carbon dioxide ice
 formula: CO2
 atoms: C O O
 colour: 0.94 0.94 0.94
+lustre: vitreous
+clarity: translucent
 
 @mineral nitrogen-ice
 name: Nitrogen ice
 formula: N2
 atoms: N N
 colour: 0.92 0.88 0.86
+lustre: vitreous
+clarity: clear
 
 @mineral methane-ice
 name: Methane ice
 formula: CH4
 atoms: C H H H H
 colour: 0.82 0.74 0.66
+lustre: waxy
+clarity: translucent
 
 # ── what each kind of ground is made of: mineral share, mineral share, ... (parts per 100) ──
 
@@ -195,3 +243,42 @@ minerals: sea-water 100
 name: Sea ice and ice sheets
 grain-mm: 0.2..1
 minerals: water-ice 100
+
+# ── what lies on a grain's surface, everywhere, at its real size (soil science: clay platelets 0.2 to 2 um across,
+#   iron-oxide coatings 0.1 to 1 um, iron-oxide nanoparticles 5 to 50 nm, and a film of water one or two molecules thick
+#   from the air on every mineral surface). size-km: smallest to largest across; chance: how many of its cells hold one
+#   (a cell is 4 of its largest size); mineral: what it is made of (you go into its own atoms); shape: flat (a plate or a
+#   skin), round, or molecule (drawn atom by atom from its mineral, with its bond length in nm and bond angle in degrees).
+@surface clay-platelet
+name: A clay platelet (kaolinite)
+mineral: kaolinite
+size-km: 2e-10 2e-9
+chance: 0.6
+shape: flat
+about: a thin six-sided plate, Al2Si2O5(OH)4 | left by water slowly weathering feldspar
+
+@surface iron-coating
+name: An iron-oxide coating
+mineral: hematite
+size-km: 1e-10 1e-9
+chance: 0.5
+shape: flat
+about: a skin of iron oxide (hematite, goethite) | it colours sand red, orange and yellow
+
+@surface nanoparticle
+name: An iron-oxide nanoparticle
+mineral: hematite
+size-km: 5e-12 5e-11
+chance: 0.5
+shape: round
+about: a speck of hematite or goethite, Fe2O3 / FeOOH | a few thousand atoms of iron and oxygen
+
+@surface water
+name: A water molecule of the surface film
+mineral: water-ice
+size-km: 2.8e-13 3.2e-13
+chance: 0.6
+shape: molecule
+bond-nm: 0.0957
+angle: 104.5
+about: H2O, bent at 104.5 degrees | from the air: every mineral surface wears a film | one or two molecules thick

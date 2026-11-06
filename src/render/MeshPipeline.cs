@@ -92,6 +92,28 @@ float4 PS(VO i) : SV_Target
     float gl = max(i.glow, 0);
     float3 c = misc.z > 1.5 && misc.z < 2.5 ? i.col.rgb * max(lit, gl) * sc : i.col.rgb * max(lit3, gl);
     float alpha = misc.z > 1.5 ? i.col.a : 1;
+    if (misc.z < 0.5 && i.col.a < 0.995)
+    {
+        // a lustre (from the mineral's data): a = 0.9 vitreous, 0.8 metallic, 0.7 pearly, 0.6 resinous/waxy, 0.5 wet;
+        // the clarity in the hundredths (0.0x clear, translucent, opaque by x = 2, 1, 0)
+        float code = i.col.a; float lu = floor(code * 10 + 0.001) / 10; float clr = round((code - lu) * 100);
+        float3 hv = normalize(light.xyz + v); float nh = saturate(dot(n, hv)), nv = saturate(dot(n, v));
+        float fres = pow(1 - nv, 5);
+        float shine = 0, power = 8; float3 spec = float3(1, 1, 1);
+        if (lu > 0.85) { shine = 0.55; power = 90; }                                  // vitreous: a sharp glassy glint
+        else if (lu > 0.75) { shine = 1.1; power = 40; spec = i.col.rgb * 1.6; c *= 0.55; }   // metallic: the glint in its own colour, dark body
+        else if (lu > 0.65) { shine = 0.35; power = 14; c += fres * 0.25 * sc; }      // pearly: a soft sheen across it
+        else if (lu > 0.55) { shine = 0.3; power = 20; }                              // resinous, waxy: a soft greasy glint
+        else if (lu > 0.45) { shine = 0.9; power = 140; }                             // wet: a mirror glint
+        c += spec * sc * shine * pow(nh, power) * saturate(sun * 4);
+        c += sc * fres * (lu > 0.75 && lu < 0.85 ? 0.15 : 0.35) * shine;               // the edge catches the light (glass and ice most)
+        if (clr > 0.5)
+        {
+            // light through it: clear and translucent things glow softly from within on the side away from the light
+            float through = saturate(-dot(n, light.xyz)) * (clr > 1.5 ? 0.45 : 0.25);
+            c += i.col.rgb * sc * through + i.col.rgb * (clr > 1.5 ? 0.12 : 0.05);
+        }
+    }
     if (misc.z > 2.5)
     {
         // water: a sharp glint of starlight, and more see-through when looked at from straight above
