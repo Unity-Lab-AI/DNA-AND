@@ -295,16 +295,22 @@ namespace DnaAnd.Shell
                 _planet = best;
                 _ground = new PlanetTerrain(_gpu.Device, DeepView.TerrainKind(b.Kind), b.Kind, (uint)(_galaxies[_near].Seed * 977UL + (ulong)_sysStar * 31UL + (ulong)best), false, b.RadiusUnits / Units.Km(1));
             }
-            if (_planet >= 0)
-            {
-                // near a planet the camera rides along with it as it moves round its star, as anything near it would
-                double ox = _px, oy = _py, oz = _pz; bool had = _hadPos;
-                BodyPos(_planet, out _px, out _py, out _pz);
-                if (had) { _ox += _px - ox; _oy += _py - oy; _oz += _pz - oz; }
-                _hadPos = true;
-            }
-            else _hadPos = false;
+            if (_planet >= 0) BodyPos(_planet, out _px, out _py, out _pz);
         }
+
+        // the camera rides along with the planet or moon you picked (or are at) as it goes round its star
+        private void FollowBody()
+        {
+            int follow = _tKind == 2 && _system != null && _tIndex < _system.Bodies.Count ? _tIndex : _planet;
+            if (follow >= 0)
+            {
+                double fx, fy, fz; BodyPos(follow, out fx, out fy, out fz);
+                if (_hadPos && follow == _followBody) { _ox += fx - _fbx; _oy += fy - _fby; _oz += fz - _fbz; }
+                _fbx = fx; _fby = fy; _fbz = fz; _followBody = follow; _hadPos = true;
+            }
+            else { _hadPos = false; _followBody = -1; }
+        }
+        private int _followBody = -1; private double _fbx, _fby, _fbz;
 
         private bool _hadPos;
         private void DropPlanet() { _hadPos = false; if (_ground != null) { _ground.Dispose(); _ground = null; } _planet = -1; }
@@ -494,7 +500,7 @@ namespace DnaAnd.Shell
                 if (input.Wheel != 0) _matterScale *= Math.Pow(0.87, input.Wheel);
                 if (_matterScale > MatterView.TopKm) _matterScale = 0;                 // back up to the ground
                 else _matterScale = Math.Max(MatterView.BottomKm, _matterScale);
-                ChooseNear(); LocalStars(); ChooseSystem(); ChoosePlanet();
+                ChooseNear(); LocalStars(); ChooseSystem(); ChoosePlanet(); FollowBody();
                 return true;
             }
             if (_ground != null && input.Wheel > 0 && AboveGround() < Units.Km(1.5e-6))
@@ -549,6 +555,7 @@ namespace DnaAnd.Shell
             LocalStars();
             ChooseSystem();
             ChoosePlanet();
+            FollowBody();
             return true;
         }
 
