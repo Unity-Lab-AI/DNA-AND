@@ -556,6 +556,8 @@ namespace DnaAnd.Shell
                 for (int i = 0; i < st.Length; i++) { var v = st[i]; v.X = (float)(st[i].X - _ox); v.Y = (float)(st[i].Y - _oy); v.Z = (float)(st[i].Z - _oz); _staticShifted[i] = v; }
                 if (st.Length > 0) { _sysStatic.Write(_staticShifted, st.Length); DrawPoints(_sysStatic, st.Length, vp, right, up, 0f, 0.002f, w, h, time); }
                 for (int i = 0; i < _bodyCount; i++) { _bodyVerts[i].X = (float)(_bodyVerts[i].X - _ox); _bodyVerts[i].Y = (float)(_bodyVerts[i].Y - _oy); _bodyVerts[i].Z = (float)(_bodyVerts[i].Z - _oz); }
+                // the planet whose real ground is showing is not drawn as a glow too (it showed through its own see-through sea and clouds as a frosted ghost)
+                if (_ground != null && _planet + 1 < _bodyCount) { _bodyVerts[_planet + 1].Size = 0; _bodyVerts[_planet + 1].R = _bodyVerts[_planet + 1].G = _bodyVerts[_planet + 1].B = 0; }
                 _sysBodies.Write(_bodyVerts, _bodyCount);
                 DrawPoints(_sysBodies, _bodyCount, vp, right, up, 1f, 0.004f, w, h, time);
                 // close enough to see its disc: the star's real body at its real size
