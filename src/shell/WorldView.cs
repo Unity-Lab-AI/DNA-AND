@@ -492,6 +492,7 @@ namespace DnaAnd.Shell
 
         public bool Update(Input input, double dt, int w, int h)
         {
+            Mark();
             // a click (pressed and let go without dragging) picks what is under the mouse
             if (input.LeftClicked) { _pressed = true; _dragged = false; _pressX = input.MouseX; _pressY = input.MouseY; }
             if (_pressed && input.LeftDown && Math.Abs(input.MouseX - _pressX) + Math.Abs(input.MouseY - _pressY) > 6) _dragged = true;   // dragging circles round the pick (or looks around if nothing is picked)
@@ -567,6 +568,7 @@ namespace DnaAnd.Shell
                 }
                 else { _yaw += sx * input.MouseDX * 0.004; _pitch = Math.Max(-1.55, Math.Min(1.55, _pitch + sy * input.MouseDY * 0.004)); }
             }
+            Jumped("dragging");
             double reach = NearestDistance();
             if (_matterScale <= 0)
             {
@@ -589,6 +591,7 @@ namespace DnaAnd.Shell
                     }
                 }
             }
+            Jumped("W A S D Q E");
             if (_matterScale > 0)
             {
                 // in the ground's matter: the wheel shrinks or grows the scale, from a millimetre down inside an atom
@@ -655,8 +658,9 @@ namespace DnaAnd.Shell
                     }
                 }
             }
+            Jumped("the wheel");
             _simYears += dt / 20.0;                                                    // one year in 20 seconds, as in the system view
-            Mark(); ChooseNear(); Jumped("ChooseNear");
+            ChooseNear(); Jumped("ChooseNear");
             LocalStars(); Jumped("LocalStars");
             ChooseSystem(); Jumped("ChooseSystem");
             ChoosePlanet(); Jumped("ChoosePlanet");
