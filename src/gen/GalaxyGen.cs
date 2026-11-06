@@ -16,9 +16,9 @@ namespace DnaAnd.Gen
     internal static class GalaxyGen
     {
         /// <summary>Main-sequence star types and how common each is, read from content/stars.dnat.</summary>
-        // each kind of galaxy's shape (content/galaxies.dnat shape:), read once
+        // each kind of galaxy's shape (content/galaxies.dnat layout:), read once
         private static readonly Dictionary<string, string> Shapes = new Dictionary<string, string>();
-        public static void LoadShapes(ContentLibrary content) { if (Shapes.Count == 0) foreach (var e in content.OfKind("galaxies.dnat", "galaxy")) Shapes[e.Id] = e.Get("shape", "spiral"); }
+        public static void LoadShapes(ContentLibrary content) { if (Shapes.Count == 0) foreach (var e in content.OfKind("galaxies.dnat", "galaxy")) Shapes[e.Id] = e.Get("layout", "spiral"); }
         private static string ShapeOf(string type) { string v; return Shapes.TryGetValue(type ?? "", out v) ? v : type; }
         public static List<StarKind> StarKinds(ContentLibrary content)
         {
