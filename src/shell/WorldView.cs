@@ -386,6 +386,11 @@ namespace DnaAnd.Shell
                     // first pieces stretched across the screen), and never below half a millimetre
                     double ready = _ground.ReadyStep < 1e30 ? _ground.ReadyStep * 3 : _ground.Radius;
                     double floorKm = Math.Max(5e-7, ready);
+                    {
+                        // over the sea: no lower than a metre above the water, until the dive under the sea is in the one world
+                        double cx0, cy0, cz0; CamFromPlanet(out cx0, out cy0, out cz0); double r0 = Math.Sqrt(cx0 * cx0 + cy0 * cy0 + cz0 * cz0);
+                        if (_ground.HasWater && _ground.GroundAt(cx0 / r0, cy0 / r0, cz0 / r0) < 0) floorKm = Math.Max(floorKm, 0.001);
+                    }
                     if (AboveGround() < Units.Km(floorKm))
                     {
                         double x, y, z; CamFromPlanet(out x, out y, out z);
