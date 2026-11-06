@@ -128,10 +128,43 @@ namespace DnaAnd.Shell
         private Mineral FocusMineral { get { return GrainMineral(FocusGI, FocusGJ); } }
         private long FocusAI { get { return (long)Math.Round(_fx / AtomSpacing); } }
         private long FocusAJ { get { return (long)Math.Round(_fz / AtomSpacing); } }
-        private Element SiteAtom(Mineral m, long i, long j, long k) { return m == null ? null : El(m.Atoms[(int)(Hash(i, j, k + 20, _seed) * m.Atoms.Length) % m.Atoms.Length]); }
+        private Element SiteAtom(Mineral m, long i, long j, long k)
+        {
+            if (m == null) return null;
+            KeyValuePair<string, double[]>[] mol;
+            if (Molecules.TryGetValue(m.Id, out mol)) return El(mol[0].Key);                    // a molecule's first atom sits on the site
+            return El(m.Atoms[(int)(Hash(i, j, k + 20, _seed) * m.Atoms.Length) % m.Atoms.Length]);
+        }
 
         // the atom right under you: the site of the focus grain's lattice nearest the point you dive into
         private Element FocusAtom() { return SiteAtom(FocusMineral, FocusAI, FocusAJ, 0); }
+
+        // minerals made of separate molecules: each lattice site holds one, its atoms in the molecule's real shape (km, from its
+        // first atom, which sits on the site). Network minerals (quartz, feldspar, olivine...) have none: their atoms are the sites.
+        private static readonly Dictionary<string, KeyValuePair<string, double[]>[]> Molecules = BuildMolecules();
+        private static Dictionary<string, KeyValuePair<string, double[]>[]> BuildMolecules()
+        {
+            var d = new Dictionary<string, KeyValuePair<string, double[]>[]>();
+            double oh = 0.957e-13, half = 104.5 / 2 * Math.PI / 180;                       // water: O-H 0.0957 nm, bent at 104.5 degrees
+            var water = new[] { P("O", 0, 0, 0), P("H", oh * Math.Sin(half), oh * Math.Cos(half), 0), P("H", -oh * Math.Sin(half), oh * Math.Cos(half), 0) };
+            d["water-ice"] = water; d["sea-water"] = water;
+            double co = 1.16e-13;                                                            // carbon dioxide: straight, C=O 0.116 nm
+            d["dry-ice"] = new[] { P("C", 0, 0, 0), P("O", co, 0, 0), P("O", -co, 0, 0) };
+            double ch = 1.09e-13 / Math.Sqrt(3);                                             // methane: a tetrahedron, C-H 0.109 nm
+            d["methane-ice"] = new[] { P("C", 0, 0, 0), P("H", ch, ch, ch), P("H", ch, -ch, -ch), P("H", -ch, ch, -ch), P("H", -ch, -ch, ch) };
+            d["nitrogen-ice"] = new[] { P("N", 0, 0, 0), P("N", 1.10e-13, 0, 0) };          // nitrogen: a pair, N-N 0.110 nm
+            return d;
+        }
+        private static KeyValuePair<string, double[]> P(string el, double x, double y, double z) { return new KeyValuePair<string, double[]>(el, new[] { x, y, z }); }
+
+        // turns a molecule's offset by its site's own orientation (from the site's hash)
+        private void Orient(long i, long j, long k, double[] v, out double x, out double y, out double z)
+        {
+            double a = Hash(i, j, k + 40, _seed) * Math.PI * 2, b = Math.Acos(1 - 2 * Hash(i, j, k + 41, _seed)), c = Hash(i, j, k + 42, _seed) * Math.PI * 2;
+            double x1 = v[0] * Math.Cos(a) - v[1] * Math.Sin(a), y1 = v[0] * Math.Sin(a) + v[1] * Math.Cos(a), z1 = v[2];
+            double y2 = y1 * Math.Cos(b) - z1 * Math.Sin(b), z2 = y1 * Math.Sin(b) + z1 * Math.Cos(b);
+            x = x1 * Math.Cos(c) - z2 * Math.Sin(c); z = x1 * Math.Sin(c) + z2 * Math.Cos(c); y = y2;
+        }
 
         private static double AtomRadius(Element e) { return e == null ? 1e-13 : e.Z == 1 ? 0.53e-13 : (0.7 + 0.5 * Math.Min(1, e.Z / 30.0)) * 1e-13; }
         private static double NucleusRadius(Element e) { return 1.2e-18 * Math.Pow(e == null ? 28 : e.A, 1 / 3.0); }
@@ -228,7 +261,19 @@ namespace DnaAnd.Shell
                             bool inFocus = i == ai0 && j == aj0 && k == 0 && s < ar * 4;
                             if (inFocus) continue;                                          // you are going into this one: drawn from inside below
                             float sh = (float)(1 - 0.25 * -k);
-                            Add(solid, i * a, k * a - ar, j * a, ar * 0.9, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
+                            KeyValuePair<string, double[]>[] mol;
+                            if (Molecules.TryGetValue(fm.Id, out mol))
+                            {
+                                // a whole molecule on this site, in its real shape, each turned its own way
+                                for (int q = 1; q < mol.Length; q++)
+                                {
+                                    var me = El(mol[q].Key); if (me == null) continue; double ox, oy, oz; Orient(i, j, k, mol[q].Value, out ox, out oy, out oz);
+                                    double mr = AtomRadius(me) * 0.55;                       // bonded atoms overlap: drawn at their bonded size
+                                    Add(solid, i * a + ox, k * a - ar + oy, j * a + oz, mr, me.R * sh * f, me.G * sh * f, me.B * sh * f, s);
+                                }
+                                Add(solid, i * a, k * a - ar, j * a, ar * 0.55, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
+                            }
+                            else Add(solid, i * a, k * a - ar, j * a, ar * 0.9, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
                             if (k == 0) AddBody(1, i, j, i * a, -ar, j * a, ar, s);
                         }
             }
@@ -356,7 +401,8 @@ namespace DnaAnd.Shell
             L.Add("protons: " + e.Z + ", neutrons: " + (e.A - e.Z) + ", electrons: " + e.Z);
             L.Add("shells: " + string.Join(", ", Array.ConvertAll(e.Shells, x => x.ToString())));
             L.Add("width: about " + ScaleHud.Words(AtomRadius(e) * 2) + ", nucleus " + ScaleHud.Words(NucleusRadius(e) * 2));
-            if (fm != null) L.Add("in a grain of " + fm.Name.ToLowerInvariant() + " (" + fm.Formula + ")");
+            if (fm != null && Molecules.ContainsKey(fm.Id)) L.Add("in a molecule of " + fm.Formula.Split(' ')[0] + ", in " + fm.Name.ToLowerInvariant());
+            else if (fm != null) L.Add("in a grain of " + fm.Name.ToLowerInvariant() + " (" + fm.Formula + ")");
             return L;
         }
 
