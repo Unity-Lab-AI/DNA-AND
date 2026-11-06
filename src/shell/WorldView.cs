@@ -40,6 +40,7 @@ namespace DnaAnd.Shell
         private int _sysStar = -1; private SpaceGen.StarSystem _system; private int[] _nearKinds;
         private UploadBuffer _sysStatic, _sysBodies; private StarVertex[] _bodyVerts, _staticShifted; private int _bodyCount;
         private double _simYears;
+        private StarSurface _starSurf; private StarVertex[] _starCorona, _starSurfVerts; private UploadBuffer _coronaBuf, _surfBuf;
         private static readonly double SystemRange = Units.Au(2000);
         // the galaxy whose own stars are being shown (or -1), and those stars in its own frame
         private int _near = -1; private StarVertex[] _nearLocal, _nearDrawn; private UploadBuffer _nearBuf; private float _nearFade = -1;
@@ -165,7 +166,7 @@ namespace DnaAnd.Shell
                         var kind = PickKind(rng);
                         var kc = _kinds[kind];
                         cell[k] = new StarVertex { X = (float)((x + rng.NextDouble()) * LocalCell), Y = (float)((y + rng.NextDouble()) * LocalCell), Z = (float)((z + rng.NextDouble()) * LocalCell),
-                            Size = 0.00002f, R = kc.R, G = kc.G, B = kc.B, A = kind };      // A carries the kind's index
+                            Size = (float)Units.Km(696000), R = kc.R, G = kc.G, B = kc.B, A = kind };      // A carries the kind's index
                     }
                 }
                 keep[id] = cell;
@@ -230,6 +231,11 @@ namespace DnaAnd.Shell
                 _staticShifted = new StarVertex[_system.Static.Length];
                 _sysStatic = new UploadBuffer(_gpu.Device, (long)Math.Max(1, _system.Static.Length) * Stride);
                 double sx, sy, sz; StarPos(k, out sx, out sy, out sz); Anchor(sx, sy, sz);
+                // the star's own body: its plasma surface and corona, in its kind's colours (as the star close-ups are made)
+                string sname; _starCorona = StarGen.Build(_content, kind.Id, _galaxies[_near].Seed * 77UL + StarSeed(k), out sname, out _starSurf);
+                _starSurfVerts = new StarVertex[_starSurf.Normals.Length];
+                _coronaBuf = new UploadBuffer(_gpu.Device, (long)Math.Max(1, _starCorona.Length) * Stride); if (_starCorona.Length > 0) _coronaBuf.Write(_starCorona, _starCorona.Length);
+                _surfBuf = new UploadBuffer(_gpu.Device, (long)_starSurfVerts.Length * Stride);
             }
             if (_system == null && _near >= 0) { var g = _galaxies[_near]; if (Math.Abs(_ax - g.X) + Math.Abs(_ay - g.Y) + Math.Abs(_az - g.Z) > 0) Anchor(g.X, g.Y, g.Z); }
         }
@@ -241,6 +247,9 @@ namespace DnaAnd.Shell
             _system = null; _sysStar = -1;
             if (_sysStatic != null) { _sysStatic.Dispose(); _sysStatic = null; }
             if (_sysBodies != null) { _sysBodies.Dispose(); _sysBodies = null; }
+            if (_coronaBuf != null) { _coronaBuf.Dispose(); _coronaBuf = null; }
+            if (_surfBuf != null) { _surfBuf.Dispose(); _surfBuf = null; }
+            _starSurf = null;
         }
 
         // the system's planets, moons and star placed around the star (anchor), and the nearest surface to the camera
@@ -277,6 +286,9 @@ namespace DnaAnd.Shell
             {
                 // fly along the line under the mouse, by a share of the distance to the nearest thing: slower as it comes close, never ending
                 var dir = MouseRay(input.MouseX, input.MouseY, w, h);
+                // a star close to the line you point along (within about 4 degrees) is flown at straight, not past
+                double tdist; var tdir = AimStar(dir, out tdist);
+                if (input.Wheel > 0 && tdist > 0) { dir = tdir; reach = Math.Min(reach, tdist); }
                 double step = reach * (1 - Math.Pow(0.87, Math.Abs(input.Wheel))) * Math.Sign(input.Wheel);
                 if (input.Wheel < 0) step = -Math.Max(reach, 0.01) * (Math.Pow(1 / 0.87, -input.Wheel) - 1);
                 _ox += dir.X * step; _oy += dir.Y * step; _oz += dir.Z * step;
@@ -286,6 +298,37 @@ namespace DnaAnd.Shell
             LocalStars();
             ChooseSystem();
             return true;
+        }
+
+        // the star nearest the line along dir (local stars, or the open system's star): its direction and distance (else 0)
+        private Vec3 AimStar(Vec3 dir, out double dist)
+        {
+            dist = 0; var best = dir; double bestCos = Math.Cos(4 * Math.PI / 180);
+            if (_system != null)
+            {
+                // in a system: the star or any planet or moon near the line you point along (the one nearest the line wins)
+                PlaceSystem();
+                for (int i = 0; i < _bodyCount; i++)
+                {
+                    double r = i == 0 ? _system.StarRadius : _system.Bodies[i - 1].RadiusUnits;
+                    double dx = _bodyVerts[i].X - _ox, dy = _bodyVerts[i].Y - _oy, dz = _bodyVerts[i].Z - _oz, l = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+                    if (l <= 0) continue;
+                    double c = (dx * dir.X + dy * dir.Y + dz * dir.Z) / l;
+                    if (c > bestCos) { bestCos = c; best = new Vec3((float)(dx / l), (float)(dy / l), (float)(dz / l)); dist = Math.Max(l - r * 1.5, r * 0.05); }
+                }
+                return best;
+            }
+            if (_near < 0) return best;
+            var g = _galaxies[_near];
+            for (int k = 0; k < _localCount; k++)
+            {
+                var s0 = _localList[k]; double ux, uy, uz; ToUniverse(g, s0.X, s0.Y, s0.Z, out ux, out uy, out uz);
+                double dx = (ux - _ax) - _ox, dy = (uy - _ay) - _oy, dz = (uz - _az) - _oz, l = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+                if (l <= 0) continue;
+                double c = (dx * dir.X + dy * dir.Y + dz * dir.Z) / l;
+                if (c > bestCos) { bestCos = c; best = new Vec3((float)(dx / l), (float)(dy / l), (float)(dz / l)); dist = l; }
+            }
+            return best;
         }
 
         private Vec3 MouseRay(int mx, int my, int w, int h)
@@ -367,7 +410,7 @@ namespace DnaAnd.Shell
             }
             if (_near >= 0 && _localCount > 0 && share > 0.5)
             {
-                // the real stars of this space, placed in the near galaxy's frame, brighter the nearer
+                // the real stars of this space at their real sizes (a small point from afar, never smaller than a dot on screen)
                 for (int k = 0; k < _localCount; k++) { var v = _localList[k]; v.A = 1; _localDrawn[k] = v; }
                 _localBuf.Write(_localDrawn, _localCount);
                 DrawPoints(_localBuf, _localCount, Placement(_galaxies[_near]) * vp, right, up, 1f, 0.0022f, w, h, time);
@@ -383,6 +426,17 @@ namespace DnaAnd.Shell
                 for (int i = 0; i < _bodyCount; i++) { _bodyVerts[i].X = (float)(_bodyVerts[i].X - _ox); _bodyVerts[i].Y = (float)(_bodyVerts[i].Y - _oy); _bodyVerts[i].Z = (float)(_bodyVerts[i].Z - _oz); }
                 _sysBodies.Write(_bodyVerts, _bodyCount);
                 DrawPoints(_sysBodies, _bodyCount, vp, right, up, 1f, 0.004f, w, h, time);
+                // close enough to see its disc: the star's real body at its real size
+                double R = _system.StarRadius, sd = Math.Sqrt(_ox * _ox + _oy * _oy + _oz * _oz);
+                if (_starSurf != null && R / Math.Max(1e-30, sd) > 0.004)
+                {
+                    var toEye = new Vec3((float)(_ox / sd), (float)(_oy / sd), (float)(_oz / sd));
+                    int n = _starSurf.Draw(toEye, time, _starSurfVerts, 0);
+                    _surfBuf.Write(_starSurfVerts, n);
+                    var m = Mat4.Identity; m.M11 = m.M22 = m.M33 = (float)R; m.M41 = (float)-_ox; m.M42 = (float)-_oy; m.M43 = (float)-_oz;
+                    DrawPoints(_surfBuf, n, m * vp, right, up, 1f, 0f, w, h, time);
+                    DrawPoints(_coronaBuf, _starCorona.Length, m * vp, right, up, 1f, 0f, w, h, time);
+                }
             }
         }
 
