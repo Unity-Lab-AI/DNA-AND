@@ -189,12 +189,14 @@ namespace DnaAnd.Gen
 
         /// <summary>Fine roughness: from layer <paramref name="from"/> to <paramref name="to"/>, each layer's bumps are about a
         /// fifth of their own width tall, so the ground looks just as rough at a metre, a millimetre or a micrometre.</summary>
+        private double _grainKm { get { var m = GrainMix(0); return m != null ? m.Size : 0; } }
         private double Micro(double x, double y, double z, uint seed, int from, int to)
         {
             double sum = 0, f = 48 * Math.Pow(2, from);
             for (int i = from; i < to; i++)
             {
                 double width = Radius / f;                           // km across one bump at this layer
+                if (_grainKm > 0 && width < _grainKm * 2) break;     // finer than a couple of grains: that is the grains themselves
                 sum += (Value(x * f + i * 3.1, y * f - i * 5.3, z * f + i * 2.9, seed + (uint)i * 13u) * 2 - 1) * Math.Min(width * 0.18, 3.0);
                 f *= 2;
             }
@@ -282,8 +284,31 @@ namespace DnaAnd.Gen
             _latOverride = -1;
             x = ox; y = oy; z = oz;
             h = Reshaped(x, y, z, h);                                                // craters and sea level are where they are now
+            h = Grains(x, y, z, h, layers, ref r, ref g, ref b, glow);
             if (ResourceView) ViewColour(LastField, h, ref r, ref g, ref b, ref glow);
             return h;
+        }
+
+        /// <summary>Which ground's grains this world has (content/minerals.dnat @mix): its kind, or what it is set to (a moon's
+        /// regolith); the same grains the matter view goes into.</summary>
+        public string MixId;
+        public ulong GrainSeed { get { return (ulong)_seed * 0x9E3779B97F4A7C15UL + 0x6A1u; } }
+        public GrainField.Mix GrainMix(double y) { if (!Solid) return null; if (Math.Abs(y) > 0.86 && GrainField.For("ice") != null) return GrainField.For("ice"); return GrainField.For(MixId ?? Kind) ?? GrainField.For("desert"); }   // (the same choice the matter view makes)
+        // the ground's finest detail: the top of its grains, coming in as the detail grows finer than a couple of grains, so
+        // zooming in, the ground itself breaks into its grains (each its own mineral, shape and shade), never a layer laid over it
+        private double Grains(double x, double y, double z, double h, int layers, ref float r, ref float g, ref float b, float glow)
+        {
+            if (_noGrainsNow || !Solid || Shell || glow > 0.01 || (HasWater && h < 0) || layers <= 6) return h;
+            var gm = GrainMix(y); if (gm == null || gm.Size <= 0) return h;
+            double W = Radius / (48 * Math.Pow(2, layers - 6)), G = gm.Size;             // the finest detail here (km)
+            double wgt = Math.Max(0, Math.Min(1, (2 * G - W) / (1.5 * G))); if (wgt <= 0) return h;
+            double top; GrainField.Grain gr;
+            bool on = GrainField.Top(x, y, z, Radius, gm, GrainSeed, Math.Max(W, 1e-13), out top, out gr);
+            float cr, cg, cb;
+            if (on) { var c = gm.Colour[gr.Mineral]; cr = c[0] * gr.Shade; cg = c[1] * gr.Shade; cb = c[2] * gr.Shade; }
+            else { cr = r * 0.25f; cg = g * 0.25f; cb = b * 0.25f; }                    // down in a gap between grains
+            float w = (float)wgt; r = r * (1 - w) + cr * w; g = g * (1 - w) + cg * w; b = b * (1 - w) + cb * w;
+            return h + top * wgt;
         }
 
         // ── the planet changing shape over time ──
@@ -574,6 +599,7 @@ namespace DnaAnd.Gen
         public static void LoadFields(ContentLibrary content)
         {
             if (Kinds.Count == 0) LoadKinds(content);
+            GrainField.Load(content);
             if (Fields.Count > 0) return;
             foreach (var e in content.Entries) if ((e.Kind == "planet" || e.Kind == "giant") && e.Props.ContainsKey("air")) Air[e.Id] = e.Get("air", "");
             for (int i = 0; i < FieldIds.Length; i++)
@@ -754,6 +780,9 @@ namespace DnaAnd.Gen
             float gl; Height(x, y, z, 30, out r, out g, out b, out gl);
         }
 
+        /// <summary>The ground's own level, without its grains (km above the sea), for the land's slope under the grains.</summary>
+        public double BaseAt(double x, double y, double z) { _noGrainsNow = true; try { return GroundAt(x, y, z); } finally { _noGrainsNow = false; } }
+        [ThreadStatic] private static bool _noGrainsNow;
         public double GroundAt(double x, double y, double z)
         {
             float r, g, b, gl;

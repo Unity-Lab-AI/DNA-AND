@@ -359,7 +359,7 @@ namespace DnaAnd.Shell
                 DropPlanet();
                 var b = _system.Bodies[best];
                 _planet = best;
-                _ground = new PlanetTerrain(_gpu.Device, DeepView.TerrainKind(b.Kind), b.Kind, (uint)(_galaxies[_near].Seed * 977UL + (ulong)_sysStar * 31UL + (ulong)best), false, b.RadiusUnits / Units.Km(1));
+                _ground = new PlanetTerrain(_gpu.Device, DeepView.TerrainKind(b.Kind), b.Kind, (uint)(_galaxies[_near].Seed * 977UL + (ulong)_sysStar * 31UL + (ulong)best), false, b.RadiusUnits / Units.Km(1)) { MixId = b.Kind == "Moon" ? "moon" : null };   // (a moon: its own regolith grains)
             }
             if (_planet >= 0) BodyPos(_planet, out _px, out _py, out _pz);
         }
@@ -425,6 +425,17 @@ namespace DnaAnd.Shell
             ulong spot = (ulong)(long)(x / r * 1e7) * 73856093UL ^ (ulong)(long)(y / r * 1e7) * 19349663UL ^ (ulong)(long)(z / r * 1e7) * 83492791UL;   // the same place, the same grains
             _matterSpot = spot; _matterPlanet = _planet; _mox = x / r; _moy = y / r; _moz = z / r;
             _matter.Set(_system.Bodies[_planet].Kind == "Moon" ? "moon" : _ground.Kind, sea, ice, sea ? 0.2f : 0.58f, sea ? 0.4f : 0.5f, sea ? 0.6f : 0.4f, spot);
+            // the planet's own grains, on the land's slope here: the same ones its ground is the top of
+            {
+                double ux = x / r, uy = y / r, uz = z / r, ex, ey, ez, nx, ny, nz; GrainField.Axes(ux, uy, uz, out ex, out ey, out ez, out nx, out ny, out nz);
+                double d = 5e-4, R = _ground.Radius;
+                Func<double, double, double, double> H = (a1, b1, c1) => { double l = Math.Sqrt(a1 * a1 + b1 * b1 + c1 * c1); return _ground.BaseAt(a1 / l, b1 / l, c1 / l); };
+                double he = (H(ux + ex * d / R, uy + ey * d / R, uz + ez * d / R) - H(ux - ex * d / R, uy - ey * d / R, uz - ez * d / R)) / (2 * d);
+                double hn = (H(ux + nx * d / R, uy + ny * d / R, uz + nz * d / R) - H(ux - nx * d / R, uy - ny * d / R, uz - nz * d / R)) / (2 * d);
+                if (double.IsNaN(he) || Math.Abs(he) > 20) he = 0; if (double.IsNaN(hn) || Math.Abs(hn) > 20) hn = 0;
+                var gm = _ground.GrainMix(uy);
+                _matter.SetGround(R, ux, uy, uz, sea ? null : gm != null ? gm.Id : null, _ground.GrainSeed, he, hn);
+            }
         }
 
         // how far above the planet's ground the camera is (universe units)
@@ -1436,16 +1447,7 @@ namespace DnaAnd.Shell
             double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z);
             var upR = new Vec3((float)(x / r), (float)(y / r), (float)(z / r));
             var east0 = Vec3.Cross(Math.Abs(upR.Y) < 0.99f ? new Vec3(0, 1, 0) : new Vec3(1, 0, 0), upR).Normalized; var north0 = Vec3.Cross(upR, east0).Normalized;
-            // the grains lie on the real ground: their bed takes the land's own slope here (from the ground's height half a metre
-            // either way), so the matter is the land going on down, not a flat layer laid over it
-            var upL = upR;
-            if (_ground != null && _ground.Solid)
-            {
-                double d = 5e-4, R = _ground.Radius;
-                Func<Vec3, double> H = v => { double l = Math.Sqrt(v.X * (double)v.X + v.Y * (double)v.Y + v.Z * (double)v.Z); return Surface(v.X / l, v.Y / l, v.Z / l); };
-                double he = (H(upR + east0 * (float)(d / R)) - H(upR - east0 * (float)(d / R))) / (2 * d), hn = (H(upR + north0 * (float)(d / R)) - H(upR - north0 * (float)(d / R))) / (2 * d);
-                if (!double.IsNaN(he) && !double.IsNaN(hn) && Math.Abs(he) < 20 && Math.Abs(hn) < 20) upL = (upR - east0 * (float)he - north0 * (float)hn).Normalized;
-            }
+            var upL = upR;                                                              // (the grains themselves lie along the land's slope)
             var east = Vec3.Cross(Math.Abs(upL.Y) < 0.99f ? new Vec3(0, 1, 0) : new Vec3(1, 0, 0), upL).Normalized; var north = Vec3.Cross(upL, east).Normalized;
             var lk = new Vec3(Vec3.Dot(look, east), Vec3.Dot(look, upL), Vec3.Dot(look, north));
             if (lk.Y > -0.15f) lk = new Vec3(lk.X, -0.15f, lk.Z);                     // never from below the surface

@@ -160,8 +160,72 @@ namespace DnaAnd.Shell
             return (h & 0xFFFFFF) / (double)0x1000000;
         }
 
-        // the mineral of the grain in cell (i, j)
+        // ── the ground's grains: the planet's own (GrainField), the same ones its ground is the top of ──
+        private DnaAnd.Gen.GrainField.Mix _gm; private ulong _gseed; private double _R, _sx, _sy, _sz, _ax, _ay, _az, _nx, _ny, _nz, _he, _hn;
+        private sealed class GrainRec { public long Key; public double X, Y, Z, Rad; public Mineral M; public float Shade; public int Layer; }
+        private readonly Dictionary<long, GrainRec> _grains = new Dictionary<long, GrainRec>();
+        private double _gcx = double.NaN, _gcz, _greach; private readonly List<GrainRec> _gnear = new List<GrainRec>();
+        /// <summary>The planet the matter is on: its radius (km), the spot's unit direction, its grains (the mix and seed its
+        /// ground uses) and the land's slope there (east and north, km per km), so the grains are the planet's own.</summary>
+        public void SetGround(double radiusKm, double dx, double dy, double dz, string mixId, ulong grainSeed, double slopeE, double slopeN)
+        {
+            _gm = DnaAnd.Gen.GrainField.For(mixId); _gseed = grainSeed; _R = radiusKm; _sx = dx; _sy = dy; _sz = dz; _he = slopeE; _hn = slopeN;
+            DnaAnd.Gen.GrainField.Axes(dx, dy, dz, out _ax, out _ay, out _az, out _nx, out _ny, out _nz);
+            _grains.Clear(); _gcx = double.NaN; _gcx2 = double.NaN;
+            if (_gm != null && !_noGrains) { Grain = _gm.Size; }
+        }
+        // the grains within reach of (cx, cz), where they lie in the matter's frame (east, up, north from the spot), cached
+        private double _gcx2 = double.NaN, _gcz2, _greach2; private readonly List<GrainRec> _gnear2 = new List<GrainRec>();
+        private List<GrainRec> NearGrains(double cx, double cz, double reach)
+        {
+            bool small = reach <= Grain * 4.5;                                           // round the point you dive into, or all in view
+            var outL = small ? _gnear : _gnear2;
+            if (_gm == null) return outL;
+            double ocx = small ? _gcx : _gcx2, ocz = small ? _gcz : _gcz2, ore = small ? _greach : _greach2;
+            if (!double.IsNaN(ocx) && Math.Abs(cx - ocx) < Grain * 0.05 && Math.Abs(cz - ocz) < Grain * 0.05 && Math.Abs(reach - ore) < reach * 0.25) return outL;
+            if (small) { _gcx = cx; _gcz = cz; _greach = reach; } else { _gcx2 = cx; _gcz2 = cz; _greach2 = reach; }
+            outL.Clear();
+            double px = _sx * _R + _ax * cx + _nx * cz, py = _sy * _R + _ay * cx + _ny * cz, pz = _sz * _R + _az * cx + _nz * cz, pl = Math.Sqrt(px * px + py * py + pz * pz);
+            var list = new List<DnaAnd.Gen.GrainField.Grain>(); DnaAnd.Gen.GrainField.Near(px / pl, py / pl, pz / pl, _R, reach, _gm, _gseed, list);
+            foreach (var g in list)
+            {
+                GrainRec rec;
+                if (!_grains.TryGetValue(g.Key, out rec))
+                {
+                    double ox = (g.Dx - _sx) * _R, oy = (g.Dy - _sy) * _R, oz = (g.Dz - _sz) * _R;
+                    double x = ox * _ax + oy * _ay + oz * _az, z = ox * _nx + oy * _ny + oz * _nz;
+                    Mineral m; _minerals.TryGetValue(_gm.Minerals[g.Mineral], out m);
+                    rec = new GrainRec { Key = g.Key, X = x, Z = z, Y = _he * x + _hn * z - g.Depth, Rad = g.Rad, M = m, Shade = g.Shade, Layer = (int)(g.Key & 1) };   // on the land's own slope
+                    if (_grains.Count > 200000) _grains.Clear();
+                    _grains[g.Key] = rec;
+                }
+                if (rec.M != null) outL.Add(rec);
+            }
+            return outL;
+        }
+        // the grain that is the top of the ground at (x, z): the one whose face is highest there
+        private GrainRec TopGrain(double x, double z)
+        {
+            GrainRec best = null; double bestY = double.MinValue;
+            foreach (var g in NearGrains(_fx, _fz, Grain * 4))
+            {
+                double y; if (!GrainTop(g.Key, 0, g.X, g.Y, g.Z, g.Rad, x, z, Math.Max(_scale / 40, AtomSpacing), out y)) continue;
+                if (y > bestY) { bestY = y; best = g; }
+            }
+            if (best == null)                                                            // in a gap: the nearest grain
+            { double bd = double.MaxValue; foreach (var g in _gnear) { double d = (g.X - x) * (g.X - x) + (g.Z - z) * (g.Z - z); if (d < bd) { bd = d; best = g; } } }
+            return best;
+        }
+        private GrainRec _focusRec; private double _focusAtX = double.NaN, _focusAtZ;
+        private GrainRec FocusRec { get { if (_focusRec == null || _focusAtX != _fx || _focusAtZ != _fz) { _focusRec = TopGrain(_fx, _fz); _focusAtX = _fx; _focusAtZ = _fz; } return _focusRec; } }
+
+        // the mineral of a grain (by its key); a mix's mineral picked by (i, j) for a speck of the ground
         private Mineral GrainMineral(long i, long j)
+        {
+            GrainRec rec; if (j == 0 && _grains.TryGetValue(i, out rec)) return rec.M;
+            return MixPick(i, j);
+        }
+        private Mineral MixPick(long i, long j)
         {
             if (_mix == null) return null;
             double total = 0; foreach (var kv in _mix) total += kv.Value;
@@ -175,8 +239,8 @@ namespace DnaAnd.Shell
         // the atom right under you: one of the focus grain's own atoms (picked from its formula by the spot)
         private long FocusGI { get { return (long)Math.Round(_fx / Grain); } }
         // the grain you dive into: its size, and its shade (so its face can carry on in exactly its colour)
-        private double FocusRad { get { return Grain * (0.3 + 0.2 * Hash(FocusGI * 2, FocusGJ * 2, 1, _seed)); } }
-        private float FocusShade { get { return (float)(0.75 + 0.35 * Hash(FocusGI * 2, FocusGJ * 2, 4, _seed)); } }
+        private double FocusRad { get { var g = FocusRec; return g != null ? g.Rad : Grain * 0.4; } }
+        private float FocusShade { get { var g = FocusRec; return g != null ? g.Shade : 1f; } }
         private long FocusGJ { get { return (long)Math.Round(_fz / Grain); } }
         private Mineral FocusMineral { get { return MaterialAt(_fx, _fz); } }
         // what the matter is at a point of the surface: a thing lying there (a clay platelet is kaolinite, a coating or a
@@ -196,13 +260,13 @@ namespace DnaAnd.Shell
                         if ((tx - x) * (tx - x) + (tz - z) * (tz - z) < size * size * 0.25) { var om = ThingMat(st, i, j); if (om != null) return om; }
                     }
             }
-            return GrainMineral(FocusGI * 2, FocusGJ * 2);   // the same grain the surface and stones draw (layer 0: its number doubled)
+            var fg = FocusRec; return fg != null ? fg.M : null;                     // the grain that is the ground's top here
         }
         // a thing on the grain picked (a clay platelet, a coating, a nanoparticle, the water film): its own mineral is what you go into
         // a mineral's lustre and clarity as one number the mesh shader reads (see MeshPipeline): tenths the lustre, hundredths the clarity
         private static double TryD(string t, double f) { double v; return double.TryParse(t, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out v) ? v : f; }
         // what one surface thing is made of: its own mineral, or (a speck of the ground) a mineral of this ground's mix
-        private Mineral ThingMat(SurfThing st, long i, long j) { return st.FromGround ? GrainMineral(i * 7 + 1000003, j * 13 + 7) : st.M; }
+        private Mineral ThingMat(SurfThing st, long i, long j) { return st.FromGround ? MixPick(i * 7 + 1000003, j * 13 + 7) : st.M; }
         private static float LustreCode(string lustre, string clarity)
         {
             double l = lustre == "vitreous" || lustre == "adamantine" ? 0.9 : lustre == "metallic" || lustre == "submetallic" ? 0.8 : lustre == "pearly" || lustre == "silky" ? 0.7
@@ -485,25 +549,7 @@ namespace DnaAnd.Shell
         // how far the grain's surface is from its middle, along the unit direction (dx, dy, dz), with detail down to 'cell' (km)
         private double GrainSurface(long gi, long gj, double rad, double dx, double dy, double dz, double cell)
         {
-            double sx = 0.8 + 0.4 * Hash(gi, gj, 6, _seed), sy = 0.6 + 0.35 * Hash(gi, gj, 7, _seed), sz = 0.8 + 0.4 * Hash(gi, gj, 8, _seed), turn = Hash(gi, gj, 9, _seed) * Math.PI * 2;
-            double ct = Math.Cos(turn), st = Math.Sin(turn), ux = dx * ct + dz * st, uz = -dx * st + dz * ct;   // into the grain's own frame
-            double r = rad / Math.Sqrt(ux * ux / (sx * sx) + dy * dy / (sy * sy) + uz * uz / (sz * sz));
-            double rough = 0, amp = 0.16, f = 2.5; long key = gi * 977 + gj;
-            for (int k = 0; k < 48; k++)
-            {
-                double fine = rad / f / cell; if (fine < 0.5) break;                         // finer than what is in view: not needed
-                double w = Math.Min(1, fine - 0.5);                                         // the finest layer fades in as you come in, never switches
-                rough += w * amp * (VNoise(ux * f, dy * f, uz * f, key + k) - 0.5) * 2;
-                amp *= 0.5; f *= 2;
-            }
-            r *= 1 + rough;
-            if (cell < 6e-10)
-            {
-                // single atomic layers, 0.3 nm a step, coming in smoothly below about 600 nm
-                double tq = Math.Max(0, Math.Min(1, Math.Log(6e-10 / cell) / Math.Log(2))), stepped = Math.Floor(r / 3e-13) * 3e-13;
-                r = r + (stepped - r) * tq;
-            }
-            return r;
+            return DnaAnd.Gen.GrainField.Surface(gi, rad, dx, dy, dz, cell, _gseed);   // the same shape the planet's ground gives it
         }
 
         // the point on top of a grain straight above (x, z), and false if (x, z) is off the grain
@@ -525,10 +571,9 @@ namespace DnaAnd.Shell
         // the grain you dive into: where it is and how big
         private void FocusGrain(out long gi, out long gj, out double gx, out double gy, out double gz, out double rad)
         {
-            long i = FocusGI, j = FocusGJ; gi = i * 2; gj = j * 2;
-            rad = Grain * (0.3 + 0.2 * Hash(gi, gj, 1, _seed));
-            gx = (i + (Hash(gi, gj, 2, _seed) - 0.5) * 0.55) * Grain; gz = (j + (Hash(gi, gj, 3, _seed) - 0.5) * 0.55) * Grain;
-            gy = -rad * (0.85 + 0.3 * Hash(gi, gj, 5, _seed));
+            var g = FocusRec;
+            if (g == null) { gi = 0; gj = 0; rad = Grain * 0.4; gx = _fx; gz = _fz; gy = -rad * 0.7; return; }
+            gi = g.Key; gj = 0; rad = g.Rad; gx = g.X; gz = g.Z; gy = g.Y;
         }
 
         // the patch of the grain's surface under you, as a fine lit mesh
@@ -775,8 +820,6 @@ namespace DnaAnd.Shell
         private void Stone(List<StarVertex> l, long gi, long gj, double cx, double cy, double cz, double rad, float r, float g, float b, double s)
         {
             if (_ico == null) MakeIco();
-            double sx = 0.8 + 0.4 * Hash(gi, gj, 6, _seed), sy = 0.6 + 0.35 * Hash(gi, gj, 7, _seed), sz = 0.8 + 0.4 * Hash(gi, gj, 8, _seed), turn = Hash(gi, gj, 9, _seed) * Math.PI * 2;
-            double ct = Math.Cos(turn), st = Math.Sin(turn);
             var pts = new double[_ico.Length * 3];
             for (int k = 0; k < _ico.Length; k++)
             {
@@ -789,7 +832,7 @@ namespace DnaAnd.Shell
         // a far grain: eight faces, squashed and turned its own way
         private void Octa(List<StarVertex> l, long gi, long gj, double cx, double cy, double cz, double rad, float r, float g, float b, double s)
         {
-            double sx = (0.8 + 0.4 * Hash(gi, gj, 6, _seed)) * rad, sy = (0.6 + 0.35 * Hash(gi, gj, 7, _seed)) * rad, sz = (0.8 + 0.4 * Hash(gi, gj, 8, _seed)) * rad, turn = Hash(gi, gj, 9, _seed) * Math.PI * 2;
+            double sx = (0.8 + 0.4 * DnaAnd.Gen.GrainField.Hash(gi, 16, 0, _gseed)) * rad, sy = (0.6 + 0.35 * DnaAnd.Gen.GrainField.Hash(gi, 17, 0, _gseed)) * rad, sz = (0.8 + 0.4 * DnaAnd.Gen.GrainField.Hash(gi, 18, 0, _gseed)) * rad, turn = DnaAnd.Gen.GrainField.Hash(gi, 19, 0, _gseed) * Math.PI * 2;   // the field's own shape
             double ct = Math.Cos(turn), st = Math.Sin(turn);
             double[][] p = { new[] { sx, 0, 0.0 }, new[] { -sx, 0, 0.0 }, new[] { 0, sy, 0.0 }, new[] { 0, -sy, 0.0 }, new[] { 0, 0, sz }, new[] { 0, 0, -sz } };
             int[] f = { 0, 2, 4, 4, 2, 1, 1, 2, 5, 5, 2, 0, 0, 4, 3, 4, 1, 3, 1, 5, 3, 5, 0, 3 };
@@ -868,28 +911,20 @@ namespace DnaAnd.Shell
             // (once you are down at the grain's own surface it is no longer drawn as a stone: you are at its face)
             if (!_noGrains && s > AtomSpacing * 40)
             {
-                long reach = (long)Math.Ceiling(Math.Min(110, 2.2 * s / Grain)) + 1, gi0 = FocusGI, gj0 = FocusGJ;
-                int meshes = 0, smalls = 0;
-                for (int layer = 0; layer < 2; layer++)
-                    for (long i = gi0 - reach; i <= gi0 + reach; i++)
-                        for (long j = gj0 - reach; j <= gj0 + reach; j++)
-                        {
-                            long gi = i * 2 + layer, gj = j * 2 + layer;                       // each layer's own grains
-                            var m = GrainMineral(gi, gj); if (m == null) continue;
-                            if (layer == 0 && i == gi0 && j == gj0 && s < FocusRad * 1.5) continue;   // close in: drawn as its own surface under you (below), the same shape, finer
-                            double rad = Grain * (0.3 + 0.2 * Hash(gi, gj, 1, _seed));
-                            double gx = (i + layer * 0.5 + (Hash(gi, gj, 2, _seed) - 0.5) * 0.55) * Grain, gz = (j + layer * 0.5 + (Hash(gi, gj, 3, _seed) - 0.5) * 0.55) * Grain;
-                            double gy = layer == 0 ? -rad * (0.85 + 0.3 * Hash(gi, gj, 5, _seed)) : -Grain * 0.75 - rad * 0.6;
-                            float sh = (float)(0.75 + 0.35 * Hash(gi, gj, 4, _seed)) * (layer == 0 ? 1f : 0.7f);
-                            double dx = gx - _fx, dz = gz - _fz, dist = Math.Sqrt(dx * dx + dz * dz + (0.6 * s - gy) * (0.6 * s - gy));
-                            double px = rad / Math.Max(1e-30, dist) * _lastH / (2 * Math.Tan(0.45));    // its size on screen, in pixels
-                            // always solid shapes (never glowing dots, which add up into confetti): the full lumpy stone up close,
-                            // a simple eight-sided stone far off, and none below a pixel and a half (the ground's own colour there)
-                            if (px < 1.5) { if (layer == 0) AddBody(0, gi, gj, gx, gy, gz, rad, s); continue; }
-                            if (mesh != null && px > 8 && meshes < 700) { Stone(mesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); meshes++; }
-                            else if (mesh != null && smalls < 24000) { Octa(mesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); smalls++; }
-                            if (layer == 0) AddBody(0, gi, gj, gx, gy, gz, rad, s);
-                        }
+                int meshes = 0, smalls = 0; var focusG = FocusRec;
+                foreach (var gr in NearGrains(_fx, _fz, Math.Max(Grain * 5, Math.Min((overlay ? 30 : 110) * Grain, 2.2 * s) + Grain)))
+                {
+                    var m = gr.M; long gi = gr.Key, gj = 0;
+                    if (gr == focusG && s < FocusRad * 1.5) continue;                            // close in: drawn as its own surface under you (below), the same shape, finer
+                    double rad = gr.Rad, gx = gr.X, gy = gr.Y, gz = gr.Z;
+                    float sh = gr.Shade * (gr.Layer == 0 ? 1f : 0.7f);
+                    double dx = gx - _fx, dz = gz - _fz, dist = Math.Sqrt(dx * dx + dz * dz + (0.6 * s - gy) * (0.6 * s - gy));
+                    double px = rad / Math.Max(1e-30, dist) * _lastH / (2 * Math.Tan(0.45));    // its size on screen, in pixels
+                    if (gr.Layer == 0) { int nb = _bodies.Count; AddBody(0, gi, gj, gx, gy, gz, rad, s); if (_bodies.Count > nb) _bodies[nb].Sym = m.Id; }
+                    if (overlay || px < 1.5) continue;                                           // over the ground: the ground itself is their top
+                    if (mesh != null && px > 8 && meshes < 700) { Stone(mesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); meshes++; }
+                    else if (mesh != null && smalls < 24000) { Octa(mesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); smalls++; }
+                }
             }
             if (!_noGrains && !_space && mesh != null && s < FocusRad * 1.5 && s > AtomSpacing * 8) GrainPatch(mesh, s);
             if (!_noGrains && !_space && s < FocusRad * 1.5) SurfaceThings(solid, glow, mesh, s);
@@ -1257,7 +1292,7 @@ namespace DnaAnd.Shell
             }
             if (_picked != null && _picked.Kind == 0)
             {
-                var g = GrainMineral(_picked.I, _picked.J); if (g == null) return L;
+                Mineral g; if (_picked.Sym == null || !_minerals.TryGetValue(_picked.Sym, out g)) g = GrainMineral(_picked.I, _picked.J); if (g == null) return L;
                 L.Add("a grain of " + g.Name.ToLowerInvariant()); L.Add("formula: " + g.Formula);
                 L.Add("width: " + ScaleHud.Words(_picked.Size * 2));
                 var seen = new List<string>(); foreach (var a in g.Atoms) if (!seen.Contains(a)) seen.Add(a);
