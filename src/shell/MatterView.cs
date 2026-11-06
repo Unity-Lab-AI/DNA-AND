@@ -545,6 +545,9 @@ namespace DnaAnd.Shell
         /// grains pass by as you fly over them.</summary>
         public void Follow(double east, double north) { _fx = _tfx = east; _fz = _tfz = north; _picked = null; }
 
+        /// <summary>Moves the point under you (km east and north), as W A S D fly you across.</summary>
+        public void Move(double east, double north) { _fx += east; _fz += north; _tfx = _fx; _tfz = _fz; }
+
         /// <summary>Lets go of the pick (the point you dive into stays where it is).</summary>
         public void Unpick() { _picked = null; _tfx = _fx; _tfz = _fz; }
 

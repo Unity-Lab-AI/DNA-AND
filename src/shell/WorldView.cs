@@ -576,7 +576,7 @@ namespace DnaAnd.Shell
                 {
                     if (_matterScale > 0) _matter.Pick(input.MouseX, input.MouseY);                       // in the matter: a grain or an atom
                     else if (_ground != null && AboveGround() < Units.Km(MatterView.OverlayKm) && _matter.Pick(input.MouseX, input.MouseY))
-                    { _matterScale = Math.Max(MatterView.BottomKm, AboveGround() / Units.Km(1) / 0.6); _matterTop = Math.Max(MatterView.TopKm, _matterScale * 1.02); }   // a grain over the ground: on into the matter, the same picture, flying to it
+                    { _matterScale = Math.Max(MatterView.BottomKm, AboveGround() / Units.Km(1) / 0.6); _matterTop = Math.Max(MatterView.TopKm, _matterScale * 1.1); }   // a grain over the ground: on into the matter, the same picture, flying to it
                     else Pick(MouseRay(input.MouseX, input.MouseY, w, h), input.MouseX, input.MouseY);
                 } }
             // the camera turns smoothly to face what you picked
@@ -679,9 +679,36 @@ namespace DnaAnd.Shell
             Jumped("W A S D Q E");
             if (_matterScale > 0)
             {
-                // in the ground's matter: the wheel shrinks or grows the scale, from a millimetre down inside an atom
+                // below a millimetre or so: the same zoom, with your height kept finely enough for atoms (the wheel moves
+                // you the same share of the way each notch; W A S D Q E fly at the same speed for the scale; time runs on)
                 if (input.Wheel != 0) _matterScale *= Math.Pow(0.87, input.Wheel);
-                if (_matterScale > _matterTop) _matterScale = 0;                       // back up to the ground, where you came in
+                {
+                    double mf = (input.IsDown(0x57) ? 1 : 0) - (input.IsDown(0x53) ? 1 : 0), mr = (input.IsDown(0x44) ? 1 : 0) - (input.IsDown(0x41) ? 1 : 0), mu = (input.IsDown(0x45) ? 1 : 0) - (input.IsDown(0x51) ? 1 : 0);
+                    if (mf != 0 || mr != 0 || mu != 0)
+                    {
+                        double sp = _matterScale * 0.6 * 0.5 * dt * (input.IsDown(0x10) ? 4 : 1);   // half your height a second, as above the ground
+                        double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z);
+                        var upL = new Vec3((float)(x / r), (float)(y / r), (float)(z / r));
+                        var east = Vec3.Cross(Math.Abs(upL.Y) < 0.99f ? new Vec3(0, 1, 0) : new Vec3(1, 0, 0), upL).Normalized; var north = Vec3.Cross(upL, east).Normalized;
+                        var lk = Look; double fe = Vec3.Dot(lk, east), fn = Vec3.Dot(lk, north), fl = Math.Sqrt(fe * fe + fn * fn);
+                        if (fl < 1e-6) { fe = 1; fn = 0; fl = 1; }
+                        fe /= fl; fn /= fl;
+                        _matter.Move((fe * mf + fn * mr) * sp, (fn * mf - fe * mr) * sp);
+                        if (mu != 0) _matterScale *= Math.Exp(mu * 0.5 * dt * (input.IsDown(0x10) ? 4 : 1));
+                    }
+                }
+                if (input.WasPressed(0x20)) TogglePause();
+                if (input.WasPressed(0xBC)) SetTime(TimeStep - 1);
+                if (input.WasPressed(0xBE)) SetTime(TimeStep + 1);
+                _simYears += dt * TimeSpeeds[TimeStep];
+                if (_matterScale > _matterTop)
+                {
+                    // high enough again for the plain height: the camera goes on from exactly the height the fine one had
+                    double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z), k = Units.Km(1);
+                    double want = _ground.Radius + (_ground.Solid ? Surface(x / r, y / r, z / r) : 0) + _matterScale * 0.6;
+                    _ox = _px + x / r * want * k; _oy = _py + y / r * want * k; _oz = _pz + z / r * want * k;
+                    _matterScale = 0;
+                }
                 else _matterScale = Math.Max(MatterView.BottomKm, _matterScale);
                 ChooseNear(); LocalStars(); ChooseSystem(); FollowBody(); ChoosePlanet();
                 return true;
@@ -693,7 +720,7 @@ namespace DnaAnd.Shell
                 bool sea = _ground.HasWater && _ground.GroundAt(x / r, y / r, z / r) < 0, ice = Math.Abs(y / r) > 0.86;
                 SetMatter();
                 _matterScale = Math.Max(MatterView.BottomKm, AboveGround() / Units.Km(1) / 0.6);   // the same picture carries on: you are 0.6 of the scale above it
-                _matterTop = Math.Max(MatterView.TopKm, _matterScale * 1.02);
+                _matterTop = Math.Max(MatterView.TopKm, _matterScale * 1.1);
                 return true;
             }
             if (input.Wheel != 0)
@@ -1189,7 +1216,7 @@ namespace DnaAnd.Shell
             get
             {
                 double pdx, pdy, pdz, prad; string picked = _tKind >= 0 && TargetFromCamera(out pdx, out pdy, out pdz, out prad) ? " · going to " + _tName + ", " + Units.Describe(Math.Max(0, Math.Sqrt(pdx * pdx + pdy * pdy + pdz * pdz) - prad)) + " away" : " · click something to go to it";
-                string where = _matterScale > 0 ? "inside the ground of " + _system.Bodies[_planet].Kind + ": " + _matter.Stage(_matterScale)
+                string where = _matterScale > 0 ? "at " + _system.Bodies[_planet].Kind + ", " + ScaleHud.Words(_matterScale * 0.6) + " above the ground: " + _matter.Stage(_matterScale)
                     : _ground != null ? "at " + _system.Bodies[_planet].Kind + ", " + Units.Describe(AboveGround()) + " above the ground"
                     : _system != null ? "in the system of a " + _system.StarName + " (" + _system.Bodies.Count + " planets and moons)"
                     : _near >= 0 ? (NearShare() > 0.5 ? "among the stars of " : "near ") + _galaxies[_near].Name : "among the galaxies";
