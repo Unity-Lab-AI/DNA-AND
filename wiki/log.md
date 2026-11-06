@@ -160,3 +160,4 @@ Append-only. Newest at the bottom.
 - r04 renderer: reversed float depth everywhere; the one world goes on into matter, down to atoms.
 - r04 renderer: ground pieces built in the background on every core; the frame never waits.
 - r04/r05/r06: everything drawn from the data, nothing named in code (crystals from published unit cells, lustre, surface things, element colours and sizes, world kinds and behaviours, star faces, galaxy layouts, Dyson builds); smooth shading; drag speed; a new universe each launch.
+- r04: one grain field for the whole planet; the ground's finest detail is the top of its grains and the matter view goes into the same ones (no layer laid over the ground); nucleus by the strong and electric forces; bonds as shared electrons.
