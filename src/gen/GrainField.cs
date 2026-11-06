@@ -139,13 +139,45 @@ namespace DnaAnd.Gen
                 rough += w * amp * (VNoise(ux * f, dy * f, uz * f, key + k) - 0.5) * 2;
                 amp *= 0.5; f *= 2;
             }
-            r *= 1 + rough;
+            // its face is broken and grown in steps at every size (cleavage and growth terraces, curved fracture ripples):
+            // each size of step a quarter the one above, coming in as the detail reaches it, so there is always more to see
+            double steps = 0, sh = 0.03, sf = 3;
+            for (int k = 0; k < 40; k++)
+            {
+                double size = rad / sf; if (size / cell < 0.7) break;
+                double w = Math.Min(1, size / cell - 0.7);
+                double field = VNoise(ux * sf * 0.7 + k * 3.1, dy * sf * 0.7, uz * sf * 0.7, key * 31 + k + 900) * 3 + dy * sf * 0.15;   // tilted, curved step lines
+                double fl = Math.Floor(field), fr = field - fl, edge = fr < 0.85 ? 0 : (fr - 0.85) / 0.15;                         // flat treads, steep risers
+                steps += w * sh * (fl + edge * edge) * 0.33;
+                sh *= 0.25; sf *= 4;
+            }
+            r *= 1 + rough + steps * 0.5;
             if (cell < 6e-10)
             {
                 double tq = Math.Max(0, Math.Min(1, Math.Log(6e-10 / cell) / Math.Log(2))), stepped = Math.Floor(r / 3e-13) * 3e-13;
                 r = r + (stepped - r) * tq;
             }
             return r;
+        }
+
+        /// <summary>How a spot of a grain's face is coloured (multipliers on its mineral's colour): stains and coatings in
+        /// patches at every size (iron oxide orange-red, pale clay), darker in its cracks; fixed on the grain, never moving.</summary>
+        public static void Stain(long key, double dx, double dy, double dz, double rad, double cell, out float r, out float g, out float b)
+        {
+            double iron = 0, clay = 0, dark = 0, f = 2.0, amp = 1, norm = 0;
+            for (int k = 0; k < 24; k++)
+            {
+                double size = rad / f; if (size / cell < 0.8) break;
+                double w = Math.Min(1, size / cell - 0.8);
+                iron += w * amp * (VNoise(dx * f, dy * f, dz * f, key * 7 + k + 300) - 0.5);
+                clay += w * amp * (VNoise(dx * f + 9, dy * f, dz * f - 4, key * 7 + k + 400) - 0.5);
+                dark += w * amp * Math.Max(0, 0.5 - Math.Abs(VNoise(dx * f * 1.7, dy * f * 1.7, dz * f * 1.7, key * 7 + k + 500) - 0.5) * 6);   // thin dark cracks
+                norm += amp; amp *= 0.6; f *= 2.3;
+            }
+            if (norm <= 0) { r = g = b = 1; return; }
+            iron = Math.Max(0, iron / norm * 2.4 - 0.15); clay = Math.Max(0, clay / norm * 2.4 - 0.2); dark = Math.Min(0.6, dark / norm * 1.5);
+            double ir = Math.Min(0.6, iron), cl = Math.Min(0.5, clay);
+            r = (float)((1 + ir * 0.25 + cl * 0.3) * (1 - dark)); g = (float)((1 - ir * 0.35 + cl * 0.3) * (1 - dark)); b = (float)((1 - ir * 0.55 + cl * 0.25) * (1 - dark));
         }
 
         /// <summary>The top of the grain bed at a unit direction on the ground (km above the ground's own level there), the

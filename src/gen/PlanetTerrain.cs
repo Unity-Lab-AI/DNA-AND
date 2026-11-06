@@ -305,7 +305,14 @@ namespace DnaAnd.Gen
             double top; GrainField.Grain gr;
             bool on = GrainField.Top(x, y, z, Radius, gm, GrainSeed, Math.Max(W, 1e-13), out top, out gr);
             float cr, cg, cb;
-            if (on) { var c = gm.Colour[gr.Mineral]; cr = c[0] * gr.Shade; cg = c[1] * gr.Shade; cb = c[2] * gr.Shade; }
+            if (on)
+            {
+                var c = gm.Colour[gr.Mineral]; float sr, sg, sb;
+                double ex, ey, ez, nx, ny, nz; GrainField.Axes(x, y, z, out ex, out ey, out ez, out nx, out ny, out nz);
+                double ox = (x - gr.Dx) * Radius, oy = (y - gr.Dy) * Radius, oz = (z - gr.Dz) * Radius, la = ox * ex + oy * ey + oz * ez, lb = ox * nx + oy * ny + oz * nz, lu = top + gr.Depth, ll = Math.Sqrt(la * la + lb * lb + lu * lu) + 1e-30;
+                GrainField.Stain(gr.Key, la / ll, lu / ll, lb / ll, gr.Rad, Math.Max(W, 1e-13), out sr, out sg, out sb);   // its stains, the same the matter view shows
+                cr = c[0] * gr.Shade * sr; cg = c[1] * gr.Shade * sg; cb = c[2] * gr.Shade * sb;
+            }
             else { cr = r * 0.25f; cg = g * 0.25f; cb = b * 0.25f; }                    // down in a gap between grains
             float w = (float)wgt; r = r * (1 - w) + cr * w; g = g * (1 - w) + cg * w; b = b * (1 - w) + cb * w;
             return h + top * wgt;

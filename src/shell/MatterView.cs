@@ -606,7 +606,7 @@ namespace DnaAnd.Shell
             float sh = FocusShade;
             double sink = Structured(m) ? AtomSpacing * 3 * Fade(s, AtomSpacing * 40, AtomSpacing * 22) : 0;   // under the atoms once they show
             // each corner's surface direction, from the slope to its neighbours (so it is shaded smooth, not in facets)
-            var nrm = new float[N + 1, N + 1]; var occ = new float[N + 1, N + 1];
+            var nrm = new float[N + 1, N + 1]; var occ = new float[N + 1, N + 1]; var stn = new float[N + 1, N + 1, 3];
             for (int a = 0; a <= N; a++)
                 for (int b = 0; b <= N; b++)
                 {
@@ -616,6 +616,8 @@ namespace DnaAnd.Shell
                     // the light that reaches a hollow: lower than its neighbours round it, it sees less of the sky (a soft shadow)
                     double hollow = (hy[a0, b] + hy[a1, b] + hy[a, b0] + hy[a, b1]) * 0.25 - hy[a, b], span = Math.Max(1e-30, (dx + dz) * 0.5);
                     occ[a, b] = (float)Math.Max(0.55, Math.Min(1.08, 1 - hollow / span * 3));
+                    { double ex = atA(a) + _fx - gx, ey = hy[a, b] - gy, ez = atB(b) + _fz - gz, el = Math.Sqrt(ex * ex + ey * ey + ez * ez) + 1e-30; float sr, sg, sb2;
+                      DnaAnd.Gen.GrainField.Stain(gi, ex / el, ey / el, ez / el, rad, step * 1.5, out sr, out sg, out sb2); stn[a, b, 0] = sr; stn[a, b, 1] = sg; stn[a, b, 2] = sb2; }   // its stains and cracks
                 }
             for (int a = 0; a < N; a++)
                 for (int b = 0; b < N; b++)
@@ -623,7 +625,7 @@ namespace DnaAnd.Shell
                     if (!ok[a, b] || !ok[a + 1, b] || !ok[a, b + 1] || !ok[a + 1, b + 1]) continue;
                     float t = sh;
                     float r = m.R * t, g = m.G * t, bl = m.B * t;
-                    Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)(atA(aa) / s + _ex), Y = (float)((hy[aa, bb] - sink + _yOff - _fy) / s + _ey), Z = (float)(atB(bb) / s + _ez), Size = nrm[aa, bb], R = r * occ[aa, bb], G = g * occ[aa, bb], B = bl * occ[aa, bb], A = m.Lustre };
+                    Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)(atA(aa) / s + _ex), Y = (float)((hy[aa, bb] - sink + _yOff - _fy) / s + _ey), Z = (float)(atB(bb) / s + _ez), Size = nrm[aa, bb], R = r * occ[aa, bb] * stn[aa, bb, 0], G = g * occ[aa, bb] * stn[aa, bb, 1], B = bl * occ[aa, bb] * stn[aa, bb, 2], A = m.Lustre };
                     mesh.Add(v(a, b)); mesh.Add(v(a + 1, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b + 1));
                 }
         }
@@ -835,7 +837,11 @@ namespace DnaAnd.Shell
                 double rr = GrainSurface(gi, gj, rad, _ico[k].X, _ico[k].Y, _ico[k].Z, rad * 0.2);   // the same surface as close in, coarse
                 pts[k * 3] = (cx + _ico[k].X * rr - _fx) / s + _ex; pts[k * 3 + 1] = (cy + _ico[k].Y * rr + _yOff - _fy) / s + _ey; pts[k * 3 + 2] = (cz + _ico[k].Z * rr - _fz) / s + _ez;
             }
-            foreach (int k in _icoTri) l.Add(new StarVertex { X = (float)pts[k * 3], Y = (float)pts[k * 3 + 1], Z = (float)pts[k * 3 + 2], Size = PackNormal(_ico[k].X, _ico[k].Y, _ico[k].Z), R = r, G = g, B = b, A = 1 });   // shaded smooth
+            foreach (int k in _icoTri)
+            {
+                float sr, sg, sb; DnaAnd.Gen.GrainField.Stain(gi, _ico[k].X, _ico[k].Y, _ico[k].Z, rad, rad * 0.2, out sr, out sg, out sb);   // its stains, as the ground shows them
+                l.Add(new StarVertex { X = (float)pts[k * 3], Y = (float)pts[k * 3 + 1], Z = (float)pts[k * 3 + 2], Size = PackNormal(_ico[k].X, _ico[k].Y, _ico[k].Z), R = r * sr, G = g * sg, B = b * sb, A = 1 });   // shaded smooth
+            }
         }
 
         // a far grain: eight faces, squashed and turned its own way
