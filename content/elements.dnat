@@ -7,6 +7,9 @@
 # covalent-a: its bonding size in angstroms (Cordero et al. 2008, He to Cm; none measured past Cm): two atoms closer than
 #   their two sizes together (with a fifth more room) are bonded. atomic-a: its own size, the calculated atomic radius in
 #   angstroms (Clementi, Raimondi and Reinhardt 1967: H to Ba, Hf to Rn); where none is given its bonding size stands in.
+# electronegativity: how hard it pulls on shared electrons (Pauling scale): two atoms that differ by about 1.7 or more do
+#   not share their bonding electrons, one gives one over and they hold as ions (salt); less, they share a pair, nearer the
+#   one that pulls harder.
 # look: how a lump of it looks (its real colour) and shiny: a metal's shine; glow-colour: the colour the gas glows lit by
 #   electricity (neon orange-red, argon violet, hydrogen pink). The families' colours on the periodic table are @family below.
 # Spec: docs/CONTENT-FORMAT.md · wiki/systems/r06-planet.md · content/physics.dnat
@@ -17,6 +20,7 @@ real: yes
 number: 1
 mass-number: 1
 symbol: H
+electronegativity: 2.20
 glow-colour: 0.9 0.4 0.7
 colour: 1 1 1
 covalent-a: 0.31
@@ -53,6 +57,7 @@ real: yes
 number: 3
 mass-number: 7
 symbol: Li
+electronegativity: 0.98
 colour: 0.8 0.502 1
 covalent-a: 1.28
 atomic-a: 1.67
@@ -70,6 +75,7 @@ real: yes
 number: 4
 mass-number: 9
 symbol: Be
+electronegativity: 1.57
 colour: 0.761 1 0
 covalent-a: 0.96
 atomic-a: 1.12
@@ -87,6 +93,7 @@ real: yes
 number: 5
 mass-number: 11
 symbol: B
+electronegativity: 2.04
 look: 0.35 0.25 0.2
 colour: 1 0.71 0.71
 covalent-a: 0.84
@@ -105,6 +112,7 @@ real: yes
 number: 6
 mass-number: 12
 symbol: C
+electronegativity: 2.55
 look: 0.12 0.12 0.13
 colour: 0.565 0.565 0.565
 covalent-a: 0.76
@@ -123,6 +131,7 @@ real: yes
 number: 7
 mass-number: 14
 symbol: N
+electronegativity: 3.04
 glow-colour: 0.85 0.45 0.95
 colour: 0.188 0.314 0.973
 covalent-a: 0.71
@@ -141,6 +150,7 @@ real: yes
 number: 8
 mass-number: 16
 symbol: O
+electronegativity: 3.44
 glow-colour: 0.55 0.75 1
 colour: 1 0.051 0.051
 covalent-a: 0.66
@@ -159,6 +169,7 @@ real: yes
 number: 9
 mass-number: 19
 symbol: F
+electronegativity: 3.98
 glow-colour: 0.95 0.95 0.55
 colour: 0.565 0.878 0.314
 covalent-a: 0.57
@@ -195,6 +206,7 @@ real: yes
 number: 11
 mass-number: 23
 symbol: Na
+electronegativity: 0.93
 colour: 0.671 0.361 0.949
 covalent-a: 1.66
 atomic-a: 1.90
@@ -212,6 +224,7 @@ real: yes
 number: 12
 mass-number: 24
 symbol: Mg
+electronegativity: 1.31
 colour: 0.541 1 0
 covalent-a: 1.41
 atomic-a: 1.45
@@ -229,6 +242,7 @@ real: yes
 number: 13
 mass-number: 27
 symbol: Al
+electronegativity: 1.61
 colour: 0.749 0.651 0.651
 covalent-a: 1.21
 atomic-a: 1.18
@@ -246,6 +260,7 @@ real: yes
 number: 14
 mass-number: 28
 symbol: Si
+electronegativity: 1.90
 look: 0.45 0.5 0.6
 shiny: yes
 colour: 0.941 0.784 0.627
@@ -265,6 +280,7 @@ real: yes
 number: 15
 mass-number: 31
 symbol: P
+electronegativity: 2.19
 look: 0.75 0.2 0.15
 colour: 1 0.502 0
 covalent-a: 1.07
@@ -283,6 +299,7 @@ real: yes
 number: 16
 mass-number: 32
 symbol: S
+electronegativity: 2.58
 look: 0.95 0.85 0.2
 colour: 1 1 0.188
 covalent-a: 1.05
@@ -301,6 +318,7 @@ real: yes
 number: 17
 mass-number: 35
 symbol: Cl
+electronegativity: 3.16
 glow-colour: 0.7 0.95 0.3
 colour: 0.122 0.941 0.122
 covalent-a: 1.02
@@ -337,6 +355,7 @@ real: yes
 number: 19
 mass-number: 39
 symbol: K
+electronegativity: 0.82
 colour: 0.561 0.251 0.831
 covalent-a: 2.03
 atomic-a: 2.43
@@ -354,6 +373,7 @@ real: yes
 number: 20
 mass-number: 40
 symbol: Ca
+electronegativity: 1.00
 colour: 0.239 1 0
 covalent-a: 1.76
 atomic-a: 1.94
@@ -371,6 +391,7 @@ real: yes
 number: 21
 mass-number: 45
 symbol: Sc
+electronegativity: 1.36
 colour: 0.902 0.902 0.902
 covalent-a: 1.70
 atomic-a: 1.84
@@ -388,6 +409,7 @@ real: yes
 number: 22
 mass-number: 48
 symbol: Ti
+electronegativity: 1.54
 look: 0.6 0.6 0.62
 shiny: yes
 colour: 0.749 0.761 0.78
@@ -407,6 +429,7 @@ real: yes
 number: 23
 mass-number: 51
 symbol: V
+electronegativity: 1.63
 colour: 0.651 0.651 0.671
 covalent-a: 1.53
 atomic-a: 1.71
@@ -424,6 +447,7 @@ real: yes
 number: 24
 mass-number: 52
 symbol: Cr
+electronegativity: 1.66
 look: 0.78 0.8 0.85
 shiny: yes
 colour: 0.541 0.6 0.78
@@ -443,6 +467,7 @@ real: yes
 number: 25
 mass-number: 55
 symbol: Mn
+electronegativity: 1.55
 colour: 0.612 0.478 0.78
 covalent-a: 1.39
 atomic-a: 1.61
@@ -460,6 +485,7 @@ real: yes
 number: 26
 mass-number: 56
 symbol: Fe
+electronegativity: 1.83
 look: 0.55 0.55 0.57
 shiny: yes
 colour: 0.878 0.4 0.2
@@ -479,6 +505,7 @@ real: yes
 number: 27
 mass-number: 59
 symbol: Co
+electronegativity: 1.88
 look: 0.55 0.55 0.6
 shiny: yes
 colour: 0.941 0.565 0.627
@@ -498,6 +525,7 @@ real: yes
 number: 28
 mass-number: 58
 symbol: Ni
+electronegativity: 1.91
 look: 0.7 0.68 0.62
 shiny: yes
 colour: 0.314 0.816 0.314
@@ -517,6 +545,7 @@ real: yes
 number: 29
 mass-number: 63
 symbol: Cu
+electronegativity: 1.90
 look: 0.85 0.45 0.3
 shiny: yes
 colour: 0.784 0.502 0.2
@@ -536,6 +565,7 @@ real: yes
 number: 30
 mass-number: 64
 symbol: Zn
+electronegativity: 1.65
 look: 0.68 0.7 0.75
 shiny: yes
 colour: 0.49 0.502 0.69
@@ -555,6 +585,7 @@ real: yes
 number: 31
 mass-number: 69
 symbol: Ga
+electronegativity: 1.81
 colour: 0.761 0.561 0.561
 covalent-a: 1.22
 atomic-a: 1.36
@@ -572,6 +603,7 @@ real: yes
 number: 32
 mass-number: 74
 symbol: Ge
+electronegativity: 2.01
 look: 0.6 0.6 0.62
 shiny: yes
 colour: 0.4 0.561 0.561
@@ -591,6 +623,7 @@ real: yes
 number: 33
 mass-number: 75
 symbol: As
+electronegativity: 2.18
 look: 0.5 0.5 0.52
 shiny: yes
 colour: 0.741 0.502 0.89
@@ -610,6 +643,7 @@ real: yes
 number: 34
 mass-number: 80
 symbol: Se
+electronegativity: 2.55
 look: 0.45 0.45 0.47
 shiny: yes
 colour: 1 0.631 0
@@ -629,6 +663,7 @@ real: yes
 number: 35
 mass-number: 79
 symbol: Br
+electronegativity: 2.96
 look: 0.55 0.12 0.05
 colour: 0.651 0.161 0.161
 covalent-a: 1.20
@@ -647,6 +682,7 @@ real: yes
 number: 36
 mass-number: 84
 symbol: Kr
+electronegativity: 3.00
 glow-colour: 0.85 0.9 1
 colour: 0.361 0.722 0.82
 covalent-a: 1.16
@@ -665,6 +701,7 @@ real: yes
 number: 37
 mass-number: 85
 symbol: Rb
+electronegativity: 0.82
 colour: 0.439 0.18 0.69
 covalent-a: 2.20
 atomic-a: 2.65
@@ -682,6 +719,7 @@ real: yes
 number: 38
 mass-number: 88
 symbol: Sr
+electronegativity: 0.95
 colour: 0 1 0
 covalent-a: 1.95
 atomic-a: 2.19
@@ -835,6 +873,7 @@ real: yes
 number: 47
 mass-number: 107
 symbol: Ag
+electronegativity: 1.93
 look: 0.9 0.9 0.92
 shiny: yes
 colour: 0.753 0.753 0.753
@@ -888,6 +927,7 @@ real: yes
 number: 50
 mass-number: 120
 symbol: Sn
+electronegativity: 1.96
 colour: 0.4 0.502 0.502
 covalent-a: 1.39
 atomic-a: 1.45
@@ -943,6 +983,7 @@ real: yes
 number: 53
 mass-number: 127
 symbol: I
+electronegativity: 2.66
 look: 0.3 0.2 0.35
 shiny: yes
 colour: 0.58 0 0.58
@@ -999,6 +1040,7 @@ real: yes
 number: 56
 mass-number: 138
 symbol: Ba
+electronegativity: 0.89
 colour: 0 0.788 0
 covalent-a: 2.15
 atomic-a: 2.53
@@ -1379,6 +1421,7 @@ real: yes
 number: 79
 mass-number: 197
 symbol: Au
+electronegativity: 2.54
 look: 1 0.78 0.25
 shiny: yes
 colour: 1 0.82 0.137
@@ -1434,6 +1477,7 @@ real: yes
 number: 82
 mass-number: 208
 symbol: Pb
+electronegativity: 2.33
 look: 0.45 0.46 0.52
 shiny: yes
 colour: 0.341 0.349 0.38

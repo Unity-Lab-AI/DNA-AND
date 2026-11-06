@@ -31,7 +31,7 @@ namespace DnaAnd.Shell
         private const double Nucleon = 0.85e-18;    // a proton's or neutron's radius, about 0.85 femtometres
 
         private sealed class Mineral { public string Id, Name, Formula; public string[] Atoms; public float R, G, B, Lustre = 1; public Lattice Lat; public KeyValuePair<string, double[]>[] Molecule; public string Structure = ""; }
-        private sealed class Element { public string Symbol, Name; public int Z, A; public float R, G, B; public double Radius, Cov; public int[] Shells; }
+        private sealed class Element { public string Symbol, Name; public int Z, A; public float R, G, B; public double Radius, Cov, Chi; public int[] Shells; }
         private readonly Dictionary<string, Mineral> _minerals = new Dictionary<string, Mineral>();
         private readonly Dictionary<string, List<KeyValuePair<Mineral, double>>> _mixes = new Dictionary<string, List<KeyValuePair<Mineral, double>>>();
         private readonly Dictionary<string, Element> _elements = new Dictionary<string, Element>();
@@ -68,7 +68,7 @@ namespace DnaAnd.Shell
         }
         // the point you dive into (km, across the ground) and where it is easing to (what you picked)
         private double _fx, _fz, _tfx, _tfz, _fy, _tfy, _lastTime = -1;   // (and its height, so a pick in any layer is gone to)
-        private sealed class Body { public int Kind; public long I, J; public double X, Y, Z, Size; public string Sym; }   // Kind 0 a grain, 1 an atom, 2 a spot   // 0 a grain, 1 an atom
+        private sealed class Body { public int Kind; public long I, J, Key; public double X, Y, Z, Size; public string Sym; }   // Kind 0 a grain, 1 an atom, 2 a spot   // 0 a grain, 1 an atom
         private readonly List<Body> _bodies = new List<Body>();
         private Mat4 _lastVp; private int _lastW = 1, _lastH = 1; private bool _haveVp;
         private Body _picked;
@@ -86,7 +86,7 @@ namespace DnaAnd.Shell
                 if (cs.Length == 3) { float.TryParse(cs[0], fs, ci, out cr); float.TryParse(cs[1], fs, ci, out cg); float.TryParse(cs[2], fs, ci, out cb); }
                 double cov, rad; if (!double.TryParse(e.Get("covalent-a", ""), fs, ci, out cov)) cov = 1.5;
                 if (!double.TryParse(e.Get("atomic-a", ""), fs, ci, out rad)) rad = cov;
-                _elements[sym] = new Element { Symbol = sym, Name = e.Name, Z = z, A = a, R = cr, G = cg, B = cb, Radius = rad * 1e-13, Cov = cov * 1e-13, Shells = Shells(z) };
+                _elements[sym] = new Element { Symbol = sym, Name = e.Name, Z = z, A = a, R = cr, G = cg, B = cb, Radius = rad * 1e-13, Cov = cov * 1e-13, Chi = TryD(e.Get("electronegativity", "0"), 0), Shells = Shells(z) };
             }
             foreach (var e in content.OfKind("minerals.dnat", "mineral"))
             {
@@ -606,6 +606,33 @@ namespace DnaAnd.Shell
             }
         }
 
+        // a bond as it really is: not a stick but the two atoms' outer electrons shared between them. A soft cloud of electron
+        // density along the line between them, densest between, with the shared pair moving in it; pulled toward the atom that
+        // pulls harder (electronegativity, content/elements.dnat). Atoms that differ by 1.7 or more share nothing: one has given
+        // its electron to the other and they hold as ions (salt), so nothing is drawn between them.
+        private void SharedPair(List<StarVertex> glow, CAtom a, CAtom b, double s, double time, int n, float f)
+        {
+            double ca = a.E.Chi, cb = b.E.Chi, diff = ca > 0 && cb > 0 ? Math.Abs(ca - cb) : 0;
+            if (diff >= 1.7) return;                                                    // ionic: no shared electrons
+            double ex = b.X - a.X, ey = b.Y - a.Y, ez = b.Z - a.Z, len = Math.Sqrt(ex * ex + ey * ey + ez * ez); if (len < 1e-20) return;
+            double toward = ca > 0 && cb > 0 ? (cb > ca ? 1 : -1) * diff / 1.7 * 0.25 : 0, mid = 0.5 + toward;   // nearer the one that pulls harder
+            for (int q = 0; q <= 8; q++)
+            {
+                double t = q / 8.0, bell = Math.Exp(-Math.Pow((t - mid) / 0.28, 2));
+                Add(glow, a.X + ex * t, a.Y + ey * t, a.Z + ez * t, len * (0.1 + 0.18 * bell), 0.07f * f * (float)bell, 0.055f * f * (float)bell, 0.025f * f * (float)bell, s);
+            }
+            // the shared pair: two electrons on opposite sides, circling the line between the atoms and sliding along it
+            double ux = ex / len, uy = ey / len, uz = ez / len, px = Math.Abs(uy) < 0.9 ? -uz : 1, py = Math.Abs(uy) < 0.9 ? 0 : 0, pz = Math.Abs(uy) < 0.9 ? ux : 0;
+            double pl = Math.Sqrt(px * px + py * py + pz * pz); px /= pl; py /= pl; pz /= pl;
+            double qx = uy * pz - uz * py, qy = uz * px - ux * pz, qz = ux * py - uy * px;
+            double ph = time * 3.1 + n * 1.7, slide = mid + 0.14 * Math.Sin(time * 1.9 + n), r = len * 0.13, dot = s * 0.0035;
+            for (int k = 0; k < 2; k++)
+            {
+                double ang = ph + k * Math.PI, cx = a.X + ex * slide, cy = a.Y + ey * slide, cz = a.Z + ez * slide;
+                Add(glow, cx + (px * Math.Cos(ang) + qx * Math.Sin(ang)) * r, cy + (py * Math.Cos(ang) + qy * Math.Sin(ang)) * r, cz + (pz * Math.Cos(ang) + qz * Math.Sin(ang)) * r, dot, 1f * f, 0.8f * f, 0.25f * f, s);
+            }
+        }
+
         // a bond's stick: a six-sided tube from one atom's middle to the other's, shaded smooth round it
         private void Stick(List<StarVertex> mesh, double ax, double ay, double az, double bx, double by, double bz, double rad, float r, float g, float b, double s)
         {
@@ -628,7 +655,7 @@ namespace DnaAnd.Shell
         }
 
         // the bonds between the atoms drawn, as sticks of small beads, grey, from one atom to the other
-        private void Bonds(List<StarVertex> solid, List<StarVertex> mesh, List<CAtom> atoms, double s, float f)
+        private void Bonds(List<StarVertex> glow, List<CAtom> atoms, double s, double time, float f)
         {
             if (f <= 0.02 || atoms.Count < 2) return;
             double cell = 3.2e-13; var grid = new Dictionary<long, List<int>>();
@@ -647,8 +674,7 @@ namespace DnaAnd.Shell
                         double ex = b.X - a.X, ey = b.Y - a.Y, ez = b.Z - a.Z, d = Math.Sqrt(ex * ex + ey * ey + ez * ez), lim = (Cov(a.E) + Cov(b.E)) * 1.2;
                         if (d < 1e-16 || d > lim) continue;
                         bonds++;
-                        if (mesh != null) Stick(mesh, a.X, a.Y, a.Z, b.X, b.Y, b.Z, 0.16e-13, 0.62f * f, 0.62f * f, 0.66f * f, s);   // a real stick, not beads
-                        else for (int q = 1; q < 6; q++) { double t = q / 6.0; Add(solid, a.X + ex * t, a.Y + ey * t, a.Z + ez * t, 0.12e-13, 0.55f * f, 0.55f * f, 0.58f * f, s); }
+                        SharedPair(glow, a, b, s, time, bonds, f);
                     }
                 }
             }
@@ -860,7 +886,7 @@ namespace DnaAnd.Shell
                     if (s < AtomSpacing * 4) Cloud(glow, at.E, at.X, ay, at.Z, s, time, (long)(at.X / 1e-14) ^ (long)(at.Z / 1e-14) * 31, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
                     { int nb = _bodies.Count; AddBody(1, 0, 0, at.X, ay, at.Z, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = at.E.Symbol; }   // every layer's atoms
                 }
-                Bonds(solid, mesh, drawnAt, s, (float)Fade(s, AtomSpacing * 30, AtomSpacing * 16) * (float)(1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2) * 0.6));
+                Bonds(glow, drawnAt, s, time, (float)Fade(s, AtomSpacing * 30, AtomSpacing * 16) * (float)(1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2) * 0.6));
             }
             else if (fm != null && s < AtomSpacing * 40)
             {
@@ -944,6 +970,7 @@ namespace DnaAnd.Shell
         private void Cloud(List<StarVertex> glow, Element e, double x, double y, double z, double s, double time, long key, float f)
         {
             if (f <= 0.01) return;
+            key = (long)Math.Round(x / 1e-16) * 73856093L ^ (long)Math.Round(y / 1e-16) * 19349663L ^ (long)Math.Round(z / 1e-16) * 83492791L;   // from where the atom is: the same atom, the same electrons, however it is drawn
             double ar = AtomRadius(e); int shells = e.Shells.Length;
             double dot = s * 0.0035;                                                     // electrons: points, shown as a clear dot a few pixels wide
             for (int sh = 0; sh < shells; sh++)
@@ -963,7 +990,11 @@ namespace DnaAnd.Shell
                     }
                     double ox = Math.Cos(ang) * rr, oz = Math.Sin(ang) * rr, oy = oz * si; oz *= ci;
                     Add(glow, x + ox * ct - oz * st, y + oy, z + ox * st + oz * ct, dot, (valence ? 1f : 0.45f) * f, (valence ? 0.8f : 0.75f) * f, (valence ? 0.25f : 1f) * f, s);
-                    { int nb = _bodies.Count; AddBody(3, sh + 1, k, x + ox * ct - oz * st, y + oy, z + ox * st + oz * ct, ar * 0.05, s); if (_bodies.Count > nb) _bodies[nb].Sym = "electron:" + e.Symbol + ":" + shells; }   // every atom's electrons can be picked
+                    double exx = x + ox * ct - oz * st, eyy = y + oy, ezz = z + ox * st + oz * ct;
+                    { int nb = _bodies.Count; AddBody(3, sh + 1, k, exx, eyy, ezz, ar * 0.05, s); if (_bodies.Count > nb) { _bodies[nb].Sym = "electron:" + e.Symbol + ":" + shells; _bodies[nb].Key = key; } }   // every atom's electrons can be picked
+                    // the electron you picked moves on its path: the camera keeps going to where it is now
+                    if (_picked != null && _picked.Kind == 3 && _picked.Key == key && _picked.I == sh + 1 && _picked.J == k)
+                    { _tfx = exx; _tfy = eyy + _yOff; _tfz = ezz; _picked.X = exx; _picked.Y = eyy + _yOff; _picked.Z = ezz; }
                 }
             }
             Add(glow, x, y, z, Math.Max(NucleusRadius(e) * 3, dot * 1.2), 1f * f, 0.75f * f, 0.5f * f, s);   // its nucleus, a spark at the middle
@@ -1022,7 +1053,7 @@ namespace DnaAnd.Shell
         public bool Pick(int mx, int my)
         {
             if (!_haveVp) return false;
-            double best = Math.Pow(24 * Math.Max(1, _lastH / 1080.0), 2); Body pick = null; bool pickInside = false; var m = _lastVp;
+            double best = Math.Pow(24 * Math.Max(1, _lastH / 1080.0), 2); Body pick = null; bool pickInside = false; double pickDepth = 0; var m = _lastVp;
             foreach (var b in _bodies)
             {
                 float x = (float)((b.X - _fx) / _scale + _ex), y = (float)((b.Y - _fy) / _scale + _ey), z = (float)((b.Z - _fz) / _scale + _ez);
@@ -1032,9 +1063,17 @@ namespace DnaAnd.Shell
                 double rpx = b.Size / _scale / cw / Math.Tan(0.45) * _lastH * 0.5;            // its own size on screen counts too
                 // the smallest thing the click is on wins (so a water molecule on a clay plate is the molecule, not the plate);
                 // else the nearest within reach
+                // of the things the click is on: the front one wins (never one behind it), except a much smaller thing on or in
+                // the one in front (an electron of that atom, a molecule on a plate); else the nearest within reach
                 bool on = d2 < rpx * rpx, pickOn = pick != null && pickInside;
-                if (on && (!pickOn || b.Size < pick.Size)) { best = d2; pick = b; pickInside = true; }
-                else if (!pickOn && d2 < best) { best = d2; pick = b; }
+                double depth = cw * _scale;                                                  // how far in front of you (km)
+                bool wins;
+                if (!on) wins = !pickOn && d2 < best;
+                else if (!pickOn) wins = true;
+                else if (b.Size < pick.Size * 0.3) wins = depth <= pickDepth + pick.Size;    // smaller, and on or in front of the pick
+                else if (pick.Size < b.Size * 0.3) wins = pickDepth > depth + b.Size;        // bigger: only if the pick is behind it
+                else wins = depth < pickDepth;                                               // alike: the one in front
+                if (wins) { best = d2; pick = b; pickInside = on; pickDepth = depth; }
             }
             if (pick == null)
             {
