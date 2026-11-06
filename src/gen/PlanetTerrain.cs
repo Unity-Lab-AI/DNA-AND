@@ -97,34 +97,32 @@ namespace DnaAnd.Gen
         public PlanetTerrain(IntPtr device, string kind, string name, uint seed, bool resourceView = false, double radiusKm = 0)
         {
             _device = device; Kind = kind; Name = name; _seed = seed; ResourceView = resourceView;
-            switch (kind)
-            {
-                case "ocean": Radius = 7400; break;
-                case "desert": Radius = 5100; break;
-                case "lava": Radius = 4300; break;
-                case "snowball": Radius = 5900; break;
-                case "tidally-locked": Radius = 6700; break;
-                case "gas-giant": Radius = 69911; break;
-                case "ice-giant": Radius = 24622; break;
-                case "hot-jupiter": Radius = 95000; break;
-                default: Radius = 6371; break;
-            }
+            var tk = TerrainKind(kind); Radius = tk.Radius;
             if (radiusKm > 0) Radius = radiusKm;
-            Solid = kind != "gas-giant" && kind != "ice-giant" && kind != "hot-jupiter" && kind != "dyson-hull";
-            HasWater = kind == "temperate" || kind == "ocean";
-            HasClouds = kind != "dyson-hull" && kind != "dyson-shell";   // giants get a high haze deck over their deep clouds
-            // how high the clouds float and how thick the air is (km), and the air's colour
-            switch (kind)
+            Solid = tk.Solid; HasWater = tk.Water; HasClouds = tk.Clouds;
+            CloudKm = tk.CloudKm; AirKm = tk.AirKm; AirR = tk.Air[0]; AirG = tk.Air[1]; AirB = tk.Air[2];
+            _tk = tk;
+        }
+
+        // ── each kind of world's ground, air and clouds, from content/terrain.dnat (none named in code) ──
+        public sealed class TerrainKindData { public double Radius = 6371, CloudKm = 9, AirKm = 110, CloudThick = 1, BaseK = 255; public bool Solid = true, Water, Clouds = true; public float[] Air = { 0.35f, 0.56f, 1f }, Cloud = { 0.97f, 0.97f, 0.97f }, Rock = { 0.4f, 0.38f, 0.36f }; }
+        private static readonly Dictionary<string, TerrainKindData> Kinds = new Dictionary<string, TerrainKindData>();
+        private TerrainKindData _tk;
+        public static TerrainKindData TerrainKind(string kind) { TerrainKindData t; return Kinds.TryGetValue(kind ?? "", out t) ? t : Kinds.TryGetValue("default", out t) ? t : new TerrainKindData(); }
+        private static void LoadKinds(ContentLibrary content)
+        {
+            var ci = System.Globalization.CultureInfo.InvariantCulture; var fs = System.Globalization.NumberStyles.Float;
+            ContentEntry def = null; foreach (var e in content.OfKind("terrain.dnat", "terrain")) if (e.Id == "default") def = e;
+            foreach (var e in content.OfKind("terrain.dnat", "terrain"))
             {
-                case "desert": CloudKm = 6; AirKm = 70; AirR = 0.95f; AirG = 0.62f; AirB = 0.38f; break;
-                case "lava": CloudKm = 12; AirKm = 150; AirR = 1f; AirG = 0.42f; AirB = 0.18f; break;
-                case "snowball": CloudKm = 5; AirKm = 50; AirR = 0.6f; AirG = 0.76f; AirB = 1f; break;
-                case "tidally-locked": CloudKm = 9; AirKm = 80; AirR = 0.45f; AirG = 0.56f; AirB = 0.9f; break;
-                case "gas-giant": CloudKm = 55; AirKm = 2200; AirR = 0.95f; AirG = 0.82f; AirB = 0.6f; break;
-                case "ice-giant": CloudKm = 45; AirKm = 1000; AirR = 0.45f; AirG = 0.65f; AirB = 1f; break;
-                case "hot-jupiter": CloudKm = 80; AirKm = 4500; AirR = 1f; AirG = 0.55f; AirB = 0.3f; break;
-                case "ocean": CloudKm = 10; AirKm = 120; AirR = 0.35f; AirG = 0.56f; AirB = 1f; break;
-                default: CloudKm = 9; AirKm = 110; AirR = 0.35f; AirG = 0.56f; AirB = 1f; break;
+                Func<string, string> g = k => e.Props.ContainsKey(k) ? e.Get(k, "") : def != null ? def.Get(k, "") : "";
+                Func<string, double, double> d = (k, f) => { double v; return double.TryParse(g(k), fs, ci, out v) ? v : f; };
+                Func<string, float[], float[]> c = (k, f) => { var w = g(k).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries); float x, y, z; return w.Length == 3 && float.TryParse(w[0], fs, ci, out x) && float.TryParse(w[1], fs, ci, out y) && float.TryParse(w[2], fs, ci, out z) ? new[] { x, y, z } : f; };
+                var t = new TerrainKindData();
+                t.Radius = d("radius-km", 6371); t.CloudKm = d("cloud-km", 9); t.AirKm = d("air-km", 110); t.CloudThick = d("cloud-thickness", 1); t.BaseK = d("base-k", 255);
+                t.Solid = g("solid") != "no"; t.Water = g("water") == "yes"; t.Clouds = g("clouds") != "no";
+                t.Air = c("air-colour", t.Air); t.Cloud = c("cloud-colour", t.Cloud); t.Rock = c("rock-colour", t.Rock);
+                Kinds[e.Id] = t;
             }
         }
 
@@ -559,6 +557,7 @@ namespace DnaAnd.Gen
         /// <summary>Reads every field's name and where it is found from content/resource-fields.dnat.</summary>
         public static void LoadFields(ContentLibrary content)
         {
+            if (Kinds.Count == 0) LoadKinds(content);
             if (Fields.Count > 0) return;
             foreach (var e in content.Entries) if ((e.Kind == "planet" || e.Kind == "giant") && e.Props.ContainsKey("air")) Air[e.Id] = e.Get("air", "");
             for (int i = 0; i < FieldIds.Length; i++)
@@ -932,12 +931,7 @@ namespace DnaAnd.Gen
                     else
                     {
                         h = 0; gl = 0; al = (float)(CloudCover(x, y, z) * 0.92);
-                        r = g = bl = 0.97f;
-                        if (Kind == "lava") { r = 0.24f; g = 0.21f; bl = 0.2f; }                // ash clouds
-                        else if (Kind == "ice-giant") { r = 0.85f; g = 0.92f; bl = 1f; }        // methane ice clouds
-                        else if (Kind == "hot-jupiter") { r = 0.45f; g = 0.3f; bl = 0.26f; }    // hot dark haze
-                        else if (Kind == "gas-giant") { r = 0.98f; g = 0.95f; bl = 0.88f; }     // ammonia ice clouds
-                        else if (Kind == "desert") { r = 0.82f; g = 0.62f; bl = 0.42f; al *= 0.4f; }  // thin dust
+                        r = _tk.Cloud[0]; g = _tk.Cloud[1]; bl = _tk.Cloud[2]; al *= (float)_tk.CloudThick;   // the clouds of this kind of world (terrain.dnat)
                     }
                     double rad = Shell && layer != Hull ? baseR - h : baseR + h;   // a shell's land rises inward, toward the star
                     int k = b * (Grid + 1) + a;
@@ -956,9 +950,7 @@ namespace DnaAnd.Gen
                         double slope = Math.Max(Math.Abs(_hh[ka] - _hh[k]), Math.Abs(_hh[kb] - _hh[k])) / spacing;
                         float rock = (float)Math.Max(0, Math.Min(1, (slope - 0.7) * 2.0));
                         if (rock <= 0) continue;
-                        float rr = 0.40f, rg = 0.38f, rb = 0.36f;
-                        if (Kind == "desert") { rr = 0.58f; rg = 0.34f; rb = 0.22f; }
-                        if (Kind == "lava") { rr = 0.12f; rg = 0.1f; rb = 0.1f; }
+                        float rr = _tk.Rock[0], rg = _tk.Rock[1], rb = _tk.Rock[2];                   // steep bare rock of this kind (terrain.dnat)
                         _cr[k] += (rr - _cr[k]) * rock; _cg[k] += (rg - _cg[k]) * rock; _cb[k] += (rb - _cb[k]) * rock;
                     }
             }

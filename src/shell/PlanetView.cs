@@ -292,7 +292,7 @@ namespace DnaAnd.Shell
         // a world's temperature from its star alone, before any greenhouse (Earth: 255 K), by kind of world
         private static double BaseKelvin(string kind)
         {
-            switch (kind) { case "desert": return 270; case "lava": return 700; case "snowball": return 215; case "ocean": return 252; case "tidally-locked": return 250; default: return 255; }
+            return DnaAnd.Gen.PlanetTerrain.TerrainKind(kind).BaseK;                         // content/terrain.dnat
         }
 
         // the ground you see follows the planet: seas falling in ice ages, mountains worn down or pushed up, new craters.

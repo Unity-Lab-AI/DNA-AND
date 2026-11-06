@@ -1,0 +1,107 @@
+# DNA-AND content · how each kind of world's ground, air and clouds are drawn (the terrain kinds)
+# radius-km: its size when its system gives none (Earth 6,371 km; Jupiter 69,911; Neptune 24,622; hot Jupiters puffed up
+#   to about 1.4 Jupiter widths; the others typical of their kind). solid: has ground (giants have none). water: seas.
+# clouds: has a cloud deck; cloud-km: how high it floats; air-km: how deep the air glows at the edge; air-colour: the air's
+#   colour at the edge (Rayleigh blue on Earth-like air, dusty orange on deserts, ash-orange over lava). cloud-colour: the
+#   clouds' colour (water clouds white; ash grey over lava; ammonia ice cream on gas giants; methane ice pale blue on ice
+#   giants; dark haze on hot Jupiters; dust on deserts); cloud-thickness: how much of the sky they cover, 1 full.
+# rock-colour: steep bare rock. base-k: its temperature from its star alone, before any greenhouse (Earth 255 K).
+# Spec: docs/CONTENT-FORMAT.md · content/planets.dnat
+
+@terrain default
+name: An Earth-like world
+radius-km: 6371
+solid: yes
+water: no
+clouds: yes
+cloud-km: 9
+air-km: 110
+air-colour: 0.35 0.56 1
+cloud-colour: 0.97 0.97 0.97
+cloud-thickness: 1
+rock-colour: 0.4 0.38 0.36
+base-k: 255
+
+@terrain temperate
+name: A temperate world
+water: yes
+
+@terrain ocean
+name: An ocean world
+radius-km: 7400
+water: yes
+cloud-km: 10
+air-km: 120
+base-k: 252
+
+@terrain desert
+name: A desert world
+radius-km: 5100
+cloud-km: 6
+air-km: 70
+air-colour: 0.95 0.62 0.38
+cloud-colour: 0.82 0.62 0.42
+cloud-thickness: 0.4
+rock-colour: 0.58 0.34 0.22
+base-k: 270
+
+@terrain lava
+name: A lava world
+radius-km: 4300
+cloud-km: 12
+air-km: 150
+air-colour: 1 0.42 0.18
+cloud-colour: 0.24 0.21 0.2
+rock-colour: 0.12 0.1 0.1
+base-k: 700
+
+@terrain snowball
+name: A snowball world
+radius-km: 5900
+cloud-km: 5
+air-km: 50
+air-colour: 0.6 0.76 1
+base-k: 215
+
+@terrain tidally-locked
+name: A tidally locked world
+radius-km: 6700
+air-colour: 0.45 0.56 0.9
+air-km: 80
+base-k: 250
+
+@terrain gas-giant
+name: A gas giant
+radius-km: 69911
+solid: no
+cloud-km: 55
+air-km: 2200
+air-colour: 0.95 0.82 0.6
+cloud-colour: 0.98 0.95 0.88
+
+@terrain ice-giant
+name: An ice giant
+radius-km: 24622
+solid: no
+cloud-km: 45
+air-km: 1000
+air-colour: 0.45 0.65 1
+cloud-colour: 0.85 0.92 1
+
+@terrain hot-jupiter
+name: A hot Jupiter
+radius-km: 95000
+solid: no
+cloud-km: 80
+air-km: 4500
+air-colour: 1 0.55 0.3
+cloud-colour: 0.45 0.3 0.26
+
+@terrain dyson-hull
+name: A Dyson shell's outer hull
+solid: no
+clouds: no
+
+@terrain dyson-shell
+name: A Dyson shell's inner land
+clouds: no

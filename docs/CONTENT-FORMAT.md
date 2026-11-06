@@ -109,6 +109,7 @@ The sample subjects come first (round 15): planets, stars, gas giants, Dyson sph
 - `content/planets.dnat`
 - `content/resource-fields.dnat`
 - `content/small-bodies.dnat`
+- `content/terrain.dnat` (`@terrain`: each kind of world's size, ground, water, air, clouds, rock and base temperature)
 - `content/solar-systems.dnat`
 - `content/space-tech.dnat`
 - `content/stars.dnat`
