@@ -29,6 +29,7 @@ namespace DnaAnd.Shell
         private static readonly Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetLife> Lives = new Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetLife>();
         private DnaAnd.Sim.PlanetLife _life;
         private LandLife _land;
+        private SeaBodies _seaBodies;
         /// <summary>Test runs: start life and run it this many years forward at once.</summary>
         public double TestEvolveYears;
         private string _lifeNote = ""; private double _lifeNoteUntil;
@@ -246,10 +247,11 @@ namespace DnaAnd.Shell
                 string where = _underWater ? " · under water, " + Size(_waterDepth) + " below the surface" : "";
                 if (_intoGround > 0) where += " · INSIDE THE GROUND, " + Size(_intoGround) + " in (wheel back out to come up)";
                 if (!_underWater && _land != null && _land.Here.Length > 0) where += " · living here: " + _land.Here;
-                if (_underWater && _sea.Animals.Count > 0)
+                if (_underWater && (_sea.Animals.Count > 0 || (_seaBodies != null && _seaBodies.Here.Length > 0)))
                 {
                     var names = new System.Collections.Generic.List<string>();
                     foreach (var an in _sea.Animals) { string nm = DnaAnd.Sim.SeaLife.Kinds[an.Kind].Name; if (!names.Contains(nm)) names.Add(nm); }
+                    if (_seaBodies != null && _seaBodies.Here.Length > 0) names.Insert(0, _seaBodies.Here);
                     where += " · in the water around you: " + string.Join(", ", names.ToArray());
                 }
                 if (_life != null)
@@ -479,8 +481,13 @@ namespace DnaAnd.Shell
         {
             // only the animals the planet's own life has evolved into, in this water
             if (_life != null) { double rr = Math.Sqrt(cx * cx + cy * cy + cz * cz); _sea.StageHere = _life.StageAt(cx / rr, cy / rr, cz / rr); }
-            _sea.Update(Math.Max(1e-9, Math.Min(_shown, 0.03)), cx, cy, cz, up, new Vec3(view.M13, view.M23, view.M33), _frameDt);   // in water you see only a few tens of metres
             float light = (float)Math.Max(0.15, Math.Exp(-_waterDepth / 0.05));
+            double seeKm = Math.Max(1e-9, Math.Min(_shown, 0.03));                                     // in water you see only a few tens of metres
+            if (_seaBodies == null) _seaBodies = new SeaBodies(gpu.Device);
+            _seaBodies.Update(_life, cx, cy, cz, up, new Vec3(view.M13, view.M23, view.M33), seeKm, _time, _frameDt, light);
+            _seaBodies.Draw(_pipes, view, proj, _terrain.StarDir, width, height);
+            _sea.NoFish = _seaBodies.Showing;
+            _sea.Update(seeKm, cx, cy, cz, up, new Vec3(view.M13, view.M23, view.M33), _frameDt);
             int n = _sea.Write(_seaVerts, cx, cy, cz, up, light);
             if (n == 0) return;
             if (_seaBuf == null) _seaBuf = new UploadBuffer(gpu.Device, (long)_seaVerts.Length * Marshal.SizeOf(typeof(StarVertex)));
@@ -615,6 +622,6 @@ namespace DnaAnd.Shell
             _dots.Draw(_dropBuf, n, c, 0, 0, width, height);
         }
 
-        public void Dispose() { if (_land != null) _land.Dispose(); if (_seaBuf != null) _seaBuf.Dispose(); if (_veilBuf != null) _veilBuf.Dispose(); if (_microbeBuf != null) _microbeBuf.Dispose(); _dropBuf.Dispose(); if (_starBuf != null) _starBuf.Dispose(); if (_extraBuf != null) _extraBuf.Dispose(); }
+        public void Dispose() { if (_land != null) _land.Dispose(); if (_seaBodies != null) _seaBodies.Dispose(); if (_seaBuf != null) _seaBuf.Dispose(); if (_veilBuf != null) _veilBuf.Dispose(); if (_microbeBuf != null) _microbeBuf.Dispose(); _dropBuf.Dispose(); if (_starBuf != null) _starBuf.Dispose(); if (_extraBuf != null) _extraBuf.Dispose(); }
     }
 }

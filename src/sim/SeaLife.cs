@@ -32,10 +32,12 @@ namespace DnaAnd.Sim
         /// <summary>Keeps animals near the camera's size around it: those far too big or small, or far away, go; new ones arrive.</summary>
         /// <summary>The highest stage life has reached in this water: only animals that far up the ladder can be here.</summary>
         public int StageHere = 99;
+        /// <summary>When the planet's own sea animals swim here, the stock fish are left out.</summary>
+        public bool NoFish;
 
         public void Update(double viewKm, double camX, double camY, double camZ, Vec3 up, Vec3 ahead, double dt)
         {
-            Animals.RemoveAll(a => Kinds[a.Kind].Stage > StageHere);
+            Animals.RemoveAll(a => Kinds[a.Kind].Stage > StageHere || (NoFish && Kinds[a.Kind].Shape == 0));
             Animals.RemoveAll(a =>
             {
                 var k = Kinds[a.Kind];
@@ -47,7 +49,7 @@ namespace DnaAnd.Sim
             for (int i = 0; i < Kinds.Length; i++)
             {
                 var k = Kinds[i];
-                if (k.SizeKm < viewKm * 0.02 || k.SizeKm > viewKm * 60 || k.Stage > StageHere) continue;
+                if (k.SizeKm < viewKm * 0.02 || k.SizeKm > viewKm * 60 || k.Stage > StageHere || (NoFish && k.Shape == 0)) continue;
                 int have = 0; foreach (var a in Animals) if (a.Kind == i) have++;
                 int want = k.Shape == 0 ? (k.SizeKm > 0.003 ? 3 : 18) : 40;
                 for (; have < want; have++)

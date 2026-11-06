@@ -26,7 +26,7 @@ namespace DnaAnd.Shell
         public LandLife(IntPtr device) { _device = device; }
 
         // how big a species really is, in km, from its stage and size gene
-        private static double RealSize(Genome g)
+        internal static double RealSize(Genome g)
         {
             if (g.Stage == 2) return g.Photo > 0.5f ? 0.002 + g.Size * 0.006 : 0.00008 + g.Size * 0.0001;   // plants a few metres, fungi a hand's height
             return (g.Stage >= 6 ? 0.0012 : 0.0002 + g.Size * 0.0007) * (0.6 + g.Segs);                      // animals a hand to a few metres
@@ -60,6 +60,7 @@ namespace DnaAnd.Shell
             {
                 var g = kv.Key.G;
                 if (g.Stage < 2 || (g.Stage == 2 && g.Photo <= 0.5f && !(g.Graze > 0.5f && g.Speed < 0.3f))) continue;   // land: plants, fungi, animals
+                if (SeaBodies.Swims(g) && g.Legs < 0.3f) continue;                       // sea animals: drawn in the water, not on land
                 double size = RealSize(g);
                 if (size < shown * 0.01 || size > shown * 400) continue;             // too small to see from here, or too big to fit the view
                 shownSp.Add(kv); if (shownSp.Count >= 8) break;
