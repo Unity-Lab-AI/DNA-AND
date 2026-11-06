@@ -1002,6 +1002,7 @@ namespace DnaAnd.Gen
 
         private void AskFor(PKey key, int layer, int f, int level, long i, long j, bool pending)
         {
+            lock (_askLock) _wantedAt[key] = _frame;                               // still wanted: build and keep it
             if (_askedKeys.Add(key)) _askedThisFrame.Add(new Ask { Key = key, Layer = layer, F = f, Level = level, I = i, J = j, Pending = pending, Gen = Generation });
         }
 
@@ -1032,7 +1033,9 @@ namespace DnaAnd.Gen
                     lock (_askLock)
                     {
                         if (_asks.Count == 0 || _disposed) return;
-                        a = _asks[0]; _asks.RemoveAt(0); _inFlight.Add(a.Key);
+                        a = _asks[0]; _asks.RemoveAt(0);
+                        if (!a.Pending && !Wanted(a.Key)) { _droppedUnwanted++; continue; }   // you have moved on: not built
+                        _inFlight.Add(a.Key);
                     }
                     var t0 = System.Diagnostics.Stopwatch.GetTimestamp();
                     var p = Make(a.Layer, a.F, a.Level, a.I, a.J);
@@ -1047,10 +1050,11 @@ namespace DnaAnd.Gen
         private void TakeFinished()
         {
             var clock = System.Diagnostics.Stopwatch.StartNew();
-            while (clock.Elapsed.TotalMilliseconds < 4)
+            while (clock.Elapsed.TotalMilliseconds < 8)
             {
-                KeyValuePair<Ask, Patch> d;
-                lock (_askLock) { if (_done.Count == 0) break; d = _done.Dequeue(); _inFlight.Remove(d.Key.Key); }
+                KeyValuePair<Ask, Patch> d; bool wanted;
+                lock (_askLock) { if (_done.Count == 0) break; d = _done.Dequeue(); _inFlight.Remove(d.Key.Key); wanted = d.Key.Pending || Wanted(d.Key.Key); }
+                if (!wanted) { _droppedUnwanted++; continue; }                     // finished, but you have moved on: never uploaded
                 var a = d.Key; var np = d.Value;
                 if (a.Gen != Generation) { _droppedOld++; continue; }             // built for a shape the planet no longer has
                 Upload(np); np.LastUsed = _frame; np.Gen = a.Gen;
@@ -1059,9 +1063,11 @@ namespace DnaAnd.Gen
             }
         }
         private volatile bool _disposed;
-        private int _builtCount; private double _builtMs; private int _droppedOld;
+        private int _builtCount; private double _builtMs; private int _droppedOld, _droppedUnwanted;
+        private readonly Dictionary<PKey, int> _wantedAt = new Dictionary<PKey, int>();   // the last frame each piece was asked for
+        private bool Wanted(PKey k) { int fr; return _wantedAt.TryGetValue(k, out fr) && _frame - fr <= 3; }   // (under _askLock)
         /// <summary>For the log: pieces wished for, being built, built so far, their mean build time, and finished pieces thrown away as out of date.</summary>
-        public string BuildStats { get { lock (_askLock) return "asked " + _asks.Count + " building " + _inFlight.Count + " built " + _builtCount + " at " + (_builtCount > 0 ? (_builtMs / _builtCount).ToString("0.0") : "0") + " ms each, old " + _droppedOld + ", cached " + _cache.Count + ", workers " + _workersBusy; } }
+        public string BuildStats { get { lock (_askLock) return "asked " + _asks.Count + " building " + _inFlight.Count + " built " + _builtCount + " at " + (_builtCount > 0 ? (_builtMs / _builtCount).ToString("0.0") : "0") + " ms each, old " + _droppedOld + ", unwanted " + _droppedUnwanted + ", cached " + _cache.Count + ", workers " + _workersBusy; } }
 
         private void Tri(ref int v, int a, int b, int c)
         {
@@ -1125,6 +1131,7 @@ namespace DnaAnd.Gen
         public void Draw(MeshPipes pipes, double camX, double camY, double camZ, Mat4 viewRot, Mat4 proj, double time, double splitFactor,
             float fogDist, float fr, float fg, float fb, int x, int y, int w, int h, int newPatchBudget)
         {
+            if ((_frame & 63) == 0) lock (_askLock) { var gone = new List<PKey>(); foreach (var kv in _wantedAt) if (_frame - kv.Value > 60) gone.Add(kv.Key); foreach (var k in gone) _wantedAt.Remove(k); }
             _frame++; _budget = newPatchBudget; _clock.Restart(); _msLimit = newPatchBudget >= 400 ? 10 : 30;
             TakeFinished();
             // last frame every piece in view had its new form ready: swap the whole planet's ground at once
