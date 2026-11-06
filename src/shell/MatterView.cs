@@ -42,10 +42,13 @@ namespace DnaAnd.Shell
         /// <summary>Into the gas of a nebula or a cluster: about 1,000 atoms a cubic centimetre in an emission nebula (one about every
         /// millimetre), fewer in a reflection nebula and between a cluster's stars; mostly hydrogen, about 9 in 100 helium, a trace of
         /// oxygen and nitrogen.</summary>
-        public void SetSpace(int kind, ulong spot)
+        public void SetSpace(int kind, ulong spot, double fromCentre)
         {
             _space = true; _spaceKind = kind; _seed = spot; _mix = null; _mixId = "space"; _noGrains = true;
-            _gasSpacing = kind == 2 ? 1e-6 : kind == 3 ? 2.2e-6 : 1e-5;                     // 1 mm, 2 mm (100 a cm3), 1 cm (1 a cm3)
+            // denser at the middle: an emission nebula about 9,000 atoms a cubic centimetre at its centre down to about 100 at its edge,
+            // a reflection nebula about 3,000 to 30; between a cluster's stars about 1 (fromCentre: 0 the middle, 1 the edge)
+            double perCc = kind == 2 ? 300 * (0.33 + 30 * Math.Exp(-Math.Pow(fromCentre / 0.25, 2))) : kind == 3 ? 100 * (0.3 + 30 * Math.Exp(-Math.Pow(fromCentre / 0.25, 2))) : 1;
+            _gasSpacing = 1e-5 / Math.Pow(perCc, 1 / 3.0);                                   // km between atoms (a centimetre is 1e-5 km)
             _fx = _fz = _tfx = _tfz = 0; _picked = null;
         }
         private Element GasAtom(long i, long j, long k)
@@ -324,6 +327,14 @@ namespace DnaAnd.Shell
             { "H", 0.53 }, { "He", 0.31 }, { "C", 0.67 }, { "N", 0.56 }, { "O", 0.48 }, { "F", 0.42 }, { "Na", 1.90 }, { "Mg", 1.45 }, { "Al", 1.18 },
             { "Si", 1.11 }, { "P", 0.98 }, { "S", 0.88 }, { "Cl", 0.79 }, { "K", 2.43 }, { "Ca", 1.94 }, { "Ti", 1.76 }, { "Fe", 1.56 }
         };
+        // a big count in plain words
+        private static string Big(double n)
+        {
+            string[] names = { "", " thousand", " million", " billion", " trillion", " thousand trillion", " million trillion", " billion trillion" };
+            int k = 0; while (n >= 1000 && k < names.Length - 1) { n /= 1000; k++; }
+            return n.ToString(n < 10 ? "0.#" : "0") + names[k];
+        }
+
         private static double AtomRadius(Element e)
         {
             if (e == null) return 1e-13;
@@ -864,7 +875,10 @@ namespace DnaAnd.Shell
             L.Add("protons: " + e.Z + ", neutrons: " + (e.A - e.Z) + ", electrons: " + e.Z);
             L.Add("shells: " + string.Join(", ", Array.ConvertAll(e.Shells, x => x.ToString())));
             L.Add("width: about " + ScaleHud.Words(AtomRadius(e) * 2) + ", nucleus " + ScaleHud.Words(NucleusRadius(e) * 2));
-            if (_space) { L.Add("in the gas of " + (_spaceKind == 2 ? "an emission nebula (most of its hydrogen ionized by hot stars)" : _spaceKind == 3 ? "a reflection nebula" : "space between a cluster's stars")); L.Add("the next atom: about " + ScaleHud.Words(_gasSpacing) + " away"); }
+            if (_space) { L.Add("in the gas of " + (_spaceKind == 2 ? "an emission nebula (most of its hydrogen ionized by hot stars)" : _spaceKind == 3 ? "a reflection nebula" : "space between a cluster's stars")); double inView = Math.Pow(_scale * 1.2 / _gasSpacing, 3), perCc = Math.Pow(1e-5 / _gasSpacing, 3);
+                L.Add("about " + perCc.ToString(perCc < 10 ? "0.#" : "N0") + " atoms a cubic centimetre (air has 25 billion billion)");
+                L.Add(inView >= 2 ? "in view: about " + Big(inView) + " atoms, far too thin to see" : "in view: the one atom ahead of you");
+                L.Add("each about " + ScaleHud.Words(_gasSpacing) + " from the next"); }
             else if (fm != null && Molecules.ContainsKey(fm.Id)) L.Add("in a molecule of " + fm.Formula.Split(' ')[0] + ", in " + fm.Name.ToLowerInvariant());
             else if (fm != null) L.Add("in a grain of " + fm.Name.ToLowerInvariant() + " (" + fm.Formula + ")" + StructureName(fm));
             return L;
