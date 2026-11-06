@@ -335,7 +335,7 @@ namespace DnaAnd.Shell
         private void AddBody(int kind, long i, long j, double x, double y, double z, double size, double s)
         {
             double vx = (x - _fx) / s, vz = (z - _fz) / s, vs = size / s;
-            if (Math.Abs(vx) > 6 || Math.Abs(vz) > 6 || (vs < 0.004 && kind < 3)) return;   // only bodies big enough on screen to pick (points always are)
+            if (Math.Abs(vx) > 6 || Math.Abs(vz) > 6 || (vs < 0.004 && kind < 3) || _bodies.Count > 20000) return;   // only bodies big enough on screen to pick (points always are)
             _bodies.Add(new Body { Kind = kind, I = i, J = j, X = x, Y = y, Z = z, Size = size });
         }
 
@@ -510,7 +510,7 @@ namespace DnaAnd.Shell
                     double ball = 1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2);
                     if (ball > 0.03) Add(solid, at.X, ay + ar * (1 - f) * 0.6, at.Z, ar * 0.62 * (0.25 + 0.75 * f) * ball, at.E.R * sh, at.E.G * sh, at.E.B * sh, s);
                     if (s < AtomSpacing * 4) Cloud(glow, at.E, at.X, ay, at.Z, s, time, (long)(at.X / 1e-14) ^ (long)(at.Z / 1e-14) * 31, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
-                    if (at.Y > -0.3 * AtomSpacing) { AddBody(1, 0, 0, at.X, ay, at.Z, ar, s); if (_bodies.Count > 0) _bodies[_bodies.Count - 1].Sym = at.E.Symbol; }
+                    { int nb = _bodies.Count; AddBody(1, 0, 0, at.X, ay, at.Z, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = at.E.Symbol; }   // every layer's atoms
                 }
             }
             else if (fm != null && s < AtomSpacing * 14)
@@ -538,6 +538,7 @@ namespace DnaAnd.Shell
                                     Add(solid, i * a + ox, k * a - ar + oy, j * a + oz, mr, me.R * sh * f, me.G * sh * f, me.B * sh * f, s);
                                 }
                                 Add(solid, i * a, k * a - ar, j * a, ar * 0.55, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
+                                { int nb = _bodies.Count; AddBody(6, i, j, i * a, k * a - ar, j * a, ar * 1.6, s); if (_bodies.Count > nb) _bodies[nb].Sym = fm.Id; }   // the whole molecule
                             }
                             else
                             {
@@ -545,7 +546,7 @@ namespace DnaAnd.Shell
                                 if (ball > 0.03) Add(solid, i * a, k * a - ar, j * a, ar * 0.9 * ball, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
                                 if (s < AtomSpacing * 4) Cloud(glow, el, i * a, k * a - ar, j * a, s, time, i * 7919 ^ j * 104729 ^ k, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
                             }
-                            if (k == 0) { int nb = _bodies.Count; AddBody(1, i, j, i * a, -ar, j * a, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = el.Symbol; }
+                            { int nb = _bodies.Count; AddBody(1, i, j, i * a, k * a - ar, j * a, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = el.Symbol; }   // every layer's atoms
                         }
             }
             // the atom under you, from inside: its electrons in their shells, moving round it, and its nucleus at the middle
@@ -638,6 +639,7 @@ namespace DnaAnd.Shell
                 }
             }
             Add(glow, x, y, z, Math.Max(NucleusRadius(e) * 3, dot * 1.2), 1f * f, 0.75f * f, 0.5f * f, s);   // its nucleus, a spark at the middle
+            { int nb = _bodies.Count; AddBody(7, 0, 0, x, y, z, ar * 0.08, s); if (_bodies.Count > nb) _bodies[nb].Sym = e.Symbol; }   // and its nucleus can be picked
         }
 
         private void Put(List<StarVertex> l, ref StarVertex[] arr, ref UploadBuffer buf)
@@ -719,7 +721,7 @@ namespace DnaAnd.Shell
                 }
                 return false;
             }
-            _picked = pick; if (pick.Kind < 3) { _tfx = pick.X; _tfz = pick.Z; } return true;   // grains and atoms are flown to; electrons, nucleons and quarks are only named
+            _picked = pick; if (pick.Kind < 3 || pick.Kind == 6 || pick.Kind == 7) { _tfx = pick.X; _tfz = pick.Z; } return true;   // grains, atoms, molecules and nuclei are flown to; electrons, nucleons and quarks only named   // grains and atoms are flown to; electrons, nucleons and quarks are only named
         }
 
         /// <summary>Puts the point you dive into right under you (km east and north of where this spot's matter began), so the
@@ -767,6 +769,27 @@ namespace DnaAnd.Shell
                 L.Add("charge -1; mass 1/1836 of a proton");
                 L.Add("a point as far as measured: smaller than 10^-22 m");
                 L.Add("where it is: a cloud of chance round the nucleus");
+                return L;
+            }
+            if (_picked != null && _picked.Kind == 6)
+            {
+                var mm = _minerals.ContainsKey(_picked.Sym) ? _minerals[_picked.Sym] : null; if (mm == null) return L;
+                string f0 = mm.Formula.Split(' ')[0];
+                L.Add("a molecule of " + f0 + " (" + mm.Name.ToLowerInvariant() + ")");
+                if (f0 == "H2O") { L.Add("bent at 104.5 degrees"); L.Add("O-H bonds 0.096 nm"); }
+                else if (f0 == "CO2") { L.Add("straight; C=O bonds 0.116 nm"); }
+                else if (f0 == "CH4") { L.Add("a tetrahedron; C-H bonds 0.109 nm"); }
+                else if (f0 == "N2") { L.Add("a pair; N-N triple bond 0.110 nm"); }
+                KeyValuePair<string, double[]>[] mol0; L.Add("atoms in it: " + (Molecules.TryGetValue(mm.Id, out mol0) ? mol0.Length : mm.Atoms.Length));
+                return L;
+            }
+            if (_picked != null && _picked.Kind == 7)
+            {
+                var ne = El(_picked.Sym); if (ne == null) return L;
+                L.Add("the nucleus of an atom of " + ne.Name.ToLowerInvariant());
+                L.Add(ne.Z + " protons, " + (ne.A - ne.Z) + " neutrons (" + ne.Symbol + "-" + ne.A + ")");
+                L.Add("width: about " + ScaleHud.Words(NucleusRadius(ne) * 2));
+                L.Add("about 100,000 times smaller than its atom");
                 return L;
             }
             if (_picked != null && _picked.Kind == 5)

@@ -479,7 +479,7 @@ namespace DnaAnd.Shell
         {
             dx = dy = dz = 0; radius = 0;
             if (_tKind == 0) { var g = _galaxies[_tIndex]; dx = (g.X - _ax) - _ox; dy = (g.Y - _ay) - _oy; dz = (g.Z - _az) - _oz; radius = g.Scale * 0.3; return true; }
-            if (_tKind == 1) { dx = (_tx - _ax) - _ox; dy = (_ty - _ay) - _oy; dz = (_tz - _az) - _oz; radius = _tRadius; return true; }
+            if (_tKind == 1 || _tKind == 4) { dx = (_tx - _ax) - _ox; dy = (_ty - _ay) - _oy; dz = (_tz - _az) - _oz; radius = _tRadius; return true; }   // a star, or a spot in a belt
             if (_tKind == 2 && _system != null && _tIndex < _system.Bodies.Count)
             { double x, y, z; BodyPos(_tIndex, out x, out y, out z); dx = x - _ox; dy = y - _oy; dz = z - _oz; radius = _system.Bodies[_tIndex].RadiusUnits; return true; }
             if (_tKind == 3 && _ground != null)
@@ -537,6 +537,28 @@ namespace DnaAnd.Shell
                 {
                     double d2 = near(_bodyVerts[i].X - _ox, _bodyVerts[i].Y - _oy, _bodyVerts[i].Z - _oz);
                     if (d2 < best) { best = d2; kind = 2; idx = i - 1; name = _system.Bodies[i - 1].Kind; }
+                }
+            }
+            if (_system != null && kind < 0)
+            {
+                // a belt: where the line under the mouse crosses the plane of the system, if it falls in a belt (the asteroid belt,
+                // the Kuiper belt, or the Oort cloud's inner reaches)
+                if (Math.Abs(dir.Y) > 1e-6)
+                {
+                    double t = -_oy / dir.Y;
+                    if (t > 0)
+                    {
+                        double hx = _ox + dir.X * t, hz = _oz + dir.Z * t, au = Math.Sqrt(hx * hx + hz * hz) / Units.Au(1);
+                        var sy = _system; string bn = null;
+                        if (sy.BeltOutAu > 0 && au >= sy.BeltInAu && au <= sy.BeltOutAu) bn = "the asteroid belt";
+                        else if (au >= sy.KuiperInAu && au <= sy.KuiperOutAu) bn = "the Kuiper belt";
+                        else if (au >= sy.OortInAu && au <= sy.OortOutAu) bn = "the Oort cloud";
+                        if (bn != null)
+                        {
+                            double sx2, sy2; bool onScreen = ToScreen(hx - _ox, -_oy, hz - _oz, out sx2, out sy2);
+                            if (onScreen) { _tKind = 4; _tx = _ax + hx; _ty = _ay; _tz = _az + hz; _tRadius = 0; _tName = bn; return; }
+                        }
+                    }
                 }
             }
             if (_near >= 0 && kind < 0)
@@ -1213,6 +1235,15 @@ namespace DnaAnd.Shell
                 bool here = _ground != null && _planet == _tIndex;
                 foreach (var m in MakeUp(b.Kind, here ? _ground.HasWater : b.Kind == "Temperate world")) L.Add(m);
                 if (here) { L.Add("air: " + (_ground.AirKm > 0 ? "about " + _ground.AirKm.ToString("0") + " km deep" : "none") + (_ground.HasClouds ? ", clouds" : "")); }
+                L.Add("distance: " + Units.Describe(dist));
+            }
+            else if (_tKind == 4 && _system != null)
+            {
+                var sy = _system; bool ast = _tName == "the asteroid belt", kui = _tName == "the Kuiper belt";
+                L.Add(_tName.Substring(4, 1).ToUpperInvariant() + _tName.Substring(5) + " of this star");
+                if (ast) { L.Add("from " + sy.BeltInAu.ToString("0.##") + " to " + sy.BeltOutAu.ToString("0.##") + " AU"); L.Add("rocky and metal bodies, dust to dwarf planets"); L.Add("left where a giant's pull kept a planet from forming"); }
+                else if (kui) { L.Add("from " + sy.KuiperInAu.ToString("0.#") + " to " + sy.KuiperOutAu.ToString("0.#") + " AU"); L.Add("icy bodies: frozen water, methane, ammonia"); L.Add("where short-period comets come from"); }
+                else { L.Add("from about " + sy.OortInAu.ToString("N0") + " to " + sy.OortOutAu.ToString("N0") + " AU, all round"); L.Add("a shell of icy bodies, billions of them"); L.Add("where long-period comets come from"); }
                 L.Add("distance: " + Units.Describe(dist));
             }
             else if (_tKind == 3 && _ground != null)

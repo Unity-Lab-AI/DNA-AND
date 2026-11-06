@@ -143,6 +143,7 @@ namespace DnaAnd.Gen
         public sealed class StarSystem
         {
             public string StarName; public double StarRadius, Luminosity, FrostLineAu, HabitableAu, MassSol, TempK, RadiusSol;
+            public double BeltInAu, BeltOutAu, KuiperInAu, KuiperOutAu, OortInAu, OortOutAu;   // the asteroid belt (0 if none), Kuiper belt and Oort cloud
             public float SR, SG, SB;
             public readonly List<Body> Bodies = new List<Body>();
             public StarVertex[] Static; // belts, Kuiper belt, Oort cloud, orbit lines
@@ -223,9 +224,13 @@ namespace DnaAnd.Gen
                     }
             // asteroid belt in the gap between the rocky planets and the giants
             if (firstGiant > 0 && lastRocky > 0)
+            {
                 Ring(stat, rng, Units.Au(lastRocky * 1.15), Units.Au(firstGiant * 0.85), 3000, 0.02, 0.7f, 0.6f, 0.5f, 0.5f);
+                sys.BeltInAu = lastRocky * 1.15; sys.BeltOutAu = firstGiant * 0.85;
+            }
             // Kuiper belt beyond the last planet, and the Oort cloud far out
             Ring(stat, rng, Units.Au(outer * 1.3), Units.Au(outer * 2.0), 4000, 0.05, 0.6f, 0.75f, 0.9f, 0.35f);
+            sys.KuiperInAu = outer * 1.3; sys.KuiperOutAu = outer * 2.0; sys.OortInAu = 2000 * scale; sys.OortOutAu = 50000 * scale;
             for (int i = 0; i < 6000; i++)
             {
                 Vec3 d = new Vec3(rng.Gaussian(), rng.Gaussian(), rng.Gaussian()).Normalized;
