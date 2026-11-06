@@ -69,13 +69,15 @@ float4 PS(VO i) : SV_Target
         float a = (pow(edge, 3) * 1.1 + 0.08) * day;
         return float4(i.col.rgb * a, 1);
     }
-    float lit = 0.18 + 0.82 * saturate(dot(n, light.xyz));      // the night side still shows, dimly, by starlight and skyglow
+    float sun = saturate(dot(n, light.xyz));
+    float lit = 0.5 + 0.5 * sun;                                  // a god sees by night: the night side is about half as bright, never black
     if (misc.z > 1.5 && misc.z < 2.5)
     {
         // clouds scatter light through themselves: lit from the star's side of the planet, glowing grey from below
         lit = 0.45 + 0.55 * saturate(abs(dot(n, light.xyz)));
     }
     float3 c = i.col.rgb * max(lit, i.glow);
+    c *= lerp(float3(0.78, 0.86, 1.08), float3(1, 1, 1), saturate(sun * 3));   // and a slight cool tint, so night still reads as night
     float alpha = misc.z > 1.5 ? i.col.a : 1;
     if (misc.z > 2.5)
     {
