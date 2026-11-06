@@ -105,7 +105,7 @@ namespace DnaAnd.Shell
         public void DrawCard(MeshPipes pipes, IList<string> lines, double x, double y, int w, int h)
         {
             if (lines == null || lines.Count == 0) return;
-            float px = Math.Max(1, h / 540f), cell = 1.25f * px, adv = 6 * cell, lh = 10 * cell, pad = 6 * px;
+            float px = Math.Max(1, h / 540f), cell = 1.5f * px, adv = 6 * cell, lh = 10 * cell, pad = 6 * px;
             int longest = 0; foreach (var l in lines) longest = Math.Max(longest, l.Length);
             float cw = longest * adv + pad * 2, ch = lines.Count * lh + pad * 2 - 3 * cell;
             float x0 = (float)Math.Min(Math.Max(4, x), w - cw - 4), y0 = (float)Math.Min(Math.Max(4, y), h - ch - 4);
