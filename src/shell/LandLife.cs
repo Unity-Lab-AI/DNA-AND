@@ -84,7 +84,9 @@ namespace DnaAnd.Shell
                 double size = RealSize(kv.Key.G);
                 float scale = (float)(size / Math.Max(fit[1], fit[2]));
                 int n = 3 + Math.Min(9, (int)(Math.Log10(1 + kv.Value) * 4));                 // more of the common ones
-                double spread = Math.Max(size * 6, shown * 3);
+                bool plant = kv.Key.G.Stage == 2 && kv.Key.G.Photo > 0.5f;
+                if (plant) n *= 4;                                                             // plants grow thick; animals go about in smaller groups
+                double spread = Math.Max(size * (plant ? 10 : 6), shown * 3);
                 string nm = PlanetLife.StageNames[kv.Key.G.Stage] + (kv.Key.G.Stage == 2 ? (kv.Key.G.Photo > 0.5f ? " (plants)" : " (fungi)") : "");
                 if (!names.Contains(nm)) names.Add(nm);
                 for (int k = 0; k < n; k++)

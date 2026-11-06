@@ -59,8 +59,8 @@ The style samples (R4.5) are the generators' first output, generated live in the
 
 **Living and built things** use one body builder, in the smooth look:
 - `src/gen/BodyGen.cs`: puts bodies together from blobs, boxes and cones. It can draw them smooth, chunky or blocky; smooth is the one used.
-- `src/gen/GeneBody.cs`: builds a body from a genome. The stage of life decides the kind of thing it grows into (virus, cell, plant, fungus, jelly or animal), and the body-plan genes decide its shape: segments, legs, neck, tail, fins, wings, head, eyes, armour, poison, jaws, standing upright and branching. Intelligent creatures carry a tool and wear cloth.
-- `src/gen/CivGen.cs`: builds everything an intelligent species makes, from its own genes: a tribe camp, village, town, city, spaceship, hyperdrive ship, space station and colony. The builders' body plan sets their way of building:
+- `src/gen/GeneBody.cs`: builds a body from a genome. The stage of life decides the kind of thing it grows into (virus, cell, plant, fungus, jelly or animal), and the body-plan genes decide its shape: segments, legs, neck, tail, fins, wings, head, eyes, armour, poison, jaws, standing upright and branching. Intelligent creatures carry a tool and wear cloth. Skin colour comes from the colour genes, strengthened and kept bright enough to read, so families look apart and none come out black.
+- `src/gen/CivGen.cs`: builds everything an intelligent species makes, from its own genes: a tribe camp, village, town, city, spaceship, hyperdrive ship, space station and colony. Their skin colour runs through all of it: ship hulls carry bands of it, and stations and colonies are tinted with it. The builders' body plan sets their way of building:
   - insect-like: mounds and hive spires
   - armoured: spiked forts
   - at home in water: stilts
