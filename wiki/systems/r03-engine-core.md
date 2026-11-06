@@ -30,7 +30,7 @@ Distances run from a virus to across galaxies.
 ## 🧠 Memory and 🧵 threads
 ✅ Large pre-reserved memory pools per system.
 ✅ One worker per CPU core, pulling small jobs from a shared queue.
-- Built: `src/core/Jobs.cs`. `Jobs.Run` queues one job; `Jobs.For` spreads a loop over every core and waits. First user: a planet measuring its 100 regions.
+- Built: `src/core/Jobs.cs`. `Jobs.Run` queues one job; `Jobs.For` spreads a loop over every core and waits. Used by: a planet measuring its 100 regions, and the land building every newly seen species' body at once.
 
 ## 💾 Save files
 ✅ Our own binary format made of versioned chunks (universe, planets, life, civs, player).

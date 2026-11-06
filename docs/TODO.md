@@ -132,7 +132,7 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] Memory and the giant data arrays for billions of things (started: `BigArray<T>`)
   - Big memory blocks reserved up front per system.
 - [~] Multithreading so the simulation uses every CPU core
-  - One worker per core, pulling jobs from a shared queue. Built: `src/core/Jobs.cs` (`Jobs.Run`, `Jobs.For`); first used to measure a planet's regions. Still to move onto it: the life sim step, terrain building, body building.
+  - One worker per core, pulling jobs from a shared queue. Built: `src/core/Jobs.cs` (`Jobs.Run`, `Jobs.For`); used to measure a planet's regions and to build the land's new bodies all at once. Still to move onto it: the life sim step, terrain building, sea bodies.
 - [~] Save and load file format
   - Our own versioned binary chunks: universe, planets, life, civilizations, player. Built: the format (`src/core/SaveFile.cs`) and the life chunk (`PlanetLife.Save`/`Load`). Still to do: universe, planet, civilization and player chunks, and Save and Load in the game's menu.
 
