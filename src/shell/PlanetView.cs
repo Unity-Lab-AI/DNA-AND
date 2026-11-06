@@ -29,6 +29,9 @@ namespace DnaAnd.Shell
         private static readonly Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetLife> Lives = new Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetLife>();
         private DnaAnd.Sim.PlanetLife _life;
         private LandLife _land;
+        /// <summary>The planet's inside (core, heat, plates, magnetic field), one per planet, on the same clock as its life.</summary>
+        public static readonly System.Collections.Generic.Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetCore> Cores = new System.Collections.Generic.Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetCore>();
+        private DnaAnd.Sim.PlanetCore _core; private DnaAnd.Core.Chunk _loadedCore; private string _coreNews = ""; private double _coreNewsUntil;
         private SeaBodies _seaBodies;
         /// <summary>Test runs: start life and run it this many years forward at once.</summary>
         public double TestEvolveYears;
@@ -261,6 +264,7 @@ namespace DnaAnd.Shell
                     if (_seaBodies != null && _seaBodies.Here.Length > 0) names.Insert(0, _seaBodies.Here);
                     where += " · in the water around you: " + string.Join(", ", names.ToArray());
                 }
+                if (_core != null) where += " · PLANET: " + _core.Describe() + (_time < _coreNewsUntil ? " · NEWS: " + _coreNews : "");
                 if (_life != null)
                 {
                     where += " · LIFE: " + (_life.Sparks == 0 ? "none yet (L: lightning, the first spark is free)" :
@@ -291,7 +295,7 @@ namespace DnaAnd.Shell
             if (_life == null && _terrain.Solid && !_terrain.Shell)
             {
                 if (!Lives.TryGetValue(_normal, out _life)) { var tt = _normal; _life = new DnaAnd.Sim.PlanetLife((x, y, z) => tt.GroundAt(x, y, z), 77); Lives[_normal] = _life; }
-                if (TestLoadLife != null) { var saved = DnaAnd.Core.SaveFile.Read(TestLoadLife); foreach (var c0 in saved) if (c0.Name == "LIFE") _life.Load(c0); _testNote = " · test: life loaded"; TestEvolveYears = Math.Max(TestEvolveYears, _life.Years); TestLoadLife = null; }
+                if (TestLoadLife != null) { var saved = DnaAnd.Core.SaveFile.Read(TestLoadLife); foreach (var c0 in saved) { if (c0.Name == "LIFE") _life.Load(c0); if (c0.Name == "CORE") _loadedCore = c0; } _testNote = " · test: life loaded"; TestEvolveYears = Math.Max(TestEvolveYears, _life.Years); TestLoadLife = null; }
             }
             if (_life != null && TestEvolveYears > 0)
             {
@@ -301,7 +305,7 @@ namespace DnaAnd.Shell
                 var sw = System.Diagnostics.Stopwatch.StartNew();                        // a little each frame, so the window keeps answering
                 while (_life.Years < TestEvolveYears && sw.ElapsedMilliseconds < 120) _life.Step(1e6);
                 if (_life.Years >= TestEvolveYears) TestEvolveYears = 0;
-                if (TestEvolveYears == 0 && TestSaveLife != null) { DnaAnd.Core.SaveFile.Write(TestSaveLife, new[] { _life.Save() }); _testNote = " · test: life saved"; TestSaveLife = null; }
+                if (TestEvolveYears == 0 && TestSaveLife != null) { DnaAnd.Core.SaveFile.Write(TestSaveLife, _core != null ? new[] { _life.Save(), _core.Save() } : new[] { _life.Save() }); _testNote = " · test: life saved"; TestSaveLife = null; }
                 if (TestEvolveYears == 0 && TestGoToCiv)
                 {
                     TestGoToCiv = false; _testNote = " · test: no intelligent species on land";
@@ -320,6 +324,19 @@ namespace DnaAnd.Shell
                 }
             }
             if (_life != null) _life.Step(dt * _life.YearsPerSecond);
+            if (_life != null)
+            {
+                // the planet's own clock: it formed about 200 million years before the game starts (the crust has just cooled)
+                if (_core == null && !Cores.TryGetValue(_normal, out _core))
+                {
+                    _core = new DnaAnd.Sim.PlanetCore(_terrain.Radius, _terrain.HasWater, _terrain.Kind == "tidally-locked" ? 2000 : 24, 2e8, 991);
+                    Cores[_normal] = _core;
+                    if (_loadedCore != null) { _core.Load(_loadedCore); _loadedCore = null; }
+                }
+                _core.Age = 2e8 + _life.Years; _core.Update();
+                if (_core.Events.Length > 0) { _coreNews = _core.Events; _coreNewsUntil = _time + 8; }
+                _life.Radiation = _core.Radiation;
+            }
             if (_life != null && input.WasPressed(0x4C))                                      // L: a lightning strike on the spot below
             {
                 double lx = Math.Cos(_lat) * Math.Cos(_lon), ly = Math.Sin(_lat), lz = Math.Cos(_lat) * Math.Sin(_lon);

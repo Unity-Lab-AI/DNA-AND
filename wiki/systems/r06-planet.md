@@ -61,11 +61,11 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 
 | Process | In the code now | To build (TODO R6b) |
 |---|---|---|
-| Inside (core, mantle, crust, heat) | Nothing | Layers from size and makeup; heat that cools over billions of years |
+| Inside (core, mantle, crust, heat) | `src/sim/PlanetCore.cs`: heat that runs out (Earth today = 1, bigger planets hold it longer), magma ocean when young, molten outer core and growing solid inner core, plates or a stagnant lid; shown in the title, saved as the `CORE` chunk | Layers from size and makeup; heat that cools over billions of years |
 | Plates | Mountain belts placed once by noise | Moving plates, drift, ridges, trenches, faults, supercontinents |
 | Earthquakes | Nothing | Quakes along edges and faults, tsunamis |
 | Volcanoes | Placed once, never erupt | Eruptions over time, ash, new land, island chains |
-| Magnetic field | Nothing | Geodynamo, magnetosphere, air stripping, auroras, flips |
+| Magnetic field | Geodynamo from a liquid outer core and spin; random flips about every 450,000 years; the shield sets how much radiation reaches dry land (harming land life) | Geodynamo, magnetosphere, air stripping, auroras, flips |
 | Air | A glowing shell, fixed | Layers, greenhouse, escape, gases from volcanoes, carbon-silicate cycle |
 | Water and weather | Seas fixed; rain and snow are pictures | Water cycle, winds, storms, currents, tides, ice ages, sea level |
 | Surface | Fixed height map | Erosion, the rock cycle, soil, landslides |

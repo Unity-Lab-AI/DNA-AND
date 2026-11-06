@@ -27,6 +27,8 @@ namespace DnaAnd.Sim
         public int Sparks;                                         // how many times life has been started
         /// <summary>The god's Souls on this planet. Living things give them off; powers spend them.</summary>
         public double Souls;
+        /// <summary>How much of the star's harmful radiation reaches the ground (0 to 1), set from the planet's magnetic shield. Water shields sea life.</summary>
+        public double Radiation = 0.25;
         public const double LightningCost = 4;                     // Lightning is tier 4: tier x area (one strike) x strength (1)
         /// <summary>Living things give off Souls slowly: this many a year for every crowd of life (a starting value, to be balanced).</summary>
         public const double SoulsPerCrowdYear = 5e-11;
@@ -163,7 +165,8 @@ namespace DnaAnd.Sim
             // food: light and nutrients for plant-like life, plant-like life for grazers, other animals for hunters
             double food = g.Photo * _light[i] * (0.4 + w.Nutrients) + g.Graze * (0.3 * w.Nutrients + 0.9 * w.Plants) + g.Hunt * 1.1 * w.Prey;
             double water = 0.3 + g.Coat * 0.7 + (0.7 - g.Coat * 0.7) * _wet[i];   // the wetter the region, the less a tough coat is needed              // dry land needs a tough coat
-            return Math.Max(0, heat) * food * water;
+            double shield = 1 - Radiation * 0.7 * (1 - _wet[i]);                     // without a magnetic shield, life on dry land is burned by the star
+            return Math.Max(0, heat) * food * water * shield;
         }
 
         /// <summary>One step of the planet's life: growth, competition, spread to neighbours, new species. <paramref name="years"/> long.</summary>

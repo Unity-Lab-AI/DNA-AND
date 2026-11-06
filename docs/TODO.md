@@ -336,23 +336,23 @@ Order: galactic scale down, the same order as the sample sets.
 **Asked:** "a planet is a living breathing thing even without life, did you do all the magnma cores mangnetic fielsds atetonic plates volcanos earthqueakes all of that shit in totaltiy that ive already told you.? what elese have you skipped" Earlier: "dont forget the forces of nature weak and nuclear forces of atoms pysics electormagnatisim magma in plantes that arte tectonic with magnic fields and shit come one wwhat about gravity and atmosphers"
 **Today in the code:** the ground is a fixed height map from noise; mountain belts, volcanoes, rivers and resource fields are placed once and never change; rain and snow are only pictures. Nothing below is simulated yet. Data: `content/physics.dnat` (interiors, processes, atmospheres), `content/resource-fields.dnat`. Spec: `wiki/systems/r06-planet.md`, `docs/wiki/forces-of-nature.md`.
 
-- [ ] **A planet clock:** the planet's own processes run on the game clock from the moment it forms, before and after life, at every time speed
+- [x] **A planet clock:** the planet's own processes run on the game clock from the moment it forms, before and after life, at every time speed (the planet's age runs with the life clock; the game starts about 200 million years after it formed)
 - **Inside**
-  - [ ] Core, mantle and crust from the planet's size and makeup; a molten or solid inner and outer core
-  - [ ] Heat inside: from forming, from radioactive decay, from tides; it cools over billions of years, and as it cools tectonics and the magnetic field can die (a Mars-like end)
+  - [~] Core, mantle and crust from the planet's size and makeup; a molten or solid inner and outer core (built: the core's solid share and molten outer core from its heat, `src/sim/PlanetCore.cs`; makeup still to come)
+  - [~] Heat inside: from forming, from radioactive decay, from tides; it cools over billions of years, and as it cools tectonics and the magnetic field can die (a Mars-like end) (built: heat that runs out, held longer by bigger planets, ending in a stagnant lid and a dead field; tides still to come)
   - [ ] Mantle convection that drives everything above it
-  - [ ] Magma: where it forms, rises and pools; magma oceans on young or very hot worlds
+  - [~] Magma: where it forms, rises and pools; magma oceans on young or very hot worlds (built: the magma-ocean age; where magma pools still to come)
 - **Plates**
-  - [ ] Plate tectonics or a stagnant lid, decided by the heat inside
+  - [x] Plate tectonics or a stagnant lid, decided by the heat inside (and size and water)
   - [ ] Plates that move over time: continents drift, split, crash together and form supercontinents
   - [ ] Plate edges: spreading ridges, trenches where one plate dives under another, mountain ranges where they crash, faults where they slide past
   - [ ] Earthquakes along plate edges and faults, with real sizes (magnitude) and tsunamis from undersea quakes
   - [ ] Volcanoes at plate edges and hot spots that erupt over time: lava, ash clouds that cool the world, new land, island chains
   - [ ] Hot springs, geysers and deep-sea vents (where life can start)
 - **The magnetic shield**
-  - [ ] The geodynamo: a molten, churning outer core makes the magnetic field
-  - [ ] The magnetosphere shields the air and life from the star's wind and radiation; without it the air is stripped away over time
-  - [ ] Auroras near the poles; the field wanders and flips now and then
+  - [x] The geodynamo: a molten, churning outer core makes the magnetic field (needs a liquid outer core and spin; stronger with plates)
+  - [~] The magnetosphere shields the air and life from the star's wind and radiation; without it the air is stripped away over time (built: the shield sets the radiation that reaches dry land, which harms land life; air stripping waits for the air sim)
+  - [~] Auroras near the poles; the field wanders and flips now and then (built: flips at random, about every 450,000 years; auroras still to draw)
 - **Air**
   - [ ] Air layers (troposphere to exosphere), pressure and makeup, from `content/physics.dnat`
   - [ ] The greenhouse effect and runaway greenhouse; air escaping to space (thermal, hydrodynamic, non-thermal)
