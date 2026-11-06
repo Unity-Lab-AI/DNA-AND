@@ -287,7 +287,14 @@ namespace DnaAnd.Shell
                 _coronaBuf = new UploadBuffer(_gpu.Device, (long)Math.Max(1, _starCorona.Length) * Stride); if (_starCorona.Length > 0) _coronaBuf.Write(_starCorona, _starCorona.Length);
                 _surfBuf = new UploadBuffer(_gpu.Device, (long)_starSurfVerts.Length * Stride);
             }
-            if (_system == null && _near >= 0) { var g = _galaxies[_near]; if (Math.Abs(_ax - g.X) + Math.Abs(_ay - g.Y) + Math.Abs(_az - g.Z) > 0) Anchor(g.X, g.Y, g.Z); }
+            if (_system == null && _near >= 0)
+            {
+                // between the stars the camera is measured from the galaxy's middle, except when flying to a point in a nebula or a
+                // cluster: then from that point itself, as from a star or planet (from tens of thousands of light-years away the
+                // finest step a number can hold is tens of kilometres, and the zoom would stall)
+                if (_tKind == 5) { if (_ax != _tx || _ay != _ty || _az != _tz) Anchor(_tx, _ty, _tz); }
+                else { var g = _galaxies[_near]; if (Math.Abs(_ax - g.X) + Math.Abs(_ay - g.Y) + Math.Abs(_az - g.Z) > 0) Anchor(g.X, g.Y, g.Z); }
+            }
         }
 
         private double DistToSysStar() { return Math.Sqrt(_ox * _ox + _oy * _oy + _oz * _oz); }    // anchored on the star: the offset is the distance
@@ -437,7 +444,7 @@ namespace DnaAnd.Shell
         }
 
         /// <summary>Test runs: the camera turns to the next thing on the way down (the galaxy, a star, a planet, its ground) each frame.</summary>
-        public bool AutoPath;
+        public bool AutoPath, AutoNebula;
         /// <summary>True when a planet's ground is being drawn (what the GPU use tunes, so far).</summary>
         public bool AtGround { get { return _ground != null; } }
         /// <summary>How many ground pieces are waiting (0 when not at a planet).</summary>
@@ -676,6 +683,26 @@ namespace DnaAnd.Shell
                     double dyaw = Math.IEEERemainder(wantYaw - _yaw, 2 * Math.PI), k = 1 - Math.Exp(-dt * 5);
                     _yaw += dyaw * k; _pitch += (wantPitch - _pitch) * k;
                 }
+            }
+            if (AutoNebula)
+            {
+                // the test path into a nebula: to the galaxy, pick its nearest emission nebula, and roll the wheel on in
+                if (_tKind != 5 && _near >= 0 && _features.Count > 0 && NearShare() > 0.3)
+                {
+                    var g = _galaxies[_near]; int bi = -1; double bd = double.MaxValue;
+                    for (int q = 0; q < _features.Count; q++)
+                    {
+                        if (_features[q][4] != 2) continue;
+                        double ux, uy, uz; ToUniverse(g, _features[q][0], _features[q][1], _features[q][2], out ux, out uy, out uz);
+                        double dx = (ux - _ax) - _ox, dy = (uy - _ay) - _oy, dz = (uz - _az) - _oz, d = dx * dx + dy * dy + dz * dz;
+                        if (d < bd) { bd = d; bi = q; }
+                    }
+                    if (bi >= 0) { double ux, uy, uz; ToUniverse(g, _features[bi][0], _features[bi][1], _features[bi][2], out ux, out uy, out uz); _tKind = 5; _tIndex = bi; _tx = ux; _ty = uy; _tz = uz; _tRadius = _features[bi][3] * g.Scale; _tName = "an emission nebula"; }
+                }
+                if (_tKind != 5) AimNext();
+                input.Wheel += 2;
+                _autoLogT += dt;
+                if (_autoLogT > 0.5) { _autoLogT = 0; ZoomLog("auto: space " + ScaleHud.Words(_spaceScale * 0.6) + " pick " + _tKind); }
             }
             if (AutoPath)
             {
@@ -1169,9 +1196,20 @@ namespace DnaAnd.Shell
         }
 
         // the scale on screen: how many km one pixel spans at the distance of the nearest thing, in the middle of the view
+        // how far away what you are looking at is (km), for the scale: in the gas or the matter, your own fine distance; flying to
+        // a point in a nebula, the distance to that point (not to some star nearby); else the nearest thing
+        private double ViewDistanceKm()
+        {
+            if (_spaceScale > 0) return _spaceScale * 0.6;
+            if (_matterScale > 0) return _matterScale * 0.6;
+            double qx, qy, qz, qr;
+            if (_tKind == 5 && TargetFromCamera(out qx, out qy, out qz, out qr)) return Math.Max(1e-30, Math.Sqrt(qx * qx + qy * qy + qz * qz) / Units.Km(1));
+            return Math.Max(1e-30, NearestDistance()) / Units.Km(1);
+        }
+
         private void DrawScale(int w, int h)
         {
-            double d = Math.Max(1e-30, NearestDistance()) / Units.Km(1), viewKm = 2 * d * Math.Tan(0.45) * w / (double)Math.Max(1, h);
+            double d = ViewDistanceKm(), viewKm = 2 * d * Math.Tan(0.45) * w / (double)Math.Max(1, h);
             _gpu.ClearDepth();
             _hud.Draw(_meshes, viewKm / Math.Max(1, w), w, h);
         }
@@ -1358,7 +1396,7 @@ namespace DnaAnd.Shell
                     : _system != null ? "in the system of a " + _system.StarName + " (" + _system.Bodies.Count + " planets and moons)"
                     : _near >= 0 ? (NearShare() > 0.5 ? "among the stars of " : "near ") + _galaxies[_near].Name : "among the galaxies";
                 double hr = LocalHour(); string when = " · time: " + TimeNames[TimeStep] + (hr >= 0 ? ", " + ((int)hr).ToString("00") + ":" + ((int)(hr % 1 * 60)).ToString("00") + " here" : "");
-                return "DNA-AND · one world · " + where + when + picked + " · nearest thing " + Units.Describe(NearestDistance()) + " away · wheel: fly in or out toward the mouse · drag: circle the pick or look around · right click: clear the pick · W A S D Q E: fly · H: scale on or off · Esc: close · card " + (int)Math.Round(Window.GpuBusy * 100) + "% busy (GPU use " + (int)Math.Round(Window.GpuUse * 100) + "%)";
+                return "DNA-AND · one world · " + where + when + picked + " · " + (_spaceScale > 0 || _matterScale > 0 || _tKind == 5 ? "looking at " + ScaleHud.Words(ViewDistanceKm()) + " away" : "nearest thing " + Units.Describe(NearestDistance()) + " away") + " · wheel: fly in or out toward the mouse · drag: circle the pick or look around · right click: clear the pick · W A S D Q E: fly · H: scale on or off · Esc: close · card " + (int)Math.Round(Window.GpuBusy * 100) + "% busy (GPU use " + (int)Math.Round(Window.GpuUse * 100) + "%)";
             }
         }
 
