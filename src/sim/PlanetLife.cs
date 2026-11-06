@@ -223,6 +223,47 @@ namespace DnaAnd.Sim
             Souls += crowds * SoulsPerCrowdYear * years;
         }
 
+        /// <summary>The whole life of this planet as a save chunk ("LIFE"): its clock, its species and where each one lives.
+        /// The regions' warmth, wetness and light are not saved; they come from the planet's own ground.</summary>
+        public Chunk Save()
+        {
+            var ms = new System.IO.MemoryStream(); var o = new System.IO.BinaryWriter(ms);
+            o.Write(Years); o.Write(Sparks); o.Write(Souls); o.Write(Climbs); o.Write(_nextId); o.Write(_stageReached);
+            foreach (var u in _rng.State) o.Write(u);
+            o.Write(All.Count);
+            foreach (var sp in All.Values)
+            {
+                o.Write(sp.Id); o.Write(sp.Parent); o.Write(sp.Root); o.Write(sp.Born); o.Write(sp.Total); o.Write(sp.Spoke);
+                SaveFile.WriteFields(o, sp.G);
+            }
+            o.Write(_cells.Length);
+            foreach (var cell in _cells) { o.Write(cell.Count); foreach (var kv in cell) { o.Write(kv.Key); o.Write(kv.Value); } }
+            o.Flush();
+            return new Chunk { Name = "LIFE", Version = 1, Data = ms.ToArray() };
+        }
+
+        /// <summary>Puts back the life saved by <see cref="Save"/>, on the same planet.</summary>
+        public void Load(Chunk c)
+        {
+            if (c.Name != "LIFE" || c.Version > 1) throw new System.IO.InvalidDataException("not a life chunk this game can read");
+            var r = new System.IO.BinaryReader(new System.IO.MemoryStream(c.Data));
+            Years = r.ReadDouble(); Sparks = r.ReadInt32(); Souls = r.ReadDouble(); Climbs = r.ReadInt32(); _nextId = r.ReadInt32(); _stageReached = r.ReadDouble();
+            _rng.SetState(new[] { r.ReadUInt64(), r.ReadUInt64(), r.ReadUInt64(), r.ReadUInt64() });
+            All.Clear();
+            int n = r.ReadInt32();
+            for (int i = 0; i < n; i++)
+            {
+                var sp = new Species { Id = r.ReadInt32(), Parent = r.ReadInt32(), Root = r.ReadInt32(), Born = r.ReadDouble(), Total = r.ReadDouble(), Spoke = r.ReadDouble() };
+                sp.G = SaveFile.ReadFields<Genome>(r);
+                All[sp.Id] = sp;
+            }
+            int regions = r.ReadInt32();
+            if (regions != _cells.Length) throw new System.IO.InvalidDataException("this life was saved on a planet with " + regions + " regions");
+            for (int i = 0; i < regions; i++) { _cells[i].Clear(); int m = r.ReadInt32(); for (int k = 0; k < m; k++) { int id = r.ReadInt32(); _cells[i][id] = r.ReadDouble(); } }
+            Alive = 0; TopStage = 0;
+            foreach (var sp in All.Values) { Alive++; if (sp.G.Stage > TopStage) TopStage = sp.G.Stage; }
+        }
+
         private int Neighbour(int i) { return Near[i][_rng.Below(6)]; }
 
         /// <summary>The species living at a spot, most numerous first, with how many crowds of each.</summary>

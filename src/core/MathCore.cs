@@ -81,6 +81,9 @@ namespace DnaAnd.Core
     internal sealed class Rng
     {
         private ulong _a, _b, _c, _d;
+        /// <summary>The generator's whole state, for saving; <see cref="SetState"/> puts it back exactly.</summary>
+        public ulong[] State { get { return new[] { _a, _b, _c, _d }; } }
+        public void SetState(ulong[] s) { _a = s[0]; _b = s[1]; _c = s[2]; _d = s[3]; }
         public Rng(ulong seed)
         {
             ulong s = seed;

@@ -34,6 +34,8 @@ namespace DnaAnd.Shell
         public double TestEvolveYears;
         /// <summary>Test runs: once life is run forward, go to land on the lit side where an intelligent species lives.</summary>
         public bool TestGoToCiv;
+        /// <summary>Test runs: once life is run forward, save it to this file; or load life from this file instead of starting it.</summary>
+        public string TestSaveLife, TestLoadLife;
         /// <summary>Test runs: force an intelligent species' step (0 wild to 5 space) on land.</summary>
         public int TestCivStep = -1;
         private string _testNote = "";
@@ -289,6 +291,7 @@ namespace DnaAnd.Shell
             if (_life == null && _terrain.Solid && !_terrain.Shell)
             {
                 if (!Lives.TryGetValue(_normal, out _life)) { var tt = _normal; _life = new DnaAnd.Sim.PlanetLife((x, y, z) => tt.GroundAt(x, y, z), 77); Lives[_normal] = _life; }
+                if (TestLoadLife != null) { var saved = DnaAnd.Core.SaveFile.Read(TestLoadLife); foreach (var c0 in saved) if (c0.Name == "LIFE") _life.Load(c0); _testNote = " · test: life loaded"; TestEvolveYears = Math.Max(TestEvolveYears, _life.Years); TestLoadLife = null; }
             }
             if (_life != null && TestEvolveYears > 0)
             {
@@ -298,6 +301,7 @@ namespace DnaAnd.Shell
                 var sw = System.Diagnostics.Stopwatch.StartNew();                        // a little each frame, so the window keeps answering
                 while (_life.Years < TestEvolveYears && sw.ElapsedMilliseconds < 120) _life.Step(1e6);
                 if (_life.Years >= TestEvolveYears) TestEvolveYears = 0;
+                if (TestEvolveYears == 0 && TestSaveLife != null) { DnaAnd.Core.SaveFile.Write(TestSaveLife, new[] { _life.Save() }); _testNote = " · test: life saved"; TestSaveLife = null; }
                 if (TestEvolveYears == 0 && TestGoToCiv)
                 {
                     TestGoToCiv = false; _testNote = " · test: no intelligent species on land";
