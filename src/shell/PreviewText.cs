@@ -20,7 +20,8 @@ namespace DnaAnd.Shell
             "Hold Ctrl with the wheel: eight times as fast.\n" +
             "W A S D: fly forward, back, left and right; Q and E: down and up. The speed scales to the nearest thing, so it feels the same among galaxies as above the ground. Hold Shift: four times as fast. Flying yourself lets go of what you picked.\n" +
             "Drag with the left button: with something picked, circle round it at the distance you are at (see a solar system from above, a galaxy edge-on); with nothing picked, look around. The View menu can invert left-right and up-down.\n" +
-            "H: the scale on screen, on or off.\n" +
+            "Whatever you pick gets an information card beside it: what it is, its id and its facts (a star's temperature, planets and habitable zone; a planet's orbit, year and what it is made of; the ground's height, and whether it is land, sea or ice).\n" +
+            "H: the scale and the information card, on or off.\n" +
             "View menu: the scale, and the render scale (lower is faster, higher is sharper).\n" +
             "Esc or Exit: close.\n\n" +
             "What you will see\n\n" +
