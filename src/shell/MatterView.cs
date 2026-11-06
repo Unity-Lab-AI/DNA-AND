@@ -38,7 +38,7 @@ namespace DnaAnd.Shell
         private ulong _seed; private bool _noGrains;
         // the point you dive into (km, across the ground) and where it is easing to (what you picked)
         private double _fx, _fz, _tfx, _tfz, _lastTime = -1;
-        private sealed class Body { public int Kind; public long I, J; public double X, Y, Z, Size; public string Sym; }   // 0 a grain, 1 an atom
+        private sealed class Body { public int Kind; public long I, J; public double X, Y, Z, Size; public string Sym; }   // Kind 0 a grain, 1 an atom, 2 a spot   // 0 a grain, 1 an atom
         private readonly List<Body> _bodies = new List<Body>();
         private Mat4 _lastVp; private int _lastW = 1, _lastH = 1; private bool _haveVp;
         private Body _picked;
@@ -391,6 +391,15 @@ namespace DnaAnd.Shell
             {
                 double rad = v.Size * 0.75, dist = Math.Sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z), px = rad / Math.Max(1e-9, dist) * h / (2 * Math.Tan(0.45));
                 if (px < 0.6 || mesh.Count > 1500000) continue;
+                if (v.A < 0.9f)
+                {
+                    // a tile of the grain's face: flat, side by side with its neighbours, so the face is one surface
+                    double hw = v.Size / 0.72 * 0.5;
+                    var a0 = new StarVertex { X = (float)(v.X - hw), Y = v.Y, Z = (float)(v.Z - hw), R = v.R, G = v.G, B = v.B, A = 1 };
+                    var a1 = a0; a1.X = (float)(v.X + hw); var a2 = a0; a2.X = (float)(v.X + hw); a2.Z = (float)(v.Z + hw); var a3 = a0; a3.Z = (float)(v.Z + hw);
+                    mesh.Add(a0); mesh.Add(a1); mesh.Add(a2); mesh.Add(a0); mesh.Add(a2); mesh.Add(a3);
+                    continue;
+                }
                 if (px > 10 && balls < 2500)
                 {
                     balls++;
@@ -448,6 +457,7 @@ namespace DnaAnd.Shell
                 for (int lv = 0; lv < 2; lv++)
                 {
                     double c = lv == 0 ? c1 : c1 * 10, wgt = lv == 0 ? 1 - frac : frac;
+                    if (wgt < 0.5) continue;                                               // solid tiles: only the main size of the two (they would fight)
                     long n = (long)Math.Ceiling(1.6 * s / c), ci0 = (long)Math.Round(_fx / c), cj0 = (long)Math.Round(_fz / c);
                     if (n > 70) continue;
                     for (long i = ci0 - n; i <= ci0 + n; i++)
@@ -464,7 +474,7 @@ namespace DnaAnd.Shell
                             float r = fm.R, g = fm.G, b = fm.B;
                             if (atomish > 0) { var ae = El(fm.Atoms[(int)(Hash(ci, cj, 5, _seed) * fm.Atoms.Length) % fm.Atoms.Length]); if (ae != null) { r = (float)(r * (1 - atomish) + ae.R * atomish); g = (float)(g * (1 - atomish) + ae.G * atomish); b = (float)(b * (1 - atomish) + ae.B * atomish); } }
                             float f = (float)(wgt * Fade(s, Grain * 1.5, Grain * 0.6) * (1 - Fade(s, AtomSpacing * 14, AtomSpacing * 8)));
-                            if (f > 0.01) Add(solid, x, ty - c * 0.05, z, c * 0.72, r * sh * f, g * sh * f, b * sh * f, s);
+                            if (f > 0.01) { Add(solid, x, ty - c * 0.05, z, c * 0.72, r * sh, g * sh, b * sh, s); if (solid.Count > 0) { var tv = solid[solid.Count - 1]; tv.A = 0.5f; solid[solid.Count - 1] = tv; } }   // a flat tile of the face
                         }
                 }
             }
@@ -654,7 +664,8 @@ namespace DnaAnd.Shell
                     float cw = d.X * m.M14 + d.Y * m.M24 + d.Z * m.M34 + m.M44;              // in front of you?
                     if (cw <= 0 || d.Y >= -1e-4f) continue;
                     double k = -0.6 / d.Y;                                                   // the surface lies 0.6 below you
-                    _picked = null; _tfx = _fx + d.X * k * _scale; _tfz = _fz + d.Z * k * _scale; return true;
+                    _tfx = _fx + d.X * k * _scale; _tfz = _fz + d.Z * k * _scale;
+                    _picked = new Body { Kind = 2, X = _tfx, Y = 0, Z = _tfz, Size = _scale * 0.02 }; return true;
                 }
                 return false;
             }
@@ -672,6 +683,7 @@ namespace DnaAnd.Shell
         public bool PickedOnScreen(out double sx, out double sy, out double rpx)
         {
             sx = sy = rpx = 0; if (_picked == null || !_haveVp) return false; var m = _lastVp;
+            if (_picked.Kind == 0 && _scale < Grain * 0.35) return false;               // you are at its face: no ring round it
             float x = (float)((_picked.X - _fx) / _scale), y = (float)(_picked.Y / _scale - 0.6), z = (float)((_picked.Z - _fz) / _scale);
             float cx = x * m.M11 + y * m.M21 + z * m.M31 + m.M41, cy = x * m.M12 + y * m.M22 + z * m.M32 + m.M42, cw = x * m.M14 + y * m.M24 + z * m.M34 + m.M44;
             if (cw <= 0) return false;
@@ -686,6 +698,17 @@ namespace DnaAnd.Shell
         public List<string> Card()
         {
             var L = new List<string>();
+            // a grain you are now at the face of: it is where you are, not a pick any more
+            if (_picked != null && _picked.Kind == 0 && _scale < Grain * 0.35) _picked = null;
+            if (_picked != null && _picked.Kind == 2)
+            {
+                var fm2 = FocusMineral; if (fm2 == null) return L;
+                L.Add("a spot on " + (_noGrains ? "the sea" : "a grain of " + fm2.Name.ToLowerInvariant()));
+                L.Add("made of: " + fm2.Formula + StructureName(fm2));
+                if (_scale < 3e-10 / 0.6 * 30) L.Add("its face: atomic terraces, each step 0.3 nm");
+                L.Add("you are " + ScaleHud.Words(_scale * 0.6) + " above it");
+                return L;
+            }
             if (_picked != null && _picked.Kind == 0)
             {
                 var g = GrainMineral(_picked.I, _picked.J); if (g == null) return L;
