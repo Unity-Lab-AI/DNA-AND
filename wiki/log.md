@@ -136,3 +136,4 @@ Append-only. Newest at the bottom.
 - r05 universe: every shining star kind can appear; colour from surface temperature, brightness from size and temperature.
 - r04 renderer: render scale, 50 to 200% of the window, from a menu.
 - r04 renderer: our own GIF clip writer; a first journey clip saved.
+- r04 renderer: the 10-second journey clip, galaxies to the ground.

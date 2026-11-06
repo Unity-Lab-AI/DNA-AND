@@ -31,6 +31,10 @@ And somewhere along the way, they start to wonder **who you are**.
 
 ## 🧭 The journey
 
+![One zoom from a sky full of galaxies down to a planet's ground](docs/img/journey.gif)
+
+*One zoom from a sky full of galaxies, into a galaxy, past its stars, to a planet and down to its ground. Recorded in the game.*
+
 | | Era | What happens |
 |:-:|---|---|
 | 🌑 | **The dead world** | You shape a lifeless planet: heat, cold, water, lightning, and any of the 118 elements |

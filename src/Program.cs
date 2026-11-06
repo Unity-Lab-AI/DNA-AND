@@ -13,7 +13,7 @@ namespace DnaAnd
         private static int Main(string[] args)
         {
             // --smoke <ms>: a timed test run that closes itself after <ms> milliseconds.
-            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int openSet = 0; int openLook = 0; double testEvolve = 0; int testPlanet = -1; double clickAt = -1, clickX = 0.5, clickY = 0.5; double wheelFrom = -1, wheelFor = 0, backFrom = -1, backFor = 0; int pressKey = -1; double pressAt = -1; int testDyson = -1; bool testInside = false; int testJumps = 0; bool testFieldView = false; double testAlt = -1; double[] tour = null; int tourStep = 0; string tourName = "tour"; double shotAt = -1; string shotPath = null; int testSpeed = -1; double tryEvery = -1; int wheelEvery = 1; double clipAt = -1, clipFor = 10; string clipPath = null; DnaAnd.Render.GifWriter clip = null; int clipFrame = 0;
+            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int openSet = 0; int openLook = 0; double testEvolve = 0; int testPlanet = -1; double clickAt = -1, clickX = 0.5, clickY = 0.5; double wheelFrom = -1, wheelFor = 0, backFrom = -1, backFor = 0; int pressKey = -1; double pressAt = -1; int testDyson = -1; bool testInside = false; int testJumps = 0; bool testFieldView = false; double testAlt = -1; double[] tour = null; int tourStep = 0; string tourName = "tour"; double shotAt = -1; string shotPath = null; int testSpeed = -1; double tryEvery = -1; int wheelEvery = 1; bool aimCentre = false; double journeyAt = -1, deepSince = -1; double clipAt = -1, clipFor = 10; string clipPath = null; DnaAnd.Render.GifWriter clip = null; int clipFrame = 0;
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i] == "--smoke" && i + 1 < args.Length) int.TryParse(args[i + 1], out smokeMs);
@@ -48,6 +48,8 @@ namespace DnaAnd
                     double.TryParse(args[i + 2], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out wheelFor);
                 }
                 if (args[i] == "--wheelevery" && i + 1 < args.Length) { int.TryParse(args[i + 1], out wheelEvery); wheelEvery = Math.Max(1, wheelEvery); }   // with --wheel: one notch every N frames, for a gentler zoom
+                if (args[i] == "--aimcentre") aimCentre = true;   // test runs: the mouse rests in the middle of the picture, so the wheel zooms straight in
+                if (args[i] == "--journeyat" && i + 1 < args.Length) double.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out journeyAt);   // seconds after entering a galaxy: fly to a star and pick its temperate world
                 if (args[i] == "--clip" && i + 3 < args.Length)   // --clip <start s> <seconds> <file.gif>: save a looping clip of the game
                 {
                     var ic = System.Globalization.CultureInfo.InvariantCulture; var nf = System.Globalization.NumberStyles.Float;
@@ -175,6 +177,9 @@ namespace DnaAnd
                     testDeep = -1;
                 }
                 if (pressKey >= 0 && clock.Total >= pressAt) { window.Input.Press(pressKey); pressKey = -1; }
+                if (aimCentre) { window.Input.MouseX = gpu.Width / 2; window.Input.MouseY = gpu.Height / 2; }
+                if (deep != null && deepSince < 0) deepSince = clock.Total;
+                if (deep != null && journeyAt >= 0 && clock.Total >= deepSince + journeyAt) { deep.TestJourney(gpu.Width, gpu.Height); journeyAt = -1; }
                 if (wheelFrom >= 0 && clock.Total >= wheelFrom && clock.Total < wheelFrom + wheelFor && frames % wheelEvery == 0) window.Input.Wheel = 1;
                 if (backFrom >= 0 && clock.Total >= backFrom && clock.Total < backFrom + backFor) window.Input.Wheel = -1;
                 if (clickAt >= 0 && clock.Total >= clickAt) { window.Input.MouseX = (int)(clickX * gpu.Width); window.Input.MouseY = (int)(clickY * gpu.Height); window.Input.LeftClicked = true; clickAt = -1; }
