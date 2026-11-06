@@ -88,6 +88,7 @@ The sample subjects come first (round 15): planets, stars, gas giants, Dyson sph
 
 - `content/black-holes.dnat`
 - `content/cities.dnat`
+- `content/climate.dnat`
 - `content/elements.dnat`
 - `content/galaxies.dnat`
 - `content/gas-giants.dnat`
@@ -100,6 +101,7 @@ The sample subjects come first (round 15): planets, stars, gas giants, Dyson sph
 - `content/life/plants.dnat`
 - `content/life/protists.dnat`
 - `content/life/viruses.dnat`
+- `content/geology.dnat`
 - `content/moons.dnat`
 - `content/nebulas.dnat`
 - `content/physics.dnat`

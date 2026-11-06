@@ -149,3 +149,4 @@ Append-only. Newest at the bottom.
 - r06 planet: ocean currents, upwelling and tides, feeding sea life.
 - r06 planet: erosion, soil, river mud and the rock cycle per region, feeding life.
 - r06 planet: impacts at real rates with the heavy bombardment, and the brightening star; deep microbes survive.
+- r06 planet: researched content for geology (edges, faults, quakes, erosion, soil, rock cycle) and climate (water cycle, circulation, weather, currents, tides, ice ages, Köppen zones).

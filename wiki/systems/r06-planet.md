@@ -1,7 +1,7 @@
 ---
 title: R6 · Planet
 status: partial
-sources: [docs/DESIGN.md (rounds 1, 2, 4), docs/LISTS.md, docs/ROADMAP.md#R6]
+sources: [content/geology.dnat, content/climate.dnat, docs/DESIGN.md (rounds 1, 2, 4), docs/LISTS.md, docs/ROADMAP.md#R6]
 last-verified: fdaea69
 ---
 
