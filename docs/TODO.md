@@ -139,7 +139,7 @@ Order: galactic scale down, the same order as the sample sets.
 ### R4 — Graphics
 - [ ] Full resolution scaling and range: "its got to have full resolution scaling and range"
   - [x] Any window size, rebuilt on resize; per-monitor DPI aware (sharp on high-DPI screens, display settings untouched)
-  - [ ] Render-scale setting (draw at 50–200% of the window, then scale to fit)
+  - [x] Render-scale setting (draw at 50–200% of the window, then scale to fit): the Render scale menu, and `--scale <percent>`
   - [ ] Zoom range from one microbe to a whole galaxy (64-bit positions, moving origin)
 **Spec:** `wiki/systems/r04-renderer.md`, `docs/img/README.md`, `wiki/systems/r17-docs-and-capture.md`
 

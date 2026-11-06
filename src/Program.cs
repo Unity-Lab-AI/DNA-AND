@@ -91,9 +91,10 @@ namespace DnaAnd
             ContentLibrary content = ContentLibrary.Load("content");
             bool big = Array.IndexOf(args, "--big") >= 0;                      // a full-size check, for pictures at the size the player sees
             var window = new Window("DNA-AND", 1600, 900, smokeMs >= 0 && !big);   // timed checks open small and out of the way
+            { int sci = Array.IndexOf(args, "--scale"); int pct; if (sci >= 0 && sci + 1 < args.Length && int.TryParse(args[sci + 1], out pct)) { window.RenderScale = pct / 100.0; window.Resized = false; } }   // --scale <percent>: render scale
             window.Input.IgnoreReal = smokeMs >= 0;          // timed checks never take the person's keyboard or mouse
             Gpu gpu;
-            try { gpu = new Gpu(window.Handle, window.Width, window.Height); }
+            try { gpu = new Gpu(window.Handle, window.RenderWidth, window.RenderHeight); }
             catch (Exception ex) { WriteLog("gpu error · " + ex.Message); window.Close(); return 2; }
             BillboardPipeline pipeline; SampleViewer viewer; MeshPipes meshes = null;
             try
@@ -147,6 +148,7 @@ namespace DnaAnd
                 if (cmd == Window.CmdExit) { endReason = "closed with the Exit button"; window.Close(); }
                 else if (cmd == Window.CmdAskNow) askNow = true;
                 else if (cmd == Window.CmdLegend) window.Tell(style != null ? style.Legend() : microbes != null ? microbes.Legend() : elements != null ? elements.Legend() : planet != null ? planet.Legend() : viewer.Legend(), "DNA-AND · Legend");
+                else if (cmd >= Window.CmdScaleBase && cmd < Window.CmdScaleBase + Window.ScalePercents.Length) { window.RenderScale = Window.ScalePercents[cmd - Window.CmdScaleBase] / 100.0; menuDirty = true; }
                 else if (cmd == Window.CmdClearMarks) { viewer.ClearMarks(); menuDirty = true; }
                 else if (cmd >= Window.CmdKeeperBase && cmd < Window.CmdKeeperBase + 9) { if (style != null) style.ToggleMark(cmd - Window.CmdKeeperBase); else viewer.ToggleMark(cmd - Window.CmdKeeperBase); menuDirty = true; }
                 // keep-or-revert safety pop-up: Yes keeps the test going, No or no answer in 15 s closes it safely
@@ -158,7 +160,7 @@ namespace DnaAnd
                 }
                 if (testStall && clock.Total > 0.5) System.Threading.Thread.Sleep(10000);
 
-                if (window.Resized) { window.Resized = false; gpu.Resize(window.Width, window.Height); }
+                if (window.Resized) { window.Resized = false; gpu.Resize(window.RenderWidth, window.RenderHeight); }
                 if (deep != null && testDeep >= 0 && frames == 2)
                 {
                     if (testCore) deep.TestCore(); if (testVisit) deep.TestVisit(gpu.Width, gpu.Height);
@@ -169,9 +171,9 @@ namespace DnaAnd
                 if (pressKey >= 0 && clock.Total >= pressAt) { window.Input.Press(pressKey); pressKey = -1; }
                 if (wheelFrom >= 0 && clock.Total >= wheelFrom && clock.Total < wheelFrom + wheelFor) window.Input.Wheel = 1;
                 if (backFrom >= 0 && clock.Total >= backFrom && clock.Total < backFrom + backFor) window.Input.Wheel = -1;
-                if (clickAt >= 0 && clock.Total >= clickAt) { window.Input.MouseX = (int)(clickX * window.Width); window.Input.MouseY = (int)(clickY * window.Height); window.Input.LeftClicked = true; clickAt = -1; }
+                if (clickAt >= 0 && clock.Total >= clickAt) { window.Input.MouseX = (int)(clickX * gpu.Width); window.Input.MouseY = (int)(clickY * gpu.Height); window.Input.LeftClicked = true; clickAt = -1; }
                 if (window.Input.IsDown(0x11)) window.Input.Wheel *= 8;          // hold Ctrl: the wheel zooms eight times as fast, in every view
-                if (style != null) style.Update(window.Input, clock.Delta, window.Width, window.Height);
+                if (style != null) style.Update(window.Input, clock.Delta, gpu.Width, gpu.Height);
                 else if (microbes != null) microbes.Update(window.Input, clock.Delta);
                 else if (elements != null) elements.Update(window.Input, clock.Delta);
                 else if (planet != null) { if (!planet.Update(window.Input, clock.Delta))
@@ -182,23 +184,23 @@ namespace DnaAnd
                 else if (deep == null && universe == null)
                 {
                     viewer.Update(window.Input, clock.Delta);
-                    if (window.Input.RightClicked) { viewer.ToggleMark(window.Input.MouseX, window.Input.MouseY, window.Width, window.Height); menuDirty = true; }
+                    if (window.Input.RightClicked) { viewer.ToggleMark(window.Input.MouseX, window.Input.MouseY, gpu.Width, gpu.Height); menuDirty = true; }
                     else if ((window.Input.LeftClicked || window.Input.Wheel > 0) && viewer.Set == 6)
                     {
-                        int col = Math.Max(0, Math.Min(2, window.Input.MouseX / Math.Max(1, window.Width / 3)));
-                        var ds = viewer.DysonAt(viewer.RowAt(window.Input.MouseY, window.Height) * 3 + col);
+                        int col = Math.Max(0, Math.Min(2, window.Input.MouseX / Math.Max(1, gpu.Width / 3)));
+                        var ds = viewer.DysonAt(viewer.RowAt(window.Input.MouseY, gpu.Height) * 3 + col);
                         if (ds.Enterable != null) { planet = new PlanetView(gpu, meshes, pipeline, ds.Enterable, ds.Enterable, false); planet.Extras = ds.Pieces; }
                     }
                     else if ((window.Input.LeftClicked || window.Input.Wheel > 0) && (viewer.Set == 4 || viewer.Set == 5))
                     {
-                        int col = Math.Max(0, Math.Min(2, window.Input.MouseX / Math.Max(1, window.Width / 3)));
-                        int pick = viewer.RowAt(window.Input.MouseY, window.Height) * 3 + col;
+                        int col = Math.Max(0, Math.Min(2, window.Input.MouseX / Math.Max(1, gpu.Width / 3)));
+                        int pick = viewer.RowAt(window.Input.MouseY, gpu.Height) * 3 + col;
                         planet = new PlanetView(gpu, meshes, pipeline, viewer.TerrainAt(pick), viewer.FieldTerrainAt(pick), viewer.Set == 5);
                     }
-                    else if (window.Input.LeftClicked && viewer.Set == 2) viewer.PickFocus(window.Input.MouseX, window.Input.MouseY, window.Width, window.Height);
+                    else if (window.Input.LeftClicked && viewer.Set == 2) viewer.PickFocus(window.Input.MouseX, window.Input.MouseY, gpu.Width, gpu.Height);
                     else if (window.Input.LeftClicked && viewer.Set == 1)
                     {
-                        int row = viewer.RowAt(window.Input.MouseY, window.Height);
+                        int row = viewer.RowAt(window.Input.MouseY, gpu.Height);
                         deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(row), viewer.NameOf(row), Seed + (ulong)row * 7919UL);
                     }
                 }

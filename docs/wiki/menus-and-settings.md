@@ -36,7 +36,7 @@ Your world saves to save slots, so you can keep several galaxies going at once.
 
 | Group | What's in it |
 |---|---|
-| 🖼️ **Graphics** | Resolution, quality, detail distance |
+| 🖼️ **Graphics** | Resolution, render scale (draw at 50% to 200% of the window: lower is faster, higher is sharper), quality, detail distance |
 | 🔊 **Sound** | Master, music, nature, effects |
 | 🎮 **Controls** | Rebind keys, mouse speed, edge panning on/off |
 | ⏱️ **Gameplay** | Milestone slow-downs and cinematics on/off, tooltips on/off |

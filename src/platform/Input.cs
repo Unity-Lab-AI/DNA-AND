@@ -8,6 +8,8 @@ namespace DnaAnd.Platform
         private readonly bool[] _down = new bool[256];
         private readonly bool[] _pressed = new bool[256];
         public int MouseX, MouseY, MouseDX, MouseDY;
+        /// <summary>The render scale: mouse positions are given in the pixels the game draws, not the window's.</summary>
+        public double Scale = 1;
         public int Wheel;            // wheel notches this frame (+ away from you)
         public bool LeftDown, RightDown, LeftClicked, RightClicked;
         private int _lastX, _lastY; private bool _haveLast;
@@ -47,7 +49,7 @@ namespace DnaAnd.Platform
                 case Win32.WM_MOUSEMOVE:
                 {
                     long lp = lParam.ToInt64();
-                    int x = (short)(lp & 0xFFFF), y = (short)((lp >> 16) & 0xFFFF);
+                    int x = (int)((short)(lp & 0xFFFF) * Scale), y = (int)((short)((lp >> 16) & 0xFFFF) * Scale);
                     if (_haveLast) { MouseDX += x - _lastX; MouseDY += y - _lastY; }
                     _lastX = MouseX = x; _lastY = MouseY = y; _haveLast = true; return true;
                 }

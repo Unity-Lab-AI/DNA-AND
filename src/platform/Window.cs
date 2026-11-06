@@ -14,6 +14,12 @@ namespace DnaAnd.Platform
         public int Width { get { Win32.RECT r; Win32.GetClientRect(Handle, out r); return r.Right - r.Left; } }
         public int Height { get { Win32.RECT r; Win32.GetClientRect(Handle, out r); return r.Bottom - r.Top; } }
         public bool Resized;
+        /// <summary>How many pixels the game draws per window pixel (0.5 to 2); the picture is stretched to fit the window.</summary>
+        public double RenderScale { get { return Input.Scale; } set { Input.Scale = Math.Max(0.5, Math.Min(2, value)); Resized = true; } }
+        public int RenderWidth { get { return Math.Max(1, (int)(Width * Input.Scale)); } }
+        public int RenderHeight { get { return Math.Max(1, (int)(Height * Input.Scale)); } }
+        public static readonly int[] ScalePercents = { 50, 75, 100, 150, 200 };
+        public const int CmdScaleBase = 50;   // render scale i is CmdScaleBase + i
         public int MenuCommand; // the last menu item picked, 0 when none
 
         public const int CmdExit = 1, CmdAskNow = 2, CmdClearMarks = 3;
@@ -33,6 +39,10 @@ namespace DnaAnd.Platform
             Win32.AppendMenu(bar, Win32.MF_STRING, (IntPtr)CmdAskNow, "Keep going or revert...");
             Win32.AppendMenu(bar, Win32.MF_POPUP, keep, "Keepers");
             Win32.AppendMenu(bar, Win32.MF_STRING, (IntPtr)CmdLegend, "Legend");
+            IntPtr scale = Win32.CreatePopupMenu();
+            for (int i = 0; i < ScalePercents.Length; i++)
+                Win32.AppendMenu(scale, Win32.MF_STRING | (Math.Abs(ScalePercents[i] - Input.Scale * 100) < 1 ? Win32.MF_CHECKED : 0), (IntPtr)(CmdScaleBase + i), ScalePercents[i] + "%" + (ScalePercents[i] < 100 ? " (faster, softer)" : ScalePercents[i] > 100 ? " (sharper, slower)" : " (the window's own size)"));
+            Win32.AppendMenu(bar, Win32.MF_POPUP, scale, "Render scale");
             Win32.SetMenu(Handle, bar);
             if (_menu != IntPtr.Zero) Win32.DestroyMenu(_menu);
             _menu = bar;

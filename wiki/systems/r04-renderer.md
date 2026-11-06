@@ -68,6 +68,7 @@ The renderer draws what the live generators build. Every asset is generated on t
 | 🌌 The journey | One zoom from a universe of galaxies to a galaxy (zoom where the mouse points, click any star), a solar system (click a planet), a planet, its surface, then sea life at true scale or the soil fading to black, then microbes. Zooming out climbs back up | `src/shell/UniverseView.cs`, `DeepView.cs`, `PlanetView.cs`, `src/sim/SeaLife.cs`, `src/sim/MicrobeWorld.cs` |
 | 🧪 Elements | All 118 as icons: bars, crystals, powders, drops and clouds by state at any temperature and pressure | `src/shell/ElementView.cs`, `src/gen/ElementGen.cs`, `IconFont.cs` |
 | 🦠 Microbes | A live ecosystem: genes, mutation, selection, viruses by surface match | `src/sim/MicrobeWorld.cs`, `src/shell/MicrobeView.cs` |
+| 🔍 Render scale | The game draws at 50, 75, 100, 150 or 200% of the window's pixels and the picture is stretched to fit; the mouse is scaled to match. Picked from the Render scale menu, or `--scale <percent>` on test runs | `src/platform/Window.cs`, `Input.cs`, `src/Program.cs` |
 | 📷 Own pictures | `--shot <s> <file.bmp>` copies the finished frame off the graphics card; `--tour <name> <km,...>` takes one per height | `src/render/Gpu.cs`, `src/Program.cs` |
 
 Everything is drawn relative to the camera in double precision, so nothing shakes from galaxy size down to micrometres.
