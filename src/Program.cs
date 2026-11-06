@@ -224,6 +224,7 @@ namespace DnaAnd
                     {
                         var g = universe.Focus;
                         deep = new DeepView(gpu, pipeline, content, g.Type, g.Name, g.Seed) { Meshes = meshes };
+                        float gy, gp; universe.AngleInFocus(out gy, out gp); deep.SetAngle(gy, gp);   // carry on at the angle you came in at
                         // no target is forced: the wheel zooms where the mouse points, or click a star to fly to it
                         universe.HandOff = -1;
                     }

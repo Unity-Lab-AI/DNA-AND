@@ -23,7 +23,8 @@ namespace DnaAnd.Shell
         private readonly int _clusters, _nebulas;
         private UploadBuffer _starBuf, _structBuf, _diskBuf, _jetBuf, _coreBuf, _sysStatic, _sysBodies;
         private SpaceGen.StarSystem _system; private int _focusStar = -1;
-        private int _focusBody = -1;               // in a solar system: the planet or moon the camera is centred on (-1 = the star)
+        private int _focusBody = -1;
+        private double _atSystemSince = -1, _clock;   // when the zoom reached the whole-system view (a short rest before going on to a planet)               // in a solar system: the planet or moon the camera is centred on (-1 = the star)
         /// <summary>Set when the camera has come close enough to a planet to fly down to it: the body's index (else -1).</summary>
         public int HandOff = -1;
         /// <summary>Set when the player zooms out past the whole galaxy: back to the mix of galaxies.</summary>
@@ -194,13 +195,20 @@ namespace DnaAnd.Shell
             }
             if (_pendingStar >= 0 && input.Wheel < 0 && _dist > 3.0) _pendingStar = -1;      // backed right out to the whole galaxy: let the target go
             // the wheel zooms toward where the mouse points: the spot under the mouse stays under it (unless a star was clicked)
-            if (input.Wheel != 0 && _system == null && _pendingStar < 0) ZoomAtMouse(input.MouseX, input.MouseY, w, h, Math.Pow(0.82, input.Wheel));
-            if (input.Wheel != 0) _dist *= Math.Pow(0.82, input.Wheel);
+            // each notch zooms a little; through a solar system's own range the zoom brakes, so the whole system stays in view
+            double step = 0.87;
+            if (_system != null && _focusBody < 0)
+            {
+                double outerS = 0; foreach (var b in _system.Bodies) if (b.Parent < 0) outerS = Math.Max(outerS, b.OrbitUnits);
+                if (_dist < outerS * 8 && _dist > outerS * 0.05) step = 0.95;
+            }
+            if (input.Wheel != 0 && _system == null && _pendingStar < 0) ZoomAtMouse(input.MouseX, input.MouseY, w, h, Math.Pow(step, input.Wheel));
+            if (input.Wheel != 0) _dist *= Math.Pow(step, input.Wheel);
             if (_pendingStar >= 0 && input.Wheel > 0)
             {
                 // each notch in moves the view's centre a share of the way to the target, so you fly toward where you pointed
                 var s0 = _stars[_pendingStar];
-                double k = 1 - Math.Pow(0.62, input.Wheel);
+                double k = 1 - Math.Pow(0.75, input.Wheel);
                 double nx = _fx + (s0.X - _fx) * k, ny = _fy + (s0.Y - _fy) * k, nz = _fz + (s0.Z - _fz) * k;
                 double gap = Math.Sqrt((s0.X - nx) * (s0.X - nx) + (s0.Y - ny) * (s0.Y - ny) + (s0.Z - nz) * (s0.Z - nz));
                 if (gap < _dist * 0.05) { nx = s0.X; ny = s0.Y; nz = s0.Z; }
@@ -213,6 +221,16 @@ namespace DnaAnd.Shell
                 if (Math.Abs(s1.X - _fx) + Math.Abs(s1.Y - _fy) + Math.Abs(s1.Z - _fz) < 1e-6) OpenStar(_pendingStar); else _dist = 2e-6;
             }                 // close enough to the star: open its solar system
             double minDist = _focusStar >= 0 ? _system.StarRadius * 1.5 : _pendingStar >= 0 ? 1e-6 : _bh.HorizonUnits * 3;
+            if (_system != null && _focusBody < 0)
+            {
+                // the zoom stops at the whole solar system; rolling in again picks the planet nearest the mouse and goes on to it
+                double outerF = 0; foreach (var b in _system.Bodies) if (b.Parent < 0) outerF = Math.Max(outerF, b.OrbitUnits);
+                minDist = outerF * 1.3;
+                if (input.Wheel > 0 && _dist <= minDist * 1.02 && _atSystemSince >= 0 && _clock - _atSystemSince > 0.4) PickNearestBody(input.MouseX, input.MouseY, w, h);
+                if (_dist <= minDist * 1.02) { if (_atSystemSince < 0) _atSystemSince = _clock; } else _atSystemSince = -1;
+            }
+            else _atSystemSince = -1;
+            _clock += dt;
             if (_focusBody >= 0) minDist = _system.Bodies[_focusBody].RadiusUnits * 1.05;
             _dist = Math.Max(minDist, Math.Min(4.0, _dist));
             // close enough to a planet: hand over to the planet view, at the same distance
@@ -261,6 +279,24 @@ namespace DnaAnd.Shell
             _dist = _focusBody < 0 ? outer * 2.2 : Math.Min(_dist, outer * 2.2);
         }
 
+        // the planet nearest the mouse on screen, however far from it (the star is never picked this way)
+        private void PickNearestBody(int mx, int my, int w, int h)
+        {
+            Mat4 vp = ViewProj(w, h);
+            float x = mx / (float)Math.Max(1, w) * 2 - 1, y = 1 - my / (float)Math.Max(1, h) * 2;
+            int best = -1; float bd = float.MaxValue;
+            for (int i = 1; i < _bodyCount; i++)
+            {
+                if (i - 1 >= _system.Bodies.Count || _system.Bodies[i - 1].Parent >= 0) continue;   // planets only, not moons
+                var v = _bodyVerts[i];
+                float cx = v.X * vp.M11 + v.Y * vp.M21 + v.Z * vp.M31 + vp.M41, cy = v.X * vp.M12 + v.Y * vp.M22 + v.Z * vp.M32 + vp.M42, cw = v.X * vp.M14 + v.Y * vp.M24 + v.Z * vp.M34 + vp.M44;
+                if (cw <= 0) continue;
+                float d = (cx / cw - x) * (cx / cw - x) + (cy / cw - y) * (cy / cw - y);
+                if (d < bd) { bd = d; best = i - 1; }
+            }
+            if (best >= 0) PickBody(best);
+        }
+
         private bool ClickBody(int mx, int my, int w, int h)
         {
             Mat4 vp = ViewProj(w, h);
@@ -281,6 +317,8 @@ namespace DnaAnd.Shell
         public void TestCore() { GoCore(); _dist = _bh.HorizonUnits * 60; }
         public void TestVisit(int w, int h) { _pitch = 1.45f; _dist = 0.6; VisitCenterStar(w, h); if (_focusStar < 0) { _dist = 0.05; VisitCenterStar(w, h); } _pitch = 0.7f; }
         public void TestZoom(double d) { _dist = d; }
+        /// <summary>Starts the view at an angle (from the universe view), so the zoom into the galaxy keeps your angle.</summary>
+        public void SetAngle(float yaw, float pitch) { _yaw = yaw; _pitch = Math.Max(-1.5f, Math.Min(1.5f, pitch)); }
         public void TestSpeed(int index) { _speed = Speeds[Math.Max(0, Math.Min(4, index))]; }
 
         private void GoCore()
@@ -373,7 +411,9 @@ namespace DnaAnd.Shell
                 Draw(_coreBuf, _bh.Glow.Length, atCore, right, up, 0f, 0.0016f, 0f, w, h, time);
                 Mat4 spin = Mat4.RotationY((float)(time * 0.3)) * atCore;                         // the disk turns, gently (calm motion)
                 Draw(_diskBuf, _bh.Disk.Length, spin, right, up, 1f, 0.0012f, 0f, w, h, time);
-                if (_bh.Jets.Length > 0) Draw(_jetBuf, _bh.Jets.Length, atCore, right, up, 1f, 0.0012f, 0f, w, h, time);
+                // the core's jets belong to the core: shown only when you are at the core itself, never over the stars you fly to
+                double toCore = Math.Sqrt(_fx * _fx + _fy * _fy + _fz * _fz);
+                if (_bh.Jets.Length > 0 && _pendingStar < 0 && toCore < 0.05) Draw(_jetBuf, _bh.Jets.Length, atCore, right, up, 1f, 0.0012f, 0f, w, h, time);
             }
             else
             {

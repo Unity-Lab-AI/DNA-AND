@@ -69,6 +69,18 @@ namespace DnaAnd.Shell
 
         public Galaxy Focus { get { return Galaxies[_focus]; } }
 
+        /// <summary>The camera's angle as seen from the focused galaxy's own frame (its tilt and turn undone), so flying
+        /// into it carries on at the same angle instead of turning flat.</summary>
+        public void AngleInFocus(out float yaw, out float pitch)
+        {
+            var g = Galaxies[_focus];
+            double ex = Math.Cos(_yaw) * Math.Cos(_pitch), ey = Math.Sin(_pitch), ez = Math.Sin(_yaw) * Math.Cos(_pitch);
+            double ct = Math.Cos(g.Tilt), st = Math.Sin(g.Tilt), cu = Math.Cos(g.Turn), su = Math.Sin(g.Turn);
+            double x1 = ex * cu + ez * su, z1 = -ex * su + ez * cu;                   // undo the turn
+            double y2 = ey * ct + z1 * st, z2 = -ey * st + z1 * ct;                   // undo the tilt
+            yaw = (float)Math.Atan2(z2, x1); pitch = (float)Math.Asin(Math.Max(-1, Math.Min(1, y2)));
+        }
+
         /// <summary>Back out of a galaxy: hover just outside it.</summary>
         public void ReturnFromGalaxy() { HandOff = -1; _dist = 5; }
 
@@ -89,7 +101,7 @@ namespace DnaAnd.Shell
             if (input.WasPressed(0x09)) { Centre((_focus + 1) % Galaxies.Count); _dist = Math.Max(_dist, 12); }
             if (input.LeftClicked) Click(input.MouseX, input.MouseY, w, h);
             if (input.Wheel > 0) ZoomToward(input.MouseX, input.MouseY, w, h);      // zoom into the galaxy under the mouse
-            if (input.Wheel != 0) _dist = Math.Max(3.5, Math.Min(400, _dist * Math.Pow(0.8, input.Wheel)));
+            if (input.Wheel != 0) _dist = Math.Max(3.5, Math.Min(400, _dist * Math.Pow(0.87, input.Wheel)));
             if (input.Wheel > 0 && _dist <= 4.0) HandOff = _focus;            // close enough: fly into it
             return true;
         }
