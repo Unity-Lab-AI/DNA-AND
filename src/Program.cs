@@ -105,6 +105,12 @@ namespace DnaAnd
             Gpu gpu;
             try { gpu = new Gpu(window.Handle, window.RenderWidth, window.RenderHeight); }
             catch (Exception ex) { WriteLog("gpu error · " + ex.Message); window.Close(); return 2; }
+            // the default sharpness from the graphics card: cards with little video memory of their own start softer, so they stay smooth
+            if (Array.IndexOf(args, "--scale") < 0 && gpu.AdapterMemoryMB > 0 && gpu.AdapterMemoryMB < 3000)
+            {
+                window.RenderScale = gpu.AdapterMemoryMB < 1500 ? 0.5 : 0.75;
+                gpu.Resize(window.RenderWidth, window.RenderHeight); window.Resized = false;
+            }
             BillboardPipeline pipeline; SampleViewer viewer; MeshPipes meshes = null;
             try
             {
@@ -142,7 +148,7 @@ namespace DnaAnd
             }
             if (testPlanet >= 0) { planet = new PlanetView(gpu, meshes, pipeline, viewer.TerrainAt(testPlanet), viewer.FieldTerrainAt(testPlanet), viewer.Set == 5 || testFieldView); planet.TestEvolveYears = testEvolve; planet.TestGoToCiv = Array.IndexOf(args, "--tociv") >= 0; int sli = Array.IndexOf(args, "--savelife"); if (sli >= 0 && sli + 1 < args.Length) planet.TestSaveLife = args[sli + 1]; int lli = Array.IndexOf(args, "--loadlife"); if (lli >= 0 && lli + 1 < args.Length) planet.TestLoadLife = args[lli + 1]; int csi = Array.IndexOf(args, "--civstep"); if (csi >= 0 && csi + 1 < args.Length) int.TryParse(args[csi + 1], out planet.TestCivStep); for (int k = 0; k < testJumps; k++) planet.JumpToNextField(); if (testAlt > 0) planet.SetAltitude(testAlt); int si = Array.IndexOf(args, "--undersea"); if (si >= 0 && si + 1 < args.Length) planet.GoUnderSea(double.Parse(args[si + 1], System.Globalization.CultureInfo.InvariantCulture)); }
             UniverseView universe = journey ? new UniverseView(gpu, pipeline, content, Seed) : null;
-            WorldView world = Array.IndexOf(args, "--world") >= 0 ? new WorldView(gpu, pipeline, meshes, content, Seed) { AutoPath = Array.IndexOf(args, "--autopath") >= 0 } : null;   // the one world: one camera through every scale
+            WorldView world = Array.IndexOf(args, "--world") >= 0 || PreviewBuild ? new WorldView(gpu, pipeline, meshes, content, Seed) { AutoPath = Array.IndexOf(args, "--autopath") >= 0 } : null;   // the one world: one camera through every scale
             if (journey && Array.IndexOf(args, "--test-system") >= 0) { deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(0), viewer.NameOf(0), Seed); deep.TestJourney(gpu.Width, gpu.Height); }
             if (testDeep >= 0) deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(testDeep), viewer.NameOf(testDeep), Seed + (ulong)testDeep * 7919UL);
             while (window.Pump())
@@ -152,7 +158,7 @@ namespace DnaAnd
 
                 if (deep == null && planet == null && window.Input.WasPressed(Win32.VK_ESCAPE)) window.Close();
                 // the review menu: rebuilt whenever the set or the keepers change
-                if (world != null) { if (menuDirty) { window.SetWorldMenu(world.ScaleOn); menuDirty = false; } }
+                if (world != null) { if (menuDirty || world.MenuChanged) { window.SetWorldMenu(world.ScaleOn); menuDirty = false; world.MenuChanged = false; } }
                 else if (viewer.Set != menuSet || menuDirty) { window.SetReviewMenu(viewer.KeeperLabels(), viewer.KeeperTicks()); menuSet = viewer.Set; menuDirty = false; }
                 int cmd = window.MenuCommand; window.MenuCommand = 0;
                 bool askNow = false;
@@ -316,6 +322,13 @@ namespace DnaAnd
                 default: return "desert";                     // rocky planets and moons: dry rock and dust
             }
         }
+
+        // the universe preview release is built with /define:PREVIEW: it always opens in the one world
+#if PREVIEW
+        private const bool PreviewBuild = true;
+#else
+        private const bool PreviewBuild = false;
+#endif
 
         private static void WriteLog(string line)
         {

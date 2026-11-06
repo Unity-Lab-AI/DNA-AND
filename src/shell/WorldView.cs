@@ -345,6 +345,8 @@ namespace DnaAnd.Shell
 
         /// <summary>Test runs: the camera turns to the next thing on the way down (the galaxy, a star, a planet, its ground) each frame.</summary>
         public bool AutoPath;
+        /// <summary>Set when something the menu shows has changed (the scale's tick), so the menu is rebuilt.</summary>
+        public bool MenuChanged;
         /// <summary>Whether the scale shows on screen (H, or the View menu).</summary>
         public bool ScaleOn { get { return _hud.Visible; } set { _hud.Visible = value; } }
         private void AimNext()
@@ -373,7 +375,7 @@ namespace DnaAnd.Shell
         public bool Update(Input input, double dt, int w, int h)
         {
             if (AutoPath) AimNext();
-            if (input.WasPressed(0x48)) _hud.Visible = !_hud.Visible;                 // H: the scale on screen, on or off
+            if (input.WasPressed(0x48)) { _hud.Visible = !_hud.Visible; MenuChanged = true; }   // H: the scale on screen, on or off
             if (input.WasPressed(Win32.VK_ESCAPE)) return false;
             if (input.LeftDown) { _yaw += input.MouseDX * 0.004; _pitch = Math.Max(-1.55, Math.Min(1.55, _pitch - input.MouseDY * 0.004)); }
             double reach = NearestDistance();
