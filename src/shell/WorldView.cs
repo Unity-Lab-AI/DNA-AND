@@ -302,6 +302,18 @@ namespace DnaAnd.Shell
         private void FollowBody()
         {
             int follow = _tKind == 2 && _system != null && _tIndex < _system.Bodies.Count ? _tIndex : _planet;
+            if (follow < 0 && _system != null)
+            {
+                // nothing picked: the nearest planet or moon is matched once you are within about 300 of its radii
+                double bd = double.MaxValue;
+                for (int i = 0; i < _system.Bodies.Count; i++)
+                {
+                    double x, y, z; BodyPos(i, out x, out y, out z);
+                    double d = Math.Sqrt((x - _ox) * (x - _ox) + (y - _oy) * (y - _oy) + (z - _oz) * (z - _oz)) / _system.Bodies[i].RadiusUnits;
+                    if (d < bd) { bd = d; follow = i; }
+                }
+                if (bd > 300) follow = -1;
+            }
             if (follow >= 0)
             {
                 double fx, fy, fz; BodyPos(follow, out fx, out fy, out fz);
