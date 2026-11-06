@@ -123,7 +123,7 @@ namespace DnaAnd.Render
             {
                 for (int i = 0; i < 20; i++) Marshal.WriteByte(clear, i, 0);
                 Marshal.WriteInt32(clear, 0, (int)D3D12.DXGI_FORMAT_D32_FLOAT);
-                Marshal.WriteInt32(clear, 4, BitConverter.ToInt32(BitConverter.GetBytes(1f), 0));
+                Marshal.WriteInt32(clear, 4, BitConverter.ToInt32(BitConverter.GetBytes(0f), 0));   // reversed depth: far is 0
                 Guid iid = D3D12.IID_ID3D12Resource;
                 Com.Check(Com.Method<CreateCommittedResourceFn>(_device, 27)(_device, ref heap, 0, ref desc, D3D12.RESOURCE_STATE_DEPTH_WRITE, clear, ref iid, out _depth), "CreateCommittedResource(depth)");
             }
@@ -157,18 +157,18 @@ namespace DnaAnd.Render
             IntPtr dsv = _dsv;
             _setRT(_list, 1, ref rtv, 0, ref dsv);
             _clear(_list, rtv, new[] { r, g, b, 1f }, 0, IntPtr.Zero);
-            _clearDepth(_list, _dsv, 1, 1f, 0, 0, IntPtr.Zero);
+            _clearDepth(_list, _dsv, 1, 0f, 0, 0, IntPtr.Zero);
         }
 
         /// <summary>Clears the picture (and depth) again partway through a frame, to a new colour.</summary>
         public void ClearNow(float r, float g, float b)
         {
             _clear(_list, Rtv(_frameIndex), new[] { r, g, b, 1f }, 0, IntPtr.Zero);
-            _clearDepth(_list, _dsv, 1, 1f, 0, 0, IntPtr.Zero);
+            _clearDepth(_list, _dsv, 1, 0f, 0, 0, IntPtr.Zero);
         }
 
         /// <summary>Clears only the depth, so what is drawn next shows on top of everything drawn so far.</summary>
-        public void ClearDepth() { _clearDepth(_list, _dsv, 1, 1f, 0, 0, IntPtr.Zero); }
+        public void ClearDepth() { _clearDepth(_list, _dsv, 1, 0f, 0, 0, IntPtr.Zero); }
 
         /// <summary>Finishes the frame and shows it, synced to the monitor (vsync).</summary>
         public void EndFrame()

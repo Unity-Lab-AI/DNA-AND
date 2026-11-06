@@ -72,7 +72,9 @@ namespace DnaAnd.Core
         {
             float h = 1f / (float)Math.Tan(fovY * 0.5f), w = h / aspect;
             var m = new Mat4();
-            m.M11 = w; m.M22 = h; m.M33 = far / (far - near); m.M34 = 1; m.M43 = -near * far / (far - near);
+            // reversed depth: the near plane lands at 1 and the far at 0, so a float depth buffer keeps fine precision at every
+            // distance (from a micrometre in front of you to the far side of a galaxy)
+            m.M11 = w; m.M22 = h; m.M33 = -near / (far - near); m.M34 = 1; m.M43 = near * far / (far - near);
             return m;
         }
     }

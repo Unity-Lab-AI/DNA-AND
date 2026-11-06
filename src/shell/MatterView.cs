@@ -86,9 +86,22 @@ namespace DnaAnd.Shell
             }
             // the crystal and its atoms: a lattice of the mineral's atoms below you
             double cb = Math.Max(Band(s, 2e-9, 2.5e-11), Band(s, 2.5e-11, BottomKm));
-            if (cb > 0 && _mineral != null)
+            if (cb > 0 && _mineral != null && s > AtomSpacing * 60)
             {
-                double a = AtomSpacing; int half = (int)Math.Min(18, Math.Max(3, s / a * 0.8));
+                // wider than about 60 atoms: the crystal's face, filling the view, its texture grown by mode-E in the mineral's colours
+                float[] c0 = Cpk[_mineral.Atoms[0]], c1 = Cpk[_mineral.Atoms[Math.Min(1, _mineral.Atoms.Length - 1)]];
+                var view = ModeE.View.For(1e-9 / s, 0.7, 0.3, 1.1); int n = 60; double cell = s / 24;
+                for (int i = -n; i <= n; i++)
+                    for (int j = -n; j <= n; j++)
+                    {
+                        var p = ModeE.At(i * cell / s, j * cell / s, view); float t = (float)Math.Min(1, p.Shade * 0.8), f = (float)cb;
+                        l.Add(new StarVertex { X = (float)(i * cell / s), Y = -0.6f, Z = (float)(j * cell / s), Size = (float)(cell / s * 0.75), R = (c0[0] * t + c1[0] * (1 - t)) * f, G = (c0[1] * t + c1[1] * (1 - t)) * f, B = (c0[2] * t + c1[2] * (1 - t)) * f, A = 1 });
+                    }
+            }
+            else if (cb > 0 && _mineral != null)
+            {
+                // the atoms themselves, enough of them to fill the view
+                double a = AtomSpacing; int half = (int)Math.Min(40, Math.Max(3, s / a * 1.4));
                 for (int i = -half; i <= half; i++)
                     for (int j = -half; j <= half; j++)
                         for (int k = -6; k <= 0; k++)

@@ -125,7 +125,7 @@ float4 PS(VO i) : SV_Target
                 }
                 Marshal.WriteInt32(p, 448, -1);     // sample mask
                 Marshal.WriteInt32(p, 452, 3); Marshal.WriteInt32(p, 456, 1); Marshal.WriteInt32(p, 476, 1);   // solid, no culling, depth clip
-                Marshal.WriteInt32(p, 496, 1); Marshal.WriteInt32(p, 500, blend == 0 ? 1 : 0); Marshal.WriteInt32(p, 504, blend == 0 ? 2 : 4);   // depth on; only solid ground writes it
+                Marshal.WriteInt32(p, 496, 1); Marshal.WriteInt32(p, 500, blend == 0 ? 1 : 0); Marshal.WriteInt32(p, 504, blend == 0 ? 5 : 7);   // depth on (reversed: nearer is greater); only solid ground writes it
                 for (int f = 0; f < 2; f++) { int b = 516 + f * 16; Marshal.WriteInt32(p, b, 1); Marshal.WriteInt32(p, b + 4, 1); Marshal.WriteInt32(p, b + 8, 1); Marshal.WriteInt32(p, b + 12, 8); }
                 Marshal.WriteInt32(p, 572, 3);      // triangles
                 Marshal.WriteInt32(p, 576, 1);

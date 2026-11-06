@@ -157,3 +157,4 @@ Append-only. Newest at the bottom.
 - r06 planet: whole-planet swap for ground changes at big moments; r04: ground detail true to screen resolution.
 - r05/r04: dead stars kept out of young arms (pulsars rarest); the wheel glides; planet handoff at the planet view's own distance; skirts lit; planet changes as wavelet change fields.
 - r04 renderer: the one-world camera begins (universe and galaxies, no handoff).
+- r04 renderer: reversed float depth everywhere; the one world goes on into matter, down to atoms.
