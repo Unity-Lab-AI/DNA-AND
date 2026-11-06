@@ -180,6 +180,7 @@ namespace DnaAnd
                 else if (cmd == Window.CmdLegend) window.Tell(style != null ? style.Legend() : microbes != null ? microbes.Legend() : elements != null ? elements.Legend() : planet != null ? planet.Legend() : viewer.Legend(), "DNA-AND · Legend");
                 else if (cmd == Window.CmdPause && world != null) world.TogglePause();
                 else if (cmd >= Window.CmdTimeBase && cmd < Window.CmdTimeBase + 16 && world != null) world.SetTime(cmd - Window.CmdTimeBase);
+                else if (cmd > Window.CmdDragBase && cmd <= Window.CmdDragBase + 10) { Settings.Set("drag-speed", cmd - Window.CmdDragBase); menuDirty = true; }
                 else if (cmd >= Window.CmdGpuBase && cmd < Window.CmdGpuBase + Window.GpuPercents.Length) { Window.GpuUse = Window.GpuPercents[cmd - Window.CmdGpuBase] / 100.0; Settings.Set("gpu-use", Window.GpuPercents[cmd - Window.CmdGpuBase]); menuDirty = true; }
                 else if (cmd >= Window.CmdScaleBase && cmd < Window.CmdScaleBase + Window.ScalePercents.Length) { window.RenderScale = Window.ScalePercents[cmd - Window.CmdScaleBase] / 100.0; menuDirty = true; }
                 // the documents open in their own viewer window, beside the game

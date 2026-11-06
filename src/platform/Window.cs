@@ -20,7 +20,9 @@ namespace DnaAnd.Platform
         public int RenderHeight { get { return Math.Max(1, (int)(Height * Input.Scale)); } }
         public static readonly int[] ScalePercents = { 50, 75, 100, 150, 200 };
         public const int CmdScaleBase = 50;   // render scale i is CmdScaleBase + i
-        public const int CmdGpuBase = 70;     // GPU use i is CmdGpuBase + i
+        public const int CmdGpuBase = 70;
+        public const int CmdDragBase = 160;   // drag speed i (1 to 10 times) is CmdDragBase + i
+        public static int DragSpeed { get { return Math.Max(1, Math.Min(10, Settings.Get("drag-speed", 4))); } }     // GPU use i is CmdGpuBase + i
         /// <summary>How much of the graphics card's time the universe may use, in per cent of each frame (never more than 90).</summary>
         public static readonly int[] GpuPercents = { 10, 25, 40, 50, 60, 75, 90 };
         /// <summary>The GPU use asked for, as a fraction (0.9 = 90%); the detail is turned up or down until the card is that busy.</summary>
@@ -85,6 +87,9 @@ namespace DnaAnd.Platform
             Win32.AppendMenu(timeMenu, Win32.MF_SEPARATOR, IntPtr.Zero, null);
             Win32.AppendMenu(timeMenu, Win32.MF_STRING | 0x1u, IntPtr.Zero, "slower: ,   faster: .");
             Win32.AppendMenu(view, Win32.MF_SEPARATOR, IntPtr.Zero, null);
+            IntPtr dragMenu = Win32.CreatePopupMenu();
+            for (int i = 1; i <= 10; i++) Win32.AppendMenu(dragMenu, Win32.MF_STRING | (DragSpeed == i ? Win32.MF_CHECKED : 0), (IntPtr)(CmdDragBase + i), i + "x" + (i == 1 ? " (the view moves with the mouse exactly)" : i == 4 ? " (the usual)" : ""));
+            Win32.AppendMenu(view, Win32.MF_POPUP, dragMenu, "Drag speed (look and turn)");
             Win32.AppendMenu(view, Win32.MF_STRING | (Settings.Get("invert-left-right", false) ? Win32.MF_CHECKED : 0), (IntPtr)CmdInvertX, "Invert left-right drag");
             Win32.AppendMenu(view, Win32.MF_STRING | (Settings.Get("invert-up-down", false) ? Win32.MF_CHECKED : 0), (IntPtr)CmdInvertY, "Invert up-down drag");
             Win32.AppendMenu(help, Win32.MF_STRING, (IntPtr)CmdReadme, "Readme");

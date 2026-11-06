@@ -778,7 +778,7 @@ namespace DnaAnd.Shell
                 if (al > 1e-9f)
                 {
                     axis = new Vec3(axis.X / al, axis.Y / al, axis.Z / al);
-                    double ang = -Math.Atan2(al, Vec3.Dot(d1, d0));                      // the camera goes the way the mouse goes
+                    double ang = -Math.Atan2(al, Vec3.Dot(d1, d0)) * Window.DragSpeed;   // the camera goes the way the mouse goes, as fast as View > Drag speed sets
                     var f = Turn(Look, axis, ang);
                     double odx, ody, odz, orad;
                     bool circle = _tKind >= 0 && _tKind != 3 && _dragged && !(_ground != null && (_matterScale > 0 || AboveGround() < Units.Km(MatterView.OverlayKm)))
