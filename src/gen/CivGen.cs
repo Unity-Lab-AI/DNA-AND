@@ -25,6 +25,7 @@ namespace DnaAnd.Gen
 
         public static Body Build(Genome g, int what, ulong seed)
         {
+            if (what > 0) { float sr, sg, sb; GeneBody.Skin(g, out sr, out sg, out sb); g.R = sr; g.G = sg; g.B = sb; }   // their colours, bright enough to read
             var r = new Rng(seed * 0x9E3779B97F4A7C15UL + (ulong)what * 977UL + 5);
             var b = new Body { Name = Names[what] };
             int style = Style(g);
@@ -170,13 +171,14 @@ namespace DnaAnd.Gen
         private static void Ship(Body b, Genome g, Rng r, int style, bool hyper)
         {
             int segs = 2 + (int)Math.Round(g.Segs * 4) + (hyper ? 2 : 0);
-            float hr = Mix(g.R, 0.75f, 0.3f), hg = Mix(g.G, 0.77f, 0.3f), hb = Mix(g.B, 0.8f, 0.3f);
+            float hr = Mix(g.R, 0.72f, 0.55f), hg = Mix(g.G, 0.74f, 0.55f), hb = Mix(g.B, 0.78f, 0.55f);
             float len = hyper ? 2.2f : 1.6f, step = len / segs, rad = (hyper ? 0.22f : 0.16f) * (style == 1 ? 1.3f : 1);
             for (int k = 0; k < segs; k++)
             {
                 float x = -len * 0.5f + (k + 0.5f) * step, sr = rad * (0.75f + 0.35f * (float)Math.Sin((k + 0.5) / segs * Math.PI));
                 if (style == 3 || style == 0) b.Box(new Vec3(x, 0, 0), step * 0.48f, sr, sr, hr, hg, hb);
                 else b.Blob(new Vec3(x, 0, 0), step * 0.62f, sr, sr, hr, hg, hb);
+                if (k % 2 == 1) b.Box(new Vec3(x, 0, 0), step * 0.12f, sr * 1.04f, sr * 1.04f, g.R, g.G, g.B);   // a band in their own colour
                 if (g.Armour > 0.4f) b.Cone(new Vec3(x, sr * 0.9f, 0), new Vec3(-0.3f, 1, 0), sr * 0.8f, sr * 0.25f, hr * 0.6f, hg * 0.6f, hb * 0.6f);
             }
             b.Cone(new Vec3(len * 0.5f, 0, 0), new Vec3(1, 0, 0), rad * 2.2f, rad * 0.8f, hr, hg, hb);                       // nose
@@ -206,7 +208,7 @@ namespace DnaAnd.Gen
         // a space station: a hub with spokes out to a turning ring of modules built in the species' way
         private static void Station(Body b, Genome g, Rng r, int style)
         {
-            float hr = Mix(g.R, 0.78f, 0.25f), hg = Mix(g.G, 0.8f, 0.25f), hb = Mix(g.B, 0.84f, 0.25f);
+            float hr = Mix(g.R, 0.76f, 0.5f), hg = Mix(g.G, 0.78f, 0.5f), hb = Mix(g.B, 0.82f, 0.5f);
             b.Blob(new Vec3(0, 0, 0), 0.22f, 0.22f, 0.22f, hr, hg, hb);
             b.Limb(new Vec3(0, -0.5f, 0), new Vec3(0, 0.5f, 0), 0.06f, hr * 0.9f, hg * 0.9f, hb * 0.9f);                        // docking spine
             b.Blob(new Vec3(0, 0.55f, 0), 0.08f, 0.04f, 0.08f, 0.4f, 0.9f, 0.5f, 1f);                                           // docking light
@@ -235,10 +237,10 @@ namespace DnaAnd.Gen
                 double a = k * Math.PI * 2 / n; float d = k == 0 ? 0 : 0.55f;
                 spots[k] = new Vec3((float)Math.Cos(a) * d, -0.58f, (float)Math.Sin(a) * d);
                 float s = k == 0 ? 0.28f : 0.17f;
-                if (style == 2) b.Cone(spots[k], new Vec3(0, 1, 0), s * 2.2f, s, Mix(g.R, 0.7f, 0.3f), Mix(g.G, 0.7f, 0.3f), Mix(g.B, 0.72f, 0.3f), 0.15f);
-                else if (style == 3 || style == 0) { b.Box(spots[k] + new Vec3(0, s * 0.5f, 0), s, s * 0.5f, s, Mix(g.R, 0.75f, 0.3f), Mix(g.G, 0.75f, 0.3f), Mix(g.B, 0.78f, 0.3f)); b.Blob(spots[k] + new Vec3(0, s, 0), s * 0.9f, s * 0.4f, s * 0.9f, 0.5f, 0.8f, 0.95f, 0.35f); }
+                if (style == 2) b.Cone(spots[k], new Vec3(0, 1, 0), s * 2.2f, s, Mix(g.R, 0.7f, 0.5f), Mix(g.G, 0.7f, 0.5f), Mix(g.B, 0.72f, 0.5f), 0.15f);
+                else if (style == 3 || style == 0) { b.Box(spots[k] + new Vec3(0, s * 0.5f, 0), s, s * 0.5f, s, Mix(g.R, 0.75f, 0.5f), Mix(g.G, 0.75f, 0.5f), Mix(g.B, 0.78f, 0.5f)); b.Blob(spots[k] + new Vec3(0, s, 0), s * 0.9f, s * 0.4f, s * 0.9f, 0.5f, 0.8f, 0.95f, 0.35f); }
                 else b.Blob(spots[k], s, s * 0.8f, s, 0.55f, 0.82f, 0.95f, 0.35f);                                                 // glass domes
-                if (k > 0) b.Limb(spots[0] + new Vec3(0, 0.05f, 0), spots[k] + new Vec3(0, 0.05f, 0), 0.03f, 0.7f, 0.72f, 0.75f); // tubes
+                if (k > 0) b.Limb(spots[0] + new Vec3(0, 0.05f, 0), spots[k] + new Vec3(0, 0.05f, 0), 0.03f, Mix(g.R, 0.7f, 0.4f), Mix(g.G, 0.72f, 0.4f), Mix(g.B, 0.75f, 0.4f)); // tubes
             }
             var pad = new Vec3(0.75f, -0.58f, 0.6f);
             b.Box(pad, 0.22f, 0.01f, 0.22f, 0.4f, 0.42f, 0.45f);

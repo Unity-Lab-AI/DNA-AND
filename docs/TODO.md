@@ -208,14 +208,15 @@ Order: galactic scale down, the same order as the sample sets.
   - Changed: shaders are compiled by `d3dcompiler_47.dll`, which ships with Windows (same reasoning as round 20)
 - [ ] The asset builder and its examples come before any play-testing of planet life: "yeah we are in no way ready to test it we havent even build the asset builder and done those examples for all the creatures life villages tiebes towns cities space stuff ect ect"
   - [x] Style sample first, three body looks: "all of the above but we need to find a set style first". **Smooth chosen**: "those will work the smooth and remmebr what i said about them probecedurally generated and dynamic to the life in the geame"
-  - [x] Bodies built from the genes of the species in the running game, changing as they evolve: body-plan genes, the gene body builder, and the planet's own land life drawn from its evolved species (`src/shell/LandLife.cs`)
+  - [x] Bodies built from the genes of the species in the running game, changing as they evolve: body-plan genes, the gene body builder, and the planet's own land life drawn from its evolved species (`src/shell/LandLife.cs`), and its sea animals swimming from their genes (`src/shell/SeaBodies.cs`)
   - [~] Creatures and the rest of life (every kingdom): families of viruses, cells, plants, fungi, jellies, animals and intelligent creatures, all from genes (`--family`)
   - [~] Villages: from the builder species' genes (`--civ`)
   - [~] Tribes: a tribe camp from the builder species' genes (`--civ`)
   - [~] Towns: from the builder species' genes (`--civ`)
   - [~] Cities: from the builder species' genes (`--civ`)
   - [~] Space stuff (stations, colonies, ships and the rest): spaceship, hyperdrive ship, space station and colony from the builder species' genes (`--civ`)
-- [ ] Species-driven asset generation: cities, ships and stations built from the species' own genes and body plan: "ie insect species has insect spaceships ansd insect cities"
+- [ ] How long each step of an intelligent species lasts (wild, tribes, villages, towns, cities, space): not a set time, it follows how much the god helps; a player who keeps at it gets there quicker: "its not a set time... its all based on how the god helps the life to evolve if ur on it you can get there quicker". The god's ways of helping are not built yet; until then each step takes an even share of the last stage's hour. Asked about: "yeah intelligent species live on the land before they ever village and tribe up before going into theri tech and stuff"
+- [x] Species-driven asset generation (five ways of building from the body plan, ships shaped like their builders; compared in `--civ` with keys 1-5): cities, ships and stations built from the species' own genes and body plan: "ie insect species has insect spaceships ansd insect cities"
 **Spec:** `wiki/systems/r04-renderer.md#-style-samples-come-first`, `docs/DESIGN.md` round 6
 
 - [~] Style samples, 3 samples × 3 styles: "remembr we arent using other peoples shit unless we absoulutley have to so plan on buiolding it all and things like ingame microbes viruses and intelligernt creature should all have samples 1,2,3 made in 3 diffeernt styles 1,2,3 for a hand ful of things in the game before we go with any one style and same for things like the galaxy layouts solarsystem layouts and planets and stars and dyson spheres and space ships and space colonires ands space stations and rouseource firleds and gas giants and athe whole periodic table of elements"

@@ -38,6 +38,22 @@ namespace DnaAnd.Shell
             _built = -1;
         }
 
+        // give the species the body plan of one way of building: 1 walls and pointed roofs, 2 domes, 3 mounds and hive spires (insect-like), 4 spiked forts (armoured), 5 stilts (water)
+        private void ShapeFor(int style)
+        {
+            var g = _genes[0];
+            g.Armour = 0.2f; g.Fins = 0.1f;
+            switch (style)
+            {
+                case 0: g.Segs = 0.45f; g.Legs = 0.4f; break;
+                case 1: g.Segs = 0.2f; g.Legs = 0.4f; break;
+                case 2: g.Segs = 0.7f; g.Legs = 0.8f; break;
+                case 3: g.Segs = 0.5f; g.Legs = 0.5f; g.Armour = 0.7f; break;
+                default: g.Segs = 0.5f; g.Legs = 0.4f; g.Fins = 0.6f; break;
+            }
+            _genes[0] = g;
+        }
+
         private static string Describe(Genome g)
         {
             if (g.Stage == 0) return "virus: " + (8 + g.Surface % 20) + " spikes, set by its surface gene";
@@ -60,7 +76,7 @@ namespace DnaAnd.Shell
                 if (_civ)
                     return "DNA-AND samples · What an intelligent species builds, from its own genes · builds in " + CivGen.StyleNames[CivGen.Style(_genes[0])] + " · " + (_gens == 0 ? "as first made" : _gens + " generations evolved") +
                            " · keepers: " + (kept.Count == 0 ? "none" : string.Join(", ", kept.ToArray())) +
-                           " · E: evolve the species · N: new species · drag: turn · wheel: zoom · Space: stop turning · right-click: mark keeper · Legend";
+                           " · 1-5: way of building · E: evolve the species · N: new species · drag: turn · wheel: zoom · Space: stop turning · right-click: mark keeper · Legend";
                 if (_family)
                     return "DNA-AND samples · A family of " + GeneBody.KindNames[_kind] + ", built from their genes · " + (_gens == 0 ? "as first made" : _gens + " generations evolved") +
                            " · keepers: " + (kept.Count == 0 ? "none" : string.Join(", ", kept.ToArray())) +
@@ -110,6 +126,7 @@ namespace DnaAnd.Shell
         {
             if (!_family) for (int k = 0; k < 3; k++) if (input.WasPressed(0x31 + k)) _look = k;
             if (_family && !_civ) for (int k = 0; k < 7; k++) if (input.WasPressed(0x31 + k)) { _kind = k; NewFamily(); }
+            if (_civ) for (int k = 0; k < 5; k++) if (input.WasPressed(0x31 + k)) { ShapeFor(k); BodiesFromGenes(); }
             if (_family && input.WasPressed(0x45)) { for (int i = 0; i < 9; i++) _genes[i] = Genome.Mutate(_genes[i], _rng, 3f); _gens++; BodiesFromGenes(); }
             if (_family && input.WasPressed(0x4E)) { _seed = _seed * 6364136223846793005UL + 1442695040888963407UL; NewFamily(); }
             if (input.WasPressed(Win32.VK_SPACE)) _still = !_still;
