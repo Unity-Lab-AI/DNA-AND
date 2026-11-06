@@ -215,6 +215,7 @@ Order: galactic scale down, the same order as the sample sets.
   - [~] Towns: from the builder species' genes (`--civ`)
   - [~] Cities: from the builder species' genes (`--civ`)
   - [~] Space stuff (stations, colonies, ships and the rest): spaceship, hyperdrive ship, space station and colony from the builder species' genes (`--civ`)
+- [ ] How long each step of an intelligent species lasts (wild, tribes, villages, towns, cities, space): for now an even share of the last stage's hour, until decided: "yeah intelligent species live on the land before they ever village and tribe up before going into theri tech and stuff"
 - [ ] Species-driven asset generation: cities, ships and stations built from the species' own genes and body plan: "ie insect species has insect spaceships ansd insect cities"
 **Spec:** `wiki/systems/r04-renderer.md#-style-samples-come-first`, `docs/DESIGN.md` round 6
 

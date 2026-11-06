@@ -22,6 +22,8 @@ namespace DnaAnd.Shell
         private double _nextCheck;
         /// <summary>What is here, for the title: names of the kinds shown.</summary>
         public string Here = "";
+        /// <summary>Test runs: show this step of an intelligent species' growth (0 wild to 5 space) instead of its own.</summary>
+        public int ForceStep = -1;
 
         public LandLife(IntPtr device) { _device = device; }
 
@@ -67,7 +69,8 @@ namespace DnaAnd.Shell
             }
             var keyB = new System.Text.StringBuilder(); foreach (var kv in shownSp) keyB.Append(kv.Key.Id).Append(',');
             int civ = -1; foreach (var kv in local) if (kv.Key.G.Stage >= 6) { civ = kv.Key.Id; break; }
-            keyB.Append(civ);
+            int step = civ > 0 ? (ForceStep >= 0 ? ForceStep : life.CivStep(life.All[civ])) : 0;
+            keyB.Append(civ).Append(':').Append(step);
             if (!zoomed && moved < shown * 4 && keyB.ToString() == _key) return;
             _key = keyB.ToString(); _ax = cx; _ay = cy; _az = cz; _aSize = shown;
 
@@ -93,16 +96,25 @@ namespace DnaAnd.Shell
                 for (int k = 0; k < n; k++)
                     Place(outl, mesh, fit[0], scale, terrain, R, ux, uy, uz, up, north, east, rng.Range(-1f, 1f) * spread, rng.Range(-0.2f, 1.6f) * spread, rng.Range(0, 6.283f), cx, cy, cz);
             }
-            if (civ > 0 && shown < 0.3 && shown > 0.0005)
+            if (civ > 0 && step > 0 && shown < 0.3 && shown > 0.0005)
             {
-                // where an intelligent species lives: its village, in front of you
+                // where an intelligent species lives and has settled: its tribe's camp, village, town or city, in front of you;
+                // once it has gone into space, a ship of its own hangs over its city
                 var sp = life.All[civ];
-                var body = CivGen.Build(sp.G, 2, (ulong)civ);
+                int what = Math.Min(4, step);                                           // CivGen: 1 camp, 2 village, 3 town, 4 city
+                var body = CivGen.Build(sp.G, what, (ulong)civ);
                 var m = BodyGen.Build(body, 0, 3, false);
                 float lo = float.MaxValue, hi = float.MinValue; foreach (var v in m) { lo = Math.Min(lo, v.X); hi = Math.Max(hi, v.X); }
-                Place(outl, m, body.GroundY, (float)(0.25 / Math.Max(1e-3f, hi - lo)), terrain, R, ux, uy, uz, up, north, east, 0, 0.35, 0.3, cx, cy, cz);
-                names.Add("a village of " + PlanetLife.StageNames[sp.G.Stage]);
+                float sc = (float)((0.12 + what * 0.05) / Math.Max(1e-3f, hi - lo));
+                Place(outl, m, body.GroundY, sc, terrain, R, ux, uy, uz, up, north, east, 0, 0.35, 0.3, cx, cy, cz);
+                if (step >= 5)
+                {
+                    var ship = BodyGen.Build(CivGen.Build(sp.G, 5, (ulong)civ), 0, 3, false);
+                    Place(outl, ship, -1.6f, sc * 0.5f, terrain, R, ux, uy, uz, up, north, east, 0.05, 0.3, 1.2, cx, cy, cz);
+                }
+                names.Add(PlanetLife.CivSteps[step] + " of " + PlanetLife.StageNames[sp.G.Stage]);
             }
+            else if (civ > 0) names.Add(PlanetLife.CivSteps[0] + ": " + PlanetLife.StageNames[life.All[civ].G.Stage]);
             Here = string.Join(", ", names.ToArray());
             _count = outl.Count;
             if (_verts.Length < _count) _verts = new StarVertex[_count + 1024];

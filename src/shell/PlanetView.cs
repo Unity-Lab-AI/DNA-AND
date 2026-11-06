@@ -34,6 +34,8 @@ namespace DnaAnd.Shell
         public double TestEvolveYears;
         /// <summary>Test runs: once life is run forward, go to land on the lit side where an intelligent species lives.</summary>
         public bool TestGoToCiv;
+        /// <summary>Test runs: force an intelligent species' step (0 wild to 5 space) on land.</summary>
+        public int TestCivStep = -1;
         private string _testNote = "";
         private string _lifeNote = ""; private double _lifeNoteUntil;
         private bool _wasUnderWater;
@@ -453,7 +455,7 @@ namespace DnaAnd.Shell
             else if (_life != null && _terrain.Solid && !_terrain.Shell)
             {
                 // the planet's own plants, fungi and animals of this region on land, built from their genes, at true size
-                if (_land == null) _land = new LandLife(gpu.Device);
+                if (_land == null) _land = new LandLife(gpu.Device) { ForceStep = TestCivStep };
                 _land.Update(_life, _terrain, cx, cy, cz, _shown, _time);
                 _land.Draw(_pipes, view, proj, _terrain.StarDir, cx, cy, cz, width, height);
             }
