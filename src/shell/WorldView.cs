@@ -345,6 +345,11 @@ namespace DnaAnd.Shell
 
         /// <summary>Test runs: the camera turns to the next thing on the way down (the galaxy, a star, a planet, its ground) each frame.</summary>
         public bool AutoPath;
+        // ── what you clicked: the camera turns to face it and the wheel flies to it ──
+        private int _tKind = -1;                 // 0 a galaxy, 1 a star, 2 a planet or moon, 3 a spot on the planet's ground
+        private int _tIndex; private double _tx, _ty, _tz, _tRadius;   // galaxy or body index; a star's place (universe units) or a ground spot (unit direction)
+        private string _tName = "";
+        private bool _pressed, _dragged; private int _pressX, _pressY;
         /// <summary>Set when something the menu shows has changed (the scale's tick), so the menu is rebuilt.</summary>
         public bool MenuChanged;
         /// <summary>Whether the scale shows on screen (H, or the View menu).</summary>
@@ -372,8 +377,96 @@ namespace DnaAnd.Shell
             if (l > 0) { _yaw = Math.Atan2(dz, dx); _pitch = Math.Asin(dy / l); }
         }
 
+        // where the clicked thing is now, from the camera (universe units), and how big it is; false if it is gone
+        private bool TargetFromCamera(out double dx, out double dy, out double dz, out double radius)
+        {
+            dx = dy = dz = 0; radius = 0;
+            if (_tKind == 0) { var g = _galaxies[_tIndex]; dx = (g.X - _ax) - _ox; dy = (g.Y - _ay) - _oy; dz = (g.Z - _az) - _oz; radius = g.Scale * 0.3; return true; }
+            if (_tKind == 1) { dx = (_tx - _ax) - _ox; dy = (_ty - _ay) - _oy; dz = (_tz - _az) - _oz; radius = _tRadius; return true; }
+            if (_tKind == 2 && _system != null && _tIndex < _system.Bodies.Count)
+            { double x, y, z; BodyPos(_tIndex, out x, out y, out z); dx = x - _ox; dy = y - _oy; dz = z - _oz; radius = _system.Bodies[_tIndex].RadiusUnits; return true; }
+            if (_tKind == 3 && _ground != null)
+            {
+                double g = _ground.Solid ? Math.Max(0, _ground.GroundAt(_tx, _ty, _tz)) : 0, r = (_ground.Radius + g) * Units.Km(1);
+                dx = _px + _tx * r - _ox; dy = _py + _ty * r - _oy; dz = _pz + _tz * r - _oz; radius = 0; return true;
+            }
+            return false;
+        }
+
+        // pick what is under the mouse: the planet's ground if you are at one, else the nearest planet or moon, star or galaxy to the line
+        private void Pick(Vec3 dir)
+        {
+            double best = Math.Cos(3 * Math.PI / 180); int kind = -1, idx = 0; double tx = 0, ty = 0, tz = 0, trad = 0; string name = "";
+            if (_ground != null)
+            {
+                // the ground: where the line under the mouse meets the planet
+                double x, y, z; CamFromPlanet(out x, out y, out z);
+                double R = _ground.Radius, b = x * dir.X + y * dir.Y + z * dir.Z, c = x * x + y * y + z * z - R * R, disc = b * b - c;
+                if (disc >= 0)
+                {
+                    double t = -b - Math.Sqrt(disc);
+                    if (t > 0) { double hx = x + dir.X * t, hy = y + dir.Y * t, hz = z + dir.Z * t, l = Math.Sqrt(hx * hx + hy * hy + hz * hz); _tKind = 3; _tx = hx / l; _ty = hy / l; _tz = hz / l; _tName = "a spot on " + _system.Bodies[_planet].Kind; return; }
+                }
+            }
+            if (_system != null)
+            {
+                PlaceSystem();
+                for (int i = 1; i < _bodyCount; i++)
+                {
+                    double dx = _bodyVerts[i].X - _ox, dy = _bodyVerts[i].Y - _oy, dz = _bodyVerts[i].Z - _oz, l = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+                    double cth = (dx * dir.X + dy * dir.Y + dz * dir.Z) / Math.Max(1e-30, l);
+                    if (cth > best) { best = cth; kind = 2; idx = i - 1; name = _system.Bodies[i - 1].Kind; }
+                }
+            }
+            if (_near >= 0 && kind < 0)
+            {
+                var g = _galaxies[_near];
+                for (int k = 0; k < _localCount; k++)
+                {
+                    var s0 = _localList[k]; double ux, uy, uz; ToUniverse(g, s0.X, s0.Y, s0.Z, out ux, out uy, out uz);
+                    double dx = (ux - _ax) - _ox, dy = (uy - _ay) - _oy, dz = (uz - _az) - _oz, l = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+                    double cth = (dx * dir.X + dy * dir.Y + dz * dir.Z) / Math.Max(1e-30, l);
+                    if (cth > best) { best = cth; kind = 1; tx = ux; ty = uy; tz = uz; trad = Units.Km(696000); name = "a " + _kinds[_localKind[k]].Name; }
+                }
+                if (kind < 0 && NearShare() > 0.5)
+                    for (int k = 0; k < _nearLocal.Length; k += 3)
+                    {
+                        var s0 = _nearLocal[k]; double ux, uy, uz; ToUniverse(g, s0.X, s0.Y, s0.Z, out ux, out uy, out uz);
+                        double dx = (ux - _ax) - _ox, dy = (uy - _ay) - _oy, dz = (uz - _az) - _oz, l = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+                        double cth = (dx * dir.X + dy * dir.Y + dz * dir.Z) / Math.Max(1e-30, l);
+                        if (cth > best) { best = cth; kind = 1; tx = ux; ty = uy; tz = uz; trad = Units.Km(696000); name = "a " + _kinds[_nearKinds[k]].Name; }
+                    }
+            }
+            if (kind < 0)
+                for (int i = 0; i < _galaxies.Count; i++)
+                {
+                    var g = _galaxies[i]; double dx = (g.X - _ax) - _ox, dy = (g.Y - _ay) - _oy, dz = (g.Z - _az) - _oz, l = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+                    double cth = (dx * dir.X + dy * dir.Y + dz * dir.Z) / Math.Max(1e-30, l);
+                    double allow = Math.Cos(Math.Max(3 * Math.PI / 180, Math.Atan(g.Scale / Math.Max(1e-9, l))));
+                    if (cth > Math.Max(allow, Math.Cos(30 * Math.PI / 180)) && cth > best - 1) { if (cth > best || kind < 0) { best = cth; kind = 0; idx = i; name = g.Name; } }
+                }
+            if (kind < 0) return;
+            _tKind = kind; _tIndex = idx; _tx = tx; _ty = ty; _tz = tz; _tRadius = trad; _tName = name;
+        }
+
         public bool Update(Input input, double dt, int w, int h)
         {
+            // a click (pressed and let go without dragging) picks what is under the mouse
+            if (input.LeftClicked) { _pressed = true; _dragged = false; _pressX = input.MouseX; _pressY = input.MouseY; }
+            if (_pressed && input.LeftDown && Math.Abs(input.MouseX - _pressX) + Math.Abs(input.MouseY - _pressY) > 6) { _dragged = true; _tKind = -1; }   // looking around lets go of the pick
+            if (_pressed && !input.LeftDown) { _pressed = false; if (!_dragged) Pick(MouseRay(input.MouseX, input.MouseY, w, h)); }
+            // the camera turns smoothly to face what you picked
+            double tdx, tdy, tdz, trad;
+            if (_tKind >= 0 && !(_pressed && _dragged) && TargetFromCamera(out tdx, out tdy, out tdz, out trad))
+            {
+                double l = Math.Sqrt(tdx * tdx + tdy * tdy + tdz * tdz);
+                if (l > 0)
+                {
+                    double wantYaw = Math.Atan2(tdz, tdx), wantPitch = Math.Asin(Math.Max(-1, Math.Min(1, tdy / l)));
+                    double dyaw = Math.IEEERemainder(wantYaw - _yaw, 2 * Math.PI), k = 1 - Math.Exp(-dt * 5);
+                    _yaw += dyaw * k; _pitch += (wantPitch - _pitch) * k;
+                }
+            }
             if (AutoPath) AimNext();
             if (input.WasPressed(0x48)) { _hud.Visible = !_hud.Visible; MenuChanged = true; }   // H: the scale on screen, on or off
             if (input.WasPressed(Win32.VK_ESCAPE)) return false;
@@ -407,9 +500,15 @@ namespace DnaAnd.Shell
             {
                 // fly along the line under the mouse, by a share of the distance to the nearest thing: slower as it comes close, never ending
                 var dir = MouseRay(input.MouseX, input.MouseY, w, h);
+                double fdx, fdy, fdz, frad;
+                if (_tKind >= 0 && TargetFromCamera(out fdx, out fdy, out fdz, out frad))
+                {
+                    // flying to what you picked: straight at it, a share of the way to its surface each notch
+                    double fl = Math.Sqrt(fdx * fdx + fdy * fdy + fdz * fdz);
+                    if (fl > 0) { dir = new Vec3((float)(fdx / fl), (float)(fdy / fl), (float)(fdz / fl)); reach = Math.Max(Math.Min(reach, fl - frad * 1.2), fl * 1e-6); }
+                }
                 // a star close to the line you point along (within about 4 degrees) is flown at straight, not past
-                double tdist; var tdir = AimStar(dir, out tdist);
-                if (input.Wheel > 0 && tdist > 0) { dir = tdir; reach = Math.Min(reach, tdist); }
+                if (_tKind < 0) { double tdist; var tdir = AimStar(dir, out tdist); if (input.Wheel > 0 && tdist > 0) { dir = tdir; reach = Math.Min(reach, tdist); } }
                 double step = reach * (1 - Math.Pow(0.87, Math.Abs(input.Wheel))) * Math.Sign(input.Wheel);
                 if (input.Wheel < 0) step = -Math.Max(reach, 0.01) * (Math.Pow(1 / 0.87, -input.Wheel) - 1);
                 _ox += dir.X * step; _oy += dir.Y * step; _oz += dir.Z * step;
@@ -636,11 +735,12 @@ namespace DnaAnd.Shell
         {
             get
             {
+                string picked = _tKind >= 0 ? " · going to " + _tName : " · click something to go to it";
                 string where = _matterScale > 0 ? "inside the ground of " + _system.Bodies[_planet].Kind + ": " + _matter.Stage(_matterScale)
                     : _ground != null ? "at " + _system.Bodies[_planet].Kind + ", " + Units.Describe(AboveGround()) + " above the ground"
                     : _system != null ? "in the system of a " + _system.StarName + " (" + _system.Bodies.Count + " planets and moons)"
                     : _near >= 0 ? (NearShare() > 0.5 ? "among the stars of " : "near ") + _galaxies[_near].Name : "among the galaxies";
-                return "DNA-AND · one world · " + where + " · nearest thing " + Units.Describe(NearestDistance()) + " away · wheel: fly in or out toward the mouse · drag: look around · H: scale on or off · Esc: close";
+                return "DNA-AND · one world · " + where + picked + " · nearest thing " + Units.Describe(NearestDistance()) + " away · wheel: fly in or out toward the mouse · drag: look around · H: scale on or off · Esc: close";
             }
         }
 

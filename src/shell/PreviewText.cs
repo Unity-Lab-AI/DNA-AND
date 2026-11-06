@@ -14,6 +14,7 @@ namespace DnaAnd.Shell
 
         public const string Readme =
             "How to use the preview\n\n" +
+            "Click a galaxy, star, planet or a spot on the ground: the camera turns to it and the wheel flies straight to it.\n" +
             "Mouse wheel: fly in or out toward what the mouse points at. A star or planet near the pointer is flown at straight.\n" +
             "Hold Ctrl with the wheel: eight times as fast.\n" +
             "Drag with the left button: look around (the View menu can invert left-right and up-down).\n" +
