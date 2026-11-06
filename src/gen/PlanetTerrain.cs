@@ -210,11 +210,24 @@ namespace DnaAnd.Gen
                 }
                 LastField = -1; return hs;
             }
+            // drifting plates: the ground here is the ground that was carried here from where its plate started
+            double ox = x, oy = y, oz = z, edgeAt = 9; int edgeKind = 2;
+            if (Drift != null && Solid) Drift(ox, oy, oz, out x, out y, out z, out edgeAt, out edgeKind);
+            if (Drift != null && Solid) _latOverride = Math.Abs(oy);                // climate follows where the ground is now
             double h = HeightBase(x, y, z, layers, out r, out g, out b, out glow);
             if (!Solid) { LastField = -1; return h; }
             h = Landforms(x, y, z, h, layers, ref r, ref g, ref b, ref glow);
-            h = Reshaped(x, y, z, h);
+            if (edgeAt < 1)
+            {
+                // at plate edges the ground is remade: plates pulling apart open a deep sea-floor ridge, crashing plates crumple up mountains
+                double t = 1 - edgeAt, s2 = t * t * (3 - 2 * t);
+                if (edgeKind == 0) { h = h * (1 - s2) + (-2.6 + 0.6 * t) * s2; if (h < 0) { r = 0.18f; g = 0.2f; b = 0.22f; } }
+                else if (edgeKind == 1) { h = Math.Max(h, 0) + 3.5 * s2; double rock = Math.Min(1, s2 * 1.5); r = (float)(r * (1 - rock) + 0.5 * rock); g = (float)(g * (1 - rock) + 0.47 * rock); b = (float)(b * (1 - rock) + 0.43 * rock); }
+            }
             LastField = ClassifyField(x, y, z, h, layers, ref r, ref g, ref b, ref glow);
+            _latOverride = -1;
+            x = ox; y = oy; z = oz;
+            h = Reshaped(x, y, z, h);                                                // craters and sea level are where they are now
             if (ResourceView) ViewColour(LastField, h, ref r, ref g, ref b, ref glow);
             return h;
         }
@@ -226,6 +239,11 @@ namespace DnaAnd.Gen
         public double SeaDropKm;
         /// <summary>How tall each place's mountains now stand against how they began (from erosion and uplift); null: unchanged.</summary>
         public Func<double, double, double, double> MountainScale;
+        /// <summary>Where the ground at a spot came from, as its plate carried it (unit vectors), and how near a plate edge the
+        /// spot is (0 on the edge, 1 or more well inside) and what kind of edge (0 spreading, 1 crashing, 2 sliding).</summary>
+        public delegate void DriftFn(double x, double y, double z, out double bx, out double by, out double bz, out double edge, out int kind);
+        /// <summary>The plates moving the ground; null: the ground stays where it formed.</summary>
+        public DriftFn Drift;
         /// <summary>Craters from impacts: direction (unit x, y, z), radius in km.</summary>
         public readonly List<double[]> Craters = new List<double[]>();
 
@@ -375,7 +393,11 @@ namespace DnaAnd.Gen
 
         // ── volcanoes, rivers and resource fields ───────────────────────
 
-        private double _land, _mtn, _tint, _latOverride = -1, _shellLand = 0.1, _shellMtn = 1;
+        // the latitude to use for climate when the ground has drifted from where it formed (one per thread: heights are worked out on many cores)
+        [ThreadStatic] private static double _latOverrideT;
+        [ThreadStatic] private static bool _latSet;
+        private double _latOverride { get { return _latSet ? _latOverrideT : -1; } set { _latOverrideT = value; _latSet = value >= 0; } }
+        private double _land, _mtn, _tint, _shellLand = 0.1, _shellMtn = 1;
         /// <summary>The resource field at the last point asked about (index into <see cref="Fields"/>), or -1.</summary>
         public int LastField { get; private set; }
         /// <summary>True: every field lights up in its own colour, buried ones too (the resource view).</summary>
@@ -491,7 +513,7 @@ namespace DnaAnd.Gen
         /// <summary>Which resource field is here, by real geology, and what it looks like where it shows at the surface.</summary>
         private int ClassifyField(double x, double y, double z, double h, int layers, ref float r, ref float g, ref float b, ref float glow)
         {
-            double lat = Math.Abs(y), land = _land, mtn = _mtn;
+            double lat = _latOverride >= 0 ? _latOverride : Math.Abs(y), land = _land, mtn = _mtn;
             if (HasWater && h < -0.0001 && lat < 0.9) return FieldIndex("ocean-water");
             if (lat > 0.86 + 0.05 * _tint || Kind == "snowball" && h <= 0.0001) return FieldIndex("ice-field");
             if (_vent > 0.3) { r = 0.95f; g = 0.85f; b = 0.15f; if (_activeVent) { r = 1f; g = 0.42f; b = 0.08f; } return FieldIndex("volcanic-sulfide"); }   // yellow sulfur crust

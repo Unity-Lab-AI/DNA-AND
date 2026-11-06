@@ -31,7 +31,7 @@ namespace DnaAnd.Shell
         private LandLife _land;
         /// <summary>The planet's inside (core, heat, plates, magnetic field), one per planet, on the same clock as its life.</summary>
         public static readonly System.Collections.Generic.Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetCore> Cores = new System.Collections.Generic.Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetCore>();
-        private DnaAnd.Sim.PlanetCore _core; private DnaAnd.Sim.PlanetPlates _plates; private DnaAnd.Sim.PlanetAir _air; private DnaAnd.Sim.PlanetWeather _weather; private DnaAnd.Sim.PlanetSurface _surface; private DnaAnd.Sim.PlanetImpacts _impacts; private int _seenImpacts; private double _shapeSea, _shapeCheck; private int _shapeCraters; private double[] _shapeScales; private DnaAnd.Core.Chunk _loadedAir; private int _seenEvents; private DnaAnd.Core.Chunk _loadedCore; private string _coreNews = ""; private double _coreNewsUntil;
+        private DnaAnd.Sim.PlanetCore _core; private DnaAnd.Sim.PlanetPlates _plates; private DnaAnd.Sim.PlanetAir _air; private DnaAnd.Sim.PlanetWeather _weather; private DnaAnd.Sim.PlanetSurface _surface; private DnaAnd.Sim.PlanetImpacts _impacts; private int _seenImpacts; private double _shapeSea, _shapeCheck, _shapeMoved; private int _shapeCraters; private double[] _shapeScales; private DnaAnd.Core.Chunk _loadedAir; private int _seenEvents; private DnaAnd.Core.Chunk _loadedCore; private string _coreNews = ""; private double _coreNewsUntil;
         private SeaBodies _seaBodies;
         /// <summary>Test runs: start life and run it this many years forward at once.</summary>
         public double TestEvolveYears;
@@ -308,6 +308,10 @@ namespace DnaAnd.Shell
             if (Math.Abs(sea - _shapeSea) > 0.01) { _shapeSea = sea; changed = true; }
             for (int i = 0; i < n; i++) if (Math.Abs(_surface.Scale(i) - _shapeScales[i]) > 0.05) { _shapeScales[i] = _surface.Scale(i); changed = true; }
             if (_impacts.Craters.Count != _shapeCraters) { _shapeCraters = _impacts.Craters.Count; changed = true; }
+            // the plates carry the continents: once they have moved about 20 km more (on a 6,000 km world), the ground is remade
+            if (_core.Plates) _plates.MovedYears = _core.Age - 2e8;
+            if (Math.Abs(_plates.MovedYears - _shapeMoved) * 5e-5 > 20) { _shapeMoved = _plates.MovedYears; changed = true; }
+            if (_normal.Drift == null) { var pp = _plates; _normal.Drift = pp.Back; }
             if (!changed) return;
             var scales = (double[])_shapeScales.Clone();
             _normal.SeaDropKm = _shapeSea;

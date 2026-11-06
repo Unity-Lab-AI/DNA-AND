@@ -69,7 +69,8 @@ namespace DnaAnd.Platform
 
         /// <summary><paramref name="quiet"/>: a short automatic check. It opens small in the bottom-right corner and does not
         /// take the keyboard, so it never gets in the way of the window the player is using.</summary>
-        public Window(string title, int width, int height, bool quiet = false)
+        /// <param name="native">Open as a normal window covering the whole screen at its own resolution (no display change), for checks at the size the player plays at; it does not take the keyboard.</param>
+        public Window(string title, int width, int height, bool quiet = false, bool native = false)
         {
             _proc = OnMessage;
             IntPtr instance = Win32.GetModuleHandle(null);
@@ -86,7 +87,11 @@ namespace DnaAnd.Platform
                 throw new InvalidOperationException("RegisterClassEx failed: " + Marshal.GetLastWin32Error());
 
             int x = Win32.CW_USEDEFAULT, y = Win32.CW_USEDEFAULT;
-            if (quiet)
+            if (native)
+            {
+                width = Win32.GetSystemMetrics(0); height = Win32.GetSystemMetrics(1); x = 0; y = 0; quiet = true;
+            }
+            else if (quiet)
             {
                 int sw = Win32.GetSystemMetrics(0), sh = Win32.GetSystemMetrics(1);   // the screen size
                 width = 640; height = 360; x = sw - width - 8; y = sh - height - 56;

@@ -69,6 +69,7 @@ The renderer draws what the live generators build. Every asset is generated on t
 | 🧪 Elements | All 118 as icons: bars, crystals, powders, drops and clouds by state at any temperature and pressure | `src/shell/ElementView.cs`, `src/gen/ElementGen.cs`, `IconFont.cs` |
 | 🦠 Microbes | A live ecosystem: genes, mutation, selection, viruses by surface match | `src/sim/MicrobeWorld.cs`, `src/shell/MicrobeView.cs` |
 | 🎞️ Clips | `--clip <start s> <seconds> <file.gif>` saves every fourth frame into a looping GIF, written by our own encoder (a fixed 252-colour palette, LZW packing); `--wheel` with `--wheelevery <n>` zooms in gently while it records, `--aimcentre` aims it at the middle, `--journeyat <s>` flies to a star's temperate world; the journey clip is `docs/img/journey.gif` | `src/render/GifWriter.cs`, `Gpu.cs`, `src/Program.cs` |
+| 🖥️ Native checks | `--native` opens a normal window the size of the screen (no display change, never takes the keyboard) so pictures are checked at the player's real resolution | `src/platform/Window.cs`, `src/Program.cs` |
 | 🔍 Render scale | The game draws at 50, 75, 100, 150 or 200% of the window's pixels and the picture is stretched to fit; the mouse is scaled to match. Picked from the Render scale menu, or `--scale <percent>` on test runs | `src/platform/Window.cs`, `Input.cs`, `src/Program.cs` |
 | 📷 Own pictures | `--shot <s> <file.bmp>` copies the finished frame off the graphics card; `--tour <name> <km,...>` takes one per height | `src/render/Gpu.cs`, `src/Program.cs` |
 

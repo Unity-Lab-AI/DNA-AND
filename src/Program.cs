@@ -98,7 +98,8 @@ namespace DnaAnd
 
             ContentLibrary content = ContentLibrary.Load("content");
             bool big = Array.IndexOf(args, "--big") >= 0;                      // a full-size check, for pictures at the size the player sees
-            var window = new Window("DNA-AND", 1600, 900, smokeMs >= 0 && !big);   // timed checks open small and out of the way
+            bool native = Array.IndexOf(args, "--native") >= 0;                // a check at the screen's own full resolution, in a normal window
+            var window = native ? new Window("DNA-AND", 0, 0, false, true) : new Window("DNA-AND", 1600, 900, smokeMs >= 0 && !big);   // timed checks open small and out of the way
             { int sci = Array.IndexOf(args, "--scale"); int pct; if (sci >= 0 && sci + 1 < args.Length && int.TryParse(args[sci + 1], out pct)) { window.RenderScale = pct / 100.0; window.Resized = false; } }   // --scale <percent>: render scale
             window.Input.IgnoreReal = smokeMs >= 0;          // timed checks never take the person's keyboard or mouse
             Gpu gpu;

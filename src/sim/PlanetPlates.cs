@@ -68,6 +68,35 @@ namespace DnaAnd.Sim
             }
         }
 
+        /// <summary>How long the plates have been moving (years since the game began), for drifting the ground.</summary>
+        public double MovedYears;
+
+        /// <summary>Where the ground at a spot came from: the spot turned back about its plate's axis by how far the plate has
+        /// moved, and how near the edge of its plate it is (0 on the edge, 1 a few hundred km in) and the edge's kind.</summary>
+        public void Back(double x, double y, double z, out double bx, out double by, out double bz, out double edge, out int kind)
+        {
+            int a, b; double da, db; Nearest2(new[] { x, y, z }, out a, out b, out da, out db);
+            var pl = Plates[a];
+            double ang = -pl.Rate * MovedYears;                                      // turn back by the angle it has turned
+            double c = Math.Cos(ang), s = Math.Sin(ang), k = pl.Ax * x + pl.Ay * y + pl.Az * z;
+            bx = x * c + (pl.Ay * z - pl.Az * y) * s + pl.Ax * k * (1 - c);
+            by = y * c + (pl.Az * x - pl.Ax * z) * s + pl.Ay * k * (1 - c);
+            bz = z * c + (pl.Ax * y - pl.Ay * x) * s + pl.Az * k * (1 - c);
+            edge = (db - da) / 0.01;
+            kind = EdgeKind(a, b, x, y, z);
+        }
+
+        // how two plates move against each other at a spot: spreading, crashing or sliding
+        private int EdgeKind(int a, int b, double x, double y, double z)
+        {
+            var p = new[] { x, y, z };
+            var va = Velocity(Plates[a], p); var vb = Velocity(Plates[b], p);
+            double nx = Plates[b].X - Plates[a].X, ny = Plates[b].Y - Plates[a].Y, nz = Plates[b].Z - Plates[a].Z, nl = Math.Sqrt(nx * nx + ny * ny + nz * nz); nx /= nl; ny /= nl; nz /= nl;
+            double rx = va[0] - vb[0], ry = va[1] - vb[1], rz = va[2] - vb[2];
+            double closing = rx * nx + ry * ny + rz * nz, total = Math.Sqrt(rx * rx + ry * ry + rz * rz);
+            return Math.Abs(closing) < total * 0.4 ? 2 : closing > 0 ? 1 : 0;
+        }
+
         /// <summary>Which plate a spot on the surface (unit vector) belongs to.</summary>
         public int PlateAt(double x, double y, double z) { int a, b; double da, db; Nearest2(new[] { x, y, z }, out a, out b, out da, out db); return a; }
 
