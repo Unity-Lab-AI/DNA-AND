@@ -205,16 +205,16 @@ namespace DnaAnd.Shell
             if (Structured(m.Id))
             {
                 // the atom nearest the point you dive into, in any layer (worked out from where it is)
-                Element best = null; double bd = double.MaxValue, fy = _fy - _yOff;
+                Element best = null; double bd = double.MaxValue, fy = _fy;                   // (heights here measured from the surface under you)
                 foreach (var at in Crystal(m.Id, _fx, _fz, AtomSpacing * 3, 1))
                 {
                     double ay = at.Y - AtomRadius(at.E), d = (at.X - _fx) * (at.X - _fx) + (ay - fy) * (ay - fy) + (at.Z - _fz) * (at.Z - _fz);
-                    if (d < bd) { bd = d; best = at.E; x = at.X; y = ay; z = at.Z; }
+                    if (d < bd) { bd = d; best = at.E; x = at.X; y = ay - _yOff; z = at.Z; }
                 }
                 if (best != null) return best;
             }
-            long fk = (long)Math.Max(-2, Math.Min(0, Math.Round((_fy - _yOff) / AtomSpacing)));   // the layer you are at
-            var e = SiteAtom(m, FocusAI, FocusAJ, fk); y = fk * AtomSpacing - AtomRadius(e); return e;
+            long fk = (long)Math.Max(-7, Math.Min(0, Math.Round(_fy / AtomSpacing)));            // the layer you are at
+            var e = SiteAtom(m, FocusAI, FocusAJ, fk); y = fk * AtomSpacing - AtomRadius(e) - _yOff; return e;
         }
 
         // ── real crystal structures, where they are in: rock salt (halite) and the silica network (quartz) ──
@@ -444,12 +444,18 @@ namespace DnaAnd.Shell
             double rough = 0, amp = 0.16, f = 2.5; long key = gi * 977 + gj;
             for (int k = 0; k < 48; k++)
             {
-                if (rad / f < cell) break;                                                  // finer than what is in view: not needed
-                rough += amp * (VNoise(ux * f, dy * f, uz * f, key + k) - 0.5) * 2;
+                double fine = rad / f / cell; if (fine < 0.5) break;                         // finer than what is in view: not needed
+                double w = Math.Min(1, fine - 0.5);                                         // the finest layer fades in as you come in, never switches
+                rough += w * amp * (VNoise(ux * f, dy * f, uz * f, key + k) - 0.5) * 2;
                 amp *= 0.5; f *= 2;
             }
             r *= 1 + rough;
-            if (cell < 3e-10) r = Math.Floor(r / 3e-13) * 3e-13;                             // single atomic layers, 0.3 nm a step
+            if (cell < 6e-10)
+            {
+                // single atomic layers, 0.3 nm a step, coming in smoothly below about 600 nm
+                double tq = Math.Max(0, Math.Min(1, Math.Log(6e-10 / cell) / Math.Log(2))), stepped = Math.Floor(r / 3e-13) * 3e-13;
+                r = r + (stepped - r) * tq;
+            }
             return r;
         }
 
@@ -534,7 +540,7 @@ namespace DnaAnd.Shell
                         if (Hash(i, j, 100 + t, _seed) > st.Chance) continue;
                         double x = (i + Hash(i, j, 101 + t, _seed)) * cell, z = (j + Hash(i, j, 102 + t, _seed)) * cell, size = st.Lo + (st.Hi - st.Lo) * Hash(i, j, 103 + t, _seed), top;
                         if (!GrainTop(fgi, fgj, fgx, fgy, fgz, frad, x, z, Math.Max(size * 0.5, AtomSpacing), out top)) continue;
-                        double y = st.Sunk ? top - size * 0.3 : st.Flat ? top + size * 0.02 : top + size * 0.5;
+                        double y = st.Sunk ? top - size * 0.3 : st.Flat ? top + size * 0.08 + AtomSpacing : top + size * 0.5;
                         if (s < size * 0.4 && (x - _fx) * (x - _fx) + (z - _fz) * (z - _fz) < size * size * 0.25) continue;   // you are at it: its own atoms show instead (by where you are)
                         if (st.Id == "water")
                         {
@@ -558,6 +564,40 @@ namespace DnaAnd.Shell
                         }
                         int nb = _bodies.Count; AddBody(8, i, j, x, y, z, size * 0.5, s); if (_bodies.Count > nb) _bodies[nb].Sym = st.Id;
                     }
+            }
+        }
+
+        // atoms' bonding (covalent) sizes, angstroms: two atoms closer than the sum (with a little room) are bonded
+        private static readonly Dictionary<string, double> CovA = new Dictionary<string, double>
+        {
+            { "H", 0.31 }, { "C", 0.76 }, { "N", 0.71 }, { "O", 0.66 }, { "Na", 1.66 }, { "Mg", 1.41 }, { "Al", 1.21 }, { "Si", 1.11 },
+            { "S", 1.05 }, { "Cl", 1.02 }, { "K", 2.03 }, { "Ca", 1.76 }, { "Ti", 1.60 }, { "Fe", 1.32 }
+        };
+        private static double Cov(Element e) { double r; return CovA.TryGetValue(e.Symbol, out r) ? r * 1e-13 : 1.2e-13; }
+
+        // the bonds between the atoms drawn, as sticks of small beads, grey, from one atom to the other
+        private void Bonds(List<StarVertex> solid, List<CAtom> atoms, double s, float f)
+        {
+            if (f <= 0.02 || atoms.Count < 2) return;
+            double cell = 3.2e-13; var grid = new Dictionary<long, List<int>>();
+            Func<double, long> c = v => (long)Math.Floor(v / cell);
+            for (int i = 0; i < atoms.Count; i++) { long key = (c(atoms[i].X) * 73856093L) ^ (c(atoms[i].Y) * 19349663L) ^ (c(atoms[i].Z) * 83492791L); List<int> l; if (!grid.TryGetValue(key, out l)) grid[key] = l = new List<int>(); l.Add(i); }
+            int bonds = 0;
+            for (int i = 0; i < atoms.Count && bonds < 4000; i++)
+            {
+                var a = atoms[i]; long cx = c(a.X), cy = c(a.Y), cz = c(a.Z);
+                for (long dx = -1; dx <= 1; dx++) for (long dy = -1; dy <= 1; dy++) for (long dz = -1; dz <= 1; dz++)
+                {
+                    List<int> l; if (!grid.TryGetValue(((cx + dx) * 73856093L) ^ ((cy + dy) * 19349663L) ^ ((cz + dz) * 83492791L), out l)) continue;
+                    foreach (int j in l)
+                    {
+                        if (j <= i) continue; var b = atoms[j];
+                        double ex = b.X - a.X, ey = b.Y - a.Y, ez = b.Z - a.Z, d = Math.Sqrt(ex * ex + ey * ey + ez * ez), lim = (Cov(a.E) + Cov(b.E)) * 1.2;
+                        if (d < 1e-16 || d > lim) continue;
+                        bonds++;
+                        for (int q = 1; q < 6; q++) { double t = q / 6.0; Add(solid, a.X + ex * t, a.Y + ey * t, a.Z + ez * t, 0.12e-13, 0.55f * f, 0.55f * f, 0.58f * f, s); }
+                    }
+                }
             }
         }
 
@@ -734,19 +774,22 @@ namespace DnaAnd.Shell
             if (fm != null && s < AtomSpacing * 14 && Structured(fm.Id))
             {
                 float f = (float)Fade(s, AtomSpacing * 14, AtomSpacing * 9);
-                foreach (var at in Crystal(fm.Id, _fx, _fz, 2.4 * s, 3))   // deep and wide all round you, solid every way you look
+                var drawnAt = new List<CAtom>();
+                foreach (var at0 in Crystal(fm.Id, _fx, _fz, 2.4 * s, 3))   // deep and wide all round you, solid every way you look
                 {
-                    double ar = AtomRadius(at.E), ay = at.Y - ar;
+                    var at = at0; double ar = AtomRadius(at.E), ay = at.Y - ar - _yOff;                     // on the grain's real surface
                     bool inFocus = at.E == focus && Math.Abs(at.X - fax) < 1e-20 && Math.Abs(ay - fay) < 1e-20 && Math.Abs(at.Z - faz) < 1e-20 && s < ar * 4;
                     if (inFocus) continue;
                     float sh = (float)(1 + 0.6 * at.Y / AtomSpacing * 0.25); sh = Math.Max(0.45f, sh);
                     // from afar a ball in its colour, growing up out of the face; close in the ball gives way to the atom's own system
                     // (its nucleus and its electrons on their paths), as the electrons are what an atom's size really is
                     double ball = 1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2);
-                    if (ball > 0.03) Add(solid, at.X, ay + ar * (1 - f) * 0.6, at.Z, ar * 0.62 * (0.25 + 0.75 * f) * ball, at.E.R * sh, at.E.G * sh, at.E.B * sh, s);
+                    if (ball > 0.03) Add(solid, at.X, ay + ar * (1 - f) * 0.6, at.Z, ar * 0.38 * (0.25 + 0.75 * f) * ball, at.E.R * sh, at.E.G * sh, at.E.B * sh, s);   // ball and stick: the balls small, so the bonds show
+                    if ((at.X - _fx) * (at.X - _fx) + (at.Z - _fz) * (at.Z - _fz) < 1.44 * s * s) drawnAt.Add(new CAtom { E = at.E, X = at.X, Y = ay, Z = at.Z });
                     if (s < AtomSpacing * 4) Cloud(glow, at.E, at.X, ay, at.Z, s, time, (long)(at.X / 1e-14) ^ (long)(at.Z / 1e-14) * 31, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
                     { int nb = _bodies.Count; AddBody(1, 0, 0, at.X, ay, at.Z, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = at.E.Symbol; }   // every layer's atoms
                 }
+                Bonds(solid, drawnAt, s, f * (float)(1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2) * 0.6));
             }
             else if (fm != null && s < AtomSpacing * 14)
             {
@@ -770,18 +813,18 @@ namespace DnaAnd.Shell
                                 {
                                     var me = El(mol[q].Key); if (me == null) continue; double ox, oy, oz; Orient(i, j, k, mol[q].Value, out ox, out oy, out oz);
                                     double mr = AtomRadius(me) * 0.55;                       // bonded atoms overlap: drawn at their bonded size
-                                    Add(solid, i * a + ox, k * a - ar + oy, j * a + oz, mr, me.R * sh * f, me.G * sh * f, me.B * sh * f, s);
+                                    Add(solid, i * a + ox, k * a - ar + oy - _yOff, j * a + oz, mr, me.R * sh * f, me.G * sh * f, me.B * sh * f, s);
                                 }
-                                Add(solid, i * a, k * a - ar, j * a, ar * 0.55, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
-                                { int nb = _bodies.Count; AddBody(6, i, j, i * a, k * a - ar, j * a, ar * 1.6, s); if (_bodies.Count > nb) _bodies[nb].Sym = fm.Id; }   // the whole molecule
+                                Add(solid, i * a, k * a - ar - _yOff, j * a, ar * 0.55, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
+                                { int nb = _bodies.Count; AddBody(6, i, j, i * a, k * a - ar - _yOff, j * a, ar * 1.6, s); if (_bodies.Count > nb) _bodies[nb].Sym = fm.Id; }   // the whole molecule
                             }
                             else
                             {
                                 double ball = 1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2);
-                                if (ball > 0.03) Add(solid, i * a, k * a - ar, j * a, ar * 0.9 * ball, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
-                                if (s < AtomSpacing * 4) Cloud(glow, el, i * a, k * a - ar, j * a, s, time, i * 7919 ^ j * 104729 ^ k, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
+                                if (ball > 0.03) Add(solid, i * a, k * a - ar - _yOff, j * a, ar * 0.9 * ball, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
+                                if (s < AtomSpacing * 4) Cloud(glow, el, i * a, k * a - ar - _yOff, j * a, s, time, i * 7919 ^ j * 104729 ^ k, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
                             }
-                            { int nb = _bodies.Count; AddBody(1, i, j, i * a, k * a - ar, j * a, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = el.Symbol; }   // every layer's atoms
+                            { int nb = _bodies.Count; AddBody(1, i, j, i * a, k * a - ar - _yOff, j * a, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = el.Symbol; }   // every layer's atoms
                         }
             }
             // the atom under you, from inside: its electrons in their shells, moving round it, and its nucleus at the middle
