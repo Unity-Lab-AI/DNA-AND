@@ -31,7 +31,7 @@ namespace DnaAnd.Shell
         private LandLife _land;
         /// <summary>The planet's inside (core, heat, plates, magnetic field), one per planet, on the same clock as its life.</summary>
         public static readonly System.Collections.Generic.Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetCore> Cores = new System.Collections.Generic.Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetCore>();
-        private DnaAnd.Sim.PlanetCore _core; private DnaAnd.Sim.PlanetPlates _plates; private DnaAnd.Sim.PlanetAir _air; private DnaAnd.Sim.PlanetWeather _weather; private DnaAnd.Sim.PlanetSurface _surface; private DnaAnd.Sim.PlanetImpacts _impacts; private int _seenImpacts; private DnaAnd.Core.Chunk _loadedAir; private int _seenEvents; private DnaAnd.Core.Chunk _loadedCore; private string _coreNews = ""; private double _coreNewsUntil;
+        private DnaAnd.Sim.PlanetCore _core; private DnaAnd.Sim.PlanetPlates _plates; private DnaAnd.Sim.PlanetAir _air; private DnaAnd.Sim.PlanetWeather _weather; private DnaAnd.Sim.PlanetSurface _surface; private DnaAnd.Sim.PlanetImpacts _impacts; private int _seenImpacts; private double _shapeSea, _shapeCheck; private int _shapeCraters; private double[] _shapeScales; private DnaAnd.Core.Chunk _loadedAir; private int _seenEvents; private DnaAnd.Core.Chunk _loadedCore; private string _coreNews = ""; private double _coreNewsUntil;
         private SeaBodies _seaBodies;
         /// <summary>Test runs: start life and run it this many years forward at once.</summary>
         public double TestEvolveYears;
@@ -264,7 +264,7 @@ namespace DnaAnd.Shell
                     if (_seaBodies != null && _seaBodies.Here.Length > 0) names.Insert(0, _seaBodies.Here);
                     where += " · in the water around you: " + string.Join(", ", names.ToArray());
                 }
-                if (_core != null) where += " · PLANET: " + _core.Describe() + (_plates != null && _core.Plates ? ", " + _plates.Describe() : "") + (_air != null ? " · " + _air.Describe() : "") + (_weather != null ? ", " + _weather.Describe() : "") + (_surface != null ? ", " + _surface.Describe(_life) : "") + (_impacts != null ? ", " + _impacts.Describe() : "") + (_time < _coreNewsUntil ? " · NEWS: " + _coreNews : "");
+                if (_core != null) where += " · PLANET: " + _core.Describe() + (_plates != null && _core.Plates ? ", " + _plates.Describe() : "") + (_air != null ? " · " + _air.Describe() : "") + (_weather != null ? ", " + _weather.Describe() : "") + (_surface != null ? ", " + _surface.Describe(_life) : "") + (_impacts != null ? ", " + _impacts.Describe() + ", " + _normal.Craters.Count + " craters on the ground (shape " + _normal.Generation + ")" : "") + (_time < _coreNewsUntil ? " · NEWS: " + _coreNews : "");
                 if (_life != null)
                 {
                     where += " · LIFE: " + (_life.Sparks == 0 ? "none yet (L: lightning, the first spark is free)" :
@@ -293,6 +293,27 @@ namespace DnaAnd.Shell
         private static double BaseKelvin(string kind)
         {
             switch (kind) { case "desert": return 270; case "lava": return 700; case "snowball": return 215; case "ocean": return 252; case "tidally-locked": return 250; default: return 255; }
+        }
+
+        // the ground you see follows the planet: seas falling in ice ages, mountains worn down or pushed up, new craters.
+        // Checked every few seconds; when it has changed enough, the ground is remade a few pieces at a time
+        private void ReshapeGround()
+        {
+            if (_time < _shapeCheck || _surface == null || _weather == null) return;
+            _shapeCheck = _time + 3;
+            int n = _life.RegionCount;
+            if (_shapeScales == null) { _shapeScales = new double[n]; for (int i = 0; i < n; i++) _shapeScales[i] = 1; }
+            bool changed = false;
+            double sea = Math.Max(0, -_weather.SeaLevelM) / 1000.0;
+            if (Math.Abs(sea - _shapeSea) > 0.01) { _shapeSea = sea; changed = true; }
+            for (int i = 0; i < n; i++) if (Math.Abs(_surface.Scale(i) - _shapeScales[i]) > 0.05) { _shapeScales[i] = _surface.Scale(i); changed = true; }
+            if (_impacts.Craters.Count != _shapeCraters) { _shapeCraters = _impacts.Craters.Count; changed = true; }
+            if (!changed) return;
+            var scales = (double[])_shapeScales.Clone();
+            _normal.SeaDropKm = _shapeSea;
+            _normal.MountainScale = (x, y, z) => scales[DnaAnd.Sim.PlanetLife.RegionAt(x, y, z)];
+            _normal.Craters.Clear(); _normal.Craters.AddRange(_impacts.Craters);
+            _normal.Generation++;
         }
 
         public bool Update(Input input, double dt)
@@ -355,6 +376,7 @@ namespace DnaAnd.Shell
                 _impacts.Advance(_core, _life);
                 if (_impacts.Total != _seenImpacts) { _seenImpacts = _impacts.Total; _coreNews = _impacts.Last; _coreNewsUntil = _time + 8; }
                 _air.DarkK = _impacts.DarkYearsLeft > 0 ? 15 : 0;
+                ReshapeGround();
                 var lifeHere = _life;
                 _plates.Advance(_core, (x, y, z, share) => lifeHere.Disaster(x, y, z, share));
                 if (_plates.Total != _seenEvents)

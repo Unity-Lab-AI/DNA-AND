@@ -11,6 +11,7 @@ namespace DnaAnd.Sim
     internal sealed class PlanetSurface
     {
         public readonly double[] ReliefKm;    // per region: how high its mountains stand above the lowlands
+        public readonly double[] StartReliefKm; // per region: how high they stood when the game began
         public readonly double[] SoilM;       // per region: soil depth on land
         public readonly double[] MudM;        // per region: sediment laid on the sea floor
         public readonly double[] RiverMud;    // per region: nutrients rivers are bringing to this sea right now (0 to 0.3)
@@ -21,7 +22,7 @@ namespace DnaAnd.Sim
         public PlanetSurface(PlanetLife life, PlanetPlates plates, Func<double, double, double, double> groundAt)
         {
             int n = life.RegionCount;
-            ReliefKm = new double[n]; SoilM = new double[n]; MudM = new double[n]; RiverMud = new double[n]; _uplift = new bool[n];
+            ReliefKm = new double[n]; StartReliefKm = new double[n]; SoilM = new double[n]; MudM = new double[n]; RiverMud = new double[n]; _uplift = new bool[n];
             var rng = new DnaAnd.Core.Rng(31337);
             for (int i = 0; i < n; i++)
             {
@@ -33,7 +34,7 @@ namespace DnaAnd.Sim
                     double x = cx + rng.Range(-0.12f, 0.12f), y = cy + rng.Range(-0.12f, 0.12f), z = cz + rng.Range(-0.12f, 0.12f), l = Math.Sqrt(x * x + y * y + z * z);
                     double g = groundAt(x / l, y / l, z / l); hi = Math.Max(hi, g); lo = Math.Min(lo, g);
                 }
-                ReliefKm[i] = Math.Max(0, hi - Math.Max(0, lo));
+                ReliefKm[i] = Math.Max(0, hi - Math.Max(0, lo)); StartReliefKm[i] = ReliefKm[i];
                 SoilM[i] = 0;
             }
             if (plates != null) foreach (var e in plates.Edges) if (e.Kind == 1) _uplift[PlanetLife.RegionAt(e.X, e.Y, e.Z)] = true;
@@ -72,6 +73,9 @@ namespace DnaAnd.Sim
             for (int i = 0; i < n; i++)
                 if (MudM[i] > 1000) { double press = (MudM[i] - 1000) * (1 - Math.Exp(-years / 1e7)); MudM[i] -= press; StoneKm3 += press * 1e-3 * 5e5; }
         }
+
+        /// <summary>How tall a region's mountains stand now against how they began (0.2 to 3).</summary>
+        public double Scale(int i) { return StartReliefKm[i] < 0.05 ? 1 : Math.Max(0.2, Math.Min(3, ReliefKm[i] / StartReliefKm[i])); }
 
         public string Describe(PlanetLife life)
         {

@@ -69,7 +69,7 @@ namespace DnaAnd.Gen
 
         private sealed class Patch
         {
-            public double Cx, Cy, Cz, Edge; public UploadBuffer Buffer; public int Count; public int LastUsed; public int Level;
+            public double Cx, Cy, Cz, Edge; public UploadBuffer Buffer; public int Count; public int LastUsed; public int Level; public int Gen;
         }
 
         public PlanetTerrain(IntPtr device, string kind, string name, uint seed, bool resourceView = false, double radiusKm = 0)
@@ -213,8 +213,35 @@ namespace DnaAnd.Gen
             double h = HeightBase(x, y, z, layers, out r, out g, out b, out glow);
             if (!Solid) { LastField = -1; return h; }
             h = Landforms(x, y, z, h, layers, ref r, ref g, ref b, ref glow);
+            h = Reshaped(x, y, z, h);
             LastField = ClassifyField(x, y, z, h, layers, ref r, ref g, ref b, ref glow);
             if (ResourceView) ViewColour(LastField, h, ref r, ref g, ref b, ref glow);
+            return h;
+        }
+
+        // ── the planet changing shape over time ──
+        /// <summary>Bumped whenever the planet's shape changes; pieces made before are remade, a few each frame.</summary>
+        public int Generation;
+        /// <summary>How far the seas have fallen (km; ice ages lock water in ice), so the ground stands that much higher against them.</summary>
+        public double SeaDropKm;
+        /// <summary>How tall each place's mountains now stand against how they began (from erosion and uplift); null: unchanged.</summary>
+        public Func<double, double, double, double> MountainScale;
+        /// <summary>Craters from impacts: direction (unit x, y, z), radius in km.</summary>
+        public readonly List<double[]> Craters = new List<double[]>();
+
+        private double Reshaped(double x, double y, double z, double h)
+        {
+            if (h > 0 && MountainScale != null) h *= MountainScale(x, y, z);
+            h += SeaDropKm;
+            for (int k = 0; k < Craters.Count; k++)
+            {
+                var c = Craters[k];
+                double d = (1 - (x * c[0] + y * c[1] + z * c[2])) * 2;                 // about the squared angle apart
+                double rad = c[3] / Radius; if (d > rad * rad * 9) continue;
+                double t = Math.Sqrt(d) / rad;                                          // 0 at the middle, 1 at the rim
+                double depth = c[3] * 0.2;                                              // a bowl a fifth as deep as its radius
+                h += t < 1 ? -depth * (1 - t * t) + depth * 0.25 : depth * 0.25 * Math.Exp(-(t - 1) * 4);   // bowl, raised rim, fading outside
+            }
             return h;
         }
 
@@ -829,11 +856,20 @@ namespace DnaAnd.Gen
         {
             PKey key = Key(layer, f, level, i, j);
             Patch p;
-            if (_cache.TryGetValue(key, out p)) { p.LastUsed = _frame; return p; }
+            if (_cache.TryGetValue(key, out p))
+            {
+                p.LastUsed = _frame;
+                // the planet has changed shape since this piece was made: remake it when there is time, nearest first; keep the old one meanwhile
+                if (p.Gen != Generation && mayMake && _budget > 0 && _clock.Elapsed.TotalMilliseconds < _msLimit)
+                {
+                    _budget--; var np = Make(layer, f, level, i, j); np.LastUsed = _frame; np.Gen = Generation; p.Buffer.Dispose(); _cache[key] = np; return np;
+                }
+                return p;
+            }
             if (!mayMake) return null;
             if (level > 1 && (_budget <= 0 || _clock.Elapsed.TotalMilliseconds > _msLimit)) return null;
             _budget--;
-            p = Make(layer, f, level, i, j); p.LastUsed = _frame;
+            p = Make(layer, f, level, i, j); p.LastUsed = _frame; p.Gen = Generation;
             _cache[key] = p;
             return p;
         }

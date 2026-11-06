@@ -16,7 +16,11 @@ namespace DnaAnd.Sim
         public int Biggest = -1;                 // the biggest size that has hit so far
         public int Total;                        // hits of size 5 (stadium) and up
         public string Last = "";
-        public double DarkYearsLeft;             // dust and soot dimming the star after a great impact
+        public double DarkYearsLeft;
+        /// <summary>Craters left on the ground (direction and radius in km), newest last; the oldest wear away first.</summary>
+        public readonly System.Collections.Generic.List<double[]> Craters = new System.Collections.Generic.List<double[]>();
+        // crater radius in km by size (about ten to twenty times the rock): from a 150 m rock up to a 100 km one
+        private static readonly double[] CraterKm = { 0, 0, 0, 0, 0, 1.5, 8, 90, 600, 0 };             // dust and soot dimming the star after a great impact
         private readonly Rng _rng;
         private double _age = -1;
 
@@ -62,6 +66,7 @@ namespace DnaAnd.Sim
         private void Harm(int size, PlanetLife life)
         {
             var d = new Vec3(_rng.Gaussian(), _rng.Gaussian(), _rng.Gaussian()).Normalized;
+            if (CraterKm[size] > 0) { Craters.Add(new double[] { d.X, d.Y, d.Z, CraterKm[size] }); if (Craters.Count > 60) { int least = 0; for (int q = 1; q < Craters.Count; q++) if (Craters[q][3] < Craters[least][3]) least = q; Craters.RemoveAt(least); } }   /* the smallest wear away first */
             switch (size)
             {
                 case 4: life.Disaster(d.X, d.Y, d.Z, 0.03); break;
