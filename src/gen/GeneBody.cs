@@ -121,9 +121,21 @@ namespace DnaAnd.Gen
 
         // an animal: a row of body segments with a head at the front, then whatever its genes give it:
         // legs (or arms, once it stands up), fins, wings, a neck and tail, eyes, armour, a hunter's jaws, warning colours
+        /// <summary>A species' skin colour from its colour genes, kept bright enough to read in light: the darkest families come out deep, never black.</summary>
+        public static void Skin(Genome g, out float r, out float gr, out float b)
+        {
+            r = g.R; gr = g.G; b = g.B;
+            float mean = (r + gr + b) / 3;                                    // a little stronger colour: families read apart
+            r = mean + (r - mean) * 1.6f; gr = mean + (gr - mean) * 1.6f; b = mean + (b - mean) * 1.6f;
+            r = Math.Max(0.04f, r); gr = Math.Max(0.04f, gr); b = Math.Max(0.04f, b);
+            float top = Math.Max(r, Math.Max(gr, b));
+            if (top < 0.7f) { float k = 0.7f / top; r *= k; gr *= k; b *= k; }
+            r = Math.Min(1, r); gr = Math.Min(1, gr); b = Math.Min(1, b);
+        }
+
         private static void Animal(Body b, Genome g)
         {
-            float cr = g.R, cg = g.G, cb = g.B;
+            float cr, cg, cb; Skin(g, out cr, out cg, out cb);
             int segs = g.Stage >= 6 ? 2 + Count(g.Segs, 1) : 1 + Count(g.Segs, 6), legPairs = Count(g.Legs, 4), eyePairs = Math.Max(1, Count(g.Eyes, 4));
             bool swims = g.Fins > 0.5f && legPairs == 0;
             float legLen = legPairs > 0 ? 0.2f + g.LegLen * 0.45f : 0;

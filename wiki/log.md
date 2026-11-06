@@ -124,3 +124,12 @@ Append-only. Newest at the bottom.
 ## 2026-11-05 — Planet life on land
 
 - r08 life sim: one shared life sim per planet, the stage ladder with each stage competing only with its own kind, and the land life drawn from the evolved species.
+
+## 2026-11-06 — Colours and thicker plant life
+
+- r04b generators: species skin colour kept strong and bright; builds carry the builders' colour.
+- r08 life sim: plants on land grow in thick stands.
+- r08 life sim: the planet's own sea animals swim at true size from their genes (`SeaBodies`).
+- r08 life sim: a test jump to land where an intelligent species lives; its village seen on the ground.
+- r08 life sim: intelligent species go step by step after communication (wild, tribes, villages, towns, cities, space), shown on land.
+- r04b generators: build sample keys 1-5 compare the five ways of building; everything is built on the fly when first seen.

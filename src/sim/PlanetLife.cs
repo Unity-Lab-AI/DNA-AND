@@ -14,6 +14,7 @@ namespace DnaAnd.Sim
         public Genome G; public double Born;    // years since the planet's first spark
         public double Total;                    // how many there are on the whole planet (in crowds)
         public bool Extinct;
+        public double Spoke = -1;               // when its line first reached communication (years), or -1
     }
 
     internal sealed class PlanetLife
@@ -63,6 +64,11 @@ namespace DnaAnd.Sim
         public static readonly double[] StageYears   = { 200e6,      3.0e9,  100e6,       80e6,   500e6,  2e6,         0 };
         public static readonly double[] StageMinutes = { 15,         40,     20,          20,     45,     30,          60 };
         /// <summary>How fast time runs on this planet now: it follows the stage life has reached.</summary>
+        /// <summary>After communication, an intelligent species goes step by step: it lives wild on the land, then forms tribes,
+        /// then villages, towns and cities, then goes into space. Each step takes an even share of that stage's play time.</summary>
+        public static readonly string[] CivSteps = { "living wild on the land", "tribes", "villages", "towns", "cities", "into space" };
+        public static double CivStepYears { get { return 50.0 * StageMinutes[StageMinutes.Length - 1] * 60 / CivSteps.Length; } }
+        public int CivStep(Species s) { return s.Spoke < 0 ? 0 : (int)Math.Min(CivSteps.Length - 1, Math.Max(0, (Years - s.Spoke) / CivStepYears)); }
         public double YearsPerSecond { get { int s = TopStage; return s < StageNames.Length - 1 ? StageYears[s] / (StageMinutes[s] * 60) : 50; } }
         private double _stageReached;                // when the planet's current top stage was first reached
 
@@ -164,7 +170,7 @@ namespace DnaAnd.Sim
                         { g.Stage++; g.Size = Math.Min(3f, g.Size * 1.6f); Climbs++; }
                         g.R = Math.Max(0.1f, Math.Min(1, sp.G.R + _rng.Range(-0.2f, 0.2f))); g.G = Math.Max(0.1f, Math.Min(1, sp.G.G + _rng.Range(-0.2f, 0.2f))); g.B = Math.Max(0.1f, Math.Min(1, sp.G.B + _rng.Range(-0.2f, 0.2f)));
                         int nid = _nextId++;
-                        All.Add(nid, new Species { Id = nid, Parent = id, Root = sp.Root, G = g, Born = Years });
+                        All.Add(nid, new Species { Id = nid, Parent = id, Root = sp.Root, G = g, Born = Years, Spoke = sp.G.Stage >= StageNames.Length - 1 ? sp.Spoke : g.Stage >= StageNames.Length - 1 ? Years : -1 });
                         add.Add(new KeyValuePair<int, KeyValuePair<int, double>>(i, new KeyValuePair<int, double>(nid, n * 0.1)));
                     }
                 }

@@ -29,8 +29,14 @@ namespace DnaAnd.Shell
         private static readonly Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetLife> Lives = new Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetLife>();
         private DnaAnd.Sim.PlanetLife _life;
         private LandLife _land;
+        private SeaBodies _seaBodies;
         /// <summary>Test runs: start life and run it this many years forward at once.</summary>
         public double TestEvolveYears;
+        /// <summary>Test runs: once life is run forward, go to land on the lit side where an intelligent species lives.</summary>
+        public bool TestGoToCiv;
+        /// <summary>Test runs: force an intelligent species' step (0 wild to 5 space) on land.</summary>
+        public int TestCivStep = -1;
+        private string _testNote = "";
         private string _lifeNote = ""; private double _lifeNoteUntil;
         private bool _wasUnderWater;
         private readonly DnaAnd.Sim.SeaLife _sea = new DnaAnd.Sim.SeaLife();
@@ -243,13 +249,14 @@ namespace DnaAnd.Shell
         {
             get
             {
-                string where = _underWater ? " · under water, " + Size(_waterDepth) + " below the surface" : "";
+                string where = _testNote + (_underWater ? " · under water, " + Size(_waterDepth) + " below the surface" : "");
                 if (_intoGround > 0) where += " · INSIDE THE GROUND, " + Size(_intoGround) + " in (wheel back out to come up)";
                 if (!_underWater && _land != null && _land.Here.Length > 0) where += " · living here: " + _land.Here;
-                if (_underWater && _sea.Animals.Count > 0)
+                if (_underWater && (_sea.Animals.Count > 0 || (_seaBodies != null && _seaBodies.Here.Length > 0)))
                 {
                     var names = new System.Collections.Generic.List<string>();
                     foreach (var an in _sea.Animals) { string nm = DnaAnd.Sim.SeaLife.Kinds[an.Kind].Name; if (!names.Contains(nm)) names.Add(nm); }
+                    if (_seaBodies != null && _seaBodies.Here.Length > 0) names.Insert(0, _seaBodies.Here);
                     where += " · in the water around you: " + string.Join(", ", names.ToArray());
                 }
                 if (_life != null)
@@ -291,6 +298,22 @@ namespace DnaAnd.Shell
                 var sw = System.Diagnostics.Stopwatch.StartNew();                        // a little each frame, so the window keeps answering
                 while (_life.Years < TestEvolveYears && sw.ElapsedMilliseconds < 120) _life.Step(1e6);
                 if (_life.Years >= TestEvolveYears) TestEvolveYears = 0;
+                if (TestEvolveYears == 0 && TestGoToCiv)
+                {
+                    TestGoToCiv = false; _testNote = " · test: no intelligent species on land";
+                    int seaCiv = 0; for (int q = 0; q < 2000; q++) { var rq = new Rng((ulong)q + 9); double a1 = Math.Asin(rq.NextDouble() * 2 - 1), a2 = rq.NextDouble() * 6.283; double qx = Math.Cos(a1) * Math.Cos(a2), qy = Math.Sin(a1), qz = Math.Cos(a1) * Math.Sin(a2); foreach (var kv in _life.At(qx, qy, qz)) if (kv.Key.G.Stage >= 6) { seaCiv++; break; } }
+                    _testNote += " (" + seaCiv + " of 2000 spots have one)";
+                    var rng = new Rng(777);
+                    for (int i = 0; i < 80000; i++)
+                    {
+                        bool litOnly = i < 40000;                                     // lit side first, then anywhere
+                        double la = Math.Asin(rng.NextDouble() * 1.8 - 0.9), lo = rng.NextDouble() * Math.PI * 2;
+                        double x = Math.Cos(la) * Math.Cos(lo), y = Math.Sin(la), z = Math.Cos(la) * Math.Sin(lo);
+                        if ((litOnly && x * _terrain.StarDir[0] + y * _terrain.StarDir[1] + z * _terrain.StarDir[2] < 0.3) || _terrain.GroundAt(x, y, z) < 0.05) continue;
+                        bool civ = false; foreach (var kv in _life.At(x, y, z)) if (kv.Key.G.Stage >= 6) { civ = true; break; }
+                        if (civ) { _lat = la; _lon = lo; _testNote = " · test: went to an intelligent species" + (litOnly ? "" : " (night side)"); break; }
+                    }
+                }
             }
             if (_life != null) _life.Step(dt * _life.YearsPerSecond);
             if (_life != null && input.WasPressed(0x4C))                                      // L: a lightning strike on the spot below
@@ -432,7 +455,7 @@ namespace DnaAnd.Shell
             else if (_life != null && _terrain.Solid && !_terrain.Shell)
             {
                 // the planet's own plants, fungi and animals of this region on land, built from their genes, at true size
-                if (_land == null) _land = new LandLife(gpu.Device);
+                if (_land == null) _land = new LandLife(gpu.Device) { ForceStep = TestCivStep };
                 _land.Update(_life, _terrain, cx, cy, cz, _shown, _time);
                 _land.Draw(_pipes, view, proj, _terrain.StarDir, cx, cy, cz, width, height);
             }
@@ -479,8 +502,13 @@ namespace DnaAnd.Shell
         {
             // only the animals the planet's own life has evolved into, in this water
             if (_life != null) { double rr = Math.Sqrt(cx * cx + cy * cy + cz * cz); _sea.StageHere = _life.StageAt(cx / rr, cy / rr, cz / rr); }
-            _sea.Update(Math.Max(1e-9, Math.Min(_shown, 0.03)), cx, cy, cz, up, new Vec3(view.M13, view.M23, view.M33), _frameDt);   // in water you see only a few tens of metres
             float light = (float)Math.Max(0.15, Math.Exp(-_waterDepth / 0.05));
+            double seeKm = Math.Max(1e-9, Math.Min(_shown, 0.03));                                     // in water you see only a few tens of metres
+            if (_seaBodies == null) _seaBodies = new SeaBodies(gpu.Device);
+            _seaBodies.Update(_life, cx, cy, cz, up, new Vec3(view.M13, view.M23, view.M33), seeKm, _time, _frameDt, light);
+            _seaBodies.Draw(_pipes, view, proj, _terrain.StarDir, width, height);
+            _sea.NoFish = _seaBodies.Showing;
+            _sea.Update(seeKm, cx, cy, cz, up, new Vec3(view.M13, view.M23, view.M33), _frameDt);
             int n = _sea.Write(_seaVerts, cx, cy, cz, up, light);
             if (n == 0) return;
             if (_seaBuf == null) _seaBuf = new UploadBuffer(gpu.Device, (long)_seaVerts.Length * Marshal.SizeOf(typeof(StarVertex)));
@@ -615,6 +643,6 @@ namespace DnaAnd.Shell
             _dots.Draw(_dropBuf, n, c, 0, 0, width, height);
         }
 
-        public void Dispose() { if (_land != null) _land.Dispose(); if (_seaBuf != null) _seaBuf.Dispose(); if (_veilBuf != null) _veilBuf.Dispose(); if (_microbeBuf != null) _microbeBuf.Dispose(); _dropBuf.Dispose(); if (_starBuf != null) _starBuf.Dispose(); if (_extraBuf != null) _extraBuf.Dispose(); }
+        public void Dispose() { if (_land != null) _land.Dispose(); if (_seaBodies != null) _seaBodies.Dispose(); if (_seaBuf != null) _seaBuf.Dispose(); if (_veilBuf != null) _veilBuf.Dispose(); if (_microbeBuf != null) _microbeBuf.Dispose(); _dropBuf.Dispose(); if (_starBuf != null) _starBuf.Dispose(); if (_extraBuf != null) _extraBuf.Dispose(); }
     }
 }
