@@ -16,7 +16,7 @@ namespace DnaAnd.Shell
 {
     internal sealed class WorldView : IDisposable
     {
-        private sealed class Galaxy { public string Type, Name; public ulong Seed; public double X, Y, Z; public float Tilt, Turn, Scale; public UploadBuffer Far; public int FarCount; }
+        private sealed class Galaxy { public string Type, Name; public ulong Seed; public double X, Y, Z; public float Tilt, Turn, Scale; public UploadBuffer Far; public int FarCount; public StarVertex[] FarPts; public int[] FarKinds; }
         private readonly List<Galaxy> _galaxies = new List<Galaxy>();
         private readonly Gpu _gpu; private readonly BillboardDrawer _dots; private readonly ContentLibrary _content;
         private readonly List<StarKind> _kinds;
@@ -49,7 +49,7 @@ namespace DnaAnd.Shell
         private StarSurface _starSurf; private StarVertex[] _starCorona, _starSurfVerts; private UploadBuffer _coronaBuf, _surfBuf;
         private static readonly double SystemRange = Units.Au(2000);
         // the galaxy whose own stars are being shown (or -1), and those stars in its own frame
-        private int _near = -1; private StarVertex[] _nearLocal, _nearDrawn; private UploadBuffer _nearBuf; private float _nearFade = -1;
+        private int _near = -1; private StarVertex[] _nearLocal, _nearDrawn; private UploadBuffer _nearBuf;
         private int[] _gridHead, _gridNext; private const int GridN = 64;     // a grid over the near galaxy's stars, to find the nearest one fast
 
         public WorldView(Gpu gpu, BillboardPipeline pipe, MeshPipes meshes, ContentLibrary content, ulong seed)
@@ -67,8 +67,9 @@ namespace DnaAnd.Shell
                     X = i == 0 ? 0 : rng.Range(-1, 1) * Spread, Y = i == 0 ? 0 : rng.Range(-0.35f, 0.35f) * Spread, Z = i == 0 ? 0 : rng.Range(-1, 1) * Spread,
                     Tilt = rng.Range(-1.2f, 1.2f), Turn = rng.Range(0, 6.28f), Scale = types[t].StartsWith("dwarf") ? 0.35f : types[t].StartsWith("giant") ? 1.6f : rng.Range(0.8f, 1.2f) };
                 // the far look: a few thousand stars in the galaxy's own frame (placed by its tilt, turn and size when drawn)
-                var stars = GalaxyGen.Generate(g.Type, g.Seed, FarStars, _kinds);
-                g.Far = new UploadBuffer(gpu.Device, (long)stars.Length * Stride); g.Far.Write(stars, stars.Length); g.FarCount = stars.Length;
+                var fk = new int[FarStars];
+                var stars = GalaxyGen.Generate(g.Type, g.Seed, FarStars, _kinds, fk);
+                g.Far = new UploadBuffer(gpu.Device, (long)stars.Length * Stride); g.Far.Write(stars, stars.Length); g.FarCount = stars.Length; g.FarPts = stars; g.FarKinds = fk;
                 _galaxies.Add(g);
             }
             // start out among the galaxies, looking at the first one
@@ -601,17 +602,46 @@ namespace DnaAnd.Shell
             if (bd > 8) best = -1;
             if (best != _near)
             {
-                _near = best; _nearFade = -1; CloseSystem(); _localCells.Clear(); _localKey = long.MinValue; _localCount = 0;
+                _near = best; CloseSystem(); _localCells.Clear(); _localKey = long.MinValue; _localCount = 0;
                 if (_nearBuf != null) { _nearBuf.Dispose(); _nearBuf = null; }
                 _nearLocal = null;
                 if (best >= 0)
                 {
                     var g = _galaxies[best];
-                    _nearKinds = new int[NearStars];
-                    _nearLocal = GalaxyGen.Generate(g.Type, g.Seed, NearStars, _kinds, _nearKinds);
-                    _nearDrawn = new StarVertex[_nearLocal.Length];
-                    _nearBuf = new UploadBuffer(_gpu.Device, (long)_nearLocal.Length * Stride);
-                    // the grid used to find the nearest star
+                    // the same stars as its far glow, at once; the rest of its stars are made in the background and added after them
+                    _nearKinds = (int[])g.FarKinds.Clone();
+                    _nearLocal = (StarVertex[])g.FarPts.Clone();
+                    _nearDrawn = _nearLocal;
+                    _nearBuf = new UploadBuffer(_gpu.Device, (long)NearStars * Stride); _nearBuf.Write(_nearLocal, _nearLocal.Length);
+                    int forGalaxy = best; var gt = g.Type; var gs = g.Seed ^ 0xE47A5UL;
+                    Jobs.Run(() =>
+                    {
+                        var ek = new int[NearStars - FarStars];
+                        var extra = GalaxyGen.Generate(gt, gs, NearStars - FarStars, _kinds, ek);
+                        lock (_extraLock) { _extraFor = forGalaxy; _extra = extra; _extraKinds = ek; }
+                    });
+                    BuildGrid();
+                }
+            }
+            // the rest of the near galaxy's stars, when they are ready: added after the ones already shown (nothing changes on screen)
+            StarVertex[] ex = null; int[] exk = null;
+            lock (_extraLock) { if (_extra != null && _extraFor == _near) { ex = _extra; exk = _extraKinds; } if (_extra != null) { _extra = null; _extraKinds = null; } }
+            if (ex != null && _nearLocal != null && _nearLocal.Length == FarStars)
+            {
+                var all = new StarVertex[FarStars + ex.Length]; Array.Copy(_nearLocal, all, FarStars); Array.Copy(ex, 0, all, FarStars, ex.Length);
+                var allK = new int[all.Length]; Array.Copy(_nearKinds, allK, FarStars); Array.Copy(exk, 0, allK, FarStars, exk.Length);
+                _nearLocal = all; _nearKinds = allK; _nearDrawn = all; _nearBuf.Write(all, all.Length);
+                BuildGrid();
+            }
+        }
+
+        private readonly object _extraLock = new object(); private StarVertex[] _extra; private int[] _extraKinds; private int _extraFor = -1;
+
+        // the grid used to find the nearest star of the near galaxy
+        private void BuildGrid()
+        {
+            {
+                {
                     _gridHead = new int[GridN * GridN * GridN]; for (int k = 0; k < _gridHead.Length; k++) _gridHead[k] = -1;
                     _gridNext = new int[_nearLocal.Length];
                     for (int k = 0; k < _nearLocal.Length; k++)
@@ -623,12 +653,27 @@ namespace DnaAnd.Shell
             }
         }
 
-        // how much of the near galaxy is its real stars (1) rather than its far glow (0), from how close the camera is
+        // how far into its own stars the near galaxy is (0: only the stars of its far glow, 1: all of its stars), from how close you are
         private double NearShare()
         {
             if (_near < 0) return 0;
             var g = _galaxies[_near]; double dx = g.X - _cx, dy = g.Y - _cy, dz = g.Z - _cz, d = Math.Sqrt(dx * dx + dy * dy + dz * dz) / g.Scale;
-            double t = (8 - d) / 4; return Math.Max(0, Math.Min(1, t));      // fades in between 8 and 4 galaxy sizes away
+            double t = (8 - d) / 6.5; t = Math.Max(0, Math.Min(1, t)); return t * t * (3 - 2 * t);
+        }
+
+        // how deep into the near galaxy you are (0 outside, 1 well inside), smoothly
+        private double InsideShare()
+        {
+            if (_near < 0) return 0;
+            var gn = _galaxies[_near]; double dx = gn.X - _cx, dy = gn.Y - _cy, dz = gn.Z - _cz, dg = Math.Sqrt(dx * dx + dy * dy + dz * dz) / gn.Scale;
+            return Math.Max(0, Math.Min(1, 1.6 - dg));
+        }
+
+        // how many of a galaxy's stars to draw: more as it grows on screen, each smaller, so its glow stays the same overall
+        private int StarsShown(int i)
+        {
+            if (i != _near || _nearLocal == null) return _galaxies[i].FarCount;
+            return (int)Math.Min(_nearLocal.Length, FarStars + (NearStars - FarStars) * NearShare());
         }
 
         public void Draw(int w, int h, double time)
@@ -643,27 +688,21 @@ namespace DnaAnd.Shell
             double share = NearShare();
             for (int i = 0; i < _galaxies.Count; i++)
             {
-                var g = _galaxies[i];
-                if (i == _near && share >= 0.999) continue;                    // its real stars have taken over
-                // the far glow fades out as the real stars fade in (dimmer points, fewer of them drawn)
-                int count = i == _near ? (int)(g.FarCount * (1 - share)) : g.FarCount;
-                DrawPoints(g.Far, count, Placement(g) * vp, right, up, 0.006f * g.Scale, 0.0016f, w, h, time);
+                // every galaxy is one field of its own stars: the near one shows more of them as it grows on screen, each point
+                // a little smaller so the galaxy's glow stays the same; the first stars are always the same ones, so nothing swaps
+                var g = _galaxies[i]; int count = StarsShown(i);
+                float shrink = (float)Math.Sqrt(FarStars / (double)Math.Max(FarStars, count));
+                var buf = i == _near && _nearBuf != null ? _nearBuf : g.Far;
+                // inside the galaxy its points ease down from glows to plain points of light, so no nearby one looms as a blob
+                float glow = i == _near ? (float)(1 - 0.97 * InsideShare()) : 1f;
+                DrawPoints(buf, count, Placement(g) * vp, right, up, 0.006f * g.Scale * shrink * glow, 0.0016f, w, h, time);
             }
-            if (_near >= 0 && share > 0.001)
-            {
-                // the near galaxy's real stars, faded in by brightness as the camera closes in
-                if (Math.Abs(share - _nearFade) > 0.02)
-                {
-                    _nearFade = (float)share;
-                    for (int k = 0; k < _nearLocal.Length; k++) { var v = _nearLocal[k]; v.R *= _nearFade; v.G *= _nearFade; v.B *= _nearFade; _nearDrawn[k] = v; }
-                    _nearBuf.Write(_nearDrawn, _nearDrawn.Length);
-                }
-                DrawPoints(_nearBuf, _nearDrawn.Length, Placement(_galaxies[_near]) * vp, right, up, 0f, 0.0028f, w, h, time);
-            }
-            if (_near >= 0 && _localCount > 0 && share > 0.5)
+            double inside = InsideShare();
+            if (_near >= 0 && _localCount > 0 && inside > 0)
             {
                 // the real stars of this space at their real sizes (a small point from afar, never smaller than a dot on screen)
-                for (int k = 0; k < _localCount; k++) { var v = _localList[k]; v.A = 1; _localDrawn[k] = v; }
+                float lf = (float)(inside * inside * (3 - 2 * inside));
+                for (int k = 0; k < _localCount; k++) { var v = _localList[k]; v.A = 1; v.R *= lf; v.G *= lf; v.B *= lf; _localDrawn[k] = v; }
                 _localBuf.Write(_localDrawn, _localCount);
                 DrawPoints(_localBuf, _localCount, Placement(_galaxies[_near]) * vp, right, up, 1f, 0.0022f, w, h, time);
             }
