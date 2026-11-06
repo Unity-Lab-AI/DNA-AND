@@ -53,7 +53,7 @@ namespace DnaAnd.Shell
             double core = 0.33 + 30 * Math.Exp(-Math.Pow(fromCentre / 0.25, 2));
             double perCc = kind == 2 ? 300 * core : kind == 3 ? 100 * core : kind == 4 ? 1000 * core : kind == 5 ? 3 * core : kind == 6 ? 300 * core : 1;   // planetary nebulae up to tens of thousands, remnants thin and hot, dark clouds dense
             _gasSpacing = 1e-5 / Math.Pow(perCc, 1 / 3.0);                                   // km between atoms (a centimetre is 1e-5 km)
-            _fx = _fz = _tfx = _tfz = _fy = _tfy = 0; _picked = null;
+            _fx = _fz = _tfx = _tfz = _fy = _tfy = 0; _picked = null; _overrideMineral = null;
         }
         private Element GasAtom(long i, long j, long k)
         {
@@ -161,7 +161,10 @@ namespace DnaAnd.Shell
         private double FocusRad { get { return Grain * (0.3 + 0.2 * Hash(FocusGI * 2, FocusGJ * 2, 1, _seed)); } }
         private float FocusShade { get { return (float)(0.75 + 0.35 * Hash(FocusGI * 2, FocusGJ * 2, 4, _seed)); } }
         private long FocusGJ { get { return (long)Math.Round(_fz / Grain); } }
-        private Mineral FocusMineral { get { return GrainMineral(FocusGI, FocusGJ); } }
+        private Mineral FocusMineral { get { if (_overrideMineral != null) return _overrideMineral; return GrainMineral(FocusGI, FocusGJ); } }
+        // a thing on the grain picked (a clay platelet, a coating, a nanoparticle, the water film): its own mineral is what you go into
+        private Mineral _overrideMineral;
+        private static string ThingMineral(string thing) { return thing == "clay-platelet" ? "kaolinite" : thing == "iron-coating" || thing == "nanoparticle" ? "hematite" : thing == "water" || thing == "fluid-inclusion" ? "water-ice" : null; }
         private long FocusAI { get { return (long)Math.Round(_fx / AtomSpacing); } }
         private long FocusAJ { get { return (long)Math.Round(_fz / AtomSpacing); } }
         private Element SiteAtom(Mineral m, long i, long j, long k)
@@ -498,6 +501,7 @@ namespace DnaAnd.Shell
             new SurfThing { Id = "nanoparticle", Name = "an iron-oxide nanoparticle", Lo = 5e-12, Hi = 5e-11, Chance = 0.5, R = 0.55f, G = 0.25f, B = 0.15f },
             new SurfThing { Id = "water", Name = "a water molecule of the surface film", Lo = 2.8e-13, Hi = 3.2e-13, Chance = 0.6, R = 0.9f, G = 0.2f, B = 0.15f },
         };
+        private double _clock;                                                             // the matter's time, for the electrons of things drawn here
         private void SurfaceThings(List<StarVertex> solid, List<StarVertex> glow, double s)
         {
             long fgi, fgj; double fgx, fgy, fgz, frad; FocusGrain(out fgi, out fgj, out fgx, out fgy, out fgz, out frad);
@@ -512,15 +516,25 @@ namespace DnaAnd.Shell
                     for (long j = cj0 - n; j <= cj0 + n; j++)
                     {
                         if (Hash(i, j, 100 + t, _seed) > st.Chance) continue;
+                        bool isPicked = _picked != null && _picked.Kind == 8 && _picked.Sym == st.Id && _picked.I == i && _picked.J == j;
                         double x = (i + Hash(i, j, 101 + t, _seed)) * cell, z = (j + Hash(i, j, 102 + t, _seed)) * cell, size = st.Lo + (st.Hi - st.Lo) * Hash(i, j, 103 + t, _seed), top;
                         if (!GrainTop(fgi, fgj, fgx, fgy, fgz, frad, x, z, Math.Max(size * 0.5, AtomSpacing), out top)) continue;
                         double y = st.Sunk ? top - size * 0.3 : st.Flat ? top + size * 0.02 : top + size * 0.5;
+                        if (isPicked && s < size * 0.4) continue;                                   // you are at it: its own atoms show instead
                         if (st.Id == "water")
                         {
                             // a water molecule: its oxygen and two hydrogens, bent at 104.5 degrees, each turned its own way
                             var o = El("O"); var hh = El("H"); double oh = 0.957e-13, half = 104.5 / 2 * Math.PI / 180, turn = Hash(i, j, 104, _seed) * Math.PI * 2;
-                            Add(solid, x, y, z, 0.66e-13, o.R, o.G, o.B, s);
-                            for (int q = -1; q <= 1; q += 2) { double hx = q * oh * Math.Sin(half), hy = oh * Math.Cos(half); Add(solid, x + hx * Math.Cos(turn), y + hy * 0.5, z + hx * Math.Sin(turn), 0.31e-13, hh.R, hh.G, hh.B, s); }
+                            double ball = 1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2);               // close in, each atom becomes its own system
+                            float cf = (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2);
+                            if (ball > 0.03) Add(solid, x, y, z, 0.66e-13 * ball, o.R, o.G, o.B, s);
+                            if (cf > 0.01) Cloud(glow, o, x, y, z, s, _clock, i * 31 + j, cf);
+                            for (int q = -1; q <= 1; q += 2)
+                            {
+                                double hx = q * oh * Math.Sin(half), hy = oh * Math.Cos(half), px = x + hx * Math.Cos(turn), py = y + hy * 0.5, pz = z + hx * Math.Sin(turn);
+                                if (ball > 0.03) Add(solid, px, py, pz, 0.31e-13 * ball, hh.R, hh.G, hh.B, s);
+                                if (cf > 0.01) Cloud(glow, hh, px, py, pz, s, _clock, i * 31 + j + q + 7, cf);
+                            }
                         }
                         else
                         {
@@ -848,7 +862,7 @@ namespace DnaAnd.Shell
             double k = 1 - Math.Exp(-dt * 4); _fx += (_tfx - _fx) * k; _fz += (_tfz - _fz) * k; _fy += (_tfy - _fy) * k;
             var solid = new List<StarVertex>(20000); var glow = new List<StarVertex>(2000); var mesh = pipes != null ? new List<StarVertex>(60000) : null;
             _bodies.Clear();
-            Build(scaleKm, time, solid, glow, mesh, overlay);
+            _clock = time; Build(scaleKm, time, solid, glow, mesh, overlay);
             if (mesh != null) { Solidify(solid, mesh, h); solid.Clear(); }
             Put(solid, ref _sv, ref _solidBuf); Put(glow, ref _gv, ref _glowBuf);
             if (mesh != null) Put(mesh, ref _mv, ref _meshBuf);
@@ -879,7 +893,7 @@ namespace DnaAnd.Shell
         public bool Pick(int mx, int my)
         {
             if (!_haveVp) return false;
-            double best = Math.Pow(24 * Math.Max(1, _lastH / 1080.0), 2); Body pick = null; var m = _lastVp;
+            double best = Math.Pow(24 * Math.Max(1, _lastH / 1080.0), 2); Body pick = null; bool pickInside = false; var m = _lastVp;
             foreach (var b in _bodies)
             {
                 float x = (float)((b.X - _fx) / _scale + _ex), y = (float)((b.Y - _fy) / _scale + _ey), z = (float)((b.Z - _fz) / _scale + _ez);
@@ -887,7 +901,11 @@ namespace DnaAnd.Shell
                 if (cw <= 0) continue;
                 double sx = (cx / cw * 0.5 + 0.5) * _lastW, sy = (0.5 - cy / cw * 0.5) * _lastH, d2 = (sx - mx) * (sx - mx) + (sy - my) * (sy - my);
                 double rpx = b.Size / _scale / cw / Math.Tan(0.45) * _lastH * 0.5;            // its own size on screen counts too
-                if (d2 < Math.Max(best, rpx * rpx) && (pick == null || d2 < best)) { best = d2; pick = b; }
+                // the smallest thing the click is on wins (so a water molecule on a clay plate is the molecule, not the plate);
+                // else the nearest within reach
+                bool on = d2 < rpx * rpx, pickOn = pick != null && pickInside;
+                if (on && (!pickOn || b.Size < pick.Size)) { best = d2; pick = b; pickInside = true; }
+                else if (!pickOn && d2 < best) { best = d2; pick = b; }
             }
             if (pick == null)
             {
@@ -906,12 +924,14 @@ namespace DnaAnd.Shell
                 }
                 return false;
             }
-            _picked = pick; _tfx = pick.X; _tfz = pick.Z; _tfy = pick.Kind == 0 ? 0 : pick.Y; return true;   // whatever you pick is gone to, in any layer (a grain: to its top)   // grains and atoms are flown to; electrons, nucleons and quarks are only named
+            _picked = pick; _tfx = pick.X; _tfz = pick.Z; _tfy = pick.Kind == 0 ? 0 : pick.Y;
+            if (pick.Kind == 8) { Mineral om; var id = ThingMineral(pick.Sym); _overrideMineral = id != null && _minerals.TryGetValue(id, out om) ? om : null; } else if (pick.Kind == 0) _overrideMineral = null;
+            return true;   // whatever you pick is gone to, in any layer (a grain: to its top)   // grains and atoms are flown to; electrons, nucleons and quarks are only named
         }
 
         /// <summary>Puts the point you dive into right under you (km east and north of where this spot's matter began), so the
         /// grains pass by as you fly over them.</summary>
-        public void Follow(double east, double north) { _fx = _tfx = east; _fz = _tfz = north; _fy = _tfy = 0; _picked = null; }
+        public void Follow(double east, double north) { _fx = _tfx = east; _fz = _tfz = north; _fy = _tfy = 0; _picked = null; _overrideMineral = null; }
 
         /// <summary>Moves the point under you (km east and north), as W A S D fly you across.</summary>
         public void Move(double east, double north) { _fx += east; _fz += north; _tfx = _fx; _tfz = _fz; }
@@ -929,7 +949,7 @@ namespace DnaAnd.Shell
         }
 
         /// <summary>Lets go of the pick (the point you dive into stays where it is).</summary>
-        public void Unpick() { _picked = null; _tfx = _fx; _tfz = _fz; _tfy = _fy; }
+        public void Unpick() { _picked = null; _overrideMineral = null; _tfx = _fx; _tfz = _fz; _tfy = _fy; }
 
         /// <summary>The information card: what you are in, and what you picked.</summary>
         public List<string> Card()
