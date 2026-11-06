@@ -1057,7 +1057,7 @@ namespace DnaAnd.Gen
         private void TakeFinished()
         {
             var clock = System.Diagnostics.Stopwatch.StartNew();
-            while (clock.Elapsed.TotalMilliseconds < 8)
+            while (clock.Elapsed.TotalMilliseconds < 12)
             {
                 KeyValuePair<Ask, Patch> d; bool wanted;
                 lock (_askLock) { if (_done.Count == 0) break; int bi = 0; for (int q = 1; q < _done.Count; q++) if (_done[q].Key.Need < _done[bi].Key.Need) bi = q; d = _done[bi]; _done[bi] = _done[_done.Count - 1]; _done.RemoveAt(_done.Count - 1); _inFlight.Remove(d.Key.Key); wanted = d.Key.Pending || Wanted(d.Key.Key); }
