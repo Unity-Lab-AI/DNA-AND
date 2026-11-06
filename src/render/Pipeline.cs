@@ -59,13 +59,12 @@ float4 PS(VO i) : SV_Target
     float d = length(i.uv);
     float a;
     if (style < 0.5) { a = saturate(1 - d); a = a * a; }                            // smooth glow: gas, clouds of stars, cores
-    else                                                                              // the game's look: faceted hexagons
+    else                                                                              // a round point of light: a bright disc with a soft edge
     {
-        float2 p = abs(i.uv);
-        float hex = max(p.x * 0.866 + p.y * 0.5, p.y);
-        a = hex < 0.7 ? 1 : 0;
-        float facet = 0.75 + 0.25 * sign(i.uv.x) * sign(i.uv.y);
-        return float4(i.col.rgb * facet * a, a);
+        if (d > 1) discard;
+        a = saturate((0.75 - d) / 0.25);
+        float core = 1 - 0.35 * d * d;                                                // brightest at the middle, like a lit sphere seen from afar
+        return float4(i.col.rgb * core * a, a);
     }
     return float4(i.col.rgb * a, a);
 }

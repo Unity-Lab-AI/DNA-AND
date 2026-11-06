@@ -363,7 +363,7 @@ namespace DnaAnd.Shell
         }
 
         /// <summary>Test runs: the camera turns to the next thing on the way down (the galaxy, a star, a planet, its ground) each frame.</summary>
-        public bool AutoPath;
+        public bool AutoPath; private double _autoLogT;
         // ── what you clicked: the camera turns to face it and the wheel flies to it ──
         private int _tKind = -1;                 // 0 a galaxy, 1 a star, 2 a planet or moon, 3 a spot on the planet's ground
         private int _tIndex; private double _tx, _ty, _tz, _tRadius;   // galaxy or body index; a star's place (universe units) or a ground spot (unit direction)
@@ -495,7 +495,19 @@ namespace DnaAnd.Shell
                     _yaw += dyaw * k; _pitch += (wantPitch - _pitch) * k;
                 }
             }
-            if (AutoPath) AimNext();
+            if (AutoPath)
+            {
+                // the test path: pick a planet as a click would, roll the wheel in, and write where the camera is each second
+                if (_system != null && _tKind != 2 && _ground == null)
+                {
+                    int pick = -1; for (int i = 0; i < _system.Bodies.Count; i++) if (_system.Bodies[i].Parent < 0 && (pick < 0 || _system.Bodies[i].Kind == "Temperate world")) pick = i;
+                    if (pick >= 0) { _tKind = 2; _tIndex = pick; _tName = _system.Bodies[pick].Kind; }
+                }
+                if (_tKind != 2) AimNext();
+                input.Wheel += 1;
+                _autoLogT += dt;
+                if (_autoLogT > 1) { _autoLogT = 0; try { System.IO.File.AppendAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "dna_autopath.log"), Title + Environment.NewLine); } catch { } }
+            }
             if (input.WasPressed(0x48)) { _hud.Visible = !_hud.Visible; MenuChanged = true; }   // H: the scale on screen, on or off
             if (input.WasPressed(Win32.VK_ESCAPE)) return false;
             if (input.LeftDown)
@@ -534,7 +546,14 @@ namespace DnaAnd.Shell
                     // flying to what you picked: straight at it, a share of the way to its surface each notch
                     double fl = Math.Sqrt(fdx * fdx + fdy * fdy + fdz * fdz);
                     // the steps go by the distance to what you picked only: stars you fly past no longer hold them back
-                    if (fl > 0) { dir = new Vec3((float)(fdx / fl), (float)(fdy / fl), (float)(fdz / fl)); reach = Math.Max(fl - frad * 1.2, fl * 1e-6); }
+                    if (fl > 0)
+                    {
+                        dir = new Vec3((float)(fdx / fl), (float)(fdy / fl), (float)(fdz / fl));
+                        // at the picked planet's ground, the steps go by the height above the ground, all the way down;
+                        // from afar, by the distance to just outside it
+                        bool atIt = _tKind == 2 && _tIndex == _planet && _ground != null;
+                        reach = atIt ? AboveGround() : Math.Max(fl - frad * 1.2, fl * 1e-6);
+                    }
                 }
                 // a star close to the line you point along (within about 4 degrees) is flown at straight, not past
                 if (_tKind < 0) { double tdist; var tdir = AimStar(dir, out tdist); if (input.Wheel > 0 && tdist > 0) { dir = tdir; reach = Math.Min(reach, tdist); } }
