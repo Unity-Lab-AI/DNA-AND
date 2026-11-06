@@ -345,7 +345,7 @@ namespace DnaAnd.Shell
                 _air.Advance(_core, _life.Producers, _life.Microbes, _terrain.HasWater);
                 if (_air.Events.Length > 0) { _coreNews = _air.Events; _coreNewsUntil = _time + 8; }
                 _life.WarmerK = _air.TempK - 288; _life.Oxygen = _air.O2;
-                if (_weather == null) { _weather = new DnaAnd.Sim.PlanetWeather(_life.RegionCount); _life.Weather = _weather; }
+                if (_weather == null) { _weather = new DnaAnd.Sim.PlanetWeather(_life.RegionCount, _terrain.Kind == "tidally-locked" ? 0.1 : 0.5); /* a locked world has almost no tides */ _life.Weather = _weather; }
                 double yps = _life.YearsPerSecond;
                 _weather.Update(_life, _air, _core.Age, _terrain.HasWater, yps < 3 ? (_core.Age % 1.0) : -1);
                 if (_weather.Events.Length > 0) { _coreNews = _weather.Events; _coreNewsUntil = _time + 8; }

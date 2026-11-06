@@ -146,3 +146,4 @@ Append-only. Newest at the bottom.
 - r06 planet: plates, edges, earthquakes and eruptions on the planet's clock; disasters kill life.
 - r06 planet: the air and climate (carbon-silicate cycle, great oxidation, methane, escape, runaway and snowball), feeding life.
 - r06 planet: water and weather per region (temperature, rain belts, ice, ice ages, sea level, hurricanes, seasons), feeding life.
+- r06 planet: ocean currents, upwelling and tides, feeding sea life.

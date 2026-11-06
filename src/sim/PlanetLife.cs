@@ -34,6 +34,7 @@ namespace DnaAnd.Sim
         /// <summary>The regions' weather, set by the planet's weather each step: rain (1 = average) and ice cover (0 to 1).</summary>
         public PlanetWeather Weather;
         public double RegionY(int i) { return PY[i]; }
+        public int[] Neighbours(int i) { return Near[i]; }
         public double RegionWarmth(int i) { return _warm[i]; }
         public double RegionSea(int i) { return _wet[i]; }
         /// <summary>Plant-like life and early microbes on the whole planet (crowds), for the air.</summary>
@@ -159,7 +160,7 @@ namespace DnaAnd.Sim
         }
 
         // the nutrients a region holds: water and warmth wash minerals loose; deep cold or dry ground holds little
-        private double Nutrients(int i) { return Math.Max(0.05, Math.Min(1, 0.2 + _wet[i] * 0.5 + _warm[i] * 0.4)); }
+        private double Nutrients(int i) { return Math.Max(0.05, Math.Min(1, 0.2 + _wet[i] * 0.5 + _warm[i] * 0.4 + (Weather != null ? Weather.Upwelling[i] : 0))); }   // upwelling currents add more
 
         // how fast it is eaten: plant-like life by grazers, animal life by hunters; defences, speed, armour and a tough coat help
         private static double Eaten(Genome g, Web w)

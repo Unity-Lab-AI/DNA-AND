@@ -360,8 +360,8 @@ Order: galactic scale down, the same order as the sample sets.
 - **Water and weather**
   - [~] The water cycle: seas evaporate, clouds form, rain and snow fall, rivers run back to the sea, water soaks into the ground (built: rain per region, more from warmer air, deciding how wet the land is for life, `src/sim/PlanetWeather.cs`; rivers and ground water still fixed)
   - [~] Real weather: winds from heat and spin, storms, hurricanes, monsoons, drought (built: the rain belts of the air's circulation, wet equator, dry 30 degrees, wet 60, dry poles; hurricanes over seas above 26.5 °C, 5 to 20 degrees out; winds, monsoons and droughts still to come)
-  - [ ] Ocean currents carrying heat around the world; upwelling that brings nutrients up
-  - [ ] Tides from moons and the star
+  - [x] Ocean currents carrying heat around the world; upwelling that brings nutrients up (seas swing less than the world, coasts are milder than inland; upwelling 15 to 35 degrees out along coasts and at the equator adds nutrients for sea life)
+  - [~] Tides from moons and the star (built: a tide range per world that stirs nutrients on coasts; worked out from the real moons and star still to come)
   - [x] Ice: glaciers and ice caps that grow and shrink, ice ages, snowball worlds, sea levels rising and falling with them (ice per region from its temperature; ice ages from the orbit's 100,000, 41,000 and 23,000 year wobbles; seas up to 130 m lower; snowball from the air; ice is hard on land life, sea life lives on under it)
 - **Climate and seasons**
   - [~] Climate zones from heat, water and spin; they shift as continents move and the air changes (built: each region's temperature from the world's air, its latitude and height, and its rain belt; shifting with the air; continents do not move yet)

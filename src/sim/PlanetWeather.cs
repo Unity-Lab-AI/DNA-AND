@@ -12,6 +12,8 @@ namespace DnaAnd.Sim
     internal sealed class PlanetWeather
     {
         public readonly double[] TempC, Rain, Ice;   // per region: temperature, rain (1 = average), ice cover (0 to 1)
+        public readonly double[] Upwelling;          // per region: extra nutrients brought up from the deep by currents (0 to 0.4)
+        public double TideM = 0.5;                   // the tide's typical rise and fall at the coast, in metres (Earth: about half a metre in open sea)
         public double IceAgeK;                       // how much the orbit wobbles cool (minus) or warm (plus) the world right now
         public double IceShare;                      // share of the planet under ice
         public double SeaLevelM;                     // sea level against today's (minus: water locked in ice)
@@ -20,7 +22,7 @@ namespace DnaAnd.Sim
         public string Events = "";
         private bool _wasGlacial;
 
-        public PlanetWeather(int regions) { TempC = new double[regions]; Rain = new double[regions]; Ice = new double[regions]; }
+        public PlanetWeather(int regions, double tideM) { TempC = new double[regions]; Rain = new double[regions]; Ice = new double[regions]; Upwelling = new double[regions]; TideM = tideM; }
 
         /// <summary>Works out every region's weather at the planet's age. <paramref name="seasonPhase"/>: 0 to 1 through the year,
         /// or a negative number when time runs too fast for seasons to show.</summary>
@@ -41,7 +43,34 @@ namespace DnaAnd.Sim
                 if (Ice[i] > 0.5) iced++;
                 if (life.RegionSea(i) > 0.6 && TempC[i] > 26.5 && lat > 0.087 && lat < 0.35) hurricaneRegions++;
             }
-            IceShare = iced / (double)n;
+            // ocean currents carry heat from the warm middle toward the poles: seas swing less than the world around them,
+            // and the coasts beside them are milder than the inland
+            if (hasWater && !air.Snowball)
+            {
+                var sea = new double[n]; Array.Copy(TempC, sea, n);
+                for (int i = 0; i < n; i++)
+                {
+                    if (life.RegionSea(i) > 0.6) { TempC[i] = TempC[i] * 0.7 + tg * 0.3; continue; }
+                    double near = 0; int ns = 0; foreach (int j in life.Neighbours(i)) if (life.RegionSea(j) > 0.6) { near += sea[j] * 0.7 + tg * 0.3; ns++; }
+                    if (ns > 0) TempC[i] = TempC[i] * 0.75 + near / ns * 0.25;
+                }
+            }
+            // upwelling: where currents push surface water away from a coast, 15 to 35 degrees out and along the equator,
+            // cold deep water full of nutrients rises; tides stir the shallows too
+            for (int i = 0; i < n; i++)
+            {
+                Upwelling[i] = 0;
+                if (!hasWater || life.RegionSea(i) <= 0.6) continue;
+                double lat = Math.Asin(Math.Min(1, Math.Abs(life.RegionY(i)))) * 57.3;
+                bool coast = false; foreach (int j in life.Neighbours(i)) if (life.RegionSea(j) < 0.6) coast = true;
+                if (coast && lat > 15 && lat < 35) Upwelling[i] += 0.3;
+                if (lat < 5) Upwelling[i] += 0.15;
+                if (coast) Upwelling[i] += Math.Min(0.1, TideM * 0.05);
+                Upwelling[i] = Math.Min(0.4, Upwelling[i]);
+                if (Ice[i] > 0) Ice[i] = Math.Max(0, Math.Min(1, (-TempC[i] - 2) / 10));
+            }
+            IceShare = 0; for (int i = 0; i < n; i++) if (Ice[i] > 0.5) IceShare++;
+            IceShare /= n;
             SeaLevelM = hasWater ? -130 * Math.Max(0, Math.Min(1, (IceShare - 0.06) / 0.3)) : 0;
             HurricanesPerYear = hurricaneRegions * 8;
             bool glacial = IceShare > 0.16;
@@ -52,6 +81,7 @@ namespace DnaAnd.Sim
         public string Describe()
         {
             return "ice covers " + (IceShare * 100).ToString("0") + "%" + (SeaLevelM < -1 ? ", seas " + (-SeaLevelM).ToString("0") + " m lower" : "") +
+                   ", tides " + TideM.ToString("0.0") + " m" +
                    (HurricanesPerYear > 0 ? ", about " + HurricanesPerYear.ToString("0") + " hurricanes a year" : "") +
                    (IceAgeK < -2 ? " (orbit cooling)" : IceAgeK > 2 ? " (orbit warming)" : "");
         }
