@@ -483,23 +483,25 @@ namespace DnaAnd.Shell
         {
             long gi, gj; double gx, gy, gz, rad; FocusGrain(out gi, out gj, out gx, out gy, out gz, out rad);
             var m = GrainMineral(gi, gj); if (m == null) return;
-            const int N = 40; double half = 1.8 * s, step = 2 * half / N, cell = step * 0.7;
+            const int N = 48; double half = 2.4 * s, step = 2 * half / N, cell = step * 0.25;
+            Func<int, double> at = q => { double u = q * 2.0 / N - 1; return half * u * Math.Abs(u); };   // finer near you, coarser out to the edges
             var hy = new double[N + 1, N + 1]; var ok = new bool[N + 1, N + 1];
             for (int a = 0; a <= N; a++)
                 for (int b = 0; b <= N; b++)
                 {
-                    double x = _fx - half + a * step, z = _fz - half + b * step, y;
-                    ok[a, b] = GrainTop(gi, gj, gx, gy, gz, rad, x, z, cell, out y); hy[a, b] = y;
+                    double x = _fx + at(a), z = _fz + at(b), y;
+                    double near0 = Math.Max(Math.Abs(at(a)), Math.Abs(at(b))); double cellHere = Math.Max(cell * 0.3, near0 * 0.04);
+                    ok[a, b] = GrainTop(gi, gj, gx, gy, gz, rad, x, z, cellHere, out y); hy[a, b] = y;
                 }
             float sh = FocusShade;
             for (int a = 0; a < N; a++)
                 for (int b = 0; b < N; b++)
                 {
                     if (!ok[a, b] || !ok[a + 1, b] || !ok[a, b + 1] || !ok[a + 1, b + 1]) continue;
-                    double x0 = -half + a * step, z0 = -half + b * step;
+                    double x0 = at(a), z0 = at(b);
                     float t = (float)(0.93 + 0.14 * Hash((long)Math.Floor((_fx + x0) / (step * 4)), (long)Math.Floor((_fz + z0) / (step * 4)), 61, _seed)) * sh;
                     float r = m.R * t, g = m.G * t, bl = m.B * t;
-                    Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)((-half + aa * step) / s + _ex), Y = (float)((hy[aa, bb] + _yOff - _fy) / s + _ey), Z = (float)((-half + bb * step) / s + _ez), R = r, G = g, B = bl, A = 1 };
+                    Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)(at(aa) / s + _ex), Y = (float)((hy[aa, bb] + _yOff - _fy) / s + _ey), Z = (float)(at(bb) / s + _ez), R = r, G = g, B = bl, A = 1 };
                     mesh.Add(v(a, b)); mesh.Add(v(a + 1, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b + 1));
                 }
         }
@@ -732,7 +734,7 @@ namespace DnaAnd.Shell
             if (fm != null && s < AtomSpacing * 14 && Structured(fm.Id))
             {
                 float f = (float)Fade(s, AtomSpacing * 14, AtomSpacing * 9);
-                foreach (var at in Crystal(fm.Id, _fx, _fz, 1.8 * s, 1))
+                foreach (var at in Crystal(fm.Id, _fx, _fz, 2.4 * s, 3))   // deep and wide all round you, solid every way you look
                 {
                     double ar = AtomRadius(at.E), ay = at.Y - ar;
                     bool inFocus = at.E == focus && Math.Abs(at.X - fax) < 1e-20 && Math.Abs(ay - fay) < 1e-20 && Math.Abs(at.Z - faz) < 1e-20 && s < ar * 4;
@@ -748,11 +750,11 @@ namespace DnaAnd.Shell
             }
             else if (fm != null && s < AtomSpacing * 14)
             {
-                double a = AtomSpacing; long n = (long)Math.Min(30, Math.Ceiling(1.8 * s / a) + 1), ai0 = FocusAI, aj0 = FocusAJ;
+                double a = AtomSpacing; long n = (long)Math.Min(24, Math.Ceiling(2.4 * s / a) + 1), ai0 = FocusAI, aj0 = FocusAJ;
                 float f = (float)Fade(s, AtomSpacing * 14, AtomSpacing * 9);
                 for (long i = ai0 - n; i <= ai0 + n; i++)
                     for (long j = aj0 - n; j <= aj0 + n; j++)
-                        for (long k = 0; k >= -2; k--)
+                        for (long k = 0; k >= -7; k--)
                         {
                             var el = SiteAtom(fm, i, j, k);
                             if (el == null) continue;

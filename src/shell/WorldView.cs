@@ -706,7 +706,7 @@ namespace DnaAnd.Shell
                 double wantYaw = Math.Atan2(wz, wx), wantPitch = Math.Asin(Math.Max(-1, Math.Min(1, wy))), k = 1 - Math.Exp(-dt * 4);
                 _yaw += Math.IEEERemainder(wantYaw - _yaw, 2 * Math.PI) * k; _pitch += (wantPitch - _pitch) * k;
             }
-            else if (_tKind >= 0 && !(_pressed && _dragged) && TargetFromCamera(out tdx, out tdy, out tdz, out trad))
+            else if (_tKind >= 0 && _matterScale <= 0 && _spaceScale <= 0 && !(_pressed && _dragged) && TargetFromCamera(out tdx, out tdy, out tdz, out trad))   // (in the matter or the gas, an earlier pick out in the world does not turn you)
             {
                 double l = Math.Sqrt(tdx * tdx + tdy * tdy + tdz * tdz);
                 if (l > 0 && _tKind == 2 && _tIndex == _planet && _ground != null)
@@ -764,7 +764,7 @@ namespace DnaAnd.Shell
                 _autoLogT += dt;
                 if (_autoLogT > 1) { _autoLogT = 0; try { System.IO.File.AppendAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "dna_autopath.log"), Title + Environment.NewLine); } catch { } }
             }
-            if (input.RightClicked) { if (_matterScale > 0 || _spaceScale > 0) _matter.Unpick(); else { _tKind = -1; _tName = ""; } }                    // right click: let go of what you picked
+            if (input.RightClicked) { _matter.Unpick(); if (_spaceScale <= 0) { _tKind = -1; _tName = ""; } }   // lets go of everything picked (in a nebula's gas the nebula stays where you are)                    // right click: let go of what you picked
             if (input.WasPressed(0x48)) { _hud.Visible = !_hud.Visible; MenuChanged = true; }   // H: the scale on screen, on or off
             if (input.WasPressed(Win32.VK_ESCAPE)) return false;
             if (input.LeftDown && (input.MouseDX != 0 || input.MouseDY != 0))
