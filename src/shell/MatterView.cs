@@ -581,18 +581,28 @@ namespace DnaAnd.Shell
         {
             long gi, gj; double gx, gy, gz, rad; FocusGrain(out gi, out gj, out gx, out gy, out gz, out rad);
             var m = GrainMineral(gi, gj); if (m == null) return;
-            const int N = 48; double half = 2.4 * s, step = 2 * half / N, cell = step * 0.25;
-            Func<int, double> at = q => { double u = q * 2.0 / N - 1; return half * u * Math.Abs(u); };   // finer near you, coarser out to the edges
+            // a grid fixed on the grain itself (never on the camera), a power of two in size, so its points stay put as you zoom
+            // and move; between two sizes the in-between points ease from the coarser shape to their own (no pops, no swimming)
+            const int N = 72; double want = 4.8 * s / N, lv = Math.Log(want / AtomSpacing, 2), L = Math.Floor(lv), frac = lv - L;
+            double step = AtomSpacing * Math.Pow(2, L);
+            long ia0 = (long)Math.Round(_fx / step) - N / 2, ib0 = (long)Math.Round(_fz / step) - N / 2;
+            Func<int, double> atA = q => (ia0 + q) * step - _fx; Func<int, double> atB = q => (ib0 + q) * step - _fz;
             var hy = new double[N + 1, N + 1]; var ok = new bool[N + 1, N + 1];
             for (int a = 0; a <= N; a++)
                 for (int b = 0; b <= N; b++)
                 {
-                    double x = _fx + at(a), z = _fz + at(b), y;
-                    // no detail finer than the gap between this point and the next (finer would only alias into speckle)
-                    double gapA = Math.Abs(at(Math.Min(N, a + 1)) - at(Math.Max(0, a - 1))) * 0.5, gapB = Math.Abs(at(Math.Min(N, b + 1)) - at(Math.Max(0, b - 1))) * 0.5;
-                    double cellHere = Math.Max(Math.Max(gapA, gapB) * 1.5, s / 300);
-                    ok[a, b] = GrainTop(gi, gj, gx, gy, gz, rad, x, z, cellHere, out y); hy[a, b] = y;
+                    double y; ok[a, b] = GrainTop(gi, gj, gx, gy, gz, rad, _fx + atA(a), _fz + atB(b), step * 1.5, out y); hy[a, b] = y;
                 }
+            // the points that the next coarser grid does not have ease toward its shape as this size gives way to it
+            var hm = (double[,])hy.Clone(); double ease = frac * frac * (3 - 2 * frac);
+            for (int a = 1; a < N; a++)
+                for (int b = 1; b < N; b++)
+                {
+                    bool oa = ((ia0 + a) & 1) != 0, ob = ((ib0 + b) & 1) != 0; if (!oa && !ob) continue;
+                    double c = oa && ob ? (hy[a - 1, b - 1] + hy[a + 1, b - 1] + hy[a - 1, b + 1] + hy[a + 1, b + 1]) * 0.25 : oa ? (hy[a - 1, b] + hy[a + 1, b]) * 0.5 : (hy[a, b - 1] + hy[a, b + 1]) * 0.5;
+                    hm[a, b] = hy[a, b] + (c - hy[a, b]) * ease;
+                }
+            hy = hm;
             float sh = FocusShade;
             double sink = Structured(m) ? AtomSpacing * 3 * Fade(s, AtomSpacing * 40, AtomSpacing * 22) : 0;   // under the atoms once they show
             // each corner's surface direction, from the slope to its neighbours (so it is shaded smooth, not in facets)
@@ -601,7 +611,7 @@ namespace DnaAnd.Shell
                 for (int b = 0; b <= N; b++)
                 {
                     int a0 = Math.Max(0, a - 1), a1 = Math.Min(N, a + 1), b0 = Math.Max(0, b - 1), b1 = Math.Min(N, b + 1);
-                    double dx = at(a1) - at(a0), dz = at(b1) - at(b0), sx = (hy[a1, b] - hy[a0, b]) / Math.Max(1e-30, dx), sz = (hy[a, b1] - hy[a, b0]) / Math.Max(1e-30, dz);
+                    double dx = atA(a1) - atA(a0), dz = atB(b1) - atB(b0), sx = (hy[a1, b] - hy[a0, b]) / Math.Max(1e-30, dx), sz = (hy[a, b1] - hy[a, b0]) / Math.Max(1e-30, dz);
                     nrm[a, b] = PackNormal(-sx, 1, -sz);
                     // the light that reaches a hollow: lower than its neighbours round it, it sees less of the sky (a soft shadow)
                     double hollow = (hy[a0, b] + hy[a1, b] + hy[a, b0] + hy[a, b1]) * 0.25 - hy[a, b], span = Math.Max(1e-30, (dx + dz) * 0.5);
@@ -611,10 +621,9 @@ namespace DnaAnd.Shell
                 for (int b = 0; b < N; b++)
                 {
                     if (!ok[a, b] || !ok[a + 1, b] || !ok[a, b + 1] || !ok[a + 1, b + 1]) continue;
-                    double x0 = at(a), z0 = at(b);
-                    float t = (float)(0.93 + 0.14 * Hash((long)Math.Floor((_fx + x0) / (step * 4)), (long)Math.Floor((_fz + z0) / (step * 4)), 61, _seed)) * sh;
+                    float t = sh;
                     float r = m.R * t, g = m.G * t, bl = m.B * t;
-                    Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)(at(aa) / s + _ex), Y = (float)((hy[aa, bb] - sink + _yOff - _fy) / s + _ey), Z = (float)(at(bb) / s + _ez), Size = nrm[aa, bb], R = r * occ[aa, bb], G = g * occ[aa, bb], B = bl * occ[aa, bb], A = m.Lustre };
+                    Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)(atA(aa) / s + _ex), Y = (float)((hy[aa, bb] - sink + _yOff - _fy) / s + _ey), Z = (float)(atB(bb) / s + _ez), Size = nrm[aa, bb], R = r * occ[aa, bb], G = g * occ[aa, bb], B = bl * occ[aa, bb], A = m.Lustre };
                     mesh.Add(v(a, b)); mesh.Add(v(a + 1, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b + 1));
                 }
         }

@@ -196,7 +196,7 @@ namespace DnaAnd.Gen
             for (int i = from; i < to; i++)
             {
                 double width = Radius / f;                           // km across one bump at this layer
-                if (_grainKm > 0 && width < _grainKm * 2) break;     // finer than a couple of grains: that is the grains themselves
+                if (_grainKm > 0 && width < _grainKm * 0.25) break;  // finer than a quarter of a grain: the grains themselves take over there
                 sum += (Value(x * f + i * 3.1, y * f - i * 5.3, z * f + i * 2.9, seed + (uint)i * 13u) * 2 - 1) * Math.Min(width * 0.18, 3.0);
                 f *= 2;
             }
@@ -301,7 +301,7 @@ namespace DnaAnd.Gen
             if (_noGrainsNow || !Solid || Shell || glow > 0.01 || (HasWater && h < 0) || layers <= 6) return h;
             var gm = GrainMix(y); if (gm == null || gm.Size <= 0) return h;
             double W = Radius / (48 * Math.Pow(2, layers - 6)), G = gm.Size;             // the finest detail here (km)
-            double wgt = Math.Max(0, Math.Min(1, (2 * G - W) / (1.5 * G))); if (wgt <= 0) return h;
+            double wgt = Math.Max(0, Math.Min(1, (G * 0.25 - W) / (G * 0.15))); if (wgt <= 0) return h;   // only once the mesh has several points to a grain (fewer would land on grain or gap at random: flicker)
             double top; GrainField.Grain gr;
             bool on = GrainField.Top(x, y, z, Radius, gm, GrainSeed, Math.Max(W, 1e-13), out top, out gr);
             float cr, cg, cb;
