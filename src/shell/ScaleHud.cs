@@ -100,7 +100,7 @@ namespace DnaAnd.Shell
         }
 
         private UploadBuffer _cardBuf; private StarVertex[] _cardV = new StarVertex[0];
-        /// <summary>An information card on screen beside the thing you picked: a dark panel, the first line its name
+        /// <summary>An information card on screen beside the thing you picked: just its lines of text, no box; the first line its name
         /// (brighter), then its facts. Placed at (x, y) in pixels, kept inside the screen.</summary>
         public void DrawCard(MeshPipes pipes, IList<string> lines, double x, double y, int w, int h)
         {
@@ -110,8 +110,6 @@ namespace DnaAnd.Shell
             float cw = longest * adv + pad * 2, ch = lines.Count * lh + pad * 2 - 3 * cell;
             float x0 = (float)Math.Min(Math.Max(4, x), w - cw - 4), y0 = (float)Math.Min(Math.Max(4, y), h - ch - 4);
             var list = new List<StarVertex>();
-            Quad(list, x0, y0, cw, ch, 0.03f, 0.05f, 0.09f);                                   // the panel
-            Quad(list, x0, y0, cw, 1.5f * px, 0.55f, 0.95f, 1f);                               // a bright edge along its top
             for (int i = 0; i < lines.Count; i++)
             {
                 float cx = x0 + pad, cy = y0 + pad + i * lh, r = i == 0 ? 0.55f : 0.85f, g = i == 0 ? 0.95f : 0.88f, b = 1f;
