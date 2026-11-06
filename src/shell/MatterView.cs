@@ -487,6 +487,51 @@ namespace DnaAnd.Shell
                 }
         }
 
+        // ── what sits on a grain's surface, each at its real size, fixed in place (from its cell), each pickable ──
+        // (name, smallest and largest size across in km, how many per cell (cell = 4 of its largest size), colour, flat?)
+        private sealed class SurfThing { public string Id, Name; public double Lo, Hi, Chance; public float R, G, B; public bool Flat, Sunk; }
+        private static readonly SurfThing[] SurfThings =
+        {
+            new SurfThing { Id = "fluid-inclusion", Name = "a fluid inclusion", Lo = 2e-9, Hi = 2e-8, Chance = 0.35, R = 0.75f, G = 0.85f, B = 0.95f, Sunk = true },
+            new SurfThing { Id = "clay-platelet", Name = "a clay platelet (kaolinite)", Lo = 2e-10, Hi = 2e-9, Chance = 0.6, R = 0.85f, G = 0.8f, B = 0.7f, Flat = true },
+            new SurfThing { Id = "iron-coating", Name = "an iron-oxide coating", Lo = 1e-10, Hi = 1e-9, Chance = 0.5, R = 0.65f, G = 0.28f, B = 0.14f, Flat = true },
+            new SurfThing { Id = "nanoparticle", Name = "an iron-oxide nanoparticle", Lo = 5e-12, Hi = 5e-11, Chance = 0.5, R = 0.55f, G = 0.25f, B = 0.15f },
+            new SurfThing { Id = "water", Name = "a water molecule of the surface film", Lo = 2.8e-13, Hi = 3.2e-13, Chance = 0.6, R = 0.9f, G = 0.2f, B = 0.15f },
+        };
+        private void SurfaceThings(List<StarVertex> solid, List<StarVertex> glow, double s)
+        {
+            long fgi, fgj; double fgx, fgy, fgz, frad; FocusGrain(out fgi, out fgj, out fgx, out fgy, out fgz, out frad);
+            for (int t = 0; t < SurfThings.Length; t++)
+            {
+                var st = SurfThings[t];
+                if (st.Hi / s < 0.004 || st.Lo / s > 3) continue;                           // only at sizes where it shows
+                double cell = st.Hi * 4; long n = (long)Math.Ceiling(2 * s / cell);
+                if (n > 40) continue;
+                long ci0 = (long)Math.Floor(_fx / cell), cj0 = (long)Math.Floor(_fz / cell);
+                for (long i = ci0 - n; i <= ci0 + n; i++)
+                    for (long j = cj0 - n; j <= cj0 + n; j++)
+                    {
+                        if (Hash(i, j, 100 + t, _seed) > st.Chance) continue;
+                        double x = (i + Hash(i, j, 101 + t, _seed)) * cell, z = (j + Hash(i, j, 102 + t, _seed)) * cell, size = st.Lo + (st.Hi - st.Lo) * Hash(i, j, 103 + t, _seed), top;
+                        if (!GrainTop(fgi, fgj, fgx, fgy, fgz, frad, x, z, Math.Max(size * 0.5, AtomSpacing), out top)) continue;
+                        double y = st.Sunk ? top - size * 0.3 : st.Flat ? top + size * 0.02 : top + size * 0.5;
+                        if (st.Id == "water")
+                        {
+                            // a water molecule: its oxygen and two hydrogens, bent at 104.5 degrees, each turned its own way
+                            var o = El("O"); var hh = El("H"); double oh = 0.957e-13, half = 104.5 / 2 * Math.PI / 180, turn = Hash(i, j, 104, _seed) * Math.PI * 2;
+                            Add(solid, x, y, z, 0.66e-13, o.R, o.G, o.B, s);
+                            for (int q = -1; q <= 1; q += 2) { double hx = q * oh * Math.Sin(half), hy = oh * Math.Cos(half); Add(solid, x + hx * Math.Cos(turn), y + hy * 0.5, z + hx * Math.Sin(turn), 0.31e-13, hh.R, hh.G, hh.B, s); }
+                        }
+                        else
+                        {
+                            Add(solid, x, y, z, size * 0.5 / 0.75, st.R, st.G, st.B, s);
+                            if (st.Flat && solid.Count > 0) { var tv = solid[solid.Count - 1]; tv.A = 0.5f; solid[solid.Count - 1] = tv; }   // a flat plate or skin on the surface
+                        }
+                        int nb = _bodies.Count; AddBody(8, i, j, x, y, z, size * 0.5, s); if (_bodies.Count > nb) _bodies[nb].Sym = st.Id;
+                    }
+            }
+        }
+
         private static double Fade(double s, double from, double to) { return Math.Max(0, Math.Min(1, Math.Log(from / s) / Math.Log(from / to))); }
 
         // a grain as a lit, lumpy stone: a once-split icosahedron, squashed and turned its own way, each corner pushed in or out
@@ -622,6 +667,7 @@ namespace DnaAnd.Shell
                         }
             }
             if (!_noGrains && !_space && mesh != null && s < FocusRad * 1.5 && s > AtomSpacing * 8) GrainPatch(mesh, s);
+            if (!_noGrains && !_space && s < FocusRad * 1.5) SurfaceThings(solid, glow, s);
             if (overlay) return;                                                        // over the ground: only its grains so far
             // the focus grain's surface: detail at every size, fixed in place (cells of powers of ten, two at a time, blended),
             // in the grain's colour; its finest cells take on the colours of its atoms
@@ -908,6 +954,21 @@ namespace DnaAnd.Shell
                 L.Add("charge -1; mass 1/1836 of a proton");
                 L.Add("a point as far as measured: smaller than 10^-22 m");
                 L.Add("where it is: a cloud of chance round the nucleus");
+                return L;
+            }
+            if (_picked != null && _picked.Kind == 8)
+            {
+                var st = Array.Find(SurfThings, q => q.Id == _picked.Sym); if (st == null) return L;
+                L.Add(st.Name.Substring(st.Name.IndexOf(' ') + 1, 1).ToUpperInvariant() + st.Name.Substring(st.Name.IndexOf(' ') + 2));
+                L.Add("width: about " + ScaleHud.Words(_picked.Size * 2));
+                switch (st.Id)
+                {
+                    case "fluid-inclusion": L.Add("a bubble of water or gas trapped in the crystal as it grew"); L.Add("it keeps a sample of the fluid of its birth"); break;
+                    case "clay-platelet": L.Add("a thin six-sided plate, Al2Si2O5(OH)4"); L.Add("left by water slowly weathering feldspar"); break;
+                    case "iron-coating": L.Add("a skin of iron oxide (hematite, goethite)"); L.Add("it colours sand red, orange and yellow"); break;
+                    case "nanoparticle": L.Add("a speck of hematite or goethite, Fe2O3 / FeOOH"); L.Add("a few thousand atoms of iron and oxygen"); break;
+                    default: L.Add("H2O, bent at 104.5 degrees"); L.Add("from the air: every mineral surface wears a film"); L.Add("one or two molecules thick"); break;
+                }
                 return L;
             }
             if (_picked != null && _picked.Kind == 6)

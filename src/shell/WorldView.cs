@@ -1264,7 +1264,7 @@ namespace DnaAnd.Shell
                     DrawPoints(_coronaBuf, _starCorona.Length, m * vp, right, up, 1f, 0f, w, h, time);
                 }
             }
-            if (_ground != null)
+            if (_ground != null && !(_matterScale > 0 && _matterScale < 1e-7))   // (below a tenth of a millimetre the grain itself fills all round you: the planet's ground mesh is not drawn)
             {
                 // the planet's real ground, in km around its centre, with the same view turn; near and far follow the height
                 _gpu.ClearDepth();
