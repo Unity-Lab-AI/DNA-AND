@@ -300,7 +300,18 @@ namespace DnaAnd.Shell
             x = x1 * Math.Cos(c) - z2 * Math.Sin(c); z = x1 * Math.Sin(c) + z2 * Math.Cos(c); y = y2;
         }
 
-        private static double AtomRadius(Element e) { return e == null ? 1e-13 : e.Z == 1 ? 0.53e-13 : (0.7 + 0.5 * Math.Min(1, e.Z / 30.0)) * 1e-13; }
+        // atoms' real sizes (their calculated atomic radii, in angstroms: Clementi and Raimondi), so each atom's system is its own size
+        private static readonly Dictionary<string, double> RadiusA = new Dictionary<string, double>
+        {
+            { "H", 0.53 }, { "He", 0.31 }, { "C", 0.67 }, { "N", 0.56 }, { "O", 0.48 }, { "F", 0.42 }, { "Na", 1.90 }, { "Mg", 1.45 }, { "Al", 1.18 },
+            { "Si", 1.11 }, { "P", 0.98 }, { "S", 0.88 }, { "Cl", 0.79 }, { "K", 2.43 }, { "Ca", 1.94 }, { "Ti", 1.76 }, { "Fe", 1.56 }
+        };
+        private static double AtomRadius(Element e)
+        {
+            if (e == null) return 1e-13;
+            double r; if (RadiusA.TryGetValue(e.Symbol, out r)) return r * 1e-13;
+            return (0.7 + 0.5 * Math.Min(1, e.Z / 30.0)) * 1e-13;                  // the rest: a rough size from its number
+        }
         private static double NucleusRadius(Element e) { return 1.2e-18 * Math.Pow(e == null ? 28 : e.A, 1 / 3.0); }
 
         public string MineralName { get { var m = FocusMineral; return m != null ? m.Name : "rock"; } }
@@ -494,8 +505,11 @@ namespace DnaAnd.Shell
                     bool inFocus = at.E == focus && Math.Abs(at.X - fax) < 1e-20 && Math.Abs(ay - fay) < 1e-20 && Math.Abs(at.Z - faz) < 1e-20 && s < ar * 4;
                     if (inFocus) continue;
                     float sh = (float)(1 + 0.6 * at.Y / AtomSpacing * 0.25); sh = Math.Max(0.45f, sh);
-                    Add(solid, at.X, ay + ar * (1 - f) * 0.6, at.Z, ar * 0.62 * (0.25 + 0.75 * f), at.E.R * sh, at.E.G * sh, at.E.B * sh, s);   // each atom grows up out of the face, in its own colour
-                    if (s < AtomSpacing * 2.5) Cloud(glow, at.E, at.X, ay, at.Z, s, time, (long)(at.X / 1e-14) ^ (long)(at.Z / 1e-14) * 31, (float)Fade(s, AtomSpacing * 2.5, AtomSpacing * 1.2));
+                    // from afar a ball in its colour, growing up out of the face; close in the ball gives way to the atom's own system
+                    // (its nucleus and its electrons on their paths), as the electrons are what an atom's size really is
+                    double ball = 1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2);
+                    if (ball > 0.03) Add(solid, at.X, ay + ar * (1 - f) * 0.6, at.Z, ar * 0.62 * (0.25 + 0.75 * f) * ball, at.E.R * sh, at.E.G * sh, at.E.B * sh, s);
+                    if (s < AtomSpacing * 4) Cloud(glow, at.E, at.X, ay, at.Z, s, time, (long)(at.X / 1e-14) ^ (long)(at.Z / 1e-14) * 31, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
                     if (at.Y > -0.3 * AtomSpacing) { AddBody(1, 0, 0, at.X, ay, at.Z, ar, s); if (_bodies.Count > 0) _bodies[_bodies.Count - 1].Sym = at.E.Symbol; }
                 }
             }
@@ -525,7 +539,12 @@ namespace DnaAnd.Shell
                                 }
                                 Add(solid, i * a, k * a - ar, j * a, ar * 0.55, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
                             }
-                            else Add(solid, i * a, k * a - ar, j * a, ar * 0.9, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
+                            else
+                            {
+                                double ball = 1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2);
+                                if (ball > 0.03) Add(solid, i * a, k * a - ar, j * a, ar * 0.9 * ball, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
+                                if (s < AtomSpacing * 4) Cloud(glow, el, i * a, k * a - ar, j * a, s, time, i * 7919 ^ j * 104729 ^ k, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
+                            }
                             if (k == 0) { int nb = _bodies.Count; AddBody(1, i, j, i * a, -ar, j * a, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = el.Symbol; }
                         }
             }
@@ -557,7 +576,7 @@ namespace DnaAnd.Shell
                         }
                         double ox = Math.Cos(ang) * rr, oz = Math.Sin(ang) * rr, oy = oz * Math.Sin(tilt); oz *= Math.Cos(tilt);
                         double x2 = ox * Math.Cos(turn) - oz * Math.Sin(turn), z2 = ox * Math.Sin(turn) + oz * Math.Cos(turn);
-                        Add(glow, ax0 + x2, cy + oy, az0 + z2, 1e-21, 0.5f * cloud, 0.75f * cloud, 1f * cloud, s);
+                        bool val = sh == shells - 1; Add(glow, ax0 + x2, cy + oy, az0 + z2, s * 0.0035, (val ? 1f : 0.45f) * cloud, (val ? 0.8f : 0.75f) * cloud, (val ? 0.25f : 1f) * cloud, s);
                         { int nb = _bodies.Count; AddBody(3, sh + 1, e, ax0 + x2, cy + oy, az0 + z2, ar * 0.05, s); if (_bodies.Count > nb) _bodies[nb].Sym = "electron"; }
                     }
                 }
@@ -597,18 +616,27 @@ namespace DnaAnd.Shell
         {
             if (f <= 0.01) return;
             double ar = AtomRadius(e); int shells = e.Shells.Length;
+            double dot = s * 0.0035;                                                     // electrons: points, shown as a clear dot a few pixels wide
             for (int sh = 0; sh < shells; sh++)
             {
-                double rr = ar * (sh + 1) / shells;
-                Add(glow, x, y, z, rr * 1.1, 0.05f * f, 0.08f * f, 0.15f * f, s);
-                int ne = Math.Min(e.Shells[sh], 18);
+                double rr = ar * (sh + 1) / shells; bool valence = sh == shells - 1;    // the outermost shell: the one that bonds
+                Add(glow, x, y, z, rr * 1.05, (valence ? 0.09f : 0.04f) * f, (valence ? 0.07f : 0.06f) * f, (valence ? 0.03f : 0.12f) * f, s);
+                int ne = e.Shells[sh];                                          // every one of its electrons
                 for (int k = 0; k < ne; k++)
                 {
                     double tilt = Hash(key + sh, k, 33, _seed) * Math.PI, turn = Hash(key + sh, k, 34, _seed) * Math.PI * 2, ang = time * (2.2 / (sh + 1)) + k * Math.PI * 2 / ne;
-                    double ox = Math.Cos(ang) * rr, oz = Math.Sin(ang) * rr, oy = oz * Math.Sin(tilt); oz *= Math.Cos(tilt);
-                    Add(glow, x + ox * Math.Cos(turn) - oz * Math.Sin(turn), y + oy, z + ox * Math.Sin(turn) + oz * Math.Cos(turn), 1e-21, 0.5f * f, 0.75f * f, 1f * f, s);
+                    double ct = Math.Cos(turn), st = Math.Sin(turn), ci = Math.Cos(tilt), si = Math.Sin(tilt);
+                    // its path: a ring of faint points
+                    for (int q = 0; q < 28; q++)
+                    {
+                        double pa = q * Math.PI * 2 / 28, px = Math.Cos(pa) * rr, pz = Math.Sin(pa) * rr, py = pz * si; pz *= ci;
+                        Add(glow, x + px * ct - pz * st, y + py, z + px * st + pz * ct, dot * 0.35, (valence ? 0.16f : 0.08f) * f, (valence ? 0.12f : 0.12f) * f, (valence ? 0.04f : 0.2f) * f, s);
+                    }
+                    double ox = Math.Cos(ang) * rr, oz = Math.Sin(ang) * rr, oy = oz * si; oz *= ci;
+                    Add(glow, x + ox * ct - oz * st, y + oy, z + ox * st + oz * ct, dot, (valence ? 1f : 0.45f) * f, (valence ? 0.8f : 0.75f) * f, (valence ? 0.25f : 1f) * f, s);
                 }
             }
+            Add(glow, x, y, z, Math.Max(NucleusRadius(e) * 3, dot * 1.2), 1f * f, 0.75f * f, 0.5f * f, s);   // its nucleus, a spark at the middle
         }
 
         private void Put(List<StarVertex> l, ref StarVertex[] arr, ref UploadBuffer buf)
