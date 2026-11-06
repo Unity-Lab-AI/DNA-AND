@@ -20,8 +20,9 @@ namespace DnaAnd.Shell
     internal sealed class MatterView : IDisposable
     {
         private readonly Gpu _gpu; private readonly BillboardDrawer _dots;
-        private UploadBuffer _solidBuf, _glowBuf; private StarVertex[] _sv = new StarVertex[0], _gv = new StarVertex[0];
-        public const double TopKm = 1e-6;           // 1 mm: where the matter begins (the ground's finest pieces are above this)
+        private UploadBuffer _solidBuf, _glowBuf, _meshBuf; private StarVertex[] _sv = new StarVertex[0], _gv = new StarVertex[0], _mv = new StarVertex[0];
+        public const double TopKm = 2.6e-6;         // where the matter alone is drawn, about 1.5 mm up (above it the grains lie over the ground)
+        public const double OverlayKm = 1e-5;       // 1 cm up: the grains begin to show over the ground, as specks that grow as you come down
         public const double BottomKm = 3e-19;       // 0.3 femtometres: among the protons and neutrons of a nucleus
         private const double Grain = 2e-7;          // 0.2 mm: a grain of sand or dust
         private const double AtomSpacing = 2.5e-13; // about 0.25 nm between atoms in a crystal
@@ -263,22 +264,68 @@ namespace DnaAnd.Shell
 
         private static double Fade(double s, double from, double to) { return Math.Max(0, Math.Min(1, Math.Log(from / s) / Math.Log(from / to))); }
 
-        private void Build(double s, double time, List<StarVertex> solid, List<StarVertex> glow)
+        // a grain as a lit, lumpy stone: a once-split icosahedron, squashed and turned its own way, each corner pushed in or out
+        private static Vec3[] _ico; private static int[] _icoTri;
+        private static void MakeIco()
         {
-            // grains: each in its own cell, its mineral picked from the mix, resting with its top at the level you dive into
+            double t = (1 + Math.Sqrt(5)) / 2;
+            var v = new List<Vec3> { new Vec3(-1, (float)t, 0), new Vec3(1, (float)t, 0), new Vec3(-1, (float)-t, 0), new Vec3(1, (float)-t, 0), new Vec3(0, -1, (float)t), new Vec3(0, 1, (float)t),
+                new Vec3(0, -1, (float)-t), new Vec3(0, 1, (float)-t), new Vec3((float)t, 0, -1), new Vec3((float)t, 0, 1), new Vec3((float)-t, 0, -1), new Vec3((float)-t, 0, 1) };
+            int[] f = { 0,11,5, 0,5,1, 0,1,7, 0,7,10, 0,10,11, 1,5,9, 5,11,4, 11,10,2, 10,7,6, 7,1,8, 3,9,4, 3,4,2, 3,2,6, 3,6,8, 3,8,9, 4,9,5, 2,4,11, 6,2,10, 8,6,7, 9,8,1 };
+            var mid = new Dictionary<long, int>(); var tri = new List<int>();
+            Func<int, int, int> m = (a, b) => { long key = Math.Min(a, b) * 1000L + Math.Max(a, b); int idx; if (mid.TryGetValue(key, out idx)) return idx; var p = (v[a] + v[b]) * 0.5f; v.Add(p); mid[key] = v.Count - 1; return v.Count - 1; };
+            for (int i = 0; i < f.Length; i += 3)
+            {
+                int a = f[i], b = f[i + 1], c = f[i + 2], ab = m(a, b), bc = m(b, c), ca = m(c, a);
+                tri.AddRange(new[] { a, ab, ca, b, bc, ab, c, ca, bc, ab, bc, ca });
+            }
+            _ico = new Vec3[v.Count]; for (int i = 0; i < v.Count; i++) _ico[i] = v[i].Normalized; _icoTri = tri.ToArray();
+        }
+
+        private void Stone(List<StarVertex> l, long gi, long gj, double cx, double cy, double cz, double rad, float r, float g, float b, double s)
+        {
+            if (_ico == null) MakeIco();
+            double sx = 0.8 + 0.4 * Hash(gi, gj, 6, _seed), sy = 0.6 + 0.35 * Hash(gi, gj, 7, _seed), sz = 0.8 + 0.4 * Hash(gi, gj, 8, _seed), turn = Hash(gi, gj, 9, _seed) * Math.PI * 2;
+            double ct = Math.Cos(turn), st = Math.Sin(turn);
+            var pts = new double[_ico.Length * 3];
+            for (int k = 0; k < _ico.Length; k++)
+            {
+                double bump = 0.82 + 0.3 * Hash(gi * 131 + k, gj, 10, _seed);
+                double x = _ico[k].X * sx * bump, y = _ico[k].Y * sy * bump, z = _ico[k].Z * sz * bump;
+                pts[k * 3] = (cx + (x * ct - z * st) * rad - _fx) / s; pts[k * 3 + 1] = (cy + y * rad) / s - 0.6; pts[k * 3 + 2] = (cz + (x * st + z * ct) * rad - _fz) / s;
+            }
+            foreach (int k in _icoTri) l.Add(new StarVertex { X = (float)pts[k * 3], Y = (float)pts[k * 3 + 1], Z = (float)pts[k * 3 + 2], Size = 0, R = r, G = g, B = b, A = 1 });
+        }
+
+        /// <summary>The starlight's way in the ground's own frame (x east, y up, z north), for lighting the grains.</summary>
+        public float[] Light = { 0.4f, 0.8f, 0.3f };
+
+        private void Build(double s, double time, List<StarVertex> solid, List<StarVertex> glow, List<StarVertex> mesh, bool overlay)
+        {
+            // grains: lumpy stones, each its own mineral from the mix, scattered (not on a grid) in two layers, the top one
+            // resting with its tops at the level you dive into; near ones are lit 3D stones, far ones specks of their colour
             if (s > AtomSpacing * 40)
             {
-                long reach = (long)Math.Ceiling(Math.Min(40, 2.5 * s / Grain)) + 1, gi0 = FocusGI, gj0 = FocusGJ;
-                for (long i = gi0 - reach; i <= gi0 + reach; i++)
-                    for (long j = gj0 - reach; j <= gj0 + reach; j++)
-                    {
-                        var m = GrainMineral(i, j); if (m == null) continue;
-                        double rad = Grain * (0.32 + 0.16 * Hash(i, j, 1, _seed));
-                        float sh = (float)(0.8 + 0.3 * Hash(i, j, 4, _seed));
-                        Add(solid, i * Grain, -rad, j * Grain, rad / 0.75, m.R * sh, m.G * sh, m.B * sh, s);
-                        AddBody(0, i, j, i * Grain, -rad, j * Grain, rad, s);
-                    }
+                long reach = (long)Math.Ceiling(Math.Min(110, 2.2 * s / Grain)) + 1, gi0 = FocusGI, gj0 = FocusGJ;
+                int meshes = 0;
+                for (int layer = 0; layer < 2; layer++)
+                    for (long i = gi0 - reach; i <= gi0 + reach; i++)
+                        for (long j = gj0 - reach; j <= gj0 + reach; j++)
+                        {
+                            long gi = i * 2 + layer, gj = j * 2 + layer;                       // each layer's own grains
+                            var m = GrainMineral(gi, gj); if (m == null) continue;
+                            double rad = Grain * (0.3 + 0.2 * Hash(gi, gj, 1, _seed));
+                            double gx = (i + layer * 0.5 + (Hash(gi, gj, 2, _seed) - 0.5) * 0.55) * Grain, gz = (j + layer * 0.5 + (Hash(gi, gj, 3, _seed) - 0.5) * 0.55) * Grain;
+                            double gy = layer == 0 ? -rad * (0.85 + 0.3 * Hash(gi, gj, 5, _seed)) : -Grain * 0.75 - rad * 0.6;
+                            float sh = (float)(0.75 + 0.35 * Hash(gi, gj, 4, _seed)) * (layer == 0 ? 1f : 0.7f);
+                            double dx = gx - _fx, dz = gz - _fz, dist = Math.Sqrt(dx * dx + dz * dz + (0.6 * s - gy) * (0.6 * s - gy));
+                            double px = rad / Math.Max(1e-30, dist) * _lastH / (2 * Math.Tan(0.45));    // its size on screen, in pixels
+                            if (px > 5 && meshes < 1400 && mesh != null) { Stone(mesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); meshes++; }
+                            else Add(solid, gx, gy, gz, rad / 0.75, m.R * sh, m.G * sh, m.B * sh, s);
+                            if (layer == 0) AddBody(0, gi, gj, gx, gy, gz, rad, s);
+                        }
             }
+            if (overlay) return;                                                        // over the ground: only its grains so far
             // the focus grain's surface: detail at every size, fixed in place (cells of powers of ten, two at a time, blended),
             // in the grain's colour; its finest cells take on the colours of its atoms
             var fm = FocusMineral;
@@ -407,15 +454,20 @@ namespace DnaAnd.Shell
         }
 
         /// <summary>Draws the matter at <paramref name="scaleKm"/> (how far above the point you dive into), in view units.</summary>
-        public void Draw(Mat4 view, double scaleKm, int w, int h, double time)
+        public void Draw(Mat4 view, double scaleKm, int w, int h, double time) { Draw(view, scaleKm, w, h, time, null, false); }
+
+        /// <summary>Draws the matter; with <paramref name="overlay"/>, only its grains, lying over the ground still drawn below.</summary>
+        public void Draw(Mat4 view, double scaleKm, int w, int h, double time, MeshPipes pipes, bool overlay)
         {
+            _lastH = h;
             // the point you dive into eases across to what you picked
             double dt = _lastTime < 0 ? 0 : Math.Max(0, Math.Min(0.1, time - _lastTime)); _lastTime = time;
             double k = 1 - Math.Exp(-dt * 4); _fx += (_tfx - _fx) * k; _fz += (_tfz - _fz) * k;
-            var solid = new List<StarVertex>(20000); var glow = new List<StarVertex>(2000);
+            var solid = new List<StarVertex>(20000); var glow = new List<StarVertex>(2000); var mesh = pipes != null ? new List<StarVertex>(60000) : null;
             _bodies.Clear();
-            Build(scaleKm, time, solid, glow);
+            Build(scaleKm, time, solid, glow, mesh, overlay);
             Put(solid, ref _sv, ref _solidBuf); Put(glow, ref _gv, ref _glowBuf);
+            if (mesh != null) Put(mesh, ref _mv, ref _meshBuf);
             Mat4 vp = view * Mat4.Perspective(0.9f, w / (float)Math.Max(1, h), 0.001f, 200f);
             _lastVp = vp; _lastW = w; _lastH = h; _haveVp = true; _scale = scaleKm; _lastView = view;
             var right = new Vec3(view.M11, view.M21, view.M31); var up = new Vec3(view.M12, view.M22, view.M32);
@@ -426,6 +478,14 @@ namespace DnaAnd.Shell
             c[24] = (float)time; c[25] = 1; c[28] = w; c[29] = h; c[30] = 0.0012f;
             c[26] = 1; if (solid.Count > 0) _dots.Draw(_solidBuf, solid.Count, c, 0, 0, w, h);    // grains, atoms, protons and neutrons: round, solid
             c[26] = 0; if (glow.Count > 0) _dots.Draw(_glowBuf, glow.Count, c, 0, 0, w, h);      // electrons, their shells and the nucleus's spark: glows
+            if (mesh != null && mesh.Count > 0)
+            {
+                // the near grains as lit stones (flat facets), in the starlight of where you are
+                var mc = new float[BillboardPipeline.ConstantCount];
+                for (int q = 0; q < 16; q++) mc[q] = c[q];
+                mc[16] = Light[0]; mc[17] = Light[1]; mc[18] = Light[2]; mc[20] = 0; mc[21] = 0; mc[22] = 0; mc[25] = 0; mc[26] = 0;
+                pipes.Solid.Draw(_meshBuf, mesh.Count, mc, 0, 0, w, h);
+            }
         }
 
         private double _scale = TopKm; private Mat4 _lastView;
@@ -494,6 +554,6 @@ namespace DnaAnd.Shell
             return L;
         }
 
-        public void Dispose() { if (_solidBuf != null) _solidBuf.Dispose(); if (_glowBuf != null) _glowBuf.Dispose(); }
+        public void Dispose() { if (_solidBuf != null) _solidBuf.Dispose(); if (_glowBuf != null) _glowBuf.Dispose(); if (_meshBuf != null) _meshBuf.Dispose(); }
     }
 }

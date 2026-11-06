@@ -378,6 +378,18 @@ namespace DnaAnd.Shell
             return h < 0 && _ground.HasWater ? 0 : h;
         }
 
+        // what the matter under you is made of, set once for each spot (about a metre across), so its grains stay put
+        private ulong _matterSpot = ulong.MaxValue;
+        private void SetMatter()
+        {
+            double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z);
+            bool sea = _ground.HasWater && _ground.GroundAt(x / r, y / r, z / r) < 0, ice = Math.Abs(y / r) > 0.86;
+            ulong spot = (ulong)(long)(x / r * 1e7) * 73856093UL ^ (ulong)(long)(y / r * 1e7) * 19349663UL ^ (ulong)(long)(z / r * 1e7) * 83492791UL;   // the same place, the same grains
+            if (spot == _matterSpot) return;
+            _matterSpot = spot;
+            _matter.Set(_system.Bodies[_planet].Kind == "Moon" ? "moon" : _ground.Kind, sea, ice, sea ? 0.2f : 0.58f, sea ? 0.4f : 0.5f, sea ? 0.6f : 0.4f, spot);
+        }
+
         // how far above the planet's ground the camera is (universe units)
         private double AboveGround()
         {
@@ -636,6 +648,7 @@ namespace DnaAnd.Shell
                     double sp = reach * 0.5 * dt * (input.IsDown(0x10) ? 4 : 1);
                     _ox += (f.X * mf + rt.X * mr + upv.X * mu) * sp; _oy += (f.Y * mf + rt.Y * mr + upv.Y * mu) * sp; _oz += (f.Z * mf + rt.Z * mr + upv.Z * mu) * sp;
                     double fk = _ground != null ? Math.Max(5e-7, _ground.ReadyStep < 1e30 ? _ground.ReadyStep * 0.6 : 0) : 0;
+                    if (_ground != null && AboveGround() < Units.Km(MatterView.OverlayKm)) fk = 5e-7;
                     if (_ground != null && AboveGround() < Units.Km(fk))
                     {
                         // never through the ground, nor into its drawn pieces: back up above them
@@ -661,9 +674,8 @@ namespace DnaAnd.Shell
                 // at the finest ground: on down into what it is made of
                 double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z);
                 bool sea = _ground.HasWater && _ground.GroundAt(x / r, y / r, z / r) < 0, ice = Math.Abs(y / r) > 0.86;
-                ulong spot = (ulong)(long)(x / r * 1e7) * 73856093UL ^ (ulong)(long)(y / r * 1e7) * 19349663UL ^ (ulong)(long)(z / r * 1e7) * 83492791UL;   // the same place, the same grains
-                _matter.Set(_system.Bodies[_planet].Kind == "Moon" ? "moon" : _ground.Kind, sea, ice, sea ? 0.2f : 0.58f, sea ? 0.4f : 0.5f, sea ? 0.6f : 0.4f, spot);
-                _matterScale = MatterView.TopKm;
+                SetMatter();
+                _matterScale = Math.Max(MatterView.BottomKm, AboveGround() / Units.Km(1) / 0.6);   // the same picture carries on: you are 0.6 of the scale above it
                 return true;
             }
             if (input.Wheel != 0)
@@ -701,6 +713,7 @@ namespace DnaAnd.Shell
                     // ...but never inside the drawn ground: its pieces are flat triangles about ReadyStep across that can stand above
                     // the true ground, so stay at least 0.6 of a step above it until finer pieces are made (close enough to ask for them)
                     double floorKm = Math.Max(5e-7, Math.Min(ready, Math.Max(altBefore * 0.9, ready / 3 * 0.6)));
+                    if (altBefore < MatterView.OverlayKm) floorKm = 5e-7;                 // below a centimetre the grains cover the ground: no waiting for it
                     {
                         // over the sea: no lower than a metre above the water, until the dive under the sea is in the one world
                         double cx0, cy0, cz0; CamFromPlanet(out cx0, out cy0, out cz0); double r0 = Math.Sqrt(cx0 * cx0 + cy0 * cy0 + cz0 * cz0);
@@ -966,19 +979,21 @@ namespace DnaAnd.Shell
                 PlanetTerrain.Power = Window.Detail;
                 _ground.Draw(_meshes, x, y, z, view, kproj, time, 3.0 * Math.Max(1, h / 600.0) * Math.Max(0.3, Math.Min(3, Math.Sqrt(Window.Detail))), 0, 0, 0, 0, 0, 0, w, h, 400);   // detail scales with the GPU use
             }
+            double overAlt = _ground != null && _matterScale <= 0 ? AboveGround() / Units.Km(1) : 1e30;
+            if (overAlt < MatterView.OverlayKm)
+            {
+                // a centimetre over the ground: its grains begin to show, lying over it, specks that grow as you come down
+                SetMatter(); _gpu.ClearDepth();
+                Mat4 ov = MatterFrame(look);
+                _matter.Draw(ov, Math.Max(MatterView.BottomKm, overAlt / 0.6), w, h, time, _meshes, true);
+            }
             if (_matterScale > 0)
             {
                 // the matter, in front of everything; above a tenth of a millimetre the ground still shows through behind it
                 if (_matterScale < 1e-7) _gpu.ClearNow(0, 0, 0);                    // deep in the matter: only the matter is in view
                 _gpu.ClearDepth();
-                // the matter lies under the planet's own up and down: turn the view into that frame (up = away from the planet's middle)
-                double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z);
-                var upL = new Vec3((float)(x / r), (float)(y / r), (float)(z / r));
-                var east = Vec3.Cross(Math.Abs(upL.Y) < 0.99f ? new Vec3(0, 1, 0) : new Vec3(1, 0, 0), upL).Normalized; var north = Vec3.Cross(upL, east).Normalized;
-                var lk = new Vec3(Vec3.Dot(look, east), Vec3.Dot(look, upL), Vec3.Dot(look, north));
-                if (lk.Y > -0.2f) lk = new Vec3(lk.X, -0.2f, lk.Z);               // always looking down into it at least a little
-                Mat4 mview = Mat4.LookAt(new Vec3(0, 0, 0), lk.Normalized, Math.Abs(lk.Normalized.Y) > 0.98f ? new Vec3(0, 0, 1) : new Vec3(0, 1, 0));
-                _matter.Draw(mview, _matterScale, w, h, time);
+                Mat4 mview = MatterFrame(look);
+                _matter.Draw(mview, _matterScale, w, h, time, _meshes, false);
                 if (_hud.Visible) _hud.DrawCard(_meshes, _matter.Card(), 24 * Math.Max(1, h / 1080.0), 24 * Math.Max(1, h / 1080.0), w, h);   // what you are in, and what you picked
             }
             DrawScale(w, h);
@@ -1071,6 +1086,20 @@ namespace DnaAnd.Shell
             if (_ground.SunColour == null) { _ground.SunColour = new float[3]; _ground.NightColour = new float[3]; }
             _ground.SunColour[0] = dr; _ground.SunColour[1] = dg; _ground.SunColour[2] = db;
             _ground.NightColour[0] = nr / nm * 0.5f; _ground.NightColour[1] = ng / nm * 0.5f; _ground.NightColour[2] = nb / nm * 0.5f;
+        }
+
+        // the matter lies under the planet's own up and down: the view turned into that frame (up = away from the planet's
+        // middle), and the starlight with it
+        private Mat4 MatterFrame(Vec3 look)
+        {
+            double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z);
+            var upL = new Vec3((float)(x / r), (float)(y / r), (float)(z / r));
+            var east = Vec3.Cross(Math.Abs(upL.Y) < 0.99f ? new Vec3(0, 1, 0) : new Vec3(1, 0, 0), upL).Normalized; var north = Vec3.Cross(upL, east).Normalized;
+            var lk = new Vec3(Vec3.Dot(look, east), Vec3.Dot(look, upL), Vec3.Dot(look, north));
+            if (lk.Y > -0.2f) lk = new Vec3(lk.X, -0.2f, lk.Z);                       // always looking down into it at least a little
+            var sd = new Vec3((float)_ground.StarDir[0], (float)_ground.StarDir[1], (float)_ground.StarDir[2]);
+            _matter.Light[0] = Vec3.Dot(sd, east); _matter.Light[1] = Vec3.Dot(sd, upL); _matter.Light[2] = Vec3.Dot(sd, north);
+            return Mat4.LookAt(new Vec3(0, 0, 0), lk.Normalized, Math.Abs(lk.Normalized.Y) > 0.98f ? new Vec3(0, 0, 1) : new Vec3(0, 1, 0));
         }
 
         private List<string> Card()
