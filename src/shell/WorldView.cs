@@ -628,7 +628,7 @@ namespace DnaAnd.Shell
                     double r = Math.Sqrt(odx * odx + ody * ody + odz * odz);
                     double ox = -odx / r, oy = -ody / r, oz = -odz / r;                // from the pick to the camera
                     double th = Math.Atan2(oz, ox) - sx * input.MouseDX * 0.006, ph = Math.Asin(Math.Max(-1, Math.Min(1, oy)));
-                    ph = Math.Max(-1.55, Math.Min(1.55, ph + sy * input.MouseDY * 0.006));
+                    ph = Math.Max(-1.55, Math.Min(1.55, ph - sy * input.MouseDY * 0.006));   // up-down follows the mouse
                     double nx = Math.Cos(ph) * Math.Cos(th) * r, ny = Math.Sin(ph) * r, nz = Math.Cos(ph) * Math.Sin(th) * r;
                     _ox += nx + odx; _oy += ny + ody; _oz += nz + odz;                  // the camera moves to its new place round the pick
                     _yaw = Math.Atan2(-nz, -nx); _pitch = Math.Asin(Math.Max(-1, Math.Min(1, -ny / r)));
@@ -638,11 +638,11 @@ namespace DnaAnd.Shell
                     // near a planet: look around its own up, so turning stays level with its horizon
                     var u = ViewUp(); var f = Look;
                     f = Turn(f, u, -sx * input.MouseDX * 0.004);              // the same way round as looking around in space
-                    var rt = Vec3.Cross(f, u).Normalized; var f2 = Turn(f, rt, -sy * input.MouseDY * 0.004);   // the ground follows the mouse up and down too
+                    var rt = Vec3.Cross(f, u).Normalized; var f2 = Turn(f, rt, sy * input.MouseDY * 0.004);
                     if (Math.Abs(Vec3.Dot(f2, u)) < 0.995f) f = f2;                   // never quite straight up or down
                     _yaw = Math.Atan2(f.Z, f.X); _pitch = Math.Asin(Math.Max(-1, Math.Min(1, f.Y)));
                 }
-                else { _yaw += sx * input.MouseDX * 0.004; _pitch = Math.Max(-1.55, Math.Min(1.55, _pitch + sy * input.MouseDY * 0.004)); }
+                else { _yaw += sx * input.MouseDX * 0.004; _pitch = Math.Max(-1.55, Math.Min(1.55, _pitch - sy * input.MouseDY * 0.004)); }   // up-down follows the mouse
             }
             Jumped("dragging");
             double reach = NearestDistance();
