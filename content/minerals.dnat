@@ -5,6 +5,9 @@
 #   its seas basalt with ilmenite; Mars's dust is basalt minerals reddened by hematite; icy worlds are water ice with
 #   frozen carbon dioxide, nitrogen and methane). Shares are rough parts per 100 of the grains.
 # Each grain of ground is one mineral, picked from its ground's mix; zooming into it shows that mineral's own atoms.
+# grain-mm: the grains' sizes across, smallest to largest (Wentworth scale: sand 0.0625 to 2 mm, silt 0.0039 to 0.0625 mm,
+#   clay below 0.0039 mm; dune sand mostly 0.2 to 0.5 mm; the Moon's dust about 0.04 to 0.1 mm; snow grains 0.1 to 2 mm).
+# Crystal faces step down in single layers about 0.2 to 0.3 nm high, with flat terraces between usually 10 to 100 nm wide.
 # atoms: the formula's atoms written out one by one (its real ratio); colour: the grain's colour as seen (0 to 1).
 # Spec: docs/CONTENT-FORMAT.md · content/elements.dnat · content/geology.dnat
 
@@ -150,36 +153,45 @@ colour: 0.82 0.74 0.66
 
 @mix temperate
 name: Land of a temperate world
+grain-mm: 0.1..0.5
 minerals: quartz 25, albite 18, orthoclase 14, kaolinite 12, augite 6, biotite 5, calcite 8, hematite 5, magnetite 3, forsterite 2, gypsum 2
 
 @mix desert
 name: Dry rocky ground
+grain-mm: 0.2..0.5
 minerals: quartz 22, hematite 14, albite 14, augite 14, forsterite 10, enstatite 6, magnetite 6, gypsum 6, halite 4, calcite 4
 
 @mix lava
 name: Fresh basalt and lava rock
+grain-mm: 0.2..1
 minerals: augite 28, anorthite 26, forsterite 18, fayalite 6, magnetite 10, ilmenite 6, sulfur 4, pyrite 2
 
 @mix snowball
 name: Frozen ground
+grain-mm: 0.2..1
 minerals: water-ice 70, dry-ice 10, nitrogen-ice 5, methane-ice 5, forsterite 5, enstatite 5
 
 @mix moon
 name: Moon ground
+grain-mm: 0.04..0.1
 minerals: anorthite 40, augite 22, forsterite 14, ilmenite 14, fayalite 5, quartz 5
 
 @mix tidally-locked
 name: Ground of a tidally locked world
+grain-mm: 0.1..0.5
 minerals: augite 22, anorthite 18, quartz 14, hematite 14, forsterite 12, water-ice 10, magnetite 10
 
 @mix ocean
 name: Sea floor
+grain-mm: 0.01..0.06
 minerals: augite 30, anorthite 25, forsterite 15, calcite 15, kaolinite 10, pyrite 5
 
 @mix sea
 name: The sea
+grain-mm: 0..0
 minerals: sea-water 100
 
 @mix ice
 name: Sea ice and ice sheets
+grain-mm: 0.2..1
 minerals: water-ice 100

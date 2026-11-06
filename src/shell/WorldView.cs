@@ -1041,6 +1041,7 @@ namespace DnaAnd.Shell
                 _gpu.ClearDepth();
                 Mat4 mview = MatterFrame(look);
                 _matter.Draw(mview, _matterScale, w, h, time, _meshes, false);
+                double qx, qy, qr; if (_matter.PickedOnScreen(out qx, out qy, out qr)) _hud.DrawRing(_meshes, qx, qy, Math.Min(qr, h * 0.45), w, h);   // what you picked, ringed
                 if (_hud.Visible) _hud.DrawCard(_meshes, _matter.Card(), 24 * Math.Max(1, h / 1080.0), 24 * Math.Max(1, h / 1080.0), w, h);   // what you are in, and what you picked
             }
             DrawScale(w, h);

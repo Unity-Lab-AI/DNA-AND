@@ -24,7 +24,8 @@ namespace DnaAnd.Shell
         public const double TopKm = 2.6e-6;         // where the matter alone is drawn, about 1.5 mm up (above it the grains lie over the ground)
         public const double OverlayKm = 1e-5;       // 1 cm up: the grains begin to show over the ground, as specks that grow as you come down
         public const double BottomKm = 3e-19;       // 0.3 femtometres: among the protons and neutrons of a nucleus
-        private const double Grain = 2e-7;          // 0.2 mm: a grain of sand or dust
+        private double Grain = 2e-7;                // a grain's size across (km): from its ground's mix (content: grain-mm)
+        private readonly Dictionary<string, double> _grainKm = new Dictionary<string, double>();
         private const double AtomSpacing = 2.5e-13; // about 0.25 nm between atoms in a crystal
         private const double Nucleon = 0.85e-18;    // a proton's or neutron's radius, about 0.85 femtometres
 
@@ -34,7 +35,7 @@ namespace DnaAnd.Shell
         private readonly Dictionary<string, List<KeyValuePair<Mineral, double>>> _mixes = new Dictionary<string, List<KeyValuePair<Mineral, double>>>();
         private readonly Dictionary<string, Element> _elements = new Dictionary<string, Element>();
         private List<KeyValuePair<Mineral, double>> _mix; private string _mixId = "";
-        private ulong _seed;
+        private ulong _seed; private bool _noGrains;
         // the point you dive into (km, across the ground) and where it is easing to (what you picked)
         private double _fx, _fz, _tfx, _tfz, _lastTime = -1;
         private sealed class Body { public int Kind; public long I, J; public double X, Y, Z, Size; public string Sym; }   // 0 a grain, 1 an atom
@@ -77,6 +78,7 @@ namespace DnaAnd.Shell
                     if (w.Length == 2 && double.TryParse(w[1], out share) && _minerals.TryGetValue(w[0], out m)) list.Add(new KeyValuePair<Mineral, double>(m, share));
                 }
                 if (list.Count > 0) _mixes[e.Id] = list;
+                double glo, ghi; if (e.TryRange("grain-mm", out glo, out ghi)) _grainKm[e.Id] = (glo + ghi) * 0.5 * 1e-6;
             }
         }
 
@@ -102,6 +104,7 @@ namespace DnaAnd.Shell
             if (!_mixes.ContainsKey(id)) id = "desert";
             _mixId = id; _mix = _mixes.ContainsKey(id) ? _mixes[id] : null; _seed = spot;
             _fx = _fz = _tfx = _tfz = 0; _picked = null;
+            double gk; Grain = _grainKm.TryGetValue(id, out gk) ? gk : 3e-7; _noGrains = Grain <= 0; if (_noGrains) Grain = 3e-7;   // the sea has no grains
         }
 
         private static double Hash(long i, long j, long k, ulong seed)
@@ -161,7 +164,23 @@ namespace DnaAnd.Shell
 
         // ── real crystal structures, where they are in: rock salt (halite) and the silica network (quartz) ──
         private sealed class CAtom { public Element E; public double X, Y, Z; }
-        private static bool Structured(string id) { return id == "halite" || id == "quartz"; }
+        // which structure a mineral has: the silicate network (every silicate: SiO4 tetrahedra joined at their corners, with
+        // aluminium in some tetrahedra and the larger atoms in the gaps), a rock-salt pattern of ions or ion groups (halite;
+        // calcite of Ca and CO3; pyrite of Fe and S2; gypsum of Ca and SO4; the iron and titanium oxides, as an approximation),
+        // or neither (molecular ices, sulfur)
+        private static readonly HashSet<string> RockSalt = new HashSet<string> { "halite", "calcite", "pyrite", "gypsum", "hematite", "magnetite", "ilmenite" };
+        private bool Structured(string id) { Mineral m; return RockSalt.Contains(id) || (_minerals.TryGetValue(id, out m) && Array.IndexOf(m.Atoms, "Si") >= 0); }
+        private string StructureName(Mineral m)
+        {
+            if (m == null) return "";
+            if (m.Id == "halite") return ", a rock-salt crystal";
+            if (m.Id == "calcite") return ", a rock-salt pattern of calcium and carbonate groups";
+            if (m.Id == "pyrite") return ", a rock-salt pattern of iron and sulfur pairs";
+            if (m.Id == "gypsum") return ", calcium and sulfate groups";
+            if (RockSalt.Contains(m.Id)) return ", metal ions among oxygen (shown as a rock-salt pattern)";
+            if (Array.IndexOf(m.Atoms, "Si") >= 0) return ", a silicate network (shown in its simplest cubic form)";
+            return "";
+        }
 
         // the atoms of a structured crystal within reach of (cx, cz), top layer at height 0 and below it 'layers' cells deep
         private List<CAtom> Crystal(string id, double cx, double cz, double reach, int layers)
@@ -176,6 +195,57 @@ namespace DnaAnd.Shell
                     for (long j = j0 - n; j <= j0 + n; j++)
                         for (long k = 0; k > -2 * layers - 1; k--)
                             list.Add(new CAtom { E = ((i + j + k) & 1) == 0 ? na : cl, X = i * d, Y = k * d, Z = j * d });
+            }
+            else if (RockSalt.Contains(id))
+            {
+                // a rock-salt pattern: cations and anions (or anion groups) alternating on a cube grid
+                var m = _minerals[id]; double d; string cat, cat2 = null; KeyValuePair<string, double[]>[] grp;
+                double co = 1.28e-13, ss = 2.16e-13 / 2, so = 1.47e-13 / Math.Sqrt(3);
+                switch (id)
+                {
+                    case "calcite": d = 3.2e-13; cat = "Ca"; grp = new[] { P("C", 0, 0, 0), P("O", co, 0, 0), P("O", -co / 2, 0, co * 0.866), P("O", -co / 2, 0, -co * 0.866) }; break;   // CO3: flat triangle, C-O 0.128 nm
+                    case "pyrite": d = 2.7e-13; cat = "Fe"; grp = new[] { P("S", ss, ss * 0.3, 0), P("S", -ss, -ss * 0.3, 0) }; break;                                          // S2 pairs, S-S 0.216 nm
+                    case "gypsum": d = 3.5e-13; cat = "Ca"; grp = new[] { P("S", 0, 0, 0), P("O", so, so, so), P("O", so, -so, -so), P("O", -so, so, -so), P("O", -so, -so, so) }; break;   // SO4 tetrahedra, S-O 0.147 nm
+                    case "ilmenite": d = 2.1e-13; cat = "Fe"; cat2 = "Ti"; grp = new[] { P("O", 0, 0, 0) }; break;
+                    default: d = 2.1e-13; cat = "Fe"; grp = new[] { P("O", 0, 0, 0) }; break;                                                                                 // Fe-O about 0.21 nm
+                }
+                long n = (long)Math.Min(40, Math.Ceiling(reach / d) + 1), i0 = (long)Math.Round(cx / d), j0 = (long)Math.Round(cz / d);
+                for (long i = i0 - n; i <= i0 + n; i++)
+                    for (long j = j0 - n; j <= j0 + n; j++)
+                        for (long k = 0; k > -2 * layers - 1; k--)
+                        {
+                            double X = i * d, Y = k * d, Z = j * d;
+                            if (((i + j + k) & 1) == 0) list.Add(new CAtom { E = El(cat2 != null && ((i + k) & 2) == 0 ? cat2 : cat), X = X, Y = Y, Z = Z });
+                            else foreach (var gp in grp) { double ox, oy, oz; Orient(i, j, k, gp.Value, out ox, out oy, out oz); if (grp.Length == 1) { ox = oy = oz = 0; } list.Add(new CAtom { E = El(gp.Key), X = X + ox, Y = Y + oy, Z = Z + oz }); }
+                        }
+                list.RemoveAll(at => at.Y > 0.6 * d * 0.5);
+            }
+            else if (id != "quartz" && Structured(id))
+            {
+                // the silicate network: SiO4 tetrahedra joined at their corners (cristobalite's cubic form, 0.716 nm), with this
+                // mineral's own silicon and aluminium in the tetrahedra (in its ratio) and its larger atoms in the gaps
+                var m = _minerals[id];
+                var tl = new List<string>(); var big = new List<string>(); int ox = 0;
+                foreach (var a in m.Atoms) { if (a == "Si" || a == "Al") tl.Add(a); else if (a == "O") ox++; else if (a != "H") big.Add(a); }
+                if (tl.Count == 0) tl.Add("Si");
+                double fill = Math.Min(1, big.Count * 2.0 / tl.Count);                              // gaps filled per two tetrahedra, from the formula
+                double A = 7.16e-13; long n = (long)Math.Min(12, Math.Ceiling(reach / A) + 1), i0 = (long)Math.Floor(cx / A), j0 = (long)Math.Floor(cz / A);
+                Element o = El("O");
+                double[][] fcc = { new[] { 0, 0, 0.0 }, new[] { 0, 0.5, 0.5 }, new[] { 0.5, 0, 0.5 }, new[] { 0.5, 0.5, 0.0 } };
+                double[][] bonds = { new[] { 0.25, 0.25, 0.25 }, new[] { 0.25, -0.25, -0.25 }, new[] { -0.25, 0.25, -0.25 }, new[] { -0.25, -0.25, 0.25 } };
+                for (long i = i0 - n; i <= i0 + n; i++)
+                    for (long j = j0 - n; j <= j0 + n; j++)
+                        for (long k = 0; k > -layers - 1; k--)
+                            for (int q = 0; q < 4; q++)
+                            {
+                                var b = fcc[q]; double bx = (i + b[0]) * A, by = (k + b[1]) * A - A * 0.25, bz = (j + b[2]) * A;
+                                list.Add(new CAtom { E = El(tl[(int)(Hash(i * 8 + q, j, k + 70, _seed) * tl.Count) % tl.Count]), X = bx, Y = by, Z = bz });
+                                list.Add(new CAtom { E = El(tl[(int)(Hash(i * 8 + q, j, k + 71, _seed) * tl.Count) % tl.Count]), X = bx + 0.25 * A, Y = by + 0.25 * A, Z = bz + 0.25 * A });
+                                foreach (var v in bonds) list.Add(new CAtom { E = o, X = bx + v[0] * A * 0.5, Y = by + v[1] * A * 0.5, Z = bz + v[2] * A * 0.5 });
+                                if (big.Count > 0 && Hash(i * 8 + q, j, k + 72, _seed) < fill)
+                                    list.Add(new CAtom { E = El(big[(int)(Hash(i * 8 + q, j, k + 73, _seed) * big.Count) % big.Count]), X = bx + 0.5 * A, Y = by + 0.5 * A, Z = bz + 0.5 * A });
+                            }
+                list.RemoveAll(at => at.Y > 1e-20);
             }
             else if (id == "quartz")
             {
@@ -318,7 +388,8 @@ namespace DnaAnd.Shell
         {
             // grains: lumpy stones, each its own mineral from the mix, scattered (not on a grid) in two layers, the top one
             // resting with its tops at the level you dive into; near ones are lit 3D stones, far ones specks of their colour
-            if (s > AtomSpacing * 40)
+            // (once you are down at the grain's own surface it is no longer drawn as a stone: you are at its face)
+            if (!_noGrains && s > Grain * 0.35)
             {
                 long reach = (long)Math.Ceiling(Math.Min(110, 2.2 * s / Grain)) + 1, gi0 = FocusGI, gj0 = FocusGJ;
                 int meshes = 0, smalls = 0;
@@ -362,10 +433,14 @@ namespace DnaAnd.Shell
                             if ((x - _fx) * (x - _fx) + (z - _fz) * (z - _fz) > 2.6 * s * s) continue;
                             long ci = (long)Math.Floor(x / c), cj = (long)Math.Floor(z / c);
                             float sh = (float)(0.7 + 0.45 * Hash(ci, cj, (long)Math.Round(Math.Log10(c) * 10), _seed));
+                            // below about 300 nm the face shows its atomic terraces: flat patches tens of nm wide, each a layer
+                            // (0.3 nm) above or below its neighbours
+                            double ty = 0;
+                            if (c < 3e-10) { const double tw = 4e-11; long ti = (long)Math.Floor(x / tw), tj = (long)Math.Floor(z / tw); ty = -Math.Floor(Hash(ti, tj, 60, _seed) * 4) * 3e-13; sh *= (float)(1 + ty / 3e-13 * 0.08); }
                             float r = fm.R, g = fm.G, b = fm.B;
                             if (atomish > 0) { var ae = El(fm.Atoms[(int)(Hash(ci, cj, 5, _seed) * fm.Atoms.Length) % fm.Atoms.Length]); if (ae != null) { r = (float)(r * (1 - atomish) + ae.R * atomish); g = (float)(g * (1 - atomish) + ae.G * atomish); b = (float)(b * (1 - atomish) + ae.B * atomish); } }
                             float f = (float)(wgt * Fade(s, Grain * 1.5, Grain * 0.6) * (1 - Fade(s, AtomSpacing * 14, AtomSpacing * 8)));
-                            if (f > 0.01) Add(solid, x, -c * 0.05, z, c * 0.72, r * sh * f, g * sh * f, b * sh * f, s);
+                            if (f > 0.01) Add(solid, x, ty - c * 0.05, z, c * 0.72, r * sh * f, g * sh * f, b * sh * f, s);
                         }
                 }
             }
@@ -381,6 +456,7 @@ namespace DnaAnd.Shell
                     if (inFocus) continue;
                     float sh = (float)(1 + 0.6 * at.Y / AtomSpacing * 0.25); sh = Math.Max(0.45f, sh);
                     Add(solid, at.X, ay, at.Z, ar * 0.62, at.E.R * sh * f, at.E.G * sh * f, at.E.B * sh * f, s);
+                    if (s < AtomSpacing * 2.5) Cloud(glow, at.E, at.X, ay, at.Z, s, time, (long)(at.X / 1e-14) ^ (long)(at.Z / 1e-14) * 31, (float)Fade(s, AtomSpacing * 2.5, AtomSpacing * 1.2));
                     if (at.Y > -0.3 * AtomSpacing) { AddBody(1, 0, 0, at.X, ay, at.Z, ar, s); if (_bodies.Count > 0) _bodies[_bodies.Count - 1].Sym = at.E.Symbol; }
                 }
             }
@@ -457,6 +533,25 @@ namespace DnaAnd.Shell
                         Add(solid, ax0 + rr * Math.Sin(v) * Math.Cos(u), cy + rr * Math.Cos(v), az0 + rr * Math.Sin(v) * Math.Sin(u), Nucleon / 0.75,
                             proton ? 0.9f : 0.6f, proton ? 0.22f : 0.65f, proton ? 0.2f : 0.75f, s);
                     }
+                }
+            }
+        }
+
+        // an atom's electrons, for the atoms around the one you are in: a faint glow for each shell and its electrons moving
+        private void Cloud(List<StarVertex> glow, Element e, double x, double y, double z, double s, double time, long key, float f)
+        {
+            if (f <= 0.01) return;
+            double ar = AtomRadius(e); int shells = e.Shells.Length;
+            for (int sh = 0; sh < shells; sh++)
+            {
+                double rr = ar * (sh + 1) / shells;
+                Add(glow, x, y, z, rr * 1.1, 0.05f * f, 0.08f * f, 0.15f * f, s);
+                int ne = Math.Min(e.Shells[sh], 18);
+                for (int k = 0; k < ne; k++)
+                {
+                    double tilt = Hash(key + sh, k, 33, _seed) * Math.PI, turn = Hash(key + sh, k, 34, _seed) * Math.PI * 2, ang = time * (2.2 / (sh + 1)) + k * Math.PI * 2 / ne;
+                    double ox = Math.Cos(ang) * rr, oz = Math.Sin(ang) * rr, oy = oz * Math.Sin(tilt); oz *= Math.Cos(tilt);
+                    Add(glow, x + ox * Math.Cos(turn) - oz * Math.Sin(turn), y + oy, z + ox * Math.Sin(turn) + oz * Math.Cos(turn), ar * 0.05, 0.4f * f, 0.75f * f, 1f * f, s);
                 }
             }
         }
@@ -548,6 +643,17 @@ namespace DnaAnd.Shell
         /// <summary>Moves the point under you (km east and north), as W A S D fly you across.</summary>
         public void Move(double east, double north) { _fx += east; _fz += north; _tfx = _fx; _tfz = _fz; }
 
+        /// <summary>Where the picked grain or atom is on screen (pixels) and how big, for its ring; false if nothing is picked.</summary>
+        public bool PickedOnScreen(out double sx, out double sy, out double rpx)
+        {
+            sx = sy = rpx = 0; if (_picked == null || !_haveVp) return false; var m = _lastVp;
+            float x = (float)((_picked.X - _fx) / _scale), y = (float)(_picked.Y / _scale - 0.6), z = (float)((_picked.Z - _fz) / _scale);
+            float cx = x * m.M11 + y * m.M21 + z * m.M31 + m.M41, cy = x * m.M12 + y * m.M22 + z * m.M32 + m.M42, cw = x * m.M14 + y * m.M24 + z * m.M34 + m.M44;
+            if (cw <= 0) return false;
+            sx = (cx / cw * 0.5 + 0.5) * _lastW; sy = (0.5 - cy / cw * 0.5) * _lastH;
+            rpx = Math.Max(10, _picked.Size / _scale / cw / Math.Tan(0.45) * _lastH * 0.5 * 1.3); return true;
+        }
+
         /// <summary>Lets go of the pick (the point you dive into stays where it is).</summary>
         public void Unpick() { _picked = null; _tfx = _fx; _tfz = _fz; }
 
@@ -574,7 +680,7 @@ namespace DnaAnd.Shell
             L.Add("shells: " + string.Join(", ", Array.ConvertAll(e.Shells, x => x.ToString())));
             L.Add("width: about " + ScaleHud.Words(AtomRadius(e) * 2) + ", nucleus " + ScaleHud.Words(NucleusRadius(e) * 2));
             if (fm != null && Molecules.ContainsKey(fm.Id)) L.Add("in a molecule of " + fm.Formula.Split(' ')[0] + ", in " + fm.Name.ToLowerInvariant());
-            else if (fm != null) L.Add("in a grain of " + fm.Name.ToLowerInvariant() + " (" + fm.Formula + ")" + (fm.Id == "halite" ? ", a rock-salt crystal" : fm.Id == "quartz" ? ", a silica network" : ""));
+            else if (fm != null) L.Add("in a grain of " + fm.Name.ToLowerInvariant() + " (" + fm.Formula + ")" + StructureName(fm));
             return L;
         }
 
