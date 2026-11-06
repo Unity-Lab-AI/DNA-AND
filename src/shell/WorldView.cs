@@ -554,6 +554,15 @@ namespace DnaAnd.Shell
                     _ox += nx + odx; _oy += ny + ody; _oz += nz + odz;                  // the camera moves to its new place round the pick
                     _yaw = Math.Atan2(-nz, -nx); _pitch = Math.Asin(Math.Max(-1, Math.Min(1, -ny / r)));
                 }
+                else if (_ground != null)
+                {
+                    // near a planet: look around its own up, so turning stays level with its horizon
+                    var u = ViewUp(); var f = Look;
+                    f = Turn(f, u, sx * input.MouseDX * 0.004);
+                    var rt = Vec3.Cross(f, u).Normalized; var f2 = Turn(f, rt, sy * input.MouseDY * 0.004);
+                    if (Math.Abs(Vec3.Dot(f2, u)) < 0.995f) f = f2;                   // never quite straight up or down
+                    _yaw = Math.Atan2(f.Z, f.X); _pitch = Math.Asin(Math.Max(-1, Math.Min(1, f.Y)));
+                }
                 else { _yaw += sx * input.MouseDX * 0.004; _pitch = Math.Max(-1.55, Math.Min(1.55, _pitch + sy * input.MouseDY * 0.004)); }
             }
             double reach = NearestDistance();
@@ -682,6 +691,13 @@ namespace DnaAnd.Shell
                 if (c > bestCos) { bestCos = c; best = new Vec3((float)(dx / l), (float)(dy / l), (float)(dz / l)); dist = l; }
             }
             return best;
+        }
+
+        // v turned by angle a (radians) round the unit axis k
+        private static Vec3 Turn(Vec3 v, Vec3 k, double a)
+        {
+            float c = (float)Math.Cos(a), sn = (float)Math.Sin(a), d = Vec3.Dot(k, v); var x = Vec3.Cross(k, v);
+            return new Vec3(v.X * c + x.X * sn + k.X * d * (1 - c), v.Y * c + x.Y * sn + k.Y * d * (1 - c), v.Z * c + x.Z * sn + k.Z * d * (1 - c)).Normalized;
         }
 
         // the view's up: the universe's up in space; near a planet's ground, the planet's own up (so its horizon is level)
