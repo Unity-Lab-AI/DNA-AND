@@ -524,6 +524,10 @@ namespace DnaAnd.Shell
             _picked = pick; _tfx = pick.X; _tfz = pick.Z; return true;
         }
 
+        /// <summary>Puts the point you dive into right under you (km east and north of where this spot's matter began), so the
+        /// grains pass by as you fly over them.</summary>
+        public void Follow(double east, double north) { _fx = _tfx = east; _fz = _tfz = north; _picked = null; }
+
         /// <summary>Lets go of the pick (the point you dive into stays where it is).</summary>
         public void Unpick() { _picked = null; _tfx = _fx; _tfz = _fz; }
 

@@ -379,14 +379,24 @@ namespace DnaAnd.Shell
         }
 
         // what the matter under you is made of, set once for each spot (about a metre across), so its grains stay put
-        private ulong _matterSpot = ulong.MaxValue;
+        private ulong _matterSpot = ulong.MaxValue; private double _mox, _moy, _moz; private int _matterPlanet = -1;
+        // where you are from the spot the matter began at (km east and north there)
+        private void MatterOffset(out double e, out double n)
+        {
+            double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z);
+            var up = new Vec3((float)_mox, (float)_moy, (float)_moz);
+            var east = Vec3.Cross(Math.Abs(up.Y) < 0.99f ? new Vec3(0, 1, 0) : new Vec3(1, 0, 0), up).Normalized; var north = Vec3.Cross(up, east).Normalized;
+            double dx = (x / r - _mox) * _ground.Radius, dy = (y / r - _moy) * _ground.Radius, dz = (z / r - _moz) * _ground.Radius;
+            e = dx * east.X + dy * east.Y + dz * east.Z; n = dx * north.X + dy * north.Y + dz * north.Z;
+        }
         private void SetMatter()
         {
             double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z);
+            double e, n;
+            if (_matterSpot != ulong.MaxValue && _matterPlanet == _planet) { MatterOffset(out e, out n); if (e * e + n * n < 5e-4 * 5e-4) { _matter.Follow(e, n); return; } }   // within half a metre: the same grains, passing by
             bool sea = _ground.HasWater && _ground.GroundAt(x / r, y / r, z / r) < 0, ice = Math.Abs(y / r) > 0.86;
             ulong spot = (ulong)(long)(x / r * 1e7) * 73856093UL ^ (ulong)(long)(y / r * 1e7) * 19349663UL ^ (ulong)(long)(z / r * 1e7) * 83492791UL;   // the same place, the same grains
-            if (spot == _matterSpot) return;
-            _matterSpot = spot;
+            _matterSpot = spot; _matterPlanet = _planet; _mox = x / r; _moy = y / r; _moz = z / r;
             _matter.Set(_system.Bodies[_planet].Kind == "Moon" ? "moon" : _ground.Kind, sea, ice, sea ? 0.2f : 0.58f, sea ? 0.4f : 0.5f, sea ? 0.6f : 0.4f, spot);
         }
 
