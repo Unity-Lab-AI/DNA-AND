@@ -51,6 +51,47 @@ namespace DnaAnd.Shell
             "STILL TO COME\n" +
             "The waveform carrying every field from galaxies to microbes (gas and star fields, the ground itself, clouds, stars' surfaces); life; gameplay; and the interface.";
 
+        // a Help text as a document: its first line the title, its lines in capitals its headings
+        private static string AsDoc(string text)
+        {
+            var lines = text.Split('\n'); var b = new System.Text.StringBuilder();
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string l = lines[i];
+                bool caps = l.Length > 3 && l.ToUpperInvariant() == l && l.IndexOf("://") < 0 && System.Linq.Enumerable.Any(l, char.IsLetter);
+                if (i == 0) b.Append("# ").Append(l).Append("\n");
+                else if (caps) b.Append("## ").Append(char.ToUpperInvariant(l[0])).Append(l.Substring(1).ToLowerInvariant()).Append("\n");
+                else b.Append(l).Append("\n");
+            }
+            return b.ToString();
+        }
+
+        // a document built into the program (from docs/release, so the program and the repo say the same)
+        private static string Built(string name)
+        {
+            try
+            {
+                using (var s = typeof(PreviewText).Assembly.GetManifestResourceStream(name))
+                    if (s != null) using (var r = new System.IO.StreamReader(s)) return r.ReadToEnd();
+            }
+            catch { }
+            return "# " + name + "\n\nThis document is not in this copy of the program.";
+        }
+
+        /// <summary>Every document for the viewer: About, Readme, How it works, the universe in plain words, the build guide, Credits.</summary>
+        public static System.Collections.Generic.List<DnaAnd.Platform.DocViewer.Doc> Docs()
+        {
+            return new System.Collections.Generic.List<DnaAnd.Platform.DocViewer.Doc>
+            {
+                new DnaAnd.Platform.DocViewer.Doc { Title = "About", Text = AsDoc(About) },
+                new DnaAnd.Platform.DocViewer.Doc { Title = "Readme: how to use it", Text = AsDoc(Readme) },
+                new DnaAnd.Platform.DocViewer.Doc { Title = "How it works", Text = AsDoc(HowItWorks) },
+                new DnaAnd.Platform.DocViewer.Doc { Title = "The universe, in plain words", Text = Built("universe-readme.md") },
+                new DnaAnd.Platform.DocViewer.Doc { Title = "Build your own (technical)", Text = Built("how-to-build.md") },
+                new DnaAnd.Platform.DocViewer.Doc { Title = "Credits", Text = AsDoc(Credits) },
+            };
+        }
+
         public const string Credits =
             "Made by the Unity AI Lab team\nhttps://unityailab.com\n\n" +
             "GFourteen (Gee): co-founder, engineer, financial advisor\n" +

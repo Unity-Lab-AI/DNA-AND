@@ -166,10 +166,11 @@ namespace DnaAnd
                 else if (cmd == Window.CmdAskNow) askNow = true;
                 else if (cmd == Window.CmdLegend) window.Tell(style != null ? style.Legend() : microbes != null ? microbes.Legend() : elements != null ? elements.Legend() : planet != null ? planet.Legend() : viewer.Legend(), "DNA-AND · Legend");
                 else if (cmd >= Window.CmdScaleBase && cmd < Window.CmdScaleBase + Window.ScalePercents.Length) { window.RenderScale = Window.ScalePercents[cmd - Window.CmdScaleBase] / 100.0; menuDirty = true; }
-                else if (cmd == Window.CmdAbout) window.Tell(PreviewText.About, "About DNA-AND");
-                else if (cmd == Window.CmdHowItWorks) window.Tell(PreviewText.HowItWorks, "DNA-AND · How it works");
-                else if (cmd == Window.CmdReadme) window.Tell(PreviewText.Readme, "DNA-AND · Readme");
-                else if (cmd == Window.CmdCredits) window.Tell(PreviewText.Credits, "DNA-AND · Credits");
+                // the documents open in their own viewer window, beside the game
+                else if (cmd == Window.CmdAbout) DocViewer.Show(window.Handle, PreviewText.Docs(), 0);
+                else if (cmd == Window.CmdReadme) DocViewer.Show(window.Handle, PreviewText.Docs(), 1);
+                else if (cmd == Window.CmdHowItWorks) DocViewer.Show(window.Handle, PreviewText.Docs(), 2);
+                else if (cmd == Window.CmdCredits) DocViewer.Show(window.Handle, PreviewText.Docs(), 5);
                 else if (cmd == Window.CmdInvertX) { Settings.Set("invert-left-right", !Settings.Get("invert-left-right", false)); menuDirty = true; }
                 else if (cmd == Window.CmdInvertY) { Settings.Set("invert-up-down", !Settings.Get("invert-up-down", false)); menuDirty = true; }
                 else if (cmd == Window.CmdScaleHud && world != null) { world.ScaleOn = !world.ScaleOn; menuDirty = true; }

@@ -140,6 +140,7 @@ namespace DnaAnd.Platform
             while (Win32.PeekMessage(out msg, IntPtr.Zero, 0, 0, Win32.PM_REMOVE))
             {
                 if (msg.message == Win32.WM_QUIT) { IsOpen = false; break; }
+                if (DocViewer.PreTranslate(ref msg)) continue;                        // the document viewer's own keys
                 Win32.TranslateMessage(ref msg);
                 Win32.DispatchMessage(ref msg);
             }
