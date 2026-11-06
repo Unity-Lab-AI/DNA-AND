@@ -562,7 +562,7 @@ namespace DnaAnd.Shell
                 {
                     // near a planet: look around its own up, so turning stays level with its horizon
                     var u = ViewUp(); var f = Look;
-                    f = Turn(f, u, sx * input.MouseDX * 0.004);
+                    f = Turn(f, u, -sx * input.MouseDX * 0.004);              // the same way round as looking around in space
                     var rt = Vec3.Cross(f, u).Normalized; var f2 = Turn(f, rt, sy * input.MouseDY * 0.004);
                     if (Math.Abs(Vec3.Dot(f2, u)) < 0.995f) f = f2;                   // never quite straight up or down
                     _yaw = Math.Atan2(f.Z, f.X); _pitch = Math.Asin(Math.Max(-1, Math.Min(1, f.Y)));
