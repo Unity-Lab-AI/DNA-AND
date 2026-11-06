@@ -108,6 +108,13 @@ namespace DnaAnd.Shell
                 _surf.Add(new SurfThing { Id = e.Id, Name = e.Name, M = om, Lo = lo, Hi = hi, Chance = ch, Flat = shape == "flat", Molecule = shape == "molecule",
                     Bond = bl * 1e-12, Angle = ang, FromGround = fromGround, Thick = TryD(e.Get("thickness", "0.05"), 0.05), Cell = TryD(e.Get("spacing", "4"), 4), About = e.Get("about", "").Split('|').Select(q => q.Trim()).Where(q => q.Length > 0).ToArray() });
             }
+            foreach (var e in content.OfKind("physics.dnat", "law"))
+            {
+                if (e.Id == "nuclear-force") { _coreFm = TryD(e.Get("core-fm", "1.7"), 1.7); _spacingFm = TryD(e.Get("spacing-fm", "1.8"), 1.8); _rangeFm = TryD(e.Get("range-fm", "2.6"), 2.6); }
+                if (e.Id == "coulomb") _kCoulomb = TryD(e.Get("k-mev-fm", "1.44"), 1.44);
+                if (e.Id == "mass-formula") { _aV = TryD(e.Get("volume-mev", "15.75"), 15.75); _aS = TryD(e.Get("surface-mev", "17.8"), 17.8); _aC = TryD(e.Get("coulomb-mev", "0.711"), 0.711); _aA = TryD(e.Get("asymmetry-mev", "23.7"), 23.7); _aP = TryD(e.Get("pairing-mev", "11.18"), 11.18); }
+                if (e.Id == "beta-stability") { _betaC = TryD(e.Get("c", "0.0155"), 0.0155); _alphaZ = (int)TryD(e.Get("alpha-above-z", "82"), 82); }
+            }
             foreach (var e in content.OfKind("minerals.dnat", "mix"))
             {
                 var list = new List<KeyValuePair<Mineral, double>>();
@@ -357,7 +364,62 @@ namespace DnaAnd.Shell
             if (e.Radius > 0) return e.Radius;
             return (0.7 + 0.5 * Math.Min(1, e.Z / 30.0)) * 1e-13;                  // the rest: a rough size from its number
         }
-        private static double NucleusRadius(Element e) { return 1.2e-18 * Math.Pow(e == null ? 28 : e.A, 1 / 3.0); }
+        // ── the nucleus by the real forces (content/physics.dnat) ──
+        private static double _coreFm = 1.7, _spacingFm = 1.8, _rangeFm = 2.6, _kCoulomb = 1.44, _aV = 15.75, _aS = 17.8, _aC = 0.711, _aA = 23.7, _aP = 11.18, _betaC = 0.0155; private static int _alphaZ = 82;
+        private static readonly Dictionary<string, double[][]> _nuclei = new Dictionary<string, double[][]>();
+        // where each of the nucleus's protons and neutrons sits (fm from its middle; [3] = 1 for a proton): settled by the
+        // strong force (each pair pushed apart inside its hard core, pulled together just beyond it, free past its range), the
+        // protons' electric push on each other, and the pull of the whole toward its middle; worked out once per isotope
+        private static double[][] NucleonsOf(Element e)
+        {
+            double[][] n; string key = e.Symbol + e.A; if (_nuclei.TryGetValue(key, out n)) return n;
+            int A = Math.Max(1, e.A), Z = Math.Min(e.Z, A); n = new double[A][];
+            double R = 0.6 * _spacingFm * Math.Pow(A, 1 / 3.0);
+            for (int k = 0; k < A; k++)
+            {
+                double rr = R * Math.Pow((k + 0.5) / A, 1 / 3.0), u = k * 2.399963, v = Math.Acos(1 - 2 * ((k * 0.618034) % 1));
+                n[k] = new[] { rr * Math.Sin(v) * Math.Cos(u), rr * Math.Cos(v), rr * Math.Sin(v) * Math.Sin(u), 0 };
+            }
+            // protons spread evenly through it to start (the weak and strong forces keep their mix; the push sorts them)
+            for (int k = 0, p = 0; k < A; k++) if (p < Z && (long)k * Z / A >= p) { n[k][3] = 1; p++; }
+            var f = new double[A, 3];
+            for (int it = 0; it < 120; it++)
+            {
+                for (int a = 0; a < A; a++) { f[a, 0] = -n[a][0] * 0.02; f[a, 1] = -n[a][1] * 0.02; f[a, 2] = -n[a][2] * 0.02; }   // held together as one
+                for (int a = 0; a < A; a++)
+                    for (int b = a + 1; b < A; b++)
+                    {
+                        double dx = n[b][0] - n[a][0], dy = n[b][1] - n[a][1], dz = n[b][2] - n[a][2], d = Math.Sqrt(dx * dx + dy * dy + dz * dz) + 1e-9, push = 0;
+                        if (d < _coreFm) push = (_coreFm - d) * 0.5;                                   // the strong force's hard core
+                        else if (d < _rangeFm) push = -(d - _spacingFm) * 0.08 * (_rangeFm - d);        // its pull just beyond
+                        if (n[a][3] > 0 && n[b][3] > 0) push += _kCoulomb / (d * d) * 0.01;           // two protons push apart (weaker)
+                        dx /= d; dy /= d; dz /= d;
+                        f[a, 0] -= dx * push; f[a, 1] -= dy * push; f[a, 2] -= dz * push; f[b, 0] += dx * push; f[b, 1] += dy * push; f[b, 2] += dz * push;
+                    }
+                for (int a = 0; a < A; a++) { n[a][0] += f[a, 0]; n[a][1] += f[a, 1]; n[a][2] += f[a, 2]; }
+            }
+            _nuclei[key] = n; return n;
+        }
+        // what holds it together (MeV), by the semi-empirical mass formula: the strong force's pull less the surface, the
+        // protons' electric push, the imbalance of protons and neutrons, and the pairing
+        private static double BindingMeV(int Z, int A)
+        {
+            if (A < 2) return 0;
+            int N = A - Z; double pair = (Z % 2 == 0 && N % 2 == 0) ? _aP / Math.Sqrt(A) : (Z % 2 == 1 && N % 2 == 1) ? -_aP / Math.Sqrt(A) : 0;
+            return Math.Max(0, _aV * A - _aS * Math.Pow(A, 2 / 3.0) - _aC * Z * (Z - 1) / Math.Pow(A, 1 / 3.0) - _aA * (A - 2.0 * Z) * (A - 2.0 * Z) / A + pair);
+        }
+        // how it changes, if it does: by the weak force (beta decay) or, past lead, by throwing out alpha particles
+        private static string Decay(Element e)
+        {
+            int A = e.A, Z = e.Z; if (A < 2) return "stable: a lone proton";
+            double z0 = A / (2 + _betaC * Math.Pow(A, 2 / 3.0));
+            if (Z > _alphaZ) return "unstable: throws out alpha particles (2 protons, 2 neutrons), its protons' electric push outgrowing the strong pull" + (Z > z0 + 0.6 ? "; or a proton becomes a neutron (the weak force)" : "");
+            if (Z < z0 - 1.2) return "unstable: a neutron turns into a proton by the weak force (beta-minus: an electron and an antineutrino fly out)";
+            if (Z > z0 + 1.2) return "unstable: a proton turns into a neutron by the weak force (beta-plus or electron capture)";
+            return e.Z == 43 || e.Z == 61 ? "unstable: no form of it lasts (beta decay by the weak force)" : "stable: the strong force holds it, the weak force has no lower state to take it to";
+        }
+
+        private static double NucleusRadius(Element e) { return 0.6 * _spacingFm * 1e-18 * Math.Pow(e == null ? 28 : e.A, 1 / 3.0) + Nucleon; }
 
         public string MineralName { get { var m = FocusMineral; return m != null ? m.Name : "rock"; } }
 
@@ -935,12 +997,11 @@ namespace DnaAnd.Shell
                 // the nucleus: always its real protons (red) and neutrons (grey) packed in a ball, growing as you come in; while
                 // it is too small to see, a small spark marks where it is
                 if (nr / s < 0.004) Add(glow, ax0, cy, az0, s * 0.004, 1f, 0.85f, 0.6f, s);
-                int A = focus.A, Z = focus.Z, protons = 0;
+                var nuc = NucleonsOf(focus); int A = nuc.Length;                                   // every one of its protons and neutrons, where the forces put them
                 for (int k = 0; k < A; k++)
                 {
-                    double rr = nr * Math.Pow((k + 0.5) / A, 1 / 3.0), u = k * 2.399963, v = Math.Acos(1 - 2 * ((k * 0.618034) % 1));
-                    bool proton = protons < Z && (k * Z) / A >= protons; if (proton) protons++;
-                    double nx = ax0 + rr * Math.Sin(v) * Math.Cos(u), ny = cy + rr * Math.Cos(v), nz = az0 + rr * Math.Sin(v) * Math.Sin(u);
+                    bool proton = nuc[k][3] > 0;
+                    double nx = ax0 + nuc[k][0] * 1e-18, ny = cy + nuc[k][1] * 1e-18, nz = az0 + nuc[k][2] * 1e-18;
                     // every proton and neutron, close in, shows its three quarks; from afar it is a ball (red a proton, grey a neutron)
                     double nball = 1 - Fade(s, Nucleon * 8, Nucleon * 3);
                     if (s < Nucleon * 8)
@@ -1169,6 +1230,9 @@ namespace DnaAnd.Shell
                 var ne = El(_picked.Sym); if (ne == null) return L;
                 L.Add("the nucleus of an atom of " + ne.Name.ToLowerInvariant());
                 L.Add(ne.Z + " protons, " + (ne.A - ne.Z) + " neutrons (" + ne.Symbol + "-" + ne.A + ")");
+                double bind = BindingMeV(ne.Z, ne.A);
+                if (ne.A > 1) L.Add("held by the strong force: " + bind.ToString("0") + " MeV in all, " + (bind / ne.A).ToString("0.0") + " MeV each, against its protons' electric push (" + (_aC * ne.Z * (ne.Z - 1) / Math.Pow(ne.A, 1 / 3.0)).ToString("0") + " MeV)");
+                L.Add(Decay(ne));
                 L.Add("width: about " + ScaleHud.Words(NucleusRadius(ne) * 2));
                 L.Add("about 100,000 times smaller than its atom");
                 return L;

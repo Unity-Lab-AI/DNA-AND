@@ -42,6 +42,40 @@ range: smaller than a proton
 carrier: W and Z particles
 does: radioactive decay, and turns one kind of particle into another; helps stars burn
 
+# ── The laws the matter is built by (numbers the game uses) ──
+# nuclear-force: the strong force between two nucleons (protons and neutrons): a hard core where they push apart, a pull
+#   just beyond it, nothing past a few fm (they sit about 1.8 fm apart: nuclear matter's density, 0.16 nucleons per fm3).
+# coulomb: the electric push between two protons, k = 1.44 MeV fm (e squared over 4 pi epsilon-0).
+# mass-formula: the semi-empirical (Bethe-Weizsacker) binding energy of a nucleus, MeV: volume (the strong force between
+#   neighbours), surface (fewer neighbours at the edge), coulomb (the protons' push), asymmetry (the Pauli principle,
+#   protons and neutrons in balance), pairing (pairs bind tighter). Textbook values.
+# beta-stability: the number of protons a nucleus of A nucleons is most stable with, Z = A / (2 + c A^(2/3)), c = 0.0155;
+#   fewer protons than that and a neutron turns into a proton (beta-minus decay, the weak force: an electron and an
+#   antineutrino out); more and a proton turns into a neutron (beta-plus or electron capture); past lead (Z above 82)
+#   the biggest nuclei throw out alpha particles (two protons, two neutrons) as the electric push outgrows the strong pull.
+@law nuclear-force
+name: The strong force between nucleons
+core-fm: 1.7
+spacing-fm: 1.8
+range-fm: 2.6
+
+@law coulomb
+name: The electric force between two protons
+k-mev-fm: 1.44
+
+@law mass-formula
+name: Semi-empirical mass formula
+volume-mev: 15.75
+surface-mev: 17.8
+coulomb-mev: 0.711
+asymmetry-mev: 23.7
+pairing-mev: 11.18
+
+@law beta-stability
+name: The valley of beta stability
+c: 0.0155
+alpha-above-z: 82
+
 # ── Particles and atoms ──
 
 @particle up-quark
