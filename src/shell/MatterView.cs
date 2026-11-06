@@ -297,6 +297,20 @@ namespace DnaAnd.Shell
             foreach (int k in _icoTri) l.Add(new StarVertex { X = (float)pts[k * 3], Y = (float)pts[k * 3 + 1], Z = (float)pts[k * 3 + 2], Size = 0, R = r, G = g, B = b, A = 1 });
         }
 
+        // a far grain: eight faces, squashed and turned its own way
+        private void Octa(List<StarVertex> l, long gi, long gj, double cx, double cy, double cz, double rad, float r, float g, float b, double s)
+        {
+            double sx = (0.8 + 0.4 * Hash(gi, gj, 6, _seed)) * rad, sy = (0.6 + 0.35 * Hash(gi, gj, 7, _seed)) * rad, sz = (0.8 + 0.4 * Hash(gi, gj, 8, _seed)) * rad, turn = Hash(gi, gj, 9, _seed) * Math.PI * 2;
+            double ct = Math.Cos(turn), st = Math.Sin(turn);
+            double[][] p = { new[] { sx, 0, 0.0 }, new[] { -sx, 0, 0.0 }, new[] { 0, sy, 0.0 }, new[] { 0, -sy, 0.0 }, new[] { 0, 0, sz }, new[] { 0, 0, -sz } };
+            int[] f = { 0, 2, 4, 4, 2, 1, 1, 2, 5, 5, 2, 0, 0, 4, 3, 4, 1, 3, 1, 5, 3, 5, 0, 3 };
+            foreach (int k in f)
+            {
+                double x = p[k][0] * ct - p[k][2] * st, z = p[k][0] * st + p[k][2] * ct;
+                l.Add(new StarVertex { X = (float)((cx + x - _fx) / s), Y = (float)((cy + p[k][1]) / s - 0.6), Z = (float)((cz + z - _fz) / s), Size = 0, R = r, G = g, B = b, A = 1 });
+            }
+        }
+
         /// <summary>The starlight's way in the ground's own frame (x east, y up, z north), for lighting the grains.</summary>
         public float[] Light = { 0.4f, 0.8f, 0.3f };
 
@@ -307,7 +321,7 @@ namespace DnaAnd.Shell
             if (s > AtomSpacing * 40)
             {
                 long reach = (long)Math.Ceiling(Math.Min(110, 2.2 * s / Grain)) + 1, gi0 = FocusGI, gj0 = FocusGJ;
-                int meshes = 0;
+                int meshes = 0, smalls = 0;
                 for (int layer = 0; layer < 2; layer++)
                     for (long i = gi0 - reach; i <= gi0 + reach; i++)
                         for (long j = gj0 - reach; j <= gj0 + reach; j++)
@@ -320,8 +334,11 @@ namespace DnaAnd.Shell
                             float sh = (float)(0.75 + 0.35 * Hash(gi, gj, 4, _seed)) * (layer == 0 ? 1f : 0.7f);
                             double dx = gx - _fx, dz = gz - _fz, dist = Math.Sqrt(dx * dx + dz * dz + (0.6 * s - gy) * (0.6 * s - gy));
                             double px = rad / Math.Max(1e-30, dist) * _lastH / (2 * Math.Tan(0.45));    // its size on screen, in pixels
-                            if (px > 5 && meshes < 1400 && mesh != null) { Stone(mesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); meshes++; }
-                            else Add(solid, gx, gy, gz, rad / 0.75, m.R * sh, m.G * sh, m.B * sh, s);
+                            // always solid shapes (never glowing dots, which add up into confetti): the full lumpy stone up close,
+                            // a simple eight-sided stone far off, and none below a pixel and a half (the ground's own colour there)
+                            if (px < 1.5) { if (layer == 0) AddBody(0, gi, gj, gx, gy, gz, rad, s); continue; }
+                            if (mesh != null && px > 8 && meshes < 700) { Stone(mesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); meshes++; }
+                            else if (mesh != null && smalls < 24000) { Octa(mesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); smalls++; }
                             if (layer == 0) AddBody(0, gi, gj, gx, gy, gz, rad, s);
                         }
             }
