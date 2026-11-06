@@ -298,7 +298,7 @@ namespace DnaAnd
             if (style != null) style.Dispose();
             viewer.Dispose(); if (planet != null) planet.Dispose(); if (meshes != null) meshes.Dispose(); pipeline.Dispose(); gpu.Dispose();
             watchdog.Stop();
-            WriteLog(string.Format("ok · {0} content entries from {1} files · ran {2:0.00} s · gpu {3}x{4} · {5}", content.Entries.Count, content.Files.Count, clock.Total, gpu.Width, gpu.Height, endReason) + Environment.NewLine + "last title: " + lastTitle);
+            WriteLog(string.Format("ok · {0} content entries from {1} files · ran {2:0.00} s · gpu {3}x{4} on {6} ({7:N0} MB) · {5}", content.Entries.Count, content.Files.Count, clock.Total, gpu.Width, gpu.Height, endReason, gpu.AdapterName, gpu.AdapterMemoryMB) + Environment.NewLine + "last title: " + lastTitle);
             return 0;
         }
 

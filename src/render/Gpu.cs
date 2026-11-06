@@ -44,7 +44,12 @@ namespace DnaAnd.Render
             Guid iid = D3D12.IID_IDXGIFactory2;
             Com.Check(D3D12.CreateDXGIFactory2(0, ref iid, out _factory), "CreateDXGIFactory2");
             iid = D3D12.IID_ID3D12Device;
-            Com.Check(D3D12.D3D12CreateDevice(IntPtr.Zero, D3D12.D3D_FEATURE_LEVEL_11_0, ref iid, out _device), "D3D12CreateDevice");
+            // the strongest graphics card in this computer: the one with the most video memory of its own (software ones skipped),
+            // so a laptop with two GPUs uses its real one; if none will do, Windows's own choice
+            IntPtr best = PickAdapter();
+            if (best == IntPtr.Zero || D3D12.D3D12CreateDevice(best, D3D12.D3D_FEATURE_LEVEL_11_0, ref iid, out _device) < 0)
+                Com.Check(D3D12.D3D12CreateDevice(IntPtr.Zero, D3D12.D3D_FEATURE_LEVEL_11_0, ref iid, out _device), "D3D12CreateDevice");
+            if (best != IntPtr.Zero) Com.Release(ref best);
 
             var qd = new D3D12.CommandQueueDesc { Type = D3D12.COMMAND_LIST_TYPE_DIRECT };
             iid = D3D12.IID_ID3D12CommandQueue;
@@ -129,6 +134,35 @@ namespace DnaAnd.Render
             }
             finally { Marshal.FreeHGlobal(clear); }
             Com.Method<D3D12.CreateDepthStencilViewFn>(_device, 21)(_device, _depth, IntPtr.Zero, _dsv);
+        }
+
+        /// <summary>The graphics card in use, and its own video memory (MB), for the run log.</summary>
+        public string AdapterName = "Windows's choice"; public long AdapterMemoryMB;
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)] private delegate int EnumAdapters1Fn(IntPtr self, uint index, out IntPtr adapter);   // IDXGIFactory1, 12
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)] private delegate int GetDesc1Fn(IntPtr self, IntPtr desc);                         // IDXGIAdapter1, 10
+
+        private IntPtr PickAdapter()
+        {
+            IntPtr best = IntPtr.Zero; long bestMem = -1;
+            IntPtr desc = Marshal.AllocHGlobal(320);
+            try
+            {
+                for (uint i = 0; i < 16; i++)
+                {
+                    IntPtr ad;
+                    if (Com.Method<EnumAdapters1Fn>(_factory, 12)(_factory, i, out ad) < 0) break;
+                    if (Com.Method<GetDesc1Fn>(ad, 10)(ad, desc) < 0) { Com.Release(ref ad); continue; }
+                    long mem = Marshal.ReadInt64(desc, 272); int flags = Marshal.ReadInt32(desc, 304);
+                    string name = Marshal.PtrToStringUni(desc, 128).TrimEnd((char)0);
+                    if ((flags & 2) != 0 || mem <= bestMem) { Com.Release(ref ad); continue; }   // software, or weaker than one already found
+                    if (best != IntPtr.Zero) Com.Release(ref best);
+                    best = ad; bestMem = mem; AdapterName = name; AdapterMemoryMB = mem / (1024 * 1024);
+                }
+            }
+            catch { }
+            finally { Marshal.FreeHGlobal(desc); }
+            return best;
         }
 
         private IntPtr Rtv(uint i) { return new IntPtr(_rtvStart.ToInt64() + i * _rtvStep); }
