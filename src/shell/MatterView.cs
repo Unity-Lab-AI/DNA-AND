@@ -489,7 +489,7 @@ namespace DnaAnd.Shell
                     bool inFocus = at.E == focus && Math.Abs(at.X - fax) < 1e-20 && Math.Abs(ay - fay) < 1e-20 && Math.Abs(at.Z - faz) < 1e-20 && s < ar * 4;
                     if (inFocus) continue;
                     float sh = (float)(1 + 0.6 * at.Y / AtomSpacing * 0.25); sh = Math.Max(0.45f, sh);
-                    Add(solid, at.X, ay, at.Z, ar * 0.62, at.E.R * sh * f, at.E.G * sh * f, at.E.B * sh * f, s);
+                    Add(solid, at.X, ay + ar * (1 - f) * 0.6, at.Z, ar * 0.62 * (0.25 + 0.75 * f), at.E.R * sh, at.E.G * sh, at.E.B * sh, s);   // each atom grows up out of the face, in its own colour
                     if (s < AtomSpacing * 2.5) Cloud(glow, at.E, at.X, ay, at.Z, s, time, (long)(at.X / 1e-14) ^ (long)(at.Z / 1e-14) * 31, (float)Fade(s, AtomSpacing * 2.5, AtomSpacing * 1.2));
                     if (at.Y > -0.3 * AtomSpacing) { AddBody(1, 0, 0, at.X, ay, at.Z, ar, s); if (_bodies.Count > 0) _bodies[_bodies.Count - 1].Sym = at.E.Symbol; }
                 }
