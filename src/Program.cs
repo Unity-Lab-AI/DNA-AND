@@ -310,8 +310,11 @@ namespace DnaAnd
                         _tuneMs += frameMs;
                         if (_tuneMs > 500 && world != null && world.AtGround)                   // what it tunes so far: the ground's detail
                         {
-                            _tuneMs = 0; double want = Math.Min(0.9, Window.GpuUse);
-                            if (Window.GpuBusy < want - 0.05) Window.Detail = Math.Min(8, Window.Detail * 1.08);
+                            _tuneMs = 0; double want = Math.Min(0.9, Window.GpuUse); int backlog = world.GroundBacklog;
+                            // the card is not the only limit: when the ground cannot be built and put on the card as fast as it is
+                            // asked for, the detail comes down (else it would keep asking for more than can ever arrive)
+                            if (backlog > 1500) Window.Detail = Math.Max(0.2, Window.Detail * 0.85);
+                            else if (Window.GpuBusy < want - 0.05 && backlog < 400) Window.Detail = Math.Min(4, Window.Detail * 1.08);
                             else if (Window.GpuBusy > want + 0.03) Window.Detail = Math.Max(0.2, Window.Detail * 0.9);
                         }
                     }

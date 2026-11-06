@@ -438,7 +438,9 @@ namespace DnaAnd.Shell
         /// <summary>Test runs: the camera turns to the next thing on the way down (the galaxy, a star, a planet, its ground) each frame.</summary>
         public bool AutoPath;
         /// <summary>True when a planet's ground is being drawn (what the GPU use tunes, so far).</summary>
-        public bool AtGround { get { return _ground != null; } } private double _autoLogT;
+        public bool AtGround { get { return _ground != null; } }
+        /// <summary>How many ground pieces are waiting (0 when not at a planet).</summary>
+        public int GroundBacklog { get { return _ground != null ? _ground.Backlog : 0; } } private double _autoLogT;
         // ── what you clicked: the camera turns to face it and the wheel flies to it ──
         private int _tKind = -1;                 // 0 a galaxy, 1 a star, 2 a planet or moon, 3 a spot on the planet's ground
         private int _tIndex; private double _tx, _ty, _tz, _tRadius;   // galaxy or body index; a star's place (universe units) or a ground spot (unit direction)

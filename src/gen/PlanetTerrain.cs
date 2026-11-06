@@ -20,6 +20,8 @@ namespace DnaAnd.Gen
         public float[] SunColour, NightColour;
         /// <summary>The detail the ground is built for (1 = the usual): its upload time a frame and its builders scale with it.</summary>
         public static double Power = 1;
+        /// <summary>Pieces waiting to be built or put on the card: when this is large, the ground is not keeping up.</summary>
+        public int Backlog { get { lock (_askLock) return _inFlight.Count + _asks.Count; } }
         /// <summary>Where the camera looks (unit, planet frame) and the half-angle the view covers corner to corner; null: everything round you.</summary>
         public double[] ViewDir; public double ViewHalfAngle = 0.85;           // the light on the ground by day and by night (null: plain white)   // direction the starlight comes from (unit length)
         private readonly uint _seed;
