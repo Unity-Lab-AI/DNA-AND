@@ -13,6 +13,10 @@ mkdir "%STAGE%"
 copy /y "%~dp0build\preview-release\DNA-AND.exe" "%STAGE%\DNA-AND.exe" > nul
 xcopy /e /i /q /y "%~dp0content" "%STAGE%\content" > nul
 copy /y "%~dp0docs\release\README.txt" "%STAGE%\README.txt" > nul
+rem the public docs: what the universe is (plain words) and how to build, change and ship your own
+mkdir "%STAGE%\docs"
+copy /y "%~dp0docs\release\UNIVERSE-README.md" "%STAGE%\docs\README.md" > nul
+copy /y "%~dp0docs\release\UNIVERSE-HOW-TO-BUILD.md" "%STAGE%\docs\HOW-TO-BUILD.md" > nul
 if exist "%~dp0release\payload.zip" del "%~dp0release\payload.zip"
 powershell -NoProfile -Command "Compress-Archive -Path '%STAGE%\*' -DestinationPath '%~dp0release\payload.zip' -Force" || exit /b 1
 copy /y "%~dp0release\payload.zip" "%~dp0release\DNA-AND-%VER%-windows.zip" > nul
