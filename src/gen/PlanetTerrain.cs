@@ -1033,8 +1033,10 @@ namespace DnaAnd.Gen
                         if (_asks.Count == 0 || _disposed) return;
                         a = _asks[0]; _asks.RemoveAt(0); _inFlight.Add(a.Key);
                     }
+                    var t0 = System.Diagnostics.Stopwatch.GetTimestamp();
                     var p = Make(a.Layer, a.F, a.Level, a.I, a.J);
-                    lock (_askLock) _done.Enqueue(new KeyValuePair<Ask, Patch>(a, p));
+                    double ms = (System.Diagnostics.Stopwatch.GetTimestamp() - t0) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
+                    lock (_askLock) { _done.Enqueue(new KeyValuePair<Ask, Patch>(a, p)); _builtCount++; _builtMs += ms; }
                 }
             }
             finally { System.Threading.Interlocked.Decrement(ref _workersBusy); }
@@ -1049,13 +1051,16 @@ namespace DnaAnd.Gen
                 KeyValuePair<Ask, Patch> d;
                 lock (_askLock) { if (_done.Count == 0) break; d = _done.Dequeue(); _inFlight.Remove(d.Key.Key); }
                 var a = d.Key; var np = d.Value;
-                if (a.Gen != Generation) continue;                                 // built for a shape the planet no longer has
+                if (a.Gen != Generation) { _droppedOld++; continue; }             // built for a shape the planet no longer has
                 Upload(np); np.LastUsed = _frame; np.Gen = a.Gen;
                 if (a.Pending) _pending[a.Key] = np;
                 else { Patch old; if (_cache.TryGetValue(a.Key, out old)) old.Buffer.Dispose(); _cache[a.Key] = np; }
             }
         }
         private volatile bool _disposed;
+        private int _builtCount; private double _builtMs; private int _droppedOld;
+        /// <summary>For the log: pieces wished for, being built, built so far, their mean build time, and finished pieces thrown away as out of date.</summary>
+        public string BuildStats { get { lock (_askLock) return "asked " + _asks.Count + " building " + _inFlight.Count + " built " + _builtCount + " at " + (_builtCount > 0 ? (_builtMs / _builtCount).ToString("0.0") : "0") + " ms each, old " + _droppedOld + ", cached " + _cache.Count + ", workers " + _workersBusy; } }
 
         private void Tri(ref int v, int a, int b, int c)
         {
