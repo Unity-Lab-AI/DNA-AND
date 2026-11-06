@@ -345,6 +345,8 @@ namespace DnaAnd.Shell
 
         /// <summary>Test runs: the camera turns to the next thing on the way down (the galaxy, a star, a planet, its ground) each frame.</summary>
         public bool AutoPath;
+        /// <summary>Whether the scale shows on screen (H, or the View menu).</summary>
+        public bool ScaleOn { get { return _hud.Visible; } set { _hud.Visible = value; } }
         private void AimNext()
         {
             double tx, ty, tz;

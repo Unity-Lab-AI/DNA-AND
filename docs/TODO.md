@@ -778,7 +778,7 @@ Order: galactic scale down, the same order as the sample sets.
   - [ ] The one-world universe complete, every problem raised fixed, the 9/7 waveform and infinite zoom throughout
   - [ ] Tested fully by me at native resolution, then tested by the creator, who gives the okay
   - [ ] Only then: build the .exe and its binary installer the way the Agent Gen and Gladiator projects do, and publish the release
-  - [ ] About, Readme and Credits built into the program's menu bar, and its header tools such as the scale HUD for the zoom: "make sure the e.xe has a proper about and readme and credits built into the program header tools like the sclae hud for zoom relation"
+  - [~] About, Readme and Credits built into the program's menu bar, and its header tools such as the scale HUD for the zoom: "make sure the e.xe has a proper about and readme and credits built into the program header tools like the sclae hud for zoom relation" Built: the one world's menu bar has Exit, View (scale on screen, render scale) and Help (Readme, Credits, About) (`Window.SetWorldMenu`, `src/shell/PreviewText.cs`); the release build still to come.
   - [ ] Windows and Linux installs: "need linix and windows install" / "for the .exe". The engine talks to Windows directly (Direct3D 12, Win32), so Linux needs its own port: Vulkan graphics and Linux windowing, our own code, no outside libraries
 - [x] **No tearing at full zoom:** "at full zoom it like screen tears do u see that". The camera stays above the finest ground made under it.
 - [x] **No shimmering ghosts on the planet:** "and planet has static ghost like marages on surface at planet zoom". A tight depth range for the ground.

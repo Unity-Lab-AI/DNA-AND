@@ -49,6 +49,28 @@ namespace DnaAnd.Platform
             Win32.DrawMenuBar(Handle);
         }
 
+        public const int CmdAbout = 200, CmdReadme = 201, CmdCredits = 202, CmdScaleHud = 203;
+        /// <summary>The preview's menu bar: Exit; View (the scale on screen, render scale); Help (Readme, Credits, About).</summary>
+        public void SetWorldMenu(bool scaleOn)
+        {
+            IntPtr bar = Win32.CreateMenu(), view = Win32.CreatePopupMenu(), help = Win32.CreatePopupMenu(), scale = Win32.CreatePopupMenu();
+            Win32.AppendMenu(view, Win32.MF_STRING | (scaleOn ? Win32.MF_CHECKED : 0), (IntPtr)CmdScaleHud, "Scale on screen	H");
+            for (int i = 0; i < ScalePercents.Length; i++)
+                Win32.AppendMenu(scale, Win32.MF_STRING | (Math.Abs(ScalePercents[i] - Input.Scale * 100) < 1 ? Win32.MF_CHECKED : 0), (IntPtr)(CmdScaleBase + i), ScalePercents[i] + "%" + (ScalePercents[i] < 100 ? " (faster, softer)" : ScalePercents[i] > 100 ? " (sharper, slower)" : " (the window's own size)"));
+            Win32.AppendMenu(view, Win32.MF_POPUP, scale, "Render scale");
+            Win32.AppendMenu(help, Win32.MF_STRING, (IntPtr)CmdReadme, "Readme");
+            Win32.AppendMenu(help, Win32.MF_STRING, (IntPtr)CmdCredits, "Credits");
+            Win32.AppendMenu(help, Win32.MF_SEPARATOR, IntPtr.Zero, null);
+            Win32.AppendMenu(help, Win32.MF_STRING, (IntPtr)CmdAbout, "About DNA-AND");
+            Win32.AppendMenu(bar, Win32.MF_STRING, (IntPtr)CmdExit, "Exit");
+            Win32.AppendMenu(bar, Win32.MF_POPUP, view, "View");
+            Win32.AppendMenu(bar, Win32.MF_POPUP, help, "Help");
+            Win32.SetMenu(Handle, bar);
+            if (_menu != IntPtr.Zero) Win32.DestroyMenu(_menu);
+            _menu = bar;
+            Win32.DrawMenuBar(Handle);
+        }
+
         /// <summary>A Windows pop-up with just an OK button.</summary>
         public void Tell(string text, string caption)
         {
