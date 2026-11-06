@@ -381,6 +381,30 @@ namespace DnaAnd.Shell
             }
         }
 
+        // every solid point (the grain's face, atoms, protons and neutrons) as a lit shape: a round ball when it is big on screen,
+        // an eight-sided piece when small; a face tile (flat on the ground) stays flat
+        private void Solidify(List<StarVertex> solid, List<StarVertex> mesh, int h)
+        {
+            if (_ico == null) MakeIco();
+            int balls = 0;
+            foreach (var v in solid)
+            {
+                double rad = v.Size * 0.75, dist = Math.Sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z), px = rad / Math.Max(1e-9, dist) * h / (2 * Math.Tan(0.45));
+                if (px < 0.6 || mesh.Count > 1500000) continue;
+                if (px > 10 && balls < 2500)
+                {
+                    balls++;
+                    foreach (int k in _icoTri) mesh.Add(new StarVertex { X = (float)(v.X + _ico[k].X * rad), Y = (float)(v.Y + _ico[k].Y * rad), Z = (float)(v.Z + _ico[k].Z * rad), Size = 0, R = v.R, G = v.G, B = v.B, A = 1 });
+                }
+                else
+                {
+                    double[][] p = { new[] { rad, 0, 0.0 }, new[] { -rad, 0, 0.0 }, new[] { 0, rad, 0.0 }, new[] { 0, -rad, 0.0 }, new[] { 0, 0, rad }, new[] { 0, 0, -rad } };
+                    int[] f = { 0, 2, 4, 4, 2, 1, 1, 2, 5, 5, 2, 0, 0, 4, 3, 4, 1, 3, 1, 5, 3, 5, 0, 3 };
+                    foreach (int k in f) mesh.Add(new StarVertex { X = (float)(v.X + p[k][0]), Y = (float)(v.Y + p[k][1]), Z = (float)(v.Z + p[k][2]), Size = 0, R = v.R, G = v.G, B = v.B, A = 1 });
+                }
+            }
+        }
+
         /// <summary>The starlight's way in the ground's own frame (x east, y up, z north), for lighting the grains.</summary>
         public float[] Light = { 0.4f, 0.8f, 0.3f };
 
@@ -578,6 +602,7 @@ namespace DnaAnd.Shell
             var solid = new List<StarVertex>(20000); var glow = new List<StarVertex>(2000); var mesh = pipes != null ? new List<StarVertex>(60000) : null;
             _bodies.Clear();
             Build(scaleKm, time, solid, glow, mesh, overlay);
+            if (mesh != null) { Solidify(solid, mesh, h); solid.Clear(); }
             Put(solid, ref _sv, ref _solidBuf); Put(glow, ref _gv, ref _glowBuf);
             if (mesh != null) Put(mesh, ref _mv, ref _meshBuf);
             Mat4 vp = view * Mat4.Perspective(0.9f, w / (float)Math.Max(1, h), 0.001f, 200f);
@@ -588,7 +613,7 @@ namespace DnaAnd.Shell
             c[8] = vp.M31; c[9] = vp.M32; c[10] = vp.M33; c[11] = vp.M34; c[12] = vp.M41; c[13] = vp.M42; c[14] = vp.M43; c[15] = vp.M44;
             c[16] = right.X; c[17] = right.Y; c[18] = right.Z; c[20] = up.X; c[21] = up.Y; c[22] = up.Z;
             c[24] = (float)time; c[25] = 1; c[28] = w; c[29] = h; c[30] = 0.0012f;
-            c[26] = 1; if (solid.Count > 0) _dots.Draw(_solidBuf, solid.Count, c, 0, 0, w, h);    // grains, atoms, protons and neutrons: round, solid
+            // (solid things are drawn as lit shapes below, never as glowing dots, which add up to white)
             c[26] = 0; if (glow.Count > 0) _dots.Draw(_glowBuf, glow.Count, c, 0, 0, w, h);      // electrons, their shells and the nucleus's spark: glows
             if (mesh != null && mesh.Count > 0)
             {
