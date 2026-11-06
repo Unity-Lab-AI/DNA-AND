@@ -141,9 +141,10 @@ namespace DnaAnd.Shell
                 _planetStatic[i] = new UploadBuffer(gpu.Device, (long)Math.Max(1, arr.Length) * stride);
                 _planetStatic[i].Write(arr, arr.Length);
             }
+            var dysonIds = DysonGen.Ids(content);
             for (int i = 0; i < 9; i++)
             {
-                _dyson[i] = DysonGen.Build(gpu.Device, content, DysonGen.Ids[i], seed * 43UL + (ulong)i);
+                _dyson[i] = DysonGen.Build(gpu.Device, content, i < dysonIds.Count ? dysonIds[i] : "mirrors", seed * 43UL + (ulong)i);
                 var pc = _dyson[i].Pieces;
                 _dysonBufs[i] = new UploadBuffer(gpu.Device, (long)Math.Max(1, pc.Length) * stride);
                 _dysonBufs[i].Write(pc, pc.Length);
