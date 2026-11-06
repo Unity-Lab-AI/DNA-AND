@@ -1074,17 +1074,31 @@ namespace DnaAnd.Gen
         private void TakeFinished()
         {
             var clock = System.Diagnostics.Stopwatch.StartNew();
-            while (clock.Elapsed.TotalMilliseconds < Math.Max(2, Math.Min(30, 12 * Power)))   // uploads a frame: more on stronger settings
+            List<KeyValuePair<Ask, Patch>> take;
+            lock (_askLock)
             {
-                KeyValuePair<Ask, Patch> d; bool wanted;
-                lock (_askLock) { if (_done.Count == 0) break; int bi = 0; for (int q = 1; q < _done.Count; q++) if (_done[q].Key.Need < _done[bi].Key.Need) bi = q; d = _done[bi]; _done[bi] = _done[_done.Count - 1]; _done.RemoveAt(_done.Count - 1); _inFlight.Remove(d.Key.Key); wanted = d.Key.Pending || Wanted(d.Key.Key); }
-                if (!wanted) { _droppedUnwanted++; continue; }                     // finished, but you have moved on: never uploaded
+                // once a frame: throw out every finished piece you have moved on from, then the rest most needed first
+                take = new List<KeyValuePair<Ask, Patch>>(_done.Count);
+                foreach (var d0 in _done)
+                {
+                    if (d0.Key.Pending || Wanted(d0.Key.Key)) take.Add(d0);
+                    else { _inFlight.Remove(d0.Key.Key); _droppedUnwanted++; }
+                }
+                _done.Clear();
+            }
+            take.Sort((p0, p1) => p0.Key.Need.CompareTo(p1.Key.Need));
+            int ti = 0;
+            for (; ti < take.Count && clock.Elapsed.TotalMilliseconds < Math.Max(2, Math.Min(30, 12 * Power)); ti++)   // uploads a frame: more on stronger settings
+            {
+                var d = take[ti];
+                lock (_askLock) _inFlight.Remove(d.Key.Key);
                 var a = d.Key; var np = d.Value;
                 if (a.Gen != Generation) { _droppedOld++; continue; }             // built for a shape the planet no longer has
                 Upload(np); np.LastUsed = _frame; np.Gen = a.Gen;
                 if (a.Pending) _pending[a.Key] = np;
                 else { Patch old; if (_cache.TryGetValue(a.Key, out old)) Release(old); _cache[a.Key] = np; }
             }
+            if (ti < take.Count) lock (_askLock) for (; ti < take.Count; ti++) _done.Add(take[ti]);   // the rest wait for the next frame
         }
         private volatile bool _disposed;
         private int _builtCount; private double _builtMs; private int _droppedOld, _droppedUnwanted;
