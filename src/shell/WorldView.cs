@@ -844,7 +844,9 @@ namespace DnaAnd.Shell
             {
                 double l = Math.Sqrt(mdx * mdx + mdy * mdy + mdz * mdz);
                 double rpx = Math.Max(14 * Math.Max(1, h / 1080.0), mrad / Math.Max(1e-30, l) / Math.Tan(0.45) * h * 0.5 * 1.25);
-                _hud.DrawRing(_meshes, msx, msy, Math.Min(rpx, h * 0.45), w, h);
+                rpx = Math.Min(rpx, h * 0.45);
+                _hud.DrawRing(_meshes, msx, msy, rpx, w, h);
+                if (_hud.Visible) _hud.DrawCard(_meshes, Card(), msx + rpx + 12 * Math.Max(1, h / 1080.0), msy - rpx, w, h);   // what it is, beside it
             }
         }
 
@@ -865,6 +867,90 @@ namespace DnaAnd.Shell
             c[16] = right.X; c[17] = right.Y; c[18] = right.Z; c[20] = up.X; c[21] = up.Y; c[22] = up.Z;
             c[24] = (float)time; c[25] = sizeScale; c[26] = 2; c[27] = 4; c[28] = w; c[29] = h; c[30] = minSize; c[31] = maxSize;
             _dots.Draw(buf, count, c, 0, 0, w, h);
+        }
+
+        // ── the information card of what you picked: what it is, its id, and the facts that matter about it ──
+        private static string Au(double units) { double au = units / Units.Au(1); return au >= 10 ? au.ToString("0") + " AU" : au.ToString("0.##") + " AU"; }
+        private static string Km(double units) { double km = units / Units.Km(1); return km >= 10 ? km.ToString("N0") + " km" : km.ToString("0.##") + " km"; }
+
+        // what a kind of planet or moon is made of
+        private static string[] MakeUp(string kind, bool water)
+        {
+            switch (kind)
+            {
+                case "Temperate world": return new[] { "rock: silicate crust, iron core", water ? "seas of liquid water" : "dry basins", "air: nitrogen, carbon dioxide, water vapour" };
+                case "Lava planet": return new[] { "rock: molten silicate seas", "iron core", "air: thin rock vapour and sulfur" };
+                case "Ice world": return new[] { "ice: frozen water, carbon dioxide, nitrogen", "rock and iron beneath", "air: thin, or none" };
+                case "Gas giant": return new[] { "hydrogen and helium", "clouds: ammonia, water", "core: rock and ice" };
+                case "Ice giant": return new[] { "water, ammonia and methane ices", "air: hydrogen, helium, methane", "core: rock" };
+                case "Hot Jupiter": return new[] { "hydrogen and helium, swollen by heat", "clouds: silicates and iron", "core: rock" };
+                case "Moon": return new[] { "rock and dust, iron-poor", "no air", "craters from strikes" };
+                default: return new[] { "rock: silicate crust, iron core", "dust and stone", "air: thin carbon dioxide" };
+            }
+        }
+
+        private List<string> Card()
+        {
+            var L = new List<string>();
+            double dx, dy, dz, rad; if (!TargetFromCamera(out dx, out dy, out dz, out rad)) return L;
+            double dist = Math.Max(0, Math.Sqrt(dx * dx + dy * dy + dz * dz) - rad);
+            if (_tKind == 0)
+            {
+                var g = _galaxies[_tIndex];
+                L.Add(g.Name); L.Add("id: G-" + (g.Seed & 0xFFFFFF).ToString("X6"));
+                L.Add("type: " + g.Type); L.Add("width: about " + Units.Describe(g.Scale));
+                L.Add("stars: about 100 billion"); L.Add("distance: " + Units.Describe(dist));
+            }
+            else if (_tKind == 1)
+            {
+                bool open = _system != null && Math.Abs(_tx - _ax) + Math.Abs(_ty - _ay) + Math.Abs(_tz - _az) < Units.Km(1e6);
+                L.Add(_tName.StartsWith("a ") ? _tName.Substring(2) : _tName);
+                L.Add("id: S-" + (((long)(_tx / Units.Km(1e9)) * 73856093L ^ (long)(_ty / Units.Km(1e9)) * 19349663L ^ (long)(_tz / Units.Km(1e9)) * 83492791L) & 0xFFFFFF).ToString("X6"));
+                if (open)
+                {
+                    var sy = _system;
+                    L.Add("surface: " + sy.TempK.ToString("N0") + " K"); L.Add("mass: " + sy.MassSol.ToString("0.##") + " suns, width " + sy.RadiusSol.ToString("0.##") + " suns");
+                    L.Add("brightness: " + sy.Luminosity.ToString(sy.Luminosity < 0.1 ? "0.###" : "0.##") + " suns");
+                    L.Add("planets and moons: " + sy.Bodies.Count + " (" + sy.Planets + " planets)");
+                    L.Add("habitable zone: " + (sy.HabitableAu * 0.75).ToString("0.##") + " to " + (sy.HabitableAu * 1.4).ToString("0.##") + " AU");
+                    L.Add("frost line: " + sy.FrostLineAu.ToString("0.##") + " AU");
+                }
+                else L.Add("its system opens within 2,000 AU");
+                L.Add("distance: " + Units.Describe(dist));
+            }
+            else if (_tKind == 2)
+            {
+                var sy = _system; var b = sy.Bodies[_tIndex];
+                int moons = 0; for (int i = 0; i < sy.Bodies.Count; i++) if (sy.Bodies[i].Parent == _tIndex) moons++;
+                L.Add(b.Kind + (b.Parent >= 0 ? " of " + sy.Bodies[b.Parent].Kind : ""));
+                L.Add("id: S-" + _sysStar.ToString("X") + (b.Parent >= 0 ? "-P" + (b.Parent + 1) + "-M" : "-P") + (_tIndex + 1));
+                L.Add("width: " + Km(b.RadiusUnits * 2));
+                var top = b.Parent >= 0 ? sy.Bodies[b.Parent] : b;
+                if (b.Parent < 0)
+                {
+                    double au = b.OrbitUnits / Units.Au(1);
+                    L.Add("orbit: " + Au(b.OrbitUnits) + ", year " + (b.Period >= 1 ? b.Period.ToString("0.#") + " years" : (b.Period * 365.25).ToString("0") + " days"));
+                    L.Add(au >= sy.HabitableAu * 0.75 && au <= sy.HabitableAu * 1.4 ? "in the habitable zone" : au < sy.HabitableAu * 0.75 ? "inside the habitable zone: too hot" : "outside the habitable zone: too cold");
+                    L.Add("moons: " + moons);
+                }
+                else L.Add("orbit: " + Km(b.OrbitUnits) + " from its planet");
+                bool here = _ground != null && _planet == _tIndex;
+                foreach (var m in MakeUp(b.Kind, here ? _ground.HasWater : b.Kind == "Temperate world")) L.Add(m);
+                if (here) { L.Add("air: " + (_ground.AirKm > 0 ? "about " + _ground.AirKm.ToString("0") + " km deep" : "none") + (_ground.HasClouds ? ", clouds" : "")); }
+                L.Add("distance: " + Units.Describe(dist));
+            }
+            else if (_tKind == 3 && _ground != null)
+            {
+                double gh = _ground.Solid ? _ground.GroundAt(_tx, _ty, _tz) : 0;
+                bool sea = _ground.HasWater && gh < 0, ice = Math.Abs(_ty) > 0.86;
+                L.Add(sea ? "sea" : ice ? "ice" : "land"); 
+                L.Add("on: " + _system.Bodies[_planet].Kind);
+                L.Add("place: " + (Math.Asin(_ty) * 180 / Math.PI).ToString("0.#") + " lat, " + (Math.Atan2(_tz, _tx) * 180 / Math.PI).ToString("0.#") + " long");
+                L.Add(sea ? "depth: " + (-gh * 1000).ToString("N0") + " m of water" : "height: " + (gh * 1000).ToString("N0") + " m above the sea");
+                L.Add(sea ? "water over sand and mud" : ice ? "ice and packed snow" : gh > 3 ? "bare rock and scree" : gh > 1 ? "rock and thin soil" : "soil, sand and stone");
+                L.Add("distance: " + Units.Describe(dist));
+            }
+            return L;
         }
 
         public string Title

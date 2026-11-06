@@ -142,7 +142,7 @@ namespace DnaAnd.Gen
         }
         public sealed class StarSystem
         {
-            public string StarName; public double StarRadius, Luminosity, FrostLineAu, HabitableAu;
+            public string StarName; public double StarRadius, Luminosity, FrostLineAu, HabitableAu, MassSol, TempK, RadiusSol;
             public float SR, SG, SB;
             public readonly List<Body> Bodies = new List<Body>();
             public StarVertex[] Static; // belts, Kuiper belt, Oort cloud, orbit lines
@@ -157,7 +157,7 @@ namespace DnaAnd.Gen
             foreach (var e in content.OfKind("stars.dnat", "star"))
                 if (e.Id == kind.Id) e.TryRange("mass-sol", out massLo, out massHi);
             double mass = Math.Max(0.08, massLo + rng.NextDouble() * (massHi - massLo));
-            sys.Luminosity = Math.Pow(mass, 3.5);
+            sys.Luminosity = Math.Pow(mass, 3.5); sys.MassSol = mass;
             // its real size, from content (giants and supergiants are far wider than their mass alone would make them)
             double rLo = -1, rHi = -1;
             foreach (var e in content.OfKind("stars.dnat", "star")) if (e.Id == kind.Id) e.TryRange("radius-sol", out rLo, out rHi);
@@ -167,6 +167,7 @@ namespace DnaAnd.Gen
             double tLo = -1, tHi = -1;
             foreach (var e in content.OfKind("stars.dnat", "star")) if (e.Id == kind.Id) e.TryRange("temp-k", out tLo, out tHi);
             if (tLo > 0 && rLo > 0) { double tk = tLo + rng.NextDouble() * (tHi - tLo); sys.Luminosity = radiusSol * radiusSol * Math.Pow(tk / 5772, 4); }
+            sys.RadiusSol = radiusSol; sys.TempK = 5772 * Math.Pow(sys.Luminosity / (radiusSol * radiusSol), 0.25);   // its surface temperature, from its brightness and size
             double frostSun = ZoneAu(content, "frost-line", 2.7), hzSun = ZoneAu(content, "habitable", 1.0);
             double scale = Math.Sqrt(sys.Luminosity);
             sys.FrostLineAu = frostSun * scale; sys.HabitableAu = hzSun * scale;

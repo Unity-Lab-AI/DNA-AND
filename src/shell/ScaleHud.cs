@@ -99,6 +99,40 @@ namespace DnaAnd.Shell
             pipes.Solid.Draw(_ringBuf, cnt, c2, 0, 0, w, h);
         }
 
+        private UploadBuffer _cardBuf; private StarVertex[] _cardV = new StarVertex[0];
+        /// <summary>An information card on screen beside the thing you picked: a dark panel, the first line its name
+        /// (brighter), then its facts. Placed at (x, y) in pixels, kept inside the screen.</summary>
+        public void DrawCard(MeshPipes pipes, IList<string> lines, double x, double y, int w, int h)
+        {
+            if (lines == null || lines.Count == 0) return;
+            float px = Math.Max(1, h / 540f), cell = 1.25f * px, adv = 6 * cell, lh = 10 * cell, pad = 6 * px;
+            int longest = 0; foreach (var l in lines) longest = Math.Max(longest, l.Length);
+            float cw = longest * adv + pad * 2, ch = lines.Count * lh + pad * 2 - 3 * cell;
+            float x0 = (float)Math.Min(Math.Max(4, x), w - cw - 4), y0 = (float)Math.Min(Math.Max(4, y), h - ch - 4);
+            var list = new List<StarVertex>();
+            Quad(list, x0, y0, cw, ch, 0.03f, 0.05f, 0.09f);                                   // the panel
+            Quad(list, x0, y0, cw, 1.5f * px, 0.55f, 0.95f, 1f);                               // a bright edge along its top
+            for (int i = 0; i < lines.Count; i++)
+            {
+                float cx = x0 + pad, cy = y0 + pad + i * lh, r = i == 0 ? 0.55f : 0.85f, g = i == 0 ? 0.95f : 0.88f, b = 1f;
+                foreach (char c0 in lines[i].ToUpperInvariant())
+                {
+                    if (c0 != ' ') foreach (var c in IconFont.Cells(c0)) Quad(list, cx + c[0] * cell, cy + c[1] * cell, cell * 0.9f, cell * 0.9f, r, g, b);
+                    cx += adv;
+                }
+            }
+            int cnt = list.Count;
+            if (_cardV.Length < cnt) _cardV = new StarVertex[cnt + 1200];
+            list.CopyTo(_cardV);
+            if (_cardBuf == null || _cardBuf.Bytes < (long)cnt * Marshal.SizeOf(typeof(StarVertex))) { if (_cardBuf != null) _cardBuf.Dispose(); _cardBuf = new UploadBuffer(_device, (long)(cnt + 1200) * Marshal.SizeOf(typeof(StarVertex))); }
+            _cardBuf.Write(_cardV, cnt);
+            var m = Mat4.Identity; m.M11 = 2f / w; m.M22 = -2f / h; m.M33 = 0; m.M41 = -1; m.M42 = 1; m.M43 = 0.0001f; m.M44 = 1;
+            var c2 = new float[BillboardPipeline.ConstantCount];
+            c2[0] = m.M11; c2[5] = m.M22; c2[10] = m.M33; c2[12] = m.M41; c2[13] = m.M42; c2[14] = m.M43; c2[15] = m.M44;
+            c2[18] = 1; c2[22] = 1;
+            pipes.Solid.Draw(_cardBuf, cnt, c2, 0, 0, w, h);
+        }
+
         private static void Quad(List<StarVertex> l, float x, float y, float sw, float sh, float r, float g, float b)
         {
             var a = new StarVertex { X = x, Y = y, Z = 0, Size = 1, R = r, G = g, B = b, A = 1 };
@@ -106,6 +140,6 @@ namespace DnaAnd.Shell
             l.Add(a); l.Add(bq); l.Add(c); l.Add(a); l.Add(c); l.Add(d);
         }
 
-        public void Dispose() { if (_buf != null) _buf.Dispose(); if (_ringBuf != null) _ringBuf.Dispose(); }
+        public void Dispose() { if (_buf != null) _buf.Dispose(); if (_ringBuf != null) _ringBuf.Dispose(); if (_cardBuf != null) _cardBuf.Dispose(); }
     }
 }
