@@ -669,7 +669,7 @@ namespace DnaAnd.Shell
             ChooseSystem(); Jumped("ChooseSystem");
             // ride along with the body first, then see which one you are at: planets move about a hundred thousand km a frame,
             // so choosing before riding along saw you many radii behind (a moon never got its ground, and flickered)
-            FollowBody(); Jumped("FollowBody");
+            FollowBody(); Mark();                                                // riding along is meant to move you far: not logged as a jump
             ChoosePlanet(); Jumped("ChoosePlanet");
             return true;
         }
