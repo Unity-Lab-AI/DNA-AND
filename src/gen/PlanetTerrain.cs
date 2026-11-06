@@ -992,18 +992,22 @@ namespace DnaAnd.Gen
         // ── background building ──
         // Missing pieces are asked for while the planet is walked, nearest first; background workers (one per core, from the
         // job system) build them; each frame takes in whatever is finished. The frame never waits for a piece.
-        private sealed class Ask { public PKey Key; public int Layer, F, Level; public long I, J; public bool Pending; public int Gen; }
+        private sealed class Ask { public PKey Key; public int Layer, F, Level; public long I, J; public bool Pending; public int Gen; public double Need; }   // Need: its distance from you in its own sizes (smaller: wanted sooner)
         private readonly object _askLock = new object();
         private readonly List<Ask> _asks = new List<Ask>();                 // waiting, nearest first (rebuilt every frame)
         private readonly HashSet<PKey> _inFlight = new HashSet<PKey>();     // being built now
-        private readonly Queue<KeyValuePair<Ask, Patch>> _done = new Queue<KeyValuePair<Ask, Patch>>();
+        private readonly List<KeyValuePair<Ask, Patch>> _done = new List<KeyValuePair<Ask, Patch>>();
         private int _workersBusy;
         private readonly List<Ask> _askedThisFrame = new List<Ask>(); private readonly HashSet<PKey> _askedKeys = new HashSet<PKey>();
 
+        private double _askCamX, _askCamY, _askCamZ;                            // the camera, for how much each piece is needed
         private void AskFor(PKey key, int layer, int f, int level, long i, long j, bool pending)
         {
             lock (_askLock) _wantedAt[key] = _frame;                               // still wanted: build and keep it
-            if (_askedKeys.Add(key)) _askedThisFrame.Add(new Ask { Key = key, Layer = layer, F = f, Level = level, I = i, J = j, Pending = pending, Gen = Generation });
+            if (!_askedKeys.Add(key)) return;
+            double size = 2.0 / Math.Pow(2, level), x, y, z; Dir(f, -1 + (i + 0.5) * size, -1 + (j + 0.5) * size, out x, out y, out z);
+            double rr = LayerRadius(layer), ex = x * rr - _askCamX, ey = y * rr - _askCamY, ez = z * rr - _askCamZ;
+            _askedThisFrame.Add(new Ask { Key = key, Layer = layer, F = f, Level = level, I = i, J = j, Pending = pending, Gen = Generation, Need = Math.Sqrt(ex * ex + ey * ey + ez * ez) / (size * rr) });
         }
 
         // after the walk: the new wish list replaces the old (so pieces no longer needed are not built), and workers start
@@ -1013,6 +1017,7 @@ namespace DnaAnd.Gen
             {
                 _asks.Clear();
                 foreach (var a in _askedThisFrame) if (!_inFlight.Contains(a.Key)) _asks.Add(a);
+                _asks.Sort((p0, p1) => p0.Need.CompareTo(p1.Need));                // the pieces you need most (close for their size) first
             }
             _askedThisFrame.Clear(); _askedKeys.Clear();
             int want = Math.Max(1, Jobs.Workers - 1);
@@ -1040,7 +1045,7 @@ namespace DnaAnd.Gen
                     var t0 = System.Diagnostics.Stopwatch.GetTimestamp();
                     var p = Make(a.Layer, a.F, a.Level, a.I, a.J);
                     double ms = (System.Diagnostics.Stopwatch.GetTimestamp() - t0) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
-                    lock (_askLock) { _done.Enqueue(new KeyValuePair<Ask, Patch>(a, p)); _builtCount++; _builtMs += ms; }
+                    lock (_askLock) { _done.Add(new KeyValuePair<Ask, Patch>(a, p)); _builtCount++; _builtMs += ms; }
                 }
             }
             finally { System.Threading.Interlocked.Decrement(ref _workersBusy); }
@@ -1053,7 +1058,7 @@ namespace DnaAnd.Gen
             while (clock.Elapsed.TotalMilliseconds < 8)
             {
                 KeyValuePair<Ask, Patch> d; bool wanted;
-                lock (_askLock) { if (_done.Count == 0) break; d = _done.Dequeue(); _inFlight.Remove(d.Key.Key); wanted = d.Key.Pending || Wanted(d.Key.Key); }
+                lock (_askLock) { if (_done.Count == 0) break; int bi = 0; for (int q = 1; q < _done.Count; q++) if (_done[q].Key.Need < _done[bi].Key.Need) bi = q; d = _done[bi]; _done[bi] = _done[_done.Count - 1]; _done.RemoveAt(_done.Count - 1); _inFlight.Remove(d.Key.Key); wanted = d.Key.Pending || Wanted(d.Key.Key); }
                 if (!wanted) { _droppedUnwanted++; continue; }                     // finished, but you have moved on: never uploaded
                 var a = d.Key; var np = d.Value;
                 if (a.Gen != Generation) { _droppedOld++; continue; }             // built for a shape the planet no longer has
@@ -1181,6 +1186,7 @@ namespace DnaAnd.Gen
 
         private void Collect(int layer, double camX, double camY, double camZ, double splitFactor)
         {
+            _askCamX = camX; _askCamY = camY; _askCamZ = camZ;
             // which cube face, and where on it, lies straight under the camera
             double cl = Math.Sqrt(camX * camX + camY * camY + camZ * camZ), dx = camX / cl, dy = camY / cl, dz = camZ / cl, best = -2;
             for (int f = 0; f < 6; f++)
