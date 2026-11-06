@@ -215,7 +215,7 @@ Order: galactic scale down, the same order as the sample sets.
   - [~] Towns: from the builder species' genes (`--civ`)
   - [~] Cities: from the builder species' genes (`--civ`)
   - [~] Space stuff (stations, colonies, ships and the rest): spaceship, hyperdrive ship, space station and colony from the builder species' genes (`--civ`)
-- [ ] How long each step of an intelligent species lasts (wild, tribes, villages, towns, cities, space): for now an even share of the last stage's hour, until decided: "yeah intelligent species live on the land before they ever village and tribe up before going into theri tech and stuff"
+- [ ] How long each step of an intelligent species lasts (wild, tribes, villages, towns, cities, space): not a set time, it follows how much the god helps; a player who keeps at it gets there quicker: "its not a set time... its all based on how the god helps the life to evolve if ur on it you can get there quicker". The god's ways of helping are not built yet; until then each step takes an even share of the last stage's hour. Asked about: "yeah intelligent species live on the land before they ever village and tribe up before going into theri tech and stuff"
 - [ ] Species-driven asset generation: cities, ships and stations built from the species' own genes and body plan: "ie insect species has insect spaceships ansd insect cities"
 **Spec:** `wiki/systems/r04-renderer.md#-style-samples-come-first`, `docs/DESIGN.md` round 6
 
