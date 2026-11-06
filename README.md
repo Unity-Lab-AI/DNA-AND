@@ -382,13 +382,15 @@ Powers cost **Souls**. Cost = the power's **tier (T1–T100) × area × strength
 
 | Key | |
 |--|--|
-| `W A S D` / screen edges | Pan |
-| `Scroll wheel` | Zoom where the mouse points, from a universe of galaxies to one microbe |
+| `W A S D` / `Q E` | Fly forward, back, left, right, down and up, at a speed scaled to the nearest thing (`Shift`: four times as fast) |
+| `Scroll wheel` | Zoom where the mouse points, from a universe of galaxies down to an atom's nucleus |
 | `Ctrl` + `Scroll wheel` | Zoom eight times as fast |
-| `Right-drag` | Rotate |
-| `Left-click` | Use the selected power, or pick a galaxy, star or planet to go to |
+| `Left-drag` | Circle round what you picked, or look around |
+| `Left-click` | Use the selected power, or pick a galaxy, star, planet, spot, grain or atom to go to |
+| `Right-click` | Let go of what you picked |
 | `Space` | Pause |
-| `1 – 5` | Time speeds |
+| `,` `.` / `1 – 5` | Time slower and faster / time speeds |
+| `H` | Scale bar and information cards |
 | `F1` | In-game wiki |
 | `Esc` | Menu: save, load, settings, quit |
 
