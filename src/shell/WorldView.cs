@@ -24,8 +24,23 @@ namespace DnaAnd.Shell
         private const int FarStars = 2500, NearStars = 150000;
         private const double Spread = 120;                 // the universe patch, in galaxy units (one unit is 50,000 light-years)
 
-        // the camera: where it is (universe units, double) and which way it looks
-        private double _cx, _cy, _cz, _yaw = Math.PI + 0.4, _pitch = -0.35;
+        // the camera: an anchor (a galaxy's centre, or the star of the system you are in, in universe units) plus how far the camera
+        // is from it. Distances near the camera stay exact because they are worked out from the small offset, not the huge anchor.
+        private double _ax, _ay, _az, _ox, _oy, _oz, _yaw = Math.PI + 0.4, _pitch = -0.35;
+        private double _cx { get { return _ax + _ox; } }
+        private double _cy { get { return _ay + _oy; } }
+        private double _cz { get { return _az + _oz; } }
+        private void Anchor(double x, double y, double z)
+        {
+            // move the anchor without moving the camera: the offset takes up the difference (worked out before adding)
+            _ox = (_ax - x) + _ox; _oy = (_ay - y) + _oy; _oz = (_az - z) + _oz; _ax = x; _ay = y; _az = z;
+        }
+
+        // the star system around you, once you are within about 2,000 AU of a star of the near galaxy
+        private int _sysStar = -1; private SpaceGen.StarSystem _system; private int[] _nearKinds;
+        private UploadBuffer _sysStatic, _sysBodies; private StarVertex[] _bodyVerts, _staticShifted; private int _bodyCount;
+        private double _simYears;
+        private static readonly double SystemRange = Units.Au(2000);
         // the galaxy whose own stars are being shown (or -1), and those stars in its own frame
         private int _near = -1; private StarVertex[] _nearLocal, _nearDrawn; private UploadBuffer _nearBuf; private float _nearFade = -1;
         private int[] _gridHead, _gridNext; private const int GridN = 64;     // a grid over the near galaxy's stars, to find the nearest one fast
@@ -50,7 +65,7 @@ namespace DnaAnd.Shell
                 _galaxies.Add(g);
             }
             // start out among the galaxies, looking at the first one
-            _cx = 30; _cy = 14; _cz = 22;
+            _ox = 30; _oy = 14; _oz = 22;
             LookAt(0, 0, 0);
         }
 
@@ -81,7 +96,7 @@ namespace DnaAnd.Shell
             m.M11 = cu * s; m.M12 = 0; m.M13 = su * s;
             m.M21 = -st * su * s; m.M22 = ct * s; m.M23 = st * cu * s;
             m.M31 = -ct * su * s; m.M32 = -st * s; m.M33 = ct * cu * s;
-            m.M41 = (float)(g.X - _cx); m.M42 = (float)(g.Y - _cy); m.M43 = (float)(g.Z - _cz);
+            m.M41 = (float)((g.X - _ax) - _ox); m.M42 = (float)((g.Y - _ay) - _oy); m.M43 = (float)((g.Z - _az) - _oz);
             return m;
         }
 
@@ -94,28 +109,155 @@ namespace DnaAnd.Shell
                 double dx = g.X - _cx, dy = g.Y - _cy, dz = g.Z - _cz, d = Math.Sqrt(dx * dx + dy * dy + dz * dz) - g.Scale * 1.0;
                 best = Math.Min(best, Math.Max(d, g.Scale * 0.02));
             }
-            if (_near >= 0 && _nearLocal != null)
-            {
-                // the camera in the near galaxy's own frame, then the stars in the grid cells around it
-                double lx, ly, lz; ToGalaxy(_galaxies[_near], _cx, _cy, _cz, out lx, out ly, out lz);
-                int gx = Cell(lx), gy = Cell(ly), gz = Cell(lz);
-                double bestL = double.MaxValue;
-                for (int ox = -1; ox <= 1; ox++) for (int oy = -1; oy <= 1; oy++) for (int oz = -1; oz <= 1; oz++)
-                {
-                    int x = gx + ox, y = gy + oy, z = gz + oz;
-                    if (x < 0 || y < 0 || z < 0 || x >= GridN || y >= GridN || z >= GridN) continue;
-                    for (int k = _gridHead[(x * GridN + y) * GridN + z]; k >= 0; k = _gridNext[k])
-                    {
-                        var s = _nearLocal[k]; double dx = s.X - lx, dy = s.Y - ly, dz = s.Z - lz;
-                        bestL = Math.Min(bestL, dx * dx + dy * dy + dz * dz);
-                    }
-                }
-                if (bestL < double.MaxValue) best = Math.Min(best, Math.Sqrt(bestL) * _galaxies[_near].Scale);
-            }
+            if (_system != null) best = Math.Min(best, PlaceSystem());
+            if (_near >= 0 && _nearLocal != null) { double ds; if (NearestStar(out ds) >= 0) best = Math.Min(best, ds); }
             return best;
         }
 
         private static int Cell(double v) { return (int)Math.Floor((v + 1.6) / 3.2 * GridN); }
+
+        // ── the stars of the space you are in ──
+        // A real galaxy holds about a hundred billion stars; its sample shows 150,000. Around the camera, the real ones are made:
+        // space is cut into cubes about 25 light-years across, and each cube near you gets the stars the galaxy's density gives it
+        // there (from how many sample stars share its big grid cell), placed from the cube's own position, so they are always the
+        // same stars when you come back.
+        private const double RealStars = 1e11;
+        private static readonly double LocalCell = 25 / 50000.0;           // 25 light-years, in galaxy units
+        private readonly Dictionary<long, StarVertex[]> _localCells = new Dictionary<long, StarVertex[]>();
+        private readonly List<StarVertex> _localList = new List<StarVertex>();   // in the near galaxy's own frame
+        private readonly List<int> _localKind = new List<int>(); private readonly List<long> _localId = new List<long>();
+        private UploadBuffer _localBuf; private StarVertex[] _localDrawn = new StarVertex[0]; private int _localCount;
+        private long _localKey = long.MinValue;
+
+        // the galaxy's density of real stars at a point of its own frame (stars per galaxy unit cubed)
+        private double Density(double lx, double ly, double lz)
+        {
+            int x = Cell(lx), y = Cell(ly), z = Cell(lz);
+            if (x < 0 || y < 0 || z < 0 || x >= GridN || y >= GridN || z >= GridN) return 0;
+            int n = 0; for (int k = _gridHead[(x * GridN + y) * GridN + z]; k >= 0; k = _gridNext[k]) n++;
+            double cellSize = 3.2 / GridN;
+            return n / (double)NearStars * RealStars / (cellSize * cellSize * cellSize);
+        }
+
+        // refresh the local stars when the camera moves into another cube
+        private void LocalStars()
+        {
+            if (_near < 0 || _nearLocal == null) { _localCount = 0; return; }
+            double lx, ly, lz; ToGalaxy(_galaxies[_near], _cx, _cy, _cz, out lx, out ly, out lz);
+            long cx = (long)Math.Floor(lx / LocalCell), cy = (long)Math.Floor(ly / LocalCell), cz = (long)Math.Floor(lz / LocalCell);
+            long key = (cx * 73856093L) ^ (cy * 19349663L) ^ (cz * 83492791L);
+            if (key == _localKey) return;
+            _localKey = key;
+            _localList.Clear(); _localKind.Clear(); _localId.Clear();
+            var keep = new Dictionary<long, StarVertex[]>();
+            for (long ox = -1; ox <= 1; ox++) for (long oy = -1; oy <= 1; oy++) for (long oz = -1; oz <= 1; oz++)
+            {
+                long x = cx + ox, y = cy + oy, z = cz + oz, id = (x * 73856093L) ^ (y * 19349663L) ^ (z * 83492791L);
+                StarVertex[] cell;
+                if (!_localCells.TryGetValue(id, out cell))
+                {
+                    double vol = LocalCell * LocalCell * LocalCell, expect = Density((x + 0.5) * LocalCell, (y + 0.5) * LocalCell, (z + 0.5) * LocalCell) * vol;
+                    var rng = new Rng((ulong)id ^ _galaxies[_near].Seed);
+                    int count = (int)Math.Min(4000, Math.Floor(expect + rng.NextDouble()));
+                    cell = new StarVertex[count];
+                    for (int k = 0; k < count; k++)
+                    {
+                        var kind = PickKind(rng);
+                        var kc = _kinds[kind];
+                        cell[k] = new StarVertex { X = (float)((x + rng.NextDouble()) * LocalCell), Y = (float)((y + rng.NextDouble()) * LocalCell), Z = (float)((z + rng.NextDouble()) * LocalCell),
+                            Size = 0.00002f, R = kc.R, G = kc.G, B = kc.B, A = kind };      // A carries the kind's index
+                    }
+                }
+                keep[id] = cell;
+                for (int k = 0; k < cell.Length; k++) { _localList.Add(cell[k]); _localKind.Add((int)cell[k].A); _localId.Add(id * 4096 + k); }
+            }
+            _localCells.Clear(); foreach (var kv in keep) _localCells[kv.Key] = kv.Value;
+            _localCount = _localList.Count;
+            if (_localDrawn.Length < _localCount) _localDrawn = new StarVertex[_localCount + 1024];
+            if (_localBuf == null || _localBuf.Bytes < (long)_localCount * Stride) { if (_localBuf != null) _localBuf.Dispose(); _localBuf = new UploadBuffer(_gpu.Device, (long)(_localCount + 1024) * Stride * 2); }
+        }
+
+        // a star kind by how common each is (the same shares the galaxy generator uses)
+        private int PickKind(Rng rng)
+        {
+            double total = 0; foreach (var k in _kinds) total += k.Weight;
+            double r = rng.NextDouble() * total;
+            for (int i = 0; i < _kinds.Count; i++) { r -= _kinds[i].Weight; if (r <= 0) return i; }
+            return 0;
+        }
+
+        // the near galaxy's star nearest the camera (index, and distance in universe units), or -1
+        private int NearestStar(out double dist)
+        {
+            dist = double.MaxValue; if (_near < 0 || _nearLocal == null) return -1;
+            double lx, ly, lz; ToGalaxy(_galaxies[_near], _cx, _cy, _cz, out lx, out ly, out lz);
+            // the real stars of this space (index from 1,000,000 up), then the galaxy's sample stars
+            int bestL = -1; double bl = double.MaxValue;
+            for (int k = 0; k < _localCount; k++) { var s0 = _localList[k]; double dx = s0.X - lx, dy = s0.Y - ly, dz = s0.Z - lz, d = dx * dx + dy * dy + dz * dz; if (d < bl) { bl = d; bestL = k; } }
+            int gx = Cell(lx), gy = Cell(ly), gz = Cell(lz), best = -1; double bd = double.MaxValue;
+            for (int ox = -1; ox <= 1; ox++) for (int oy = -1; oy <= 1; oy++) for (int oz = -1; oz <= 1; oz++)
+            {
+                int x = gx + ox, y = gy + oy, z = gz + oz;
+                if (x < 0 || y < 0 || z < 0 || x >= GridN || y >= GridN || z >= GridN) continue;
+                for (int k = _gridHead[(x * GridN + y) * GridN + z]; k >= 0; k = _gridNext[k])
+                {
+                    var s = _nearLocal[k]; double dx = s.X - lx, dy = s.Y - ly, dz = s.Z - lz, d = dx * dx + dy * dy + dz * dz;
+                    if (d < bd) { bd = d; best = k; }
+                }
+            }
+            if (bestL >= 0 && bl < bd) { dist = Math.Sqrt(bl) * _galaxies[_near].Scale; return 1000000 + bestL; }
+            if (best >= 0) dist = Math.Sqrt(bd) * _galaxies[_near].Scale;
+            return best;
+        }
+
+        // where a star of the near galaxy sits in the universe
+        private void StarPos(int k, out double x, out double y, out double z) { var s = k >= 1000000 ? _localList[k - 1000000] : _nearLocal[k]; ToUniverse(_galaxies[_near], s.X, s.Y, s.Z, out x, out y, out z); }
+        private int StarKindOf(int k) { return k >= 1000000 ? _localKind[k - 1000000] : _nearKinds[k]; }
+        private ulong StarSeed(int k) { return k >= 1000000 ? (ulong)_localId[k - 1000000] : (ulong)k; }
+
+        // open the system of the star you have come close to (and anchor the camera on it), or close it when you leave
+        private void ChooseSystem()
+        {
+            double d; int k = NearestStar(out d);
+            if (_system != null && (k != _sysStar && d < SystemRange * 0.5 || DistToSysStar() > SystemRange * 1.5)) CloseSystem();
+            if (_system == null && k >= 0 && d < SystemRange)
+            {
+                _sysStar = k;
+                var kind = _kinds[Math.Max(0, Math.Min(_kinds.Count - 1, StarKindOf(k)))];
+                _system = SpaceGen.System(_content, kind, _galaxies[_near].Seed * 31UL + StarSeed(k));
+                _bodyVerts = new StarVertex[_system.Bodies.Count + 1];
+                _sysBodies = new UploadBuffer(_gpu.Device, (long)_bodyVerts.Length * Stride);
+                _staticShifted = new StarVertex[_system.Static.Length];
+                _sysStatic = new UploadBuffer(_gpu.Device, (long)Math.Max(1, _system.Static.Length) * Stride);
+                double sx, sy, sz; StarPos(k, out sx, out sy, out sz); Anchor(sx, sy, sz);
+            }
+            if (_system == null && _near >= 0) { var g = _galaxies[_near]; if (Math.Abs(_ax - g.X) + Math.Abs(_ay - g.Y) + Math.Abs(_az - g.Z) > 0) Anchor(g.X, g.Y, g.Z); }
+        }
+
+        private double DistToSysStar() { return Math.Sqrt(_ox * _ox + _oy * _oy + _oz * _oz); }    // anchored on the star: the offset is the distance
+
+        private void CloseSystem()
+        {
+            _system = null; _sysStar = -1;
+            if (_sysStatic != null) { _sysStatic.Dispose(); _sysStatic = null; }
+            if (_sysBodies != null) { _sysBodies.Dispose(); _sysBodies = null; }
+        }
+
+        // the system's planets, moons and star placed around the star (anchor), and the nearest surface to the camera
+        private double PlaceSystem()
+        {
+            if (_system == null) return double.MaxValue;
+            double fx, fy, fz;
+            _bodyCount = SpaceGen.BodyVerts(_system, _simYears, 1 / 20.0, 0.05, _bodyVerts, -1, 1.0, out fx, out fy, out fz);
+            double best = double.MaxValue;
+            for (int i = 0; i < _bodyCount; i++)
+            {
+                double r = i == 0 ? _system.StarRadius : _system.Bodies[i - 1].RadiusUnits;
+                double dx = _bodyVerts[i].X - _ox, dy = _bodyVerts[i].Y - _oy, dz = _bodyVerts[i].Z - _oz;
+                best = Math.Min(best, Math.Max(r * 0.05, Math.Sqrt(dx * dx + dy * dy + dz * dz) - r));
+            }
+            return best;
+        }
 
         private static void ToGalaxy(Galaxy g, double ux, double uy, double uz, out double x, out double y, out double z)
         {
@@ -137,9 +279,12 @@ namespace DnaAnd.Shell
                 var dir = MouseRay(input.MouseX, input.MouseY, w, h);
                 double step = reach * (1 - Math.Pow(0.87, Math.Abs(input.Wheel))) * Math.Sign(input.Wheel);
                 if (input.Wheel < 0) step = -Math.Max(reach, 0.01) * (Math.Pow(1 / 0.87, -input.Wheel) - 1);
-                _cx += dir.X * step; _cy += dir.Y * step; _cz += dir.Z * step;
+                _ox += dir.X * step; _oy += dir.Y * step; _oz += dir.Z * step;
             }
+            _simYears += dt / 20.0;                                                    // one year in 20 seconds, as in the system view
             ChooseNear();
+            LocalStars();
+            ChooseSystem();
             return true;
         }
 
@@ -162,13 +307,14 @@ namespace DnaAnd.Shell
             if (bd > 8) best = -1;
             if (best != _near)
             {
-                _near = best; _nearFade = -1;
+                _near = best; _nearFade = -1; CloseSystem(); _localCells.Clear(); _localKey = long.MinValue; _localCount = 0;
                 if (_nearBuf != null) { _nearBuf.Dispose(); _nearBuf = null; }
                 _nearLocal = null;
                 if (best >= 0)
                 {
                     var g = _galaxies[best];
-                    _nearLocal = GalaxyGen.Generate(g.Type, g.Seed, NearStars, _kinds);
+                    _nearKinds = new int[NearStars];
+                    _nearLocal = GalaxyGen.Generate(g.Type, g.Seed, NearStars, _kinds, _nearKinds);
                     _nearDrawn = new StarVertex[_nearLocal.Length];
                     _nearBuf = new UploadBuffer(_gpu.Device, (long)_nearLocal.Length * Stride);
                     // the grid used to find the nearest star
@@ -219,6 +365,25 @@ namespace DnaAnd.Shell
                 }
                 DrawPoints(_nearBuf, _nearDrawn.Length, Placement(_galaxies[_near]) * vp, right, up, 0f, 0.0028f, w, h, time);
             }
+            if (_near >= 0 && _localCount > 0 && share > 0.5)
+            {
+                // the real stars of this space, placed in the near galaxy's frame, brighter the nearer
+                for (int k = 0; k < _localCount; k++) { var v = _localList[k]; v.A = 1; _localDrawn[k] = v; }
+                _localBuf.Write(_localDrawn, _localCount);
+                DrawPoints(_localBuf, _localCount, Placement(_galaxies[_near]) * vp, right, up, 1f, 0.0022f, w, h, time);
+            }
+            if (_system != null)
+            {
+                // the system around its star (the anchor): orbits and belts, then the star, planets and moons as glows at their real sizes
+                _gpu.ClearDepth();
+                PlaceSystem();
+                var st = _system.Static;
+                for (int i = 0; i < st.Length; i++) { var v = st[i]; v.X = (float)(st[i].X - _ox); v.Y = (float)(st[i].Y - _oy); v.Z = (float)(st[i].Z - _oz); _staticShifted[i] = v; }
+                if (st.Length > 0) { _sysStatic.Write(_staticShifted, st.Length); DrawPoints(_sysStatic, st.Length, vp, right, up, 0f, 0.002f, w, h, time); }
+                for (int i = 0; i < _bodyCount; i++) { _bodyVerts[i].X = (float)(_bodyVerts[i].X - _ox); _bodyVerts[i].Y = (float)(_bodyVerts[i].Y - _oy); _bodyVerts[i].Z = (float)(_bodyVerts[i].Z - _oz); }
+                _sysBodies.Write(_bodyVerts, _bodyCount);
+                DrawPoints(_sysBodies, _bodyCount, vp, right, up, 1f, 0.004f, w, h, time);
+            }
         }
 
         private void DrawPoints(UploadBuffer buf, int count, Mat4 vp, Vec3 right, Vec3 up, float sizeScale, float minSize, int w, int h, double time)
@@ -236,7 +401,8 @@ namespace DnaAnd.Shell
         {
             get
             {
-                string where = _near >= 0 ? (NearShare() > 0.5 ? "among the stars of " : "near ") + _galaxies[_near].Name : "among the galaxies";
+                string where = _system != null ? "in the system of a " + _system.StarName + " (" + _system.Bodies.Count + " planets and moons)"
+                    : _near >= 0 ? (NearShare() > 0.5 ? "among the stars of " : "near ") + _galaxies[_near].Name : "among the galaxies";
                 return "DNA-AND · one world · " + where + " · nearest thing " + Units.Describe(NearestDistance()) + " away · wheel: fly in or out toward the mouse · drag: look around · Esc: close";
             }
         }
@@ -245,6 +411,8 @@ namespace DnaAnd.Shell
         {
             foreach (var g in _galaxies) g.Far.Dispose();
             if (_nearBuf != null) _nearBuf.Dispose();
+            CloseSystem();
+            if (_localBuf != null) _localBuf.Dispose();
         }
     }
 }
