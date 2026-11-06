@@ -712,7 +712,8 @@ namespace DnaAnd.Shell
                 _gpu.ClearDepth();
                 PlaceSystem();
                 var st = _system.Static;
-                for (int i = 0; i < st.Length; i++) { var v = st[i]; v.X = (float)(st[i].X - _ox); v.Y = (float)(st[i].Y - _oy); v.Z = (float)(st[i].Z - _oz); _staticShifted[i] = v; }
+                float stFade = (float)Math.Max(0, Math.Min(1, (SystemRange - DistToSysStar()) / (SystemRange * 0.75)));   // orbits and belts fade in with the planets
+                for (int i = 0; i < st.Length; i++) { var v = st[i]; v.X = (float)(st[i].X - _ox); v.Y = (float)(st[i].Y - _oy); v.Z = (float)(st[i].Z - _oz); v.R *= stFade; v.G *= stFade; v.B *= stFade; _staticShifted[i] = v; }
                 if (st.Length > 0) { _sysStatic.Write(_staticShifted, st.Length); DrawPoints(_sysStatic, st.Length, vp, right, up, 0f, 0.002f, w, h, time); }
                 for (int i = 0; i < _bodyCount; i++) { _bodyVerts[i].X = (float)(_bodyVerts[i].X - _ox); _bodyVerts[i].Y = (float)(_bodyVerts[i].Y - _oy); _bodyVerts[i].Z = (float)(_bodyVerts[i].Z - _oz); }
                 // the planet whose real ground is showing is not drawn as a glow too (it showed through its own see-through sea and clouds as a frosted ghost)
