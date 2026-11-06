@@ -377,7 +377,13 @@ namespace DnaAnd.Shell
             if (AutoPath) AimNext();
             if (input.WasPressed(0x48)) { _hud.Visible = !_hud.Visible; MenuChanged = true; }   // H: the scale on screen, on or off
             if (input.WasPressed(Win32.VK_ESCAPE)) return false;
-            if (input.LeftDown) { _yaw += input.MouseDX * 0.004; _pitch = Math.Max(-1.55, Math.Min(1.55, _pitch - input.MouseDY * 0.004)); }
+            if (input.LeftDown)
+            {
+                // dragging looks around; by default the view moves the other way to the mouse (like pulling the sky), both ways
+                // can be flipped in the View menu
+                double sx = Settings.Get("invert-left-right", false) ? 1 : -1, sy = Settings.Get("invert-up-down", false) ? -1 : 1;
+                _yaw += sx * input.MouseDX * 0.004; _pitch = Math.Max(-1.55, Math.Min(1.55, _pitch + sy * input.MouseDY * 0.004));
+            }
             double reach = NearestDistance();
             if (_matterScale > 0)
             {

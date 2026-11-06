@@ -16,7 +16,7 @@ namespace DnaAnd.Shell
             "How to use the preview\n\n" +
             "Mouse wheel: fly in or out toward what the mouse points at. A star or planet near the pointer is flown at straight.\n" +
             "Hold Ctrl with the wheel: eight times as fast.\n" +
-            "Drag with the left button: look around.\n" +
+            "Drag with the left button: look around (the View menu can invert left-right and up-down).\n" +
             "H: the scale on screen, on or off.\n" +
             "View menu: the scale, and the render scale (lower is faster, higher is sharper).\n" +
             "Esc or Exit: close.\n\n" +

@@ -49,7 +49,7 @@ namespace DnaAnd.Platform
             Win32.DrawMenuBar(Handle);
         }
 
-        public const int CmdAbout = 200, CmdReadme = 201, CmdCredits = 202, CmdScaleHud = 203;
+        public const int CmdAbout = 200, CmdReadme = 201, CmdCredits = 202, CmdScaleHud = 203, CmdInvertX = 204, CmdInvertY = 205;
         /// <summary>The preview's menu bar: Exit; View (the scale on screen, render scale); Help (Readme, Credits, About).</summary>
         public void SetWorldMenu(bool scaleOn)
         {
@@ -58,6 +58,9 @@ namespace DnaAnd.Platform
             for (int i = 0; i < ScalePercents.Length; i++)
                 Win32.AppendMenu(scale, Win32.MF_STRING | (Math.Abs(ScalePercents[i] - Input.Scale * 100) < 1 ? Win32.MF_CHECKED : 0), (IntPtr)(CmdScaleBase + i), ScalePercents[i] + "%" + (ScalePercents[i] < 100 ? " (faster, softer)" : ScalePercents[i] > 100 ? " (sharper, slower)" : " (the window's own size)"));
             Win32.AppendMenu(view, Win32.MF_POPUP, scale, "Render scale");
+            Win32.AppendMenu(view, Win32.MF_SEPARATOR, IntPtr.Zero, null);
+            Win32.AppendMenu(view, Win32.MF_STRING | (Settings.Get("invert-left-right", false) ? Win32.MF_CHECKED : 0), (IntPtr)CmdInvertX, "Invert left-right drag");
+            Win32.AppendMenu(view, Win32.MF_STRING | (Settings.Get("invert-up-down", false) ? Win32.MF_CHECKED : 0), (IntPtr)CmdInvertY, "Invert up-down drag");
             Win32.AppendMenu(help, Win32.MF_STRING, (IntPtr)CmdReadme, "Readme");
             Win32.AppendMenu(help, Win32.MF_STRING, (IntPtr)CmdCredits, "Credits");
             Win32.AppendMenu(help, Win32.MF_SEPARATOR, IntPtr.Zero, null);

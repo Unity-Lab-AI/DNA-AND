@@ -169,6 +169,8 @@ namespace DnaAnd
                 else if (cmd == Window.CmdAbout) window.Tell(PreviewText.About, "About DNA-AND");
                 else if (cmd == Window.CmdReadme) window.Tell(PreviewText.Readme, "DNA-AND · Readme");
                 else if (cmd == Window.CmdCredits) window.Tell(PreviewText.Credits, "DNA-AND · Credits");
+                else if (cmd == Window.CmdInvertX) { Settings.Set("invert-left-right", !Settings.Get("invert-left-right", false)); menuDirty = true; }
+                else if (cmd == Window.CmdInvertY) { Settings.Set("invert-up-down", !Settings.Get("invert-up-down", false)); menuDirty = true; }
                 else if (cmd == Window.CmdScaleHud && world != null) { world.ScaleOn = !world.ScaleOn; menuDirty = true; }
                 else if (cmd == Window.CmdClearMarks) { viewer.ClearMarks(); menuDirty = true; }
                 else if (cmd >= Window.CmdKeeperBase && cmd < Window.CmdKeeperBase + 9) { if (style != null) style.ToggleMark(cmd - Window.CmdKeeperBase); else viewer.ToggleMark(cmd - Window.CmdKeeperBase); menuDirty = true; }

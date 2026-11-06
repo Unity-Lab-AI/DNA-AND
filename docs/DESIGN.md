@@ -795,3 +795,5 @@ Everything the creator has said about this project, in order. Short process repl
 171. "remember it needs to use whoes ever GPU not made just for mine". The game scales to whatever computer it runs on: worker threads by core count, ground detail by screen resolution, time budgets in milliseconds, a render scale; it is to pick the strongest graphics card itself and set its defaults from that card.
 
 172. Installer: "Our own installer (Recommended)": DNA-AND-Setup.exe in our own C# (no NSIS or electron-builder as Agent Gen and Gladiators use), the same result: install folder, shortcuts, Apps list, uninstaller. "i havent tested yet, so dont build the exe yet": nothing is built or released until the creator has tested and okayed it.
+
+173. "the conrols are reverese need to have defult left right drag direction reverse and y axis inverted too by default with ooption in settings". Dragging to look now moves the view the other way to the mouse, both left-right and up-down, by default; the View menu can invert each, and the choice is kept between runs (%LOCALAPPDATA%\DNA-AND\settings.txt).
