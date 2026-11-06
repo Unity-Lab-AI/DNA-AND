@@ -232,7 +232,7 @@ Order: galactic scale down, the same order as the sample sets.
 **Source:** the lab's Uni Vs Matics engine (`UnityAILab/UniVsMatics`, `ftcore/reconstruct.py`, `docs/ARCHITECTURE.md`). Spec: `wiki/systems/r04-renderer.md`.
 
 - [x] Port the CDF 9/7 engine into the core: forward and inverse lifting, energy-target term selection, Int16 values, dv1 positions (LEB128 deltas), save and load, a strongest-share rebuild dial (`src/core/Wavelet97.cs`). Checked against the reference engine: coefficients match to 3e-17; dv1 round-trips exactly
-- [ ] Mode-E: the endless self-similar detail stage (Newton on z³ − K, the 3D cubic continuation, decimal-lattice cellular texture, basin colouring), ported from Uni Vs Matics / Deviant 3D, for detail that never runs out as you zoom
+- [x] Mode-E: the endless self-similar detail stage (Newton on z³ − K, the 3D cubic continuation, decimal-lattice cellular texture, basin colouring), ported from Uni Vs Matics / Deviant 3D, for detail that never runs out as you zoom (`src/core/ModeE.cs`; per-point `At` and grid `Solve`; checked against Deviant 3D's fractalize.ts: all 12,288 colour values of a 64×64 picture identical)
 - [ ] Re-map the zoom features onto wavelet levels for infinite zoom: each zoom band reads its own level of terms, and mode-E carries on past the finest stored level
 - [ ] Planet ground: the height and colour fields of each planet as wavelet equations per cube face; the living planet's changes (drift, erosion, craters, sea level) written as term edits; ground pieces rebuilt from the level that fits their size (fixes the coarse, blocky ground seen from orbit at native resolution)
 - [ ] Planet saves: the changed ground saved as its wavelet terms
