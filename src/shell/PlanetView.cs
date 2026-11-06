@@ -31,7 +31,7 @@ namespace DnaAnd.Shell
         private LandLife _land;
         /// <summary>The planet's inside (core, heat, plates, magnetic field), one per planet, on the same clock as its life.</summary>
         public static readonly System.Collections.Generic.Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetCore> Cores = new System.Collections.Generic.Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetCore>();
-        private DnaAnd.Sim.PlanetCore _core; private DnaAnd.Sim.PlanetPlates _plates; private DnaAnd.Sim.PlanetAir _air; private DnaAnd.Sim.PlanetWeather _weather; private DnaAnd.Sim.PlanetSurface _surface; private DnaAnd.Sim.PlanetImpacts _impacts; private int _seenImpacts; private double _shapeSea, _shapeCheck, _shapeMoved; private int _shapeCraters; private double[] _shapeScales; private DnaAnd.Core.Chunk _loadedAir; private int _seenEvents; private DnaAnd.Core.Chunk _loadedCore; private string _coreNews = ""; private double _coreNewsUntil;
+        private DnaAnd.Sim.PlanetCore _core; private DnaAnd.Sim.PlanetPlates _plates; private DnaAnd.Sim.PlanetAir _air; private DnaAnd.Sim.PlanetWeather _weather; private DnaAnd.Sim.PlanetSurface _surface; private DnaAnd.Sim.PlanetImpacts _impacts; private int _seenImpacts; private double _shapeSea, _shapeCheck, _shapeMoved, _swapFadeUntil; private int _seenSwaps; private int _shapeCraters; private double[] _shapeScales; private DnaAnd.Core.Chunk _loadedAir; private int _seenEvents; private DnaAnd.Core.Chunk _loadedCore; private string _coreNews = ""; private double _coreNewsUntil;
         private SeaBodies _seaBodies;
         /// <summary>Test runs: start life and run it this many years forward at once.</summary>
         public double TestEvolveYears;
@@ -264,7 +264,7 @@ namespace DnaAnd.Shell
                     if (_seaBodies != null && _seaBodies.Here.Length > 0) names.Insert(0, _seaBodies.Here);
                     where += " · in the water around you: " + string.Join(", ", names.ToArray());
                 }
-                if (_core != null) where += " · PLANET: " + _core.Describe() + (_plates != null && _core.Plates ? ", " + _plates.Describe() : "") + (_air != null ? " · " + _air.Describe() : "") + (_weather != null ? ", " + _weather.Describe() : "") + (_surface != null ? ", " + _surface.Describe(_life) : "") + (_impacts != null ? ", " + _impacts.Describe() + ", " + _normal.Craters.Count + " craters on the ground (shape " + _normal.Generation + ")" : "") + (_time < _coreNewsUntil ? " · NEWS: " + _coreNews : "");
+                if (_core != null) where += " · PLANET: " + _core.Describe() + (_plates != null && _core.Plates ? ", " + _plates.Describe() : "") + (_air != null ? " · " + _air.Describe() : "") + (_weather != null ? ", " + _weather.Describe() : "") + (_surface != null ? ", " + _surface.Describe(_life) : "") + (_impacts != null ? ", " + _impacts.Describe() + ", " + _normal.Craters.Count + " craters on the ground (changed " + _normal.Swaps + " times)" : "") + (_time < _coreNewsUntil ? " · NEWS: " + _coreNews : "");
                 if (_life != null)
                 {
                     where += " · LIFE: " + (_life.Sparks == 0 ? "none yet (L: lightning, the first spark is free)" :
@@ -299,35 +299,35 @@ namespace DnaAnd.Shell
         // Checked every few seconds; when it has changed enough, the ground is remade a few pieces at a time
         private void ReshapeGround()
         {
-            if (!ShowDrift) return;                                                  // live reshaping is off: the ground rebuilt in patches as it changed
             if (_time < _shapeCheck || _surface == null || _weather == null) return;
-            _shapeCheck = _time + 3;
+            _shapeCheck = _time + 1;
             int n = _life.RegionCount;
             if (_shapeScales == null) { _shapeScales = new double[n]; for (int i = 0; i < n; i++) _shapeScales[i] = 1; }
-            bool changed = false;
+            if (_normal.Drift == null) { var pp = _plates; _normal.Drift = pp.Back; }
+            if (_normal.Generation != _normal.DrawnGeneration) return;               // a new shape is still being built: wait for it
+            if (_time < _swapFadeUntil + 30) return;                                  // at most one change every 30 seconds, however fast time runs
+            // the ground changes only at big moments, all at once: an ice age starting or ending, a great impact,
+            // or every 200 million years of drifting plates; mountains and seas catch up at the same time
+            bool big = false;
             double sea = Math.Max(0, -_weather.SeaLevelM) / 1000.0;
-            if (_shown > 300 && Math.Abs(sea - _shapeSea) > 0.01) { _shapeSea = sea; changed = true; }
-            if (_shown > 300) for (int i = 0; i < n; i++) if (Math.Abs(_surface.Scale(i) - _shapeScales[i]) > 0.05) { _shapeScales[i] = _surface.Scale(i); changed = true; }
-            if (_impacts.Craters.Count != _shapeCraters) { _shapeCraters = _impacts.Craters.Count; changed = true; }
-            // the plates carry the continents: once they have moved about 20 km more (on a 6,000 km world), the ground is remade
-            if (_core.Plates) _plates.MovedYears = _core.Age - 2e8;
-            if (ShowDrift && _shown > 300 && Math.Abs(_plates.MovedYears - _shapeMoved) * 5e-5 > _shown * 0.04) { _shapeMoved = _plates.MovedYears; changed = true; }
-            // drifting continents are not shown yet: at game speeds the land churned every few seconds; the plates still run underneath
-            if (ShowDrift && _normal.Drift == null) { var pp = _plates; _normal.Drift = pp.Back; }
-            if (!changed) return;
+            if (Math.Abs(sea - _shapeSea) > 0.04) big = true;                          // an ice age begins or ends (40 m or more)
+            int greatCraters = 0; foreach (var c in _impacts.Craters) if (c[3] >= 90) greatCraters++;
+            if (greatCraters != _shapeCraters) big = true;
+            double moved = _core.Plates ? _core.Age - 2e8 : _shapeMoved;
+            if (moved - _shapeMoved >= 2e8) big = true;
+            if (!big) return;
+            _shapeSea = sea; _shapeCraters = greatCraters; _shapeMoved = moved;
+            for (int i = 0; i < n; i++) _shapeScales[i] = _surface.Scale(i);
             var scales = (double[])_shapeScales.Clone();
+            _plates.MovedYears = _shapeMoved;
             _normal.SeaDropKm = _shapeSea;
             _normal.MountainScale = (x, y, z) => scales[DnaAnd.Sim.PlanetLife.RegionAt(x, y, z)];
-            _normal.Craters.Clear(); _normal.Craters.AddRange(_impacts.Craters);
+            _normal.Craters.Clear(); foreach (var c in _impacts.Craters) if (c[3] >= 8) _normal.Craters.Add(c);
             _normal.Generation++;
         }
 
         // ground pieces split by how big they look on screen in pixels, so a facet stays about the same size at any
         // resolution: a 2,000-pixel-tall picture gets finer ground than a 600-pixel one (tuned at 600 pixels tall)
-        /// <summary>Whether the ground you see re-forms as the planet changes (drift, seas, mountains, craters). Off: the ground
-        /// rebuilt in patches while you watched. Test runs turn it on with --reshape.</summary>
-        public static bool ShowDrift = Array.IndexOf(Environment.GetCommandLineArgs(), "--reshape") >= 0;
-
         private static double Detail(int height) { return Math.Max(1, height / 600.0); }
 
         public bool Update(Input input, double dt)
@@ -544,6 +544,9 @@ namespace DnaAnd.Shell
                 _land.Update(_life, _terrain, cx, cy, cz, _shown, _time);
                 _land.Draw(_pipes, view, proj, _terrain.StarDir, cx, cy, cz, width, height);
             }
+            // the planet has just changed shape (an ice age, a great impact, the continents moved on): a short fade over the swap
+            if (_normal.Swaps != _seenSwaps) { _seenSwaps = _normal.Swaps; _swapFadeUntil = _time + 0.8; }
+            if (_time < _swapFadeUntil) Veil(gpu, view, proj, (float)(0.55 * (_swapFadeUntil - _time) / 0.8), width, height);
             // on land, below about 5 mm, the view fades to black (down into the soil) before the microbes show
             if (!_underWater && _terrain.Solid && !_terrain.Shell && _shown < 5e-6)
                 Veil(gpu, view, proj, (float)Math.Max(0, Math.Min(0.97, (Math.Log10(5e-6) - Math.Log10(_shown)) / 1.4)), width, height);

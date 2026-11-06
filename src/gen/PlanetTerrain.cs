@@ -260,6 +260,23 @@ namespace DnaAnd.Gen
         /// <summary>Craters from impacts: direction (unit x, y, z), radius in km.</summary>
         public readonly List<double[]> Craters = new List<double[]>();
 
+        /// <summary>The shape the ground on screen was built for; it lags <see cref="Generation"/> until the new ground is ready.</summary>
+        public int DrawnGeneration;
+        /// <summary>How many times the whole planet's ground has been swapped to a new shape.</summary>
+        public int Swaps;
+        private readonly Dictionary<PKey, Patch> _pending = new Dictionary<PKey, Patch>();
+        private int _missing, _framesWaiting;
+
+        private void SwapGround()
+        {
+            foreach (var kv in _pending) { Patch old; if (_cache.TryGetValue(kv.Key, out old)) old.Buffer.Dispose(); _cache[kv.Key] = kv.Value; }
+            _pending.Clear();
+            // pieces of the old shape that were out of view are dropped, so they are made fresh in the new shape when needed
+            var stale = new List<PKey>(); foreach (var kv in _cache) if (kv.Value.Gen != Generation) stale.Add(kv.Key);
+            foreach (var k in stale) { _cache[k].Buffer.Dispose(); _cache.Remove(k); }
+            DrawnGeneration = Generation; _framesWaiting = 0; Swaps++;
+        }
+
         private double Reshaped(double x, double y, double z, double h)
         {
             if (h > 0 && MountainScale != null) h *= MountainScale(x, y, z);
@@ -895,10 +912,15 @@ namespace DnaAnd.Gen
             if (_cache.TryGetValue(key, out p))
             {
                 p.LastUsed = _frame;
-                // the planet has changed shape since this piece was made: remake it when there is time, nearest first; keep the old one meanwhile
-                if (p.Gen != Generation && mayMake && _budget > 0 && _clock.Elapsed.TotalMilliseconds < _msLimit)
+                // the planet has changed shape since this piece was made: build its new form out of sight, nearest first,
+                // and keep drawing the old one; the whole planet swaps to the new ground at once when every piece is ready
+                if (p.Gen != Generation)
                 {
-                    _budget--; var np = Make(layer, f, level, i, j); np.LastUsed = _frame; np.Gen = Generation; p.Buffer.Dispose(); _cache[key] = np; return np;
+                    Patch np;
+                    if (_pending.TryGetValue(key, out np)) return p;
+                    if (mayMake && _budget > 0 && _clock.Elapsed.TotalMilliseconds < _msLimit)
+                    { _budget--; np = Make(layer, f, level, i, j); np.LastUsed = _frame; np.Gen = Generation; _pending[key] = np; }
+                    else _missing++;
                 }
                 return p;
             }
@@ -919,6 +941,10 @@ namespace DnaAnd.Gen
             float fogDist, float fr, float fg, float fb, int x, int y, int w, int h, int newPatchBudget)
         {
             _frame++; _budget = newPatchBudget; _clock.Restart(); _msLimit = newPatchBudget >= 400 ? 10 : 30;
+            // last frame every piece in view had its new form ready: swap the whole planet's ground at once
+            if (Generation != DrawnGeneration && _framesWaiting > 0 && _missing == 0) SwapGround();
+            if (Generation != DrawnGeneration) _framesWaiting++;
+            _missing = 0;
             _camInside = Shell && Math.Sqrt(camX * camX + camY * camY + camZ * camZ) < Radius;
             ReadyStep = double.MaxValue;
             float lx = (float)StarDir[0], ly = (float)StarDir[1], lz = (float)StarDir[2];
@@ -1115,6 +1141,8 @@ namespace DnaAnd.Gen
         {
             foreach (var p in _cache.Values) p.Buffer.Dispose();
             _cache.Clear();
+            foreach (var p in _pending.Values) p.Buffer.Dispose();
+            _pending.Clear();
             if (_airShell != null) _airShell.Dispose();
         }
     }

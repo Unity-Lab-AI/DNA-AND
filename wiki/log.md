@@ -154,3 +154,4 @@ Append-only. Newest at the bottom.
 - r06 planet: continents drift with their plates (ridges and mountains at edges). r04: --native checks at the screen's own resolution.
 - r04 renderer: the coefficient waveform engine (CDF 9/7, from Uni Vs Matics) ported to the core; plan to use it everywhere (TODO R4.6).
 - r04 renderer: mode-E endless detail ported (identical to the lab's fractalize.ts).
+- r06 planet: whole-planet swap for ground changes at big moments; r04: ground detail true to screen resolution.
