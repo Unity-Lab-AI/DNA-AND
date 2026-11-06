@@ -368,9 +368,9 @@ Order: galactic scale down, the same order as the sample sets.
   - [~] Seasons from the planet's tilt, day and night from its spin, years from its orbit (built: seasons from a 23.4 degree tilt, opposite in each half, shown at slow game speeds; day and night still to come)
   - [~] Long climate swings: orbit wobbles, the star brightening over billions of years (built: the orbit wobbles; the star brightening still to come)
 - **The surface changes**
-  - [ ] Erosion: rain, rivers, wind and ice wear mountains down and carry the pieces to the sea
-  - [ ] The rock cycle: rock melts to magma, cools to new rock, wears to sand and mud, is buried and pressed into stone, and is lifted up again
-  - [ ] Soil forms from worn rock (and later from life)
+  - [x] Erosion: rain, rivers, wind and ice wear mountains down and carry the pieces to the sea (per region, faster the higher, wetter and icier; mountains pushed up where plates crash; rivers carry the worn rock to the seas next door, `src/sim/PlanetSurface.cs`; wind still to come)
+  - [~] The rock cycle: rock melts to magma, cools to new rock, wears to sand and mud, is buried and pressed into stone, and is lifted up again (built: wearing down, sea-floor mud, burial into stone, uplift at crashing edges; melting back into magma still to come)
+  - [x] Soil forms from worn rock (and later from life): faster when warm and wet, five times faster under plants, thin on steep and icy ground; soil feeds land life and river mud feeds coastal seas
   - [ ] Landslides, floods, sinkholes and coastlines that move
 - **From outside**
   - [ ] Impacts: meteorites, asteroids and comets hit, leaving craters and changing the climate (sizes from the space page)

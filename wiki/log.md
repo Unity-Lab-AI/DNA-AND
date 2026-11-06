@@ -147,3 +147,4 @@ Append-only. Newest at the bottom.
 - r06 planet: the air and climate (carbon-silicate cycle, great oxidation, methane, escape, runaway and snowball), feeding life.
 - r06 planet: water and weather per region (temperature, rain belts, ice, ice ages, sea level, hurricanes, seasons), feeding life.
 - r06 planet: ocean currents, upwelling and tides, feeding sea life.
+- r06 planet: erosion, soil, river mud and the rock cycle per region, feeding life.

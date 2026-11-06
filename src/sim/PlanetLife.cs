@@ -35,6 +35,11 @@ namespace DnaAnd.Sim
         public PlanetWeather Weather;
         public double RegionY(int i) { return PY[i]; }
         public int[] Neighbours(int i) { return Near[i]; }
+        public void RegionCentre(int i, out double x, out double y, out double z) { Centre(i, out x, out y, out z); }
+        /// <summary>Plant-like life in a region (crowds).</summary>
+        public double RegionProducers(int i) { double p = 0; foreach (var kv in _cells[i]) if (All[kv.Key].G.Photo > 0.5f) p += kv.Value; return p; }
+        /// <summary>The surface (soil, river mud), set by the planet each step.</summary>
+        public PlanetSurface Surface;
         public double RegionWarmth(int i) { return _warm[i]; }
         public double RegionSea(int i) { return _wet[i]; }
         /// <summary>Plant-like life and early microbes on the whole planet (crowds), for the air.</summary>
@@ -160,7 +165,7 @@ namespace DnaAnd.Sim
         }
 
         // the nutrients a region holds: water and warmth wash minerals loose; deep cold or dry ground holds little
-        private double Nutrients(int i) { return Math.Max(0.05, Math.Min(1, 0.2 + _wet[i] * 0.5 + _warm[i] * 0.4 + (Weather != null ? Weather.Upwelling[i] : 0))); }   // upwelling currents add more
+        private double Nutrients(int i) { return Math.Max(0.05, Math.Min(1, 0.2 + _wet[i] * 0.5 + _warm[i] * 0.4 + (Weather != null ? Weather.Upwelling[i] : 0) + (Surface != null ? (_wet[i] > 0.6 ? Surface.RiverMud[i] : Math.Min(0.3, Surface.SoilM[i] / 10)) : 0))); }   // soil on land, river mud in the sea   // upwelling currents add more
 
         // how fast it is eaten: plant-like life by grazers, animal life by hunters; defences, speed, armour and a tough coat help
         private static double Eaten(Genome g, Web w)
