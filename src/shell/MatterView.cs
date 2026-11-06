@@ -634,6 +634,7 @@ namespace DnaAnd.Shell
                     }
                     double ox = Math.Cos(ang) * rr, oz = Math.Sin(ang) * rr, oy = oz * si; oz *= ci;
                     Add(glow, x + ox * ct - oz * st, y + oy, z + ox * st + oz * ct, dot, (valence ? 1f : 0.45f) * f, (valence ? 0.8f : 0.75f) * f, (valence ? 0.25f : 1f) * f, s);
+                    { int nb = _bodies.Count; AddBody(3, sh + 1, k, x + ox * ct - oz * st, y + oy, z + ox * st + oz * ct, ar * 0.05, s); if (_bodies.Count > nb) _bodies[nb].Sym = "electron"; }   // every atom's electrons can be picked
                 }
             }
             Add(glow, x, y, z, Math.Max(NucleusRadius(e) * 3, dot * 1.2), 1f * f, 0.75f * f, 0.5f * f, s);   // its nucleus, a spark at the middle
