@@ -66,7 +66,7 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 | Earthquakes | Along edges, real magnitude counts (one magnitude 8 a year on Earth), tsunamis on oceanic crashing edges, magnitude 9 harms nearby life | Quakes along edges and faults, tsunamis |
 | Volcanoes | Placed once on the ground; erupting over time on edges and hot spots (VEI 7 per 1,000 years, VEI 8 per 50,000), killing nearby life; super-eruptions cool the world | Eruptions over time, ash, new land, island chains |
 | Magnetic field | Geodynamo from a liquid outer core and spin; random flips about every 450,000 years; the shield sets how much radiation reaches dry land (harming land life) | Geodynamo, magnetosphere, air stripping, auroras, flips |
-| Air | A glowing shell, fixed | Layers, greenhouse, escape, gases from volcanoes, carbon-silicate cycle |
+| Air | `src/sim/PlanetAir.cs`: pressure, carbon dioxide, oxygen, methane and temperature on the planet's clock; volcanoes in, rain on rock out (settling over 400,000 years); oxygen from plant-like life after the seas rust (the great oxidation, near 21%); methane from early microbes; air stripped once the field dies; runaway greenhouse and snowball; the world's warmth and oxygen feed back into life. On the test planet: methane-rich at 1 billion years, 21% oxygen by 2.5 billion, 12 °C at 5.6 billion | Layers, greenhouse, escape, gases from volcanoes, carbon-silicate cycle |
 | Water and weather | Seas fixed; rain and snow are pictures | Water cycle, winds, storms, currents, tides, ice ages, sea level |
 | Surface | Fixed height map | Erosion, the rock cycle, soil, landslides |
 | From outside | Nothing | Impacts, star flares, the star ageing |

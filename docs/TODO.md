@@ -354,9 +354,9 @@ Order: galactic scale down, the same order as the sample sets.
   - [~] The magnetosphere shields the air and life from the star's wind and radiation; without it the air is stripped away over time (built: the shield sets the radiation that reaches dry land, which harms land life; air stripping waits for the air sim)
   - [~] Auroras near the poles; the field wanders and flips now and then (built: flips at random, about every 450,000 years; auroras still to draw)
 - **Air**
-  - [ ] Air layers (troposphere to exosphere), pressure and makeup, from `content/physics.dnat`
-  - [ ] The greenhouse effect and runaway greenhouse; air escaping to space (thermal, hydrodynamic, non-thermal)
-  - [ ] Volcanoes add gases; rock and sea take carbon back out over millions of years (the carbon-silicate cycle that keeps a world steady)
+  - [~] Air layers (troposphere to exosphere), pressure and makeup, from `content/physics.dnat` (built: pressure, carbon dioxide, oxygen, methane and surface temperature, `src/sim/PlanetAir.cs`; the layers still to come)
+  - [~] The greenhouse effect and runaway greenhouse; air escaping to space (thermal, hydrodynamic, non-thermal) (built: greenhouse warming from pressure, carbon dioxide and methane; runaway greenhouse above 67 °C; snowball below -23 °C; air stripped fast once the magnetic field dies, faster on small worlds; the three escape kinds still one rate)
+  - [x] Volcanoes add gases; rock and sea take carbon back out over millions of years (the carbon-silicate cycle that keeps a world steady): the air settles toward the level where rain on rock takes out what volcanoes put in, faster when warm and with plates
 - **Water and weather**
   - [ ] The water cycle: seas evaporate, clouds form, rain and snow fall, rivers run back to the sea, water soaks into the ground
   - [ ] Real weather: winds from heat and spin, storms, hurricanes, monsoons, drought
@@ -540,7 +540,7 @@ Order: galactic scale down, the same order as the sample sets.
   - [ ] Colonies with castes that do not breed
   - [ ] Societies held together by language
 - **Life changes its world, and the world changes life**
-  - [ ] Life makes the air: oxygen from photosynthesis, the great oxidation, the ozone shield, methane from archaea
+  - [~] Life makes the air: oxygen from photosynthesis, the great oxidation, the ozone shield, methane from archaea (built: plant-like life makes oxygen, the seas rust first, then the great oxidation fills the air to about 21%; early microbes make methane that oxygen destroys; animals with nerves need oxygen; the ozone shield still to come)
   - [ ] Life makes rock and soil: reefs, chalk, coal, soil from roots and rot
   - [ ] The world shapes life: plate movement splits and joins lands, ice ages, warming, impacts and volcanoes
 

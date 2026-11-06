@@ -29,6 +29,10 @@ namespace DnaAnd.Sim
         public double Souls;
         /// <summary>How much of the star's harmful radiation reaches the ground (0 to 1), set from the planet's magnetic shield. Water shields sea life.</summary>
         public double Radiation = 0.25;
+        /// <summary>Set from the planet's air: how much warmer or colder the world is than Earth's 15 °C, and the oxygen in the air.</summary>
+        public double WarmerK, Oxygen = 0.21;
+        /// <summary>Plant-like life and early microbes on the whole planet (crowds), for the air.</summary>
+        public double Producers, Microbes;
         public const double LightningCost = 4;                     // Lightning is tier 4: tier x area (one strike) x strength (1)
         /// <summary>Living things give off Souls slowly: this many a year for every crowd of life (a starting value, to be balanced).</summary>
         public const double SoulsPerCrowdYear = 5e-11;
@@ -161,12 +165,13 @@ namespace DnaAnd.Sim
 
         private double Fit(Genome g, int i, Web w)
         {
-            double heat = 1 - Math.Abs(_warm[i] - g.Warm) * 2.2;
+            double heat = 1 - Math.Abs(_warm[i] + WarmerK / 60.0 - g.Warm) * 2.2;          // the whole world warms or cools with its air
             // food: light and nutrients for plant-like life, plant-like life for grazers, other animals for hunters
             double food = g.Photo * _light[i] * (0.4 + w.Nutrients) + g.Graze * (0.3 * w.Nutrients + 0.9 * w.Plants) + g.Hunt * 1.1 * w.Prey;
             double water = 0.3 + g.Coat * 0.7 + (0.7 - g.Coat * 0.7) * _wet[i];   // the wetter the region, the less a tough coat is needed              // dry land needs a tough coat
             double shield = 1 - Radiation * 0.7 * (1 - _wet[i]);                     // without a magnetic shield, life on dry land is burned by the star
-            return Math.Max(0, heat) * food * water * shield;
+            double breath = g.Stage >= 3 ? Math.Min(1, 0.05 + Oxygen / 0.02) : 1;      // animals with nerves and more need oxygen in the air
+            return Math.Max(0, heat) * food * water * shield * breath;
         }
 
         /// <summary>One step of the planet's life: growth, competition, spread to neighbours, new species. <paramref name="years"/> long.</summary>
@@ -256,6 +261,7 @@ namespace DnaAnd.Sim
             var gone = new List<int>();
             foreach (var sp in All.Values) { sp.Extinct = sp.Total <= 0; if (sp.Extinct) gone.Add(sp.Id); else { Alive++; crowds += sp.Total; if (sp.G.Stage > TopStage) TopStage = sp.G.Stage; } }
             foreach (int id in gone) All.Remove(id);
+            Producers = 0; Microbes = 0; foreach (var sp in All.Values) { if (sp.G.Photo > 0.5f) Producers += sp.Total; if (sp.G.Stage <= 1) Microbes += sp.Total; }
             if (TopStage > before) _stageReached = Years;
             Souls += crowds * SoulsPerCrowdYear * years;
         }

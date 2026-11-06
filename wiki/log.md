@@ -144,3 +144,4 @@ Append-only. Newest at the bottom.
 - r06 planet: the living planet written out in full (TODO R6b); table of what runs today and what does not.
 - r06 planet: the planet's inside runs on its clock (heat, core, plates or lid, magnetic field and flips), and the field shields land life.
 - r06 planet: plates, edges, earthquakes and eruptions on the planet's clock; disasters kill life.
+- r06 planet: the air and climate (carbon-silicate cycle, great oxidation, methane, escape, runaway and snowball), feeding life.
