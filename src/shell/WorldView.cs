@@ -514,7 +514,8 @@ namespace DnaAnd.Shell
                 {
                     // flying to what you picked: straight at it, a share of the way to its surface each notch
                     double fl = Math.Sqrt(fdx * fdx + fdy * fdy + fdz * fdz);
-                    if (fl > 0) { dir = new Vec3((float)(fdx / fl), (float)(fdy / fl), (float)(fdz / fl)); reach = Math.Max(Math.Min(reach, fl - frad * 1.2), fl * 1e-6); }
+                    // the steps go by the distance to what you picked only: stars you fly past no longer hold them back
+                    if (fl > 0) { dir = new Vec3((float)(fdx / fl), (float)(fdy / fl), (float)(fdz / fl)); reach = Math.Max(fl - frad * 1.2, fl * 1e-6); }
                 }
                 // a star close to the line you point along (within about 4 degrees) is flown at straight, not past
                 if (_tKind < 0) { double tdist; var tdir = AimStar(dir, out tdist); if (input.Wheel > 0 && tdist > 0) { dir = tdir; reach = Math.Min(reach, tdist); } }
@@ -752,7 +753,7 @@ namespace DnaAnd.Shell
         {
             get
             {
-                string picked = _tKind >= 0 ? " · going to " + _tName : " · click something to go to it";
+                double pdx, pdy, pdz, prad; string picked = _tKind >= 0 && TargetFromCamera(out pdx, out pdy, out pdz, out prad) ? " · going to " + _tName + ", " + Units.Describe(Math.Max(0, Math.Sqrt(pdx * pdx + pdy * pdy + pdz * pdz) - prad)) + " away" : " · click something to go to it";
                 string where = _matterScale > 0 ? "inside the ground of " + _system.Bodies[_planet].Kind + ": " + _matter.Stage(_matterScale)
                     : _ground != null ? "at " + _system.Bodies[_planet].Kind + ", " + Units.Describe(AboveGround()) + " above the ground"
                     : _system != null ? "in the system of a " + _system.StarName + " (" + _system.Bodies.Count + " planets and moons)"
