@@ -21,6 +21,15 @@ namespace DnaAnd.Core
             public double Zoom;             // zoom factor (drives the cellular octave frequency)
             public double KBias;            // 0..1 (gradient-collapse magnitude)
             public double Ang;              // plane rotation, radians (gradient-collapse angle)
+
+            /// <summary>A view of a field at a zoom, from the field's own character (as Deviant 3D's detailView): the window
+            /// shrinks as you zoom in and the cellular octaves rise, so detail keeps subdividing without repeating.</summary>
+            public static View For(double zoom, double entropy, double collapse, double angle, double focusX = 0.5, double focusY = 0.5)
+            {
+                double z = Math.Max(1, zoom);
+                return new View { Cx = (focusX - 0.5) * 2, Cy = (focusY - 0.5) * 2, Span = 3.0 / z, Seed = Math.Min(1, Math.Max(0, entropy)), Zoom = z,
+                    KBias = Math.Min(1, Math.Max(0, collapse)), Ang = angle };
+            }
         }
 
         /// <summary>One point's result: how bright the detail is there (0..1 and up), and which of the three basins it fell in.</summary>
