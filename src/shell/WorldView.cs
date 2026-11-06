@@ -298,6 +298,7 @@ namespace DnaAnd.Shell
                 double d = Math.Sqrt((x - _ox) * (x - _ox) + (y - _oy) * (y - _oy) + (z - _oz) * (z - _oz)) / _system.Bodies[i].RadiusUnits;
                 if (d < bd) { bd = d; best = i; }
             }
+            _cpBest = best; _cpBd = bd;
             if (bd > PlanetRange * 1.2) { DropPlanet(); return; }
             if (best != _planet && bd < PlanetRange)
             {
@@ -336,6 +337,7 @@ namespace DnaAnd.Shell
         private int _followBody = -1; private double _fbx, _fby, _fbz;
 
         private bool _hadPos;
+        private int _cpBest = -1; private double _cpBd;                         // for the log: the nearest body in its own radii
         private void DropPlanet() { if (_ground != null) { _ground.Dispose(); _ground = null; } _planet = -1; }
 
         // how far above the planet's ground the camera is (universe units)
@@ -629,7 +631,7 @@ namespace DnaAnd.Shell
                 double step = reach * (1 - Math.Pow(0.87, Math.Abs(input.Wheel))) * Math.Sign(input.Wheel);
                 if (input.Wheel < 0) step = -Math.Max(reach, 0.01) * (Math.Pow(1 / 0.87, -input.Wheel) - 1);
                 double altBefore = _ground != null ? AboveGround() / Units.Km(1) : 0;
-                ZoomLog("wheel " + input.Wheel.ToString("0") + " step " + Units.Describe(Math.Abs(step)) + " reach " + Units.Describe(reach) + " pick " + _tKind + ":" + _tIndex + " planet " + _planet + " follow " + _followBody + (_ground != null ? " ground-ready " + (_ground.ReadyStep < 1e30 ? _ground.ReadyStep.ToString("0.###") + " km" : "none") : ""));
+                ZoomLog("wheel " + input.Wheel.ToString("0") + " step " + Units.Describe(Math.Abs(step)) + " reach " + Units.Describe(reach) + " pick " + _tKind + ":" + _tIndex + " planet " + _planet + " nearest-body " + _cpBest + " at " + _cpBd.ToString("0.##") + " radii follow " + _followBody + (_ground != null ? " ground-ready " + (_ground.ReadyStep < 1e30 ? _ground.ReadyStep.ToString("0.###") + " km" : "none") : ""));
                 _ox += dir.X * step; _oy += dir.Y * step; _oz += dir.Z * step;
                 if (_ground != null)
                 {
