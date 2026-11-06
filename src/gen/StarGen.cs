@@ -50,18 +50,17 @@ namespace DnaAnd.Gen
         /// <summary>Points for one star, radius about 1, centred on the origin.</summary>
         public static StarVertex[] Build(ContentLibrary content, string id, ulong seed, out string name, out StarSurface surfaceOut)
         {
-            name = id; string color = "white";
+            name = id; float r = 1, g = 1, b = 1;
             foreach (var e in content.OfKind("stars.dnat", "star"))
-                if (e.Id == id) { name = e.Name; color = e.Get("color", "white"); }
-            float r, g, b; GalaxyGen.ColorOf(color, out r, out g, out b);
+                if (e.Id == id) { name = e.Name; GalaxyGen.ColorFor(e, out r, out g, out b); }   // its colour from its surface temperature
             var rng = new Rng(seed);
             var list = new List<StarVertex>();
             uint nseed = (uint)(seed & 0xFFFFFFFF);
 
-            bool giant = id.Contains("giant") || id.Contains("supergiant") || id == "hypergiant";
-            bool brown = id == "brown-dwarf", white = id == "white-dwarf";
+            bool giant = id.Contains("giant") || id == "hypergiant" || id == "carbon-star" || id == "s-type" || id == "mira" || id == "cepheid";
+            bool brown = id == "brown-dwarf" || id == "l-dwarf" || id == "t-dwarf" || id == "y-dwarf", white = id == "white-dwarf";
             bool compact = id == "neutron-star" || id == "pulsar" || id == "magnetar";
-            bool spotty = id == "m-type" || id == "k-type" || id == "g-type";
+            bool spotty = id == "m-type" || id == "k-type" || id == "g-type" || id == "t-tauri";
             float radius = compact ? 0.28f : white ? 0.45f : 1f;
             int surface = compact ? 1200 : white ? 2000 : 6000;
             float cell = giant ? 1.6f : brown ? 1f : 5f;       // noise frequency: giants have huge convection cells

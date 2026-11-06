@@ -54,5 +54,6 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
   - Each star's own system opens whole. Click a planet or moon, or Tab to one.
   - Star sizes are real, from `radius-sol` in content.
   - The star is drawn as a coloured shine from far away and as its plasma and corona up close.
+  - Every star kind with a surface temperature and a share of stars can appear in a galaxy: 26 kinds, from red dwarfs to Wolf-Rayet stars, white dwarfs and pulsars (stellar black holes give no light and are not picked as a system's star). Its colour comes from its surface temperature, the way a glowing hot body shines (Planck's law): red when cool, white near the Sun's temperature, blue when hot. How bright it shines comes from its size and temperature (the Sun: 1 radius, 5772 K), which sets where its frost line and habitable zone lie.
   - The planet being approached is drawn as the real 3D planet.
 - **The Dyson sphere** (`src/gen/DysonGen.cs`, `PlanetTerrain.cs` in shell mode): an industrial hull outside and a terraformed inside-out world, with free flight.

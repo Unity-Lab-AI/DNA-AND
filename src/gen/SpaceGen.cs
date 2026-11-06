@@ -163,6 +163,10 @@ namespace DnaAnd.Gen
             foreach (var e in content.OfKind("stars.dnat", "star")) if (e.Id == kind.Id) e.TryRange("radius-sol", out rLo, out rHi);
             double radiusSol = rLo > 0 ? rLo + rng.NextDouble() * (rHi - rLo) : Math.Pow(mass, 0.8);
             sys.StarRadius = Units.Km(696000 * radiusSol);
+            // how bright it shines, from its size and surface temperature (the Sun: 1 radius, 5772 K), when both are known
+            double tLo = -1, tHi = -1;
+            foreach (var e in content.OfKind("stars.dnat", "star")) if (e.Id == kind.Id) e.TryRange("temp-k", out tLo, out tHi);
+            if (tLo > 0 && rLo > 0) { double tk = tLo + rng.NextDouble() * (tHi - tLo); sys.Luminosity = radiusSol * radiusSol * Math.Pow(tk / 5772, 4); }
             double frostSun = ZoneAu(content, "frost-line", 2.7), hzSun = ZoneAu(content, "habitable", 1.0);
             double scale = Math.Sqrt(sys.Luminosity);
             sys.FrostLineAu = frostSun * scale; sys.HabitableAu = hzSun * scale;

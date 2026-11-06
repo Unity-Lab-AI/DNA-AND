@@ -20,8 +20,8 @@ namespace DnaAnd.Gen
             var list = new List<StarKind>();
             foreach (var e in content.OfKind("stars.dnat", "star"))
             {
-                if (!e.Props.ContainsKey("share-of-stars") || !e.Props.ContainsKey("color")) continue;
-                float r, g, b; ColorOf(e.Get("color", "white"), out r, out g, out b);
+                if (!e.Props.ContainsKey("share-of-stars") || (!e.Props.ContainsKey("color") && !e.Props.ContainsKey("temp-k"))) continue;
+                float r, g, b; ColorFor(e, out r, out g, out b);
                 list.Add(new StarKind { Id = e.Id, Name = e.Name, R = r, G = g, B = b, Weight = ShareWeight(e.Get("share-of-stars", "common")) });
             }
             if (list.Count == 0) list.Add(new StarKind { Id = "g-type", Name = "G", R = 1, G = 0.95f, B = 0.8f, Weight = 1 });
@@ -36,6 +36,25 @@ namespace DnaAnd.Gen
                 case "rare": return 0.4; case "rarest": return 0.05; default: return 1;
             }
         }
+
+        /// <summary>A star's colour from its surface temperature, the way a glowing hot body shines (red when cool, blue when hot);
+        /// the named colour is used only for a kind with no temperature.</summary>
+        public static void ColorFor(ContentEntry e, out float r, out float g, out float b)
+        {
+            double lo, hi;
+            if (e.TryRange("temp-k", out lo, out hi)) { Glow(Math.Sqrt(lo * hi), out r, out g, out b); return; }
+            ColorOf(e.Get("color", "white"), out r, out g, out b);
+        }
+
+        /// <summary>Colour of a body glowing at <paramref name="kelvin"/>: its light at red, green and blue wavelengths
+        /// (Planck's law), brightest channel set to 1, softened a little the way the eye sees a bright star.</summary>
+        public static void Glow(double kelvin, out float r, out float g, out float b)
+        {
+            double pr = Planck(611, kelvin), pg = Planck(549, kelvin), pb = Planck(464, kelvin), top = Math.Max(pr, Math.Max(pg, pb));
+            r = (float)Math.Pow(pr / top, 0.75); g = (float)Math.Pow(pg / top, 0.75); b = (float)Math.Pow(pb / top, 0.75);
+        }
+
+        private static double Planck(double nm, double kelvin) { return Math.Pow(nm, -5) / (Math.Exp(1.4388e7 / (nm * kelvin)) - 1); }
 
         public static void ColorOf(string c, out float r, out float g, out float b)
         {
