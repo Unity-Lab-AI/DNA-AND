@@ -80,10 +80,17 @@ namespace DnaAnd.Sim
             var cnt = new int[Regions];
             for (int i = 0; i < Regions; i++) _cells[i] = new Dictionary<int, double>();
             const int S = 4000;
+            // the ground heights are measured on every core at once (each spot writes only its own slot); the first one
+            // is measured alone, so anything the ground sets up on first use is ready before the workers start
+            var gs = new double[S];
+            Func<int, double> spotY = k => 1 - 2 * (k + 0.5) / S;
+            Action<int, double[]> spot = (k, xyz) => { double y = spotY(k), r = Math.Sqrt(1 - y * y), th = k * 2.399963229728653; xyz[0] = Math.Cos(th) * r; xyz[1] = y; xyz[2] = Math.Sin(th) * r; };
+            { var p0 = new double[3]; spot(0, p0); gs[0] = groundAt(p0[0], p0[1], p0[2]); }
+            Jobs.For(S - 1, j => { var p = new double[3]; spot(j + 1, p); gs[j + 1] = groundAt(p[0], p[1], p[2]); });
             for (int k = 0; k < S; k++)
             {
-                double y = 1 - 2 * (k + 0.5) / S, r = Math.Sqrt(1 - y * y), th = k * 2.399963229728653, x = Math.Cos(th) * r, z = Math.Sin(th) * r;
-                int i = RegionAt(x, y, z); double g = groundAt(x, y, z);
+                double y = spotY(k), r = Math.Sqrt(1 - y * y), th = k * 2.399963229728653, x = Math.Cos(th) * r, z = Math.Sin(th) * r;
+                int i = RegionAt(x, y, z); double g = gs[k];
                 _wet[i] += g < 0 ? 1 : Math.Max(0, 0.5 - g * 0.2);          // seas are wet; low land is damp, high land is dry
                 _warm[i] += 1 - Math.Abs(y) - Math.Max(0, g) * 0.06;        // warm at the middle, cold at the poles and on mountains
                 _light[i] += g < -2 ? 0.3 : 1;                               // deep water is dim

@@ -131,8 +131,8 @@ Order: galactic scale down, the same order as the sample sets.
   - Our own seeded random generator. 64-bit positions with a moving origin.
 - [~] Memory and the giant data arrays for billions of things (started: `BigArray<T>`)
   - Big memory blocks reserved up front per system.
-- [ ] Multithreading so the simulation uses every CPU core
-  - One worker per core, pulling jobs from a shared queue.
+- [~] Multithreading so the simulation uses every CPU core
+  - One worker per core, pulling jobs from a shared queue. Built: `src/core/Jobs.cs` (`Jobs.Run`, `Jobs.For`); first used to measure a planet's regions. Still to move onto it: the life sim step, terrain building, body building.
 - [ ] Save and load file format
   - Our own versioned binary chunks: universe, planets, life, civilizations, player.
 
