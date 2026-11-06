@@ -23,7 +23,7 @@ namespace DnaAnd.Shell
         private UploadBuffer _solidBuf, _glowBuf, _meshBuf; private StarVertex[] _sv = new StarVertex[0], _gv = new StarVertex[0], _mv = new StarVertex[0];
         public const double TopKm = 2.6e-6;         // where the matter alone is drawn, about 1.5 mm up (above it the grains lie over the ground)
         public const double OverlayKm = 1e-5;       // 1 cm up: the grains begin to show over the ground, as specks that grow as you come down
-        public const double BottomKm = 3e-19;       // 0.3 femtometres: among the protons and neutrons of a nucleus
+        public const double BottomKm = 1e-20;       // 0.01 femtometres: inside a proton or neutron, among its quarks
         private double Grain = 2e-7;                // a grain's size across (km): from its ground's mix (content: grain-mm)
         private readonly Dictionary<string, double> _grainKm = new Dictionary<string, double>();
         private const double AtomSpacing = 2.5e-13; // about 0.25 nm between atoms in a crystal
@@ -314,13 +314,14 @@ namespace DnaAnd.Shell
             if (s > ar * 3) return "the atoms of " + mn + "; under you " + e.Name.ToLowerInvariant();
             string sh = string.Join(", ", Array.ConvertAll(e.Shells, x => x.ToString()));
             if (s > nr * 40) return "an atom of " + e.Name.ToLowerInvariant() + ": " + e.Z + " electrons in shells of " + sh + ", round a nucleus far below";
+            if (s < Nucleon * 4) return "inside a proton or neutron at the middle of the nucleus of " + e.Name.ToLowerInvariant() + ": its three quarks, held by gluons";
             return "the nucleus of " + e.Name.ToLowerInvariant() + ": " + e.Z + " protons and " + (e.A - e.Z) + " neutrons";
         }
 
         private void AddBody(int kind, long i, long j, double x, double y, double z, double size, double s)
         {
             double vx = (x - _fx) / s, vz = (z - _fz) / s, vs = size / s;
-            if (Math.Abs(vx) > 6 || Math.Abs(vz) > 6 || vs < 0.004) return;               // only bodies big enough on screen to pick
+            if (Math.Abs(vx) > 6 || Math.Abs(vz) > 6 || (vs < 0.004 && kind < 3)) return;   // only bodies big enough on screen to pick (points always are)
             _bodies.Add(new Body { Kind = kind, I = i, J = j, X = x, Y = y, Z = z, Size = size });
         }
 
@@ -553,20 +554,36 @@ namespace DnaAnd.Shell
                         double ox = Math.Cos(ang) * rr, oz = Math.Sin(ang) * rr, oy = oz * Math.Sin(tilt); oz *= Math.Cos(tilt);
                         double x2 = ox * Math.Cos(turn) - oz * Math.Sin(turn), z2 = ox * Math.Sin(turn) + oz * Math.Cos(turn);
                         Add(glow, ax0 + x2, cy + oy, az0 + z2, 1e-21, 0.5f * cloud, 0.75f * cloud, 1f * cloud, s);
+                        { int nb = _bodies.Count; AddBody(3, sh + 1, e, ax0 + x2, cy + oy, az0 + z2, ar * 0.05, s); if (_bodies.Count > nb) _bodies[nb].Sym = "electron"; }
                     }
                 }
-                // the nucleus: a bright spark from afar; close in, its protons (red) and neutrons (grey) packed in a ball
-                if (s > nr * 40) Add(glow, ax0, cy, az0, Math.Max(nr * 4, s * 0.004), 1f, 0.85f, 0.6f, s);
-                else
+                // the nucleus: always its real protons (red) and neutrons (grey) packed in a ball, growing as you come in; while
+                // it is too small to see, a small spark marks where it is
+                if (nr / s < 0.004) Add(glow, ax0, cy, az0, s * 0.004, 1f, 0.85f, 0.6f, s);
+                int A = focus.A, Z = focus.Z, protons = 0;
+                for (int k = 0; k < A; k++)
                 {
-                    int A = focus.A, Z = focus.Z, protons = 0;
-                    for (int k = 0; k < A; k++)
+                    double rr = nr * Math.Pow((k + 0.5) / A, 1 / 3.0), u = k * 2.399963, v = Math.Acos(1 - 2 * ((k * 0.618034) % 1));
+                    bool proton = protons < Z && (k * Z) / A >= protons; if (proton) protons++;
+                    double nx = ax0 + rr * Math.Sin(v) * Math.Cos(u), ny = cy + rr * Math.Cos(v), nz = az0 + rr * Math.Sin(v) * Math.Sin(u);
+                    if (k == 0 && s < Nucleon * 4)
                     {
-                        double rr = nr * Math.Pow((k + 0.5) / A, 1 / 3.0), u = k * 2.399963, v = Math.Acos(1 - 2 * ((k * 0.618034) % 1));
-                        bool proton = protons < Z && (k * Z) / A >= protons; if (proton) protons++;
-                        Add(solid, ax0 + rr * Math.Sin(v) * Math.Cos(u), cy + rr * Math.Cos(v), az0 + rr * Math.Sin(v) * Math.Sin(u), Nucleon / 0.75,
-                            proton ? 0.9f : 0.6f, proton ? 0.22f : 0.65f, proton ? 0.2f : 0.75f, s);
+                        // the one at the middle, from inside: its three quarks (a proton two up and one down, a neutron one up
+                        // and two down), points as far as measured, moving in about 0.84 fm, in the glow of the gluons that hold them
+                        float gf = (float)Fade(s, Nucleon * 4, Nucleon * 2);
+                        Add(glow, nx, ny, nz, Nucleon, 0.25f * gf, 0.12f * gf, 0.05f * gf, s);
+                        string q = proton ? "uud" : "udd"; float[][] colour = { new[] { 1f, 0.2f, 0.2f }, new[] { 0.2f, 1f, 0.2f }, new[] { 0.3f, 0.4f, 1f } };   // their three colour charges
+                        for (int qi = 0; qi < 3; qi++)
+                        {
+                            double a1 = time * (1.3 + qi * 0.4) + qi * 2.1, a2 = time * (0.9 + qi * 0.3) + qi, qr = Nucleon * (0.35 + 0.2 * Math.Sin(time * 0.7 + qi));
+                            double qx = nx + qr * Math.Sin(a2) * Math.Cos(a1), qy = ny + qr * Math.Cos(a2), qz = nz + qr * Math.Sin(a2) * Math.Sin(a1);
+                            Add(glow, qx, qy, qz, 1e-21, colour[qi][0] * gf, colour[qi][1] * gf, colour[qi][2] * gf, s);
+                            int nb = _bodies.Count; AddBody(4, qi, q[qi] == 'u' ? 1 : 0, qx, qy, qz, Nucleon * 0.15, s); if (_bodies.Count > nb) _bodies[nb].Sym = q[qi] == 'u' ? "up" : "down";
+                        }
+                        continue;
                     }
+                    Add(solid, nx, ny, nz, Nucleon / 0.75, proton ? 0.9f : 0.6f, proton ? 0.22f : 0.65f, proton ? 0.2f : 0.75f, s);
+                    { int nb = _bodies.Count; AddBody(5, k, proton ? 1 : 0, nx, ny, nz, Nucleon, s); if (_bodies.Count > nb) _bodies[nb].Sym = proton ? "proton" : "neutron"; }
                 }
             }
         }
@@ -669,7 +686,7 @@ namespace DnaAnd.Shell
                 }
                 return false;
             }
-            _picked = pick; _tfx = pick.X; _tfz = pick.Z; return true;
+            _picked = pick; if (pick.Kind < 3) { _tfx = pick.X; _tfz = pick.Z; } return true;   // grains and atoms are flown to; electrons, nucleons and quarks are only named
         }
 
         /// <summary>Puts the point you dive into right under you (km east and north of where this spot's matter began), so the
@@ -707,6 +724,32 @@ namespace DnaAnd.Shell
                 L.Add("made of: " + fm2.Formula + StructureName(fm2));
                 if (_scale < 3e-10 / 0.6 * 30) L.Add("its face: atomic terraces, each step 0.3 nm");
                 L.Add("you are " + ScaleHud.Words(_scale * 0.6) + " above it");
+                return L;
+            }
+            if (_picked != null && _picked.Kind == 3)
+            {
+                L.Add("an electron, in shell " + _picked.I);
+                L.Add("charge -1; mass 1/1836 of a proton");
+                L.Add("a point as far as measured: smaller than 10^-22 m");
+                L.Add("where it is: a cloud of chance round the nucleus");
+                return L;
+            }
+            if (_picked != null && _picked.Kind == 5)
+            {
+                bool pr = _picked.Sym == "proton";
+                L.Add("a " + _picked.Sym + " of the nucleus");
+                L.Add(pr ? "charge +1; quarks: up, up, down" : "charge 0; quarks: up, down, down");
+                L.Add("width: about 1.7 femtometres");
+                L.Add("held in the nucleus by the strong force");
+                return L;
+            }
+            if (_picked != null && _picked.Kind == 4)
+            {
+                bool up = _picked.Sym == "up";
+                L.Add("a " + _picked.Sym + " quark");
+                L.Add(up ? "charge +2/3" : "charge -1/3");
+                L.Add("a point as far as measured; held by gluons");
+                L.Add("it has a colour charge (red, green or blue)");
                 return L;
             }
             if (_picked != null && _picked.Kind == 0)
