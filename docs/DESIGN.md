@@ -777,3 +777,5 @@ Everything the creator has said about this project, in order. Short process repl
 162. "and is our engine beffy enough? i see im only using like 2G of GPU and the game is running kinda slow". Answer: not yet; the engine is CPU-bound (CPU and GPU take turns every frame, the ground is built on one core, points are re-sent each frame), so the GPU sits mostly idle.
 
 163. "the stars u are flying by are just place holders". A galaxy holds about 100 billion stars, its sample 150,000; around the camera the real ones are now made at the galaxy's true density, and a star you come near is to become its real body with its system.
+
+164. "need linix and windows install" / "for the .exe". The universe preview ships with a Windows install and a Linux install. Linux needs the engine ported to Vulkan and Linux windowing (our own code).

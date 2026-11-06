@@ -20,6 +20,10 @@ namespace DnaAnd.Shell
         private readonly List<Galaxy> _galaxies = new List<Galaxy>();
         private readonly Gpu _gpu; private readonly BillboardDrawer _dots; private readonly ContentLibrary _content;
         private readonly List<StarKind> _kinds;
+        private readonly MeshPipes _meshes;
+        // the planet or moon you have come close to: its real ground, drawn in the same camera (-1: none)
+        private int _planet = -1; private PlanetTerrain _ground; private double _px, _py, _pz;   // its centre from the star, in universe units
+        private const double PlanetRange = 40;                // within 40 of its radii, the ground is made and drawn
         private static readonly int Stride = Marshal.SizeOf(typeof(StarVertex));
         private const int FarStars = 2500, NearStars = 150000;
         private const double Spread = 120;                 // the universe patch, in galaxy units (one unit is 50,000 light-years)
@@ -46,9 +50,9 @@ namespace DnaAnd.Shell
         private int _near = -1; private StarVertex[] _nearLocal, _nearDrawn; private UploadBuffer _nearBuf; private float _nearFade = -1;
         private int[] _gridHead, _gridNext; private const int GridN = 64;     // a grid over the near galaxy's stars, to find the nearest one fast
 
-        public WorldView(Gpu gpu, BillboardPipeline pipe, ContentLibrary content, ulong seed)
+        public WorldView(Gpu gpu, BillboardPipeline pipe, MeshPipes meshes, ContentLibrary content, ulong seed)
         {
-            _gpu = gpu; _dots = new BillboardDrawer(gpu.CommandList, pipe); _content = content;
+            _meshes = meshes; _gpu = gpu; _dots = new BillboardDrawer(gpu.CommandList, pipe); _content = content;
             var types = new List<string>(); var names = new List<string>();
             foreach (var e in content.OfKind("galaxies.dnat", "galaxy")) { types.Add(e.Id); names.Add(e.Name); }
             if (types.Count == 0) { types.Add("spiral"); names.Add("Spiral galaxy"); }
@@ -111,6 +115,7 @@ namespace DnaAnd.Shell
                 best = Math.Min(best, Math.Max(d, g.Scale * 0.02));
             }
             if (_system != null) best = Math.Min(best, PlaceSystem());
+            if (_ground != null) best = Math.Min(best, AboveGround());
             if (_near >= 0 && _nearLocal != null) { double ds; if (NearestStar(out ds) >= 0) best = Math.Min(best, ds); }
             return best;
         }
@@ -244,12 +249,61 @@ namespace DnaAnd.Shell
 
         private void CloseSystem()
         {
+            DropPlanet();
             _system = null; _sysStar = -1;
             if (_sysStatic != null) { _sysStatic.Dispose(); _sysStatic = null; }
             if (_sysBodies != null) { _sysBodies.Dispose(); _sysBodies = null; }
             if (_coronaBuf != null) { _coronaBuf.Dispose(); _coronaBuf = null; }
             if (_surfBuf != null) { _surfBuf.Dispose(); _surfBuf = null; }
             _starSurf = null;
+        }
+
+        // a planet or moon's centre from its star, in double precision
+        private void BodyPos(int i, out double x, out double y, out double z)
+        {
+            var tmp = new StarVertex[_system.Bodies.Count + 1]; double fx, fy, fz;
+            SpaceGen.BodyVerts(_system, _simYears, 1 / 20.0, 0.05, tmp, i, 1.0, out fx, out fy, out fz);
+            x = fx; y = fy; z = fz;
+        }
+
+        // the camera from the planet's centre, in km
+        private void CamFromPlanet(out double x, out double y, out double z)
+        {
+            double k = Units.Km(1); x = (_ox - _px) / k; y = (_oy - _py) / k; z = (_oz - _pz) / k;
+        }
+
+        // make the ground of the body you have come close to, or let it go once you leave
+        private void ChoosePlanet()
+        {
+            if (_system == null) { DropPlanet(); return; }
+            int best = -1; double bd = double.MaxValue;
+            for (int i = 0; i < _system.Bodies.Count; i++)
+            {
+                double x, y, z; BodyPos(i, out x, out y, out z);
+                double d = Math.Sqrt((x - _ox) * (x - _ox) + (y - _oy) * (y - _oy) + (z - _oz) * (z - _oz)) / _system.Bodies[i].RadiusUnits;
+                if (d < bd) { bd = d; best = i; }
+            }
+            if (bd > PlanetRange * 1.2) { DropPlanet(); return; }
+            if (best != _planet && bd < PlanetRange)
+            {
+                DropPlanet();
+                var b = _system.Bodies[best];
+                _planet = best;
+                _ground = new PlanetTerrain(_gpu.Device, DeepView.TerrainKind(b.Kind), b.Kind, (uint)(_galaxies[_near].Seed * 977UL + (ulong)_sysStar * 31UL + (ulong)best), false, b.RadiusUnits / Units.Km(1));
+            }
+            if (_planet >= 0) BodyPos(_planet, out _px, out _py, out _pz);
+        }
+
+        private void DropPlanet() { if (_ground != null) { _ground.Dispose(); _ground = null; } _planet = -1; }
+
+        // how far above the planet's ground the camera is (universe units)
+        private double AboveGround()
+        {
+            if (_ground == null) return double.MaxValue;
+            double x, y, z; CamFromPlanet(out x, out y, out z);
+            double r = Math.Sqrt(x * x + y * y + z * z); if (r <= 0) return 0;
+            double g = _ground.Solid ? _ground.GroundAt(x / r, y / r, z / r) : 0;
+            return Math.Max(1e-9, (r - _ground.Radius - Math.Max(0, g))) * Units.Km(1);
         }
 
         // the system's planets, moons and star placed around the star (anchor), and the nearest surface to the camera
@@ -292,11 +346,17 @@ namespace DnaAnd.Shell
                 double step = reach * (1 - Math.Pow(0.87, Math.Abs(input.Wheel))) * Math.Sign(input.Wheel);
                 if (input.Wheel < 0) step = -Math.Max(reach, 0.01) * (Math.Pow(1 / 0.87, -input.Wheel) - 1);
                 _ox += dir.X * step; _oy += dir.Y * step; _oz += dir.Z * step;
+                if (_ground != null && AboveGround() < 1e-9 * Units.Km(1) * 0 + Units.Km(0.0000005))
+                {
+                    // never below the ground: back up along the way you came
+                    _ox -= dir.X * step; _oy -= dir.Y * step; _oz -= dir.Z * step;
+                }
             }
             _simYears += dt / 20.0;                                                    // one year in 20 seconds, as in the system view
             ChooseNear();
             LocalStars();
             ChooseSystem();
+            ChoosePlanet();
             return true;
         }
 
@@ -438,6 +498,17 @@ namespace DnaAnd.Shell
                     DrawPoints(_coronaBuf, _starCorona.Length, m * vp, right, up, 1f, 0f, w, h, time);
                 }
             }
+            if (_ground != null)
+            {
+                // the planet's real ground, in km around its centre, with the same view turn; near and far follow the height
+                _gpu.ClearDepth();
+                double x, y, z; CamFromPlanet(out x, out y, out z);
+                double alt = Math.Max(1e-9, Math.Sqrt(x * x + y * y + z * z) - _ground.Radius);
+                Mat4 kproj = Mat4.Perspective(0.9f, w / (float)Math.Max(1, h), (float)Math.Max(alt * 1e-3, 1e-9), (float)(_ground.Radius * 8 + alt * 4));
+                var sd = _system.StarRadius; double lx = -_px, ly = -_py, lz = -_pz, ll = Math.Sqrt(lx * lx + ly * ly + lz * lz);
+                if (ll > 0) { _ground.StarDir[0] = lx / ll; _ground.StarDir[1] = ly / ll; _ground.StarDir[2] = lz / ll; }
+                _ground.Draw(_meshes, x, y, z, view, kproj, time, 3.0 * Math.Max(1, h / 600.0), 0, 0, 0, 0, 0, 0, w, h, 400);
+            }
         }
 
         private void DrawPoints(UploadBuffer buf, int count, Mat4 vp, Vec3 right, Vec3 up, float sizeScale, float minSize, int w, int h, double time)
@@ -455,7 +526,8 @@ namespace DnaAnd.Shell
         {
             get
             {
-                string where = _system != null ? "in the system of a " + _system.StarName + " (" + _system.Bodies.Count + " planets and moons)"
+                string where = _ground != null ? "at " + _system.Bodies[_planet].Kind + ", " + Units.Describe(AboveGround()) + " above the ground"
+                    : _system != null ? "in the system of a " + _system.StarName + " (" + _system.Bodies.Count + " planets and moons)"
                     : _near >= 0 ? (NearShare() > 0.5 ? "among the stars of " : "near ") + _galaxies[_near].Name : "among the galaxies";
                 return "DNA-AND · one world · " + where + " · nearest thing " + Units.Describe(NearestDistance()) + " away · wheel: fly in or out toward the mouse · drag: look around · Esc: close";
             }
@@ -466,6 +538,7 @@ namespace DnaAnd.Shell
             foreach (var g in _galaxies) g.Far.Dispose();
             if (_nearBuf != null) _nearBuf.Dispose();
             CloseSystem();
+            DropPlanet();
             if (_localBuf != null) _localBuf.Dispose();
         }
     }
