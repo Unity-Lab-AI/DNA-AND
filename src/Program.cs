@@ -11,6 +11,7 @@ namespace DnaAnd
     {
         static long _lastFrameT; static double _tuneMs;        // the GPU use: the last frame's time, and time since the detail was last nudged
 
+        private static ulong Seed;                 // this launch's universe (new each launch; --seed N plays one again)
         [STAThread]
         private static int Main(string[] args)
         {
@@ -122,10 +123,15 @@ namespace DnaAnd
             BillboardPipeline pipeline; SampleViewer viewer; MeshPipes meshes = null;
             try
             {
+                // a new universe every launch: its seed from the clock and a fresh GUID, unless --seed N asks for one again
+                int si = Array.IndexOf(args, "--seed"); ulong given;
+                Seed = si >= 0 && si + 1 < args.Length && ulong.TryParse(args[si + 1], out given) ? given
+                    : (ulong)DateTime.UtcNow.Ticks ^ BitConverter.ToUInt64(Guid.NewGuid().ToByteArray(), 0);
+                WriteLog("universe seed " + Seed + " (play it again with --seed " + Seed + ")");
                 pipeline = new BillboardPipeline(gpu.Device);
                 meshes = new MeshPipes(gpu, pipeline.RootSignature);
                 DnaAnd.Gen.PlanetTerrain.LoadFields(content);
-                viewer = new SampleViewer(gpu, pipeline, meshes, content, 20261105UL);
+                viewer = new SampleViewer(gpu, pipeline, meshes, content, Seed);
             }
             catch (Exception ex) { WriteLog("setup error · " + ex.Message); gpu.Dispose(); window.Close(); return 2; }
 
@@ -133,7 +139,6 @@ namespace DnaAnd
             double nextAsk = tryEvery > 0 ? tryEvery : double.MaxValue;
             int menuSet = -1; bool menuDirty = true; string lastTitle = "";
             string endReason = "closed normally";
-            const ulong Seed = 20261105UL;
             DeepView deep = null;
             PlanetView planet = null;
             if (openSet > 0) viewer.ShowSet(openSet);
@@ -325,7 +330,7 @@ namespace DnaAnd
                 frames++; titleTimer += clock.Delta;
                 if (titleTimer >= 0.5)
                 {
-                    lastTitle = string.Format("{0} · {1:0} fps", world != null ? world.Title : style != null ? style.Title : microbes != null ? microbes.Title : elements != null ? elements.Title : planet != null ? planet.Title : deep == null ? (universe != null ? universe.Title : viewer.Title) : deep.Title, frames / titleTimer);
+                    lastTitle = string.Format("{0} · {1:0} fps · universe " + Seed, world != null ? world.Title : style != null ? style.Title : microbes != null ? microbes.Title : elements != null ? elements.Title : planet != null ? planet.Title : deep == null ? (universe != null ? universe.Title : viewer.Title) : deep.Title, frames / titleTimer);
                     window.SetTitle(lastTitle);
                     titleTimer = 0; frames = 0;
                 }

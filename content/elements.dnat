@@ -3,6 +3,10 @@
 #   natural vs lab-made from standard chemistry references; mass-number: the most common (or, for elements with no
 #   stable form, the longest-lived) isotope, so protons = number and neutrons = mass-number - number; melting and boiling points in kelvin at 1 atmosphere
 #   from standard reference tables (CRC Handbook values, rounded); "unknown" where never measured. The in-game uses come from the public Elements page.
+# colour: the atom's usual colour in chemistry drawings (the Jmol CPK colours, Mt and below; none past Mt).
+# covalent-a: its bonding size in angstroms (Cordero et al. 2008, He to Cm; none measured past Cm): two atoms closer than
+#   their two sizes together (with a fifth more room) are bonded. atomic-a: its own size, the calculated atomic radius in
+#   angstroms (Clementi, Raimondi and Reinhardt 1967: H to Ba, Hf to Rn); where none is given its bonding size stands in.
 # Spec: docs/CONTENT-FORMAT.md · wiki/systems/r06-planet.md · content/physics.dnat
 
 @element h
@@ -11,6 +15,9 @@ real: yes
 number: 1
 mass-number: 1
 symbol: H
+colour: 1 1 1
+covalent-a: 0.31
+atomic-a: 0.53
 period: 1
 group: Nonmetal
 state-at-room-temp: gas
@@ -25,6 +32,9 @@ real: yes
 number: 2
 mass-number: 4
 symbol: He
+colour: 0.851 1 1
+covalent-a: 0.28
+atomic-a: 0.31
 period: 1
 group: Noble gas
 state-at-room-temp: gas
@@ -39,6 +49,9 @@ real: yes
 number: 3
 mass-number: 7
 symbol: Li
+colour: 0.8 0.502 1
+covalent-a: 1.28
+atomic-a: 1.67
 period: 2
 group: Alkali metal
 state-at-room-temp: solid
@@ -53,6 +66,9 @@ real: yes
 number: 4
 mass-number: 9
 symbol: Be
+colour: 0.761 1 0
+covalent-a: 0.96
+atomic-a: 1.12
 period: 2
 group: Alkaline earth
 state-at-room-temp: solid
@@ -67,6 +83,9 @@ real: yes
 number: 5
 mass-number: 11
 symbol: B
+colour: 1 0.71 0.71
+covalent-a: 0.84
+atomic-a: 0.87
 period: 2
 group: Metalloid
 state-at-room-temp: solid
@@ -81,6 +100,9 @@ real: yes
 number: 6
 mass-number: 12
 symbol: C
+colour: 0.565 0.565 0.565
+covalent-a: 0.76
+atomic-a: 0.67
 period: 2
 group: Nonmetal
 state-at-room-temp: solid
@@ -95,6 +117,9 @@ real: yes
 number: 7
 mass-number: 14
 symbol: N
+colour: 0.188 0.314 0.973
+covalent-a: 0.71
+atomic-a: 0.56
 period: 2
 group: Nonmetal
 state-at-room-temp: gas
@@ -109,6 +134,9 @@ real: yes
 number: 8
 mass-number: 16
 symbol: O
+colour: 1 0.051 0.051
+covalent-a: 0.66
+atomic-a: 0.48
 period: 2
 group: Nonmetal
 state-at-room-temp: gas
@@ -123,6 +151,9 @@ real: yes
 number: 9
 mass-number: 19
 symbol: F
+colour: 0.565 0.878 0.314
+covalent-a: 0.57
+atomic-a: 0.42
 period: 2
 group: Halogen
 state-at-room-temp: gas
@@ -137,6 +168,9 @@ real: yes
 number: 10
 mass-number: 20
 symbol: Ne
+colour: 0.702 0.89 0.961
+covalent-a: 0.58
+atomic-a: 0.38
 period: 2
 group: Noble gas
 state-at-room-temp: gas
@@ -151,6 +185,9 @@ real: yes
 number: 11
 mass-number: 23
 symbol: Na
+colour: 0.671 0.361 0.949
+covalent-a: 1.66
+atomic-a: 1.90
 period: 3
 group: Alkali metal
 state-at-room-temp: solid
@@ -165,6 +202,9 @@ real: yes
 number: 12
 mass-number: 24
 symbol: Mg
+colour: 0.541 1 0
+covalent-a: 1.41
+atomic-a: 1.45
 period: 3
 group: Alkaline earth
 state-at-room-temp: solid
@@ -179,6 +219,9 @@ real: yes
 number: 13
 mass-number: 27
 symbol: Al
+colour: 0.749 0.651 0.651
+covalent-a: 1.21
+atomic-a: 1.18
 period: 3
 group: Post-transition
 state-at-room-temp: solid
@@ -193,6 +236,9 @@ real: yes
 number: 14
 mass-number: 28
 symbol: Si
+colour: 0.941 0.784 0.627
+covalent-a: 1.11
+atomic-a: 1.11
 period: 3
 group: Metalloid
 state-at-room-temp: solid
@@ -207,6 +253,9 @@ real: yes
 number: 15
 mass-number: 31
 symbol: P
+colour: 1 0.502 0
+covalent-a: 1.07
+atomic-a: 0.98
 period: 3
 group: Nonmetal
 state-at-room-temp: solid
@@ -221,6 +270,9 @@ real: yes
 number: 16
 mass-number: 32
 symbol: S
+colour: 1 1 0.188
+covalent-a: 1.05
+atomic-a: 0.88
 period: 3
 group: Nonmetal
 state-at-room-temp: solid
@@ -235,6 +287,9 @@ real: yes
 number: 17
 mass-number: 35
 symbol: Cl
+colour: 0.122 0.941 0.122
+covalent-a: 1.02
+atomic-a: 0.79
 period: 3
 group: Halogen
 state-at-room-temp: gas
@@ -249,6 +304,9 @@ real: yes
 number: 18
 mass-number: 40
 symbol: Ar
+colour: 0.502 0.82 0.89
+covalent-a: 1.06
+atomic-a: 0.71
 period: 3
 group: Noble gas
 state-at-room-temp: gas
@@ -263,6 +321,9 @@ real: yes
 number: 19
 mass-number: 39
 symbol: K
+colour: 0.561 0.251 0.831
+covalent-a: 2.03
+atomic-a: 2.43
 period: 4
 group: Alkali metal
 state-at-room-temp: solid
@@ -277,6 +338,9 @@ real: yes
 number: 20
 mass-number: 40
 symbol: Ca
+colour: 0.239 1 0
+covalent-a: 1.76
+atomic-a: 1.94
 period: 4
 group: Alkaline earth
 state-at-room-temp: solid
@@ -291,6 +355,9 @@ real: yes
 number: 21
 mass-number: 45
 symbol: Sc
+colour: 0.902 0.902 0.902
+covalent-a: 1.70
+atomic-a: 1.84
 period: 4
 group: Transition
 state-at-room-temp: solid
@@ -305,6 +372,9 @@ real: yes
 number: 22
 mass-number: 48
 symbol: Ti
+colour: 0.749 0.761 0.78
+covalent-a: 1.60
+atomic-a: 1.76
 period: 4
 group: Transition
 state-at-room-temp: solid
@@ -319,6 +389,9 @@ real: yes
 number: 23
 mass-number: 51
 symbol: V
+colour: 0.651 0.651 0.671
+covalent-a: 1.53
+atomic-a: 1.71
 period: 4
 group: Transition
 state-at-room-temp: solid
@@ -333,6 +406,9 @@ real: yes
 number: 24
 mass-number: 52
 symbol: Cr
+colour: 0.541 0.6 0.78
+covalent-a: 1.39
+atomic-a: 1.66
 period: 4
 group: Transition
 state-at-room-temp: solid
@@ -347,6 +423,9 @@ real: yes
 number: 25
 mass-number: 55
 symbol: Mn
+colour: 0.612 0.478 0.78
+covalent-a: 1.39
+atomic-a: 1.61
 period: 4
 group: Transition
 state-at-room-temp: solid
@@ -361,6 +440,9 @@ real: yes
 number: 26
 mass-number: 56
 symbol: Fe
+colour: 0.878 0.4 0.2
+covalent-a: 1.32
+atomic-a: 1.56
 period: 4
 group: Transition
 state-at-room-temp: solid
@@ -375,6 +457,9 @@ real: yes
 number: 27
 mass-number: 59
 symbol: Co
+colour: 0.941 0.565 0.627
+covalent-a: 1.26
+atomic-a: 1.52
 period: 4
 group: Transition
 state-at-room-temp: solid
@@ -389,6 +474,9 @@ real: yes
 number: 28
 mass-number: 58
 symbol: Ni
+colour: 0.314 0.816 0.314
+covalent-a: 1.24
+atomic-a: 1.49
 period: 4
 group: Transition
 state-at-room-temp: solid
@@ -403,6 +491,9 @@ real: yes
 number: 29
 mass-number: 63
 symbol: Cu
+colour: 0.784 0.502 0.2
+covalent-a: 1.32
+atomic-a: 1.45
 period: 4
 group: Transition
 state-at-room-temp: solid
@@ -417,6 +508,9 @@ real: yes
 number: 30
 mass-number: 64
 symbol: Zn
+colour: 0.49 0.502 0.69
+covalent-a: 1.22
+atomic-a: 1.42
 period: 4
 group: Transition
 state-at-room-temp: solid
@@ -431,6 +525,9 @@ real: yes
 number: 31
 mass-number: 69
 symbol: Ga
+colour: 0.761 0.561 0.561
+covalent-a: 1.22
+atomic-a: 1.36
 period: 4
 group: Post-transition
 state-at-room-temp: solid
@@ -445,6 +542,9 @@ real: yes
 number: 32
 mass-number: 74
 symbol: Ge
+colour: 0.4 0.561 0.561
+covalent-a: 1.20
+atomic-a: 1.25
 period: 4
 group: Metalloid
 state-at-room-temp: solid
@@ -459,6 +559,9 @@ real: yes
 number: 33
 mass-number: 75
 symbol: As
+colour: 0.741 0.502 0.89
+covalent-a: 1.19
+atomic-a: 1.14
 period: 4
 group: Metalloid
 state-at-room-temp: solid
@@ -473,6 +576,9 @@ real: yes
 number: 34
 mass-number: 80
 symbol: Se
+colour: 1 0.631 0
+covalent-a: 1.20
+atomic-a: 1.03
 period: 4
 group: Nonmetal
 state-at-room-temp: solid
@@ -487,6 +593,9 @@ real: yes
 number: 35
 mass-number: 79
 symbol: Br
+colour: 0.651 0.161 0.161
+covalent-a: 1.20
+atomic-a: 0.94
 period: 4
 group: Halogen
 state-at-room-temp: liquid
@@ -501,6 +610,9 @@ real: yes
 number: 36
 mass-number: 84
 symbol: Kr
+colour: 0.361 0.722 0.82
+covalent-a: 1.16
+atomic-a: 0.88
 period: 4
 group: Noble gas
 state-at-room-temp: gas
@@ -515,6 +627,9 @@ real: yes
 number: 37
 mass-number: 85
 symbol: Rb
+colour: 0.439 0.18 0.69
+covalent-a: 2.20
+atomic-a: 2.65
 period: 5
 group: Alkali metal
 state-at-room-temp: solid
@@ -529,6 +644,9 @@ real: yes
 number: 38
 mass-number: 88
 symbol: Sr
+colour: 0 1 0
+covalent-a: 1.95
+atomic-a: 2.19
 period: 5
 group: Alkaline earth
 state-at-room-temp: solid
@@ -543,6 +661,9 @@ real: yes
 number: 39
 mass-number: 89
 symbol: Y
+colour: 0.58 1 1
+covalent-a: 1.90
+atomic-a: 2.12
 period: 5
 group: Transition
 state-at-room-temp: solid
@@ -557,6 +678,9 @@ real: yes
 number: 40
 mass-number: 90
 symbol: Zr
+colour: 0.58 0.878 0.878
+covalent-a: 1.75
+atomic-a: 2.06
 period: 5
 group: Transition
 state-at-room-temp: solid
@@ -571,6 +695,9 @@ real: yes
 number: 41
 mass-number: 93
 symbol: Nb
+colour: 0.451 0.761 0.788
+covalent-a: 1.64
+atomic-a: 1.98
 period: 5
 group: Transition
 state-at-room-temp: solid
@@ -585,6 +712,9 @@ real: yes
 number: 42
 mass-number: 98
 symbol: Mo
+colour: 0.329 0.71 0.71
+covalent-a: 1.54
+atomic-a: 1.90
 period: 5
 group: Transition
 state-at-room-temp: solid
@@ -599,6 +729,9 @@ real: yes
 number: 43
 mass-number: 98
 symbol: Tc
+colour: 0.231 0.62 0.62
+covalent-a: 1.47
+atomic-a: 1.83
 period: 5
 group: Transition
 state-at-room-temp: solid
@@ -613,6 +746,9 @@ real: yes
 number: 44
 mass-number: 102
 symbol: Ru
+colour: 0.141 0.561 0.561
+covalent-a: 1.46
+atomic-a: 1.78
 period: 5
 group: Transition
 state-at-room-temp: solid
@@ -627,6 +763,9 @@ real: yes
 number: 45
 mass-number: 103
 symbol: Rh
+colour: 0.0392 0.49 0.549
+covalent-a: 1.42
+atomic-a: 1.73
 period: 5
 group: Transition
 state-at-room-temp: solid
@@ -641,6 +780,9 @@ real: yes
 number: 46
 mass-number: 106
 symbol: Pd
+colour: 0 0.412 0.522
+covalent-a: 1.39
+atomic-a: 1.69
 period: 5
 group: Transition
 state-at-room-temp: solid
@@ -655,6 +797,9 @@ real: yes
 number: 47
 mass-number: 107
 symbol: Ag
+colour: 0.753 0.753 0.753
+covalent-a: 1.45
+atomic-a: 1.65
 period: 5
 group: Transition
 state-at-room-temp: solid
@@ -669,6 +814,9 @@ real: yes
 number: 48
 mass-number: 114
 symbol: Cd
+colour: 1 0.851 0.561
+covalent-a: 1.44
+atomic-a: 1.61
 period: 5
 group: Transition
 state-at-room-temp: solid
@@ -683,6 +831,9 @@ real: yes
 number: 49
 mass-number: 115
 symbol: In
+colour: 0.651 0.459 0.451
+covalent-a: 1.42
+atomic-a: 1.56
 period: 5
 group: Post-transition
 state-at-room-temp: solid
@@ -697,6 +848,9 @@ real: yes
 number: 50
 mass-number: 120
 symbol: Sn
+colour: 0.4 0.502 0.502
+covalent-a: 1.39
+atomic-a: 1.45
 period: 5
 group: Post-transition
 state-at-room-temp: solid
@@ -711,6 +865,9 @@ real: yes
 number: 51
 mass-number: 121
 symbol: Sb
+colour: 0.62 0.388 0.71
+covalent-a: 1.39
+atomic-a: 1.33
 period: 5
 group: Metalloid
 state-at-room-temp: solid
@@ -725,6 +882,9 @@ real: yes
 number: 52
 mass-number: 130
 symbol: Te
+colour: 0.831 0.478 0
+covalent-a: 1.38
+atomic-a: 1.23
 period: 5
 group: Metalloid
 state-at-room-temp: solid
@@ -739,6 +899,9 @@ real: yes
 number: 53
 mass-number: 127
 symbol: I
+colour: 0.58 0 0.58
+covalent-a: 1.39
+atomic-a: 1.15
 period: 5
 group: Halogen
 state-at-room-temp: solid
@@ -753,6 +916,9 @@ real: yes
 number: 54
 mass-number: 132
 symbol: Xe
+colour: 0.259 0.62 0.69
+covalent-a: 1.40
+atomic-a: 1.08
 period: 5
 group: Noble gas
 state-at-room-temp: gas
@@ -767,6 +933,9 @@ real: yes
 number: 55
 mass-number: 133
 symbol: Cs
+colour: 0.341 0.0902 0.561
+covalent-a: 2.44
+atomic-a: 2.98
 period: 6
 group: Alkali metal
 state-at-room-temp: solid
@@ -781,6 +950,9 @@ real: yes
 number: 56
 mass-number: 138
 symbol: Ba
+colour: 0 0.788 0
+covalent-a: 2.15
+atomic-a: 2.53
 period: 6
 group: Alkaline earth
 state-at-room-temp: solid
@@ -795,6 +967,8 @@ real: yes
 number: 57
 mass-number: 139
 symbol: La
+colour: 0.439 0.831 1
+covalent-a: 2.07
 period: 6
 group: Lanthanide
 state-at-room-temp: solid
@@ -809,6 +983,8 @@ real: yes
 number: 58
 mass-number: 140
 symbol: Ce
+colour: 1 1 0.78
+covalent-a: 2.04
 period: 6
 group: Lanthanide
 state-at-room-temp: solid
@@ -823,6 +999,8 @@ real: yes
 number: 59
 mass-number: 141
 symbol: Pr
+colour: 0.851 1 0.78
+covalent-a: 2.03
 period: 6
 group: Lanthanide
 state-at-room-temp: solid
@@ -837,6 +1015,8 @@ real: yes
 number: 60
 mass-number: 142
 symbol: Nd
+colour: 0.78 1 0.78
+covalent-a: 2.01
 period: 6
 group: Lanthanide
 state-at-room-temp: solid
@@ -851,6 +1031,8 @@ real: yes
 number: 61
 mass-number: 145
 symbol: Pm
+colour: 0.639 1 0.78
+covalent-a: 1.99
 period: 6
 group: Lanthanide
 state-at-room-temp: solid
@@ -865,6 +1047,8 @@ real: yes
 number: 62
 mass-number: 152
 symbol: Sm
+colour: 0.561 1 0.78
+covalent-a: 1.98
 period: 6
 group: Lanthanide
 state-at-room-temp: solid
@@ -879,6 +1063,8 @@ real: yes
 number: 63
 mass-number: 153
 symbol: Eu
+colour: 0.38 1 0.78
+covalent-a: 1.98
 period: 6
 group: Lanthanide
 state-at-room-temp: solid
@@ -893,6 +1079,8 @@ real: yes
 number: 64
 mass-number: 158
 symbol: Gd
+colour: 0.271 1 0.78
+covalent-a: 1.96
 period: 6
 group: Lanthanide
 state-at-room-temp: solid
@@ -907,6 +1095,8 @@ real: yes
 number: 65
 mass-number: 159
 symbol: Tb
+colour: 0.188 1 0.78
+covalent-a: 1.94
 period: 6
 group: Lanthanide
 state-at-room-temp: solid
@@ -921,6 +1111,8 @@ real: yes
 number: 66
 mass-number: 164
 symbol: Dy
+colour: 0.122 1 0.78
+covalent-a: 1.92
 period: 6
 group: Lanthanide
 state-at-room-temp: solid
@@ -935,6 +1127,8 @@ real: yes
 number: 67
 mass-number: 165
 symbol: Ho
+colour: 0 1 0.612
+covalent-a: 1.92
 period: 6
 group: Lanthanide
 state-at-room-temp: solid
@@ -949,6 +1143,8 @@ real: yes
 number: 68
 mass-number: 166
 symbol: Er
+colour: 0 0.902 0.459
+covalent-a: 1.89
 period: 6
 group: Lanthanide
 state-at-room-temp: solid
@@ -963,6 +1159,8 @@ real: yes
 number: 69
 mass-number: 169
 symbol: Tm
+colour: 0 0.831 0.322
+covalent-a: 1.90
 period: 6
 group: Lanthanide
 state-at-room-temp: solid
@@ -977,6 +1175,8 @@ real: yes
 number: 70
 mass-number: 174
 symbol: Yb
+colour: 0 0.749 0.22
+covalent-a: 1.87
 period: 6
 group: Lanthanide
 state-at-room-temp: solid
@@ -991,6 +1191,8 @@ real: yes
 number: 71
 mass-number: 175
 symbol: Lu
+colour: 0 0.671 0.141
+covalent-a: 1.87
 period: 6
 group: Lanthanide
 state-at-room-temp: solid
@@ -1005,6 +1207,9 @@ real: yes
 number: 72
 mass-number: 180
 symbol: Hf
+colour: 0.302 0.761 1
+covalent-a: 1.75
+atomic-a: 2.08
 period: 6
 group: Transition
 state-at-room-temp: solid
@@ -1019,6 +1224,9 @@ real: yes
 number: 73
 mass-number: 181
 symbol: Ta
+colour: 0.302 0.651 1
+covalent-a: 1.70
+atomic-a: 2.00
 period: 6
 group: Transition
 state-at-room-temp: solid
@@ -1033,6 +1241,9 @@ real: yes
 number: 74
 mass-number: 184
 symbol: W
+colour: 0.129 0.58 0.839
+covalent-a: 1.62
+atomic-a: 1.93
 period: 6
 group: Transition
 state-at-room-temp: solid
@@ -1047,6 +1258,9 @@ real: yes
 number: 75
 mass-number: 187
 symbol: Re
+colour: 0.149 0.49 0.671
+covalent-a: 1.51
+atomic-a: 1.88
 period: 6
 group: Transition
 state-at-room-temp: solid
@@ -1061,6 +1275,9 @@ real: yes
 number: 76
 mass-number: 192
 symbol: Os
+colour: 0.149 0.4 0.588
+covalent-a: 1.44
+atomic-a: 1.85
 period: 6
 group: Transition
 state-at-room-temp: solid
@@ -1075,6 +1292,9 @@ real: yes
 number: 77
 mass-number: 193
 symbol: Ir
+colour: 0.0902 0.329 0.529
+covalent-a: 1.41
+atomic-a: 1.80
 period: 6
 group: Transition
 state-at-room-temp: solid
@@ -1089,6 +1309,9 @@ real: yes
 number: 78
 mass-number: 195
 symbol: Pt
+colour: 0.816 0.816 0.878
+covalent-a: 1.36
+atomic-a: 1.77
 period: 6
 group: Transition
 state-at-room-temp: solid
@@ -1103,6 +1326,9 @@ real: yes
 number: 79
 mass-number: 197
 symbol: Au
+colour: 1 0.82 0.137
+covalent-a: 1.36
+atomic-a: 1.74
 period: 6
 group: Transition
 state-at-room-temp: solid
@@ -1117,6 +1343,9 @@ real: yes
 number: 80
 mass-number: 202
 symbol: Hg
+colour: 0.722 0.722 0.816
+covalent-a: 1.32
+atomic-a: 1.71
 period: 6
 group: Transition
 state-at-room-temp: liquid
@@ -1131,6 +1360,9 @@ real: yes
 number: 81
 mass-number: 205
 symbol: Tl
+colour: 0.651 0.329 0.302
+covalent-a: 1.45
+atomic-a: 1.56
 period: 6
 group: Post-transition
 state-at-room-temp: solid
@@ -1145,6 +1377,9 @@ real: yes
 number: 82
 mass-number: 208
 symbol: Pb
+colour: 0.341 0.349 0.38
+covalent-a: 1.46
+atomic-a: 1.54
 period: 6
 group: Post-transition
 state-at-room-temp: solid
@@ -1159,6 +1394,9 @@ real: yes
 number: 83
 mass-number: 209
 symbol: Bi
+colour: 0.62 0.31 0.71
+covalent-a: 1.48
+atomic-a: 1.43
 period: 6
 group: Post-transition
 state-at-room-temp: solid
@@ -1173,6 +1411,9 @@ real: yes
 number: 84
 mass-number: 209
 symbol: Po
+colour: 0.671 0.361 0
+covalent-a: 1.40
+atomic-a: 1.35
 period: 6
 group: Post-transition
 state-at-room-temp: solid
@@ -1187,6 +1428,9 @@ real: yes
 number: 85
 mass-number: 210
 symbol: At
+colour: 0.459 0.31 0.271
+covalent-a: 1.50
+atomic-a: 1.27
 period: 6
 group: Halogen
 state-at-room-temp: solid
@@ -1201,6 +1445,9 @@ real: yes
 number: 86
 mass-number: 222
 symbol: Rn
+colour: 0.259 0.51 0.588
+covalent-a: 1.50
+atomic-a: 1.20
 period: 6
 group: Noble gas
 state-at-room-temp: gas
@@ -1215,6 +1462,8 @@ real: yes
 number: 87
 mass-number: 223
 symbol: Fr
+colour: 0.259 0 0.4
+covalent-a: 2.60
 period: 7
 group: Alkali metal
 state-at-room-temp: solid
@@ -1229,6 +1478,8 @@ real: yes
 number: 88
 mass-number: 226
 symbol: Ra
+colour: 0 0.49 0
+covalent-a: 2.21
 period: 7
 group: Alkaline earth
 state-at-room-temp: solid
@@ -1243,6 +1494,8 @@ real: yes
 number: 89
 mass-number: 227
 symbol: Ac
+colour: 0.439 0.671 0.98
+covalent-a: 2.15
 period: 7
 group: Actinide
 state-at-room-temp: solid
@@ -1257,6 +1510,8 @@ real: yes
 number: 90
 mass-number: 232
 symbol: Th
+colour: 0 0.729 1
+covalent-a: 2.06
 period: 7
 group: Actinide
 state-at-room-temp: solid
@@ -1271,6 +1526,8 @@ real: yes
 number: 91
 mass-number: 231
 symbol: Pa
+colour: 0 0.631 1
+covalent-a: 2.00
 period: 7
 group: Actinide
 state-at-room-temp: solid
@@ -1285,6 +1542,8 @@ real: yes
 number: 92
 mass-number: 238
 symbol: U
+colour: 0 0.561 1
+covalent-a: 1.96
 period: 7
 group: Actinide
 state-at-room-temp: solid
@@ -1299,6 +1558,8 @@ real: yes
 number: 93
 mass-number: 237
 symbol: Np
+colour: 0 0.502 1
+covalent-a: 1.90
 period: 7
 group: Actinide
 state-at-room-temp: solid
@@ -1314,6 +1575,8 @@ real: yes
 number: 94
 mass-number: 244
 symbol: Pu
+colour: 0 0.42 1
+covalent-a: 1.87
 period: 7
 group: Actinide
 state-at-room-temp: solid
@@ -1329,6 +1592,8 @@ real: yes
 number: 95
 mass-number: 243
 symbol: Am
+colour: 0.329 0.361 0.949
+covalent-a: 1.80
 period: 7
 group: Actinide
 state-at-room-temp: solid
@@ -1344,6 +1609,8 @@ real: yes
 number: 96
 mass-number: 247
 symbol: Cm
+colour: 0.471 0.361 0.89
+covalent-a: 1.69
 period: 7
 group: Actinide
 state-at-room-temp: solid
@@ -1359,6 +1626,7 @@ real: yes
 number: 97
 mass-number: 247
 symbol: Bk
+colour: 0.541 0.31 0.89
 period: 7
 group: Actinide
 state-at-room-temp: solid
@@ -1374,6 +1642,7 @@ real: yes
 number: 98
 mass-number: 251
 symbol: Cf
+colour: 0.631 0.212 0.831
 period: 7
 group: Actinide
 state-at-room-temp: solid
@@ -1389,6 +1658,7 @@ real: yes
 number: 99
 mass-number: 252
 symbol: Es
+colour: 0.702 0.122 0.831
 period: 7
 group: Actinide
 state-at-room-temp: solid
@@ -1404,6 +1674,7 @@ real: yes
 number: 100
 mass-number: 257
 symbol: Fm
+colour: 0.702 0.122 0.729
 period: 7
 group: Actinide
 state-at-room-temp: solid
@@ -1419,6 +1690,7 @@ real: yes
 number: 101
 mass-number: 258
 symbol: Md
+colour: 0.702 0.051 0.651
 period: 7
 group: Actinide
 state-at-room-temp: solid
@@ -1434,6 +1706,7 @@ real: yes
 number: 102
 mass-number: 259
 symbol: No
+colour: 0.741 0.051 0.529
 period: 7
 group: Actinide
 state-at-room-temp: solid
@@ -1449,6 +1722,7 @@ real: yes
 number: 103
 mass-number: 262
 symbol: Lr
+colour: 0.78 0 0.4
 period: 7
 group: Actinide
 state-at-room-temp: solid
@@ -1464,6 +1738,7 @@ real: yes
 number: 104
 mass-number: 267
 symbol: Rf
+colour: 0.8 0 0.349
 period: 7
 group: Transition
 state-at-room-temp: unknown
@@ -1479,6 +1754,7 @@ real: yes
 number: 105
 mass-number: 268
 symbol: Db
+colour: 0.82 0 0.31
 period: 7
 group: Transition
 state-at-room-temp: unknown
@@ -1494,6 +1770,7 @@ real: yes
 number: 106
 mass-number: 269
 symbol: Sg
+colour: 0.851 0 0.271
 period: 7
 group: Transition
 state-at-room-temp: unknown
@@ -1509,6 +1786,7 @@ real: yes
 number: 107
 mass-number: 270
 symbol: Bh
+colour: 0.878 0 0.22
 period: 7
 group: Transition
 state-at-room-temp: unknown
@@ -1524,6 +1802,7 @@ real: yes
 number: 108
 mass-number: 269
 symbol: Hs
+colour: 0.902 0 0.18
 period: 7
 group: Transition
 state-at-room-temp: unknown
@@ -1539,6 +1818,7 @@ real: yes
 number: 109
 mass-number: 278
 symbol: Mt
+colour: 0.922 0 0.149
 period: 7
 group: Predicted (never measured)
 state-at-room-temp: unknown

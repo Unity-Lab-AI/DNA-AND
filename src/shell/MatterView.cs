@@ -31,7 +31,7 @@ namespace DnaAnd.Shell
         private const double Nucleon = 0.85e-18;    // a proton's or neutron's radius, about 0.85 femtometres
 
         private sealed class Mineral { public string Id, Name, Formula; public string[] Atoms; public float R, G, B, Lustre = 1; }
-        private sealed class Element { public string Symbol, Name; public int Z, A; public float R, G, B; public int[] Shells; }
+        private sealed class Element { public string Symbol, Name; public int Z, A; public float R, G, B; public double Radius, Cov; public int[] Shells; }
         private readonly Dictionary<string, Mineral> _minerals = new Dictionary<string, Mineral>();
         private readonly Dictionary<string, List<KeyValuePair<Mineral, double>>> _mixes = new Dictionary<string, List<KeyValuePair<Mineral, double>>>();
         private readonly Dictionary<string, Element> _elements = new Dictionary<string, Element>();
@@ -73,15 +73,6 @@ namespace DnaAnd.Shell
         private Mat4 _lastVp; private int _lastW = 1, _lastH = 1; private bool _haveVp;
         private Body _picked;
 
-        // atoms in chemistry's usual colours (CPK), the rest a soft grey-violet
-        private static readonly Dictionary<string, float[]> Cpk = new Dictionary<string, float[]>
-        {
-            { "H", new[] { 0.95f, 0.95f, 0.95f } }, { "C", new[] { 0.3f, 0.3f, 0.3f } }, { "N", new[] { 0.2f, 0.3f, 0.95f } },
-            { "O", new[] { 0.9f, 0.13f, 0.1f } }, { "Na", new[] { 0.67f, 0.36f, 0.95f } }, { "Mg", new[] { 0.3f, 0.8f, 0.25f } },
-            { "Al", new[] { 0.75f, 0.65f, 0.65f } }, { "Si", new[] { 0.85f, 0.7f, 0.5f } }, { "S", new[] { 0.95f, 0.85f, 0.2f } },
-            { "Cl", new[] { 0.12f, 0.94f, 0.12f } }, { "K", new[] { 0.56f, 0.25f, 0.83f } }, { "Ca", new[] { 0.24f, 1f, 0.24f } },
-            { "Ti", new[] { 0.75f, 0.76f, 0.78f } }, { "Fe", new[] { 0.88f, 0.4f, 0.2f } }
-        };
 
         public MatterView(Gpu gpu, BillboardPipeline pipe, ContentLibrary content)
         {
@@ -89,8 +80,13 @@ namespace DnaAnd.Shell
             foreach (var e in content.OfKind("elements.dnat", "element"))
             {
                 int z, a; if (!int.TryParse(e.Get("number", ""), out z) || !int.TryParse(e.Get("mass-number", ""), out a)) continue;
-                string sym = e.Get("symbol", e.Id); float[] c; if (!Cpk.TryGetValue(sym, out c)) c = new[] { 0.7f, 0.6f, 0.8f };
-                _elements[sym] = new Element { Symbol = sym, Name = e.Name, Z = z, A = a, R = c[0], G = c[1], B = c[2], Shells = Shells(z) };
+                // every atom's colour and sizes from content/elements.dnat (none named in code)
+                string sym = e.Get("symbol", e.Id); var ci = System.Globalization.CultureInfo.InvariantCulture; var fs = System.Globalization.NumberStyles.Float;
+                var cs = e.Get("colour", "0.7 0.6 0.8").Split(' '); float cr = 0.7f, cg = 0.6f, cb = 0.8f;
+                if (cs.Length == 3) { float.TryParse(cs[0], fs, ci, out cr); float.TryParse(cs[1], fs, ci, out cg); float.TryParse(cs[2], fs, ci, out cb); }
+                double cov, rad; if (!double.TryParse(e.Get("covalent-a", ""), fs, ci, out cov)) cov = 1.5;
+                if (!double.TryParse(e.Get("atomic-a", ""), fs, ci, out rad)) rad = cov;
+                _elements[sym] = new Element { Symbol = sym, Name = e.Name, Z = z, A = a, R = cr, G = cg, B = cb, Radius = rad * 1e-13, Cov = cov * 1e-13, Shells = Shells(z) };
             }
             foreach (var e in content.OfKind("minerals.dnat", "mineral"))
             {
@@ -371,12 +367,6 @@ namespace DnaAnd.Shell
             x = x1 * Math.Cos(c) - z2 * Math.Sin(c); z = x1 * Math.Sin(c) + z2 * Math.Cos(c); y = y2;
         }
 
-        // atoms' real sizes (their calculated atomic radii, in angstroms: Clementi and Raimondi), so each atom's system is its own size
-        private static readonly Dictionary<string, double> RadiusA = new Dictionary<string, double>
-        {
-            { "H", 0.53 }, { "He", 0.31 }, { "C", 0.67 }, { "N", 0.56 }, { "O", 0.48 }, { "F", 0.42 }, { "Na", 1.90 }, { "Mg", 1.45 }, { "Al", 1.18 },
-            { "Si", 1.11 }, { "P", 0.98 }, { "S", 0.88 }, { "Cl", 0.79 }, { "K", 2.43 }, { "Ca", 1.94 }, { "Ti", 1.76 }, { "Fe", 1.56 }
-        };
         // a big count in plain words
         private static string Big(double n)
         {
@@ -388,7 +378,7 @@ namespace DnaAnd.Shell
         private static double AtomRadius(Element e)
         {
             if (e == null) return 1e-13;
-            double r; if (RadiusA.TryGetValue(e.Symbol, out r)) return r * 1e-13;
+            if (e.Radius > 0) return e.Radius;
             return (0.7 + 0.5 * Math.Min(1, e.Z / 30.0)) * 1e-13;                  // the rest: a rough size from its number
         }
         private static double NucleusRadius(Element e) { return 1.2e-18 * Math.Pow(e == null ? 28 : e.A, 1 / 3.0); }
@@ -592,13 +582,7 @@ namespace DnaAnd.Shell
             }
         }
 
-        // atoms' bonding (covalent) sizes, angstroms: two atoms closer than the sum (with a little room) are bonded
-        private static readonly Dictionary<string, double> CovA = new Dictionary<string, double>
-        {
-            { "H", 0.31 }, { "C", 0.76 }, { "N", 0.71 }, { "O", 0.66 }, { "Na", 1.66 }, { "Mg", 1.41 }, { "Al", 1.21 }, { "Si", 1.11 },
-            { "S", 1.05 }, { "Cl", 1.02 }, { "K", 2.03 }, { "Ca", 1.76 }, { "Ti", 1.60 }, { "Fe", 1.32 }
-        };
-        private static double Cov(Element e) { double r; return CovA.TryGetValue(e.Symbol, out r) ? r * 1e-13 : 1.2e-13; }
+        private static double Cov(Element e) { return e.Cov > 0 ? e.Cov : 1.5e-13; }
 
         // the bonds between the atoms drawn, as sticks of small beads, grey, from one atom to the other
         private void Bonds(List<StarVertex> solid, List<CAtom> atoms, double s, float f)
