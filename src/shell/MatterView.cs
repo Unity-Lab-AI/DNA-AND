@@ -376,12 +376,17 @@ namespace DnaAnd.Shell
         private void Add(List<StarVertex> l, double x, double y, double z, double size, float r, float g, float b, double s)
         {
             x -= _fx; z -= _fz;                                                             // around the point you dive into
-            double vx = x / s, vy = (y + _yOff) / s - 0.6, vz = z / s, vs = size / s;        // view units: one unit = the scale; you are 0.6 above the surface under you
-            if (Math.Abs(vx) > 60 || Math.Abs(vz) > 60 || vy < -60 || (vs < 2e-4 && size > 1e-20) || vs > 400) return;   // (electrons are points: kept as the smallest dot on screen)
+            double vx = x / s + _ex, vy = (y + _yOff) / s + _ey, vz = z / s + _ez, vs = size / s;        // view units: one unit = the scale; you are 0.6 above the surface under you
+            if (Math.Abs(vx - _ex) > 60 || Math.Abs(vz - _ez) > 60 || vy - _ey < -60 || (vs < 2e-4 && size > 1e-20) || vs > 400) return;   // (electrons are points: kept as the smallest dot on screen)
             l.Add(new StarVertex { X = (float)vx, Y = (float)vy, Z = (float)vz, Size = (float)vs, R = r, G = g, B = b, A = 1 });
         }
 
-        private double _yOff;                                                              // the surface under you is height 0: everything is moved by this
+        private double _yOff;
+        // where the point you dive into is from your eye, in view units (one unit = the scale): straight below at first; looking
+        // round (dragging) moves your eye round it, as round a planet, so it stays in the middle
+        private double _ex = 0, _ey = -0.6, _ez = 0;
+        /// <summary>Your view's way (unit, in the matter's frame): the point you dive into lies 0.6 of the scale along it.</summary>
+        public void SetEye(double lx, double ly, double lz) { double l = Math.Sqrt(lx * lx + ly * ly + lz * lz); if (l <= 0) return; _ex = lx / l * 0.6; _ey = ly / l * 0.6; _ez = lz / l * 0.6; }                                                              // the surface under you is height 0: everything is moved by this
 
         // ── a grain's real surface: one shape at every size, so zooming into a grain never swaps it for anything else ──
         // a squashed, turned ellipsoid, roughened by detail on detail (each finer layer half as tall, without end), worked out from
@@ -462,7 +467,7 @@ namespace DnaAnd.Shell
                     double x0 = -half + a * step, z0 = -half + b * step;
                     float t = (float)(0.93 + 0.14 * Hash((long)Math.Floor((_fx + x0) / (step * 4)), (long)Math.Floor((_fz + z0) / (step * 4)), 61, _seed)) * sh;
                     float r = m.R * t, g = m.G * t, bl = m.B * t;
-                    Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)((-half + aa * step) / s), Y = (float)((hy[aa, bb] + _yOff) / s - 0.6), Z = (float)((-half + bb * step) / s), R = r, G = g, B = bl, A = 1 };
+                    Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)((-half + aa * step) / s + _ex), Y = (float)((hy[aa, bb] + _yOff) / s + _ey), Z = (float)((-half + bb * step) / s + _ez), R = r, G = g, B = bl, A = 1 };
                     mesh.Add(v(a, b)); mesh.Add(v(a + 1, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b + 1));
                 }
         }
@@ -496,7 +501,7 @@ namespace DnaAnd.Shell
             for (int k = 0; k < _ico.Length; k++)
             {
                 double rr = GrainSurface(gi, gj, rad, _ico[k].X, _ico[k].Y, _ico[k].Z, rad * 0.2);   // the same surface as close in, coarse
-                pts[k * 3] = (cx + _ico[k].X * rr - _fx) / s; pts[k * 3 + 1] = (cy + _ico[k].Y * rr + _yOff) / s - 0.6; pts[k * 3 + 2] = (cz + _ico[k].Z * rr - _fz) / s;
+                pts[k * 3] = (cx + _ico[k].X * rr - _fx) / s + _ex; pts[k * 3 + 1] = (cy + _ico[k].Y * rr + _yOff) / s + _ey; pts[k * 3 + 2] = (cz + _ico[k].Z * rr - _fz) / s + _ez;
             }
             foreach (int k in _icoTri) l.Add(new StarVertex { X = (float)pts[k * 3], Y = (float)pts[k * 3 + 1], Z = (float)pts[k * 3 + 2], Size = 0, R = r, G = g, B = b, A = 1 });
         }
@@ -511,7 +516,7 @@ namespace DnaAnd.Shell
             foreach (int k in f)
             {
                 double x = p[k][0] * ct - p[k][2] * st, z = p[k][0] * st + p[k][2] * ct;
-                l.Add(new StarVertex { X = (float)((cx + x - _fx) / s), Y = (float)((cy + p[k][1] + _yOff) / s - 0.6), Z = (float)((cz + z - _fz) / s), Size = 0, R = r, G = g, B = b, A = 1 });
+                l.Add(new StarVertex { X = (float)((cx + x - _fx) / s + _ex), Y = (float)((cy + p[k][1] + _yOff) / s + _ey), Z = (float)((cz + z - _fz) / s + _ez), Size = 0, R = r, G = g, B = b, A = 1 });
             }
         }
 
@@ -689,13 +694,13 @@ namespace DnaAnd.Shell
                         }
             }
             // the atom under you, from inside: its electrons in their shells, moving round it, and its nucleus at the middle
-            if (focus != null && s < AtomRadius(focus) * 4)
+            if (focus != null && s < Math.Max(AtomRadius(focus), AtomSpacing) * 4)
             {
                 double ar = AtomRadius(focus), cy = fay, nr = NucleusRadius(focus), ax0 = fax, az0 = faz;
                 // its electrons, the same as every atom's system: each a clear dot on its own path in its shells, the valence shell
                 // in gold (the nucleus is drawn below, for real)
-                float cloud = (float)Fade(s, ar * 4, ar * 2);
-                Cloud(glow, focus, ax0, cy, az0, s, time, 777, Math.Max(0.35f, cloud));
+                float cloud = (float)Fade(s, Math.Max(ar, AtomSpacing) * 4, Math.Max(ar, AtomSpacing) * 2);
+                Cloud(glow, focus, ax0, cy, az0, s, time, 777, Math.Max(0.6f, cloud));   // fully drawn from as far as every atom's
                 // the nucleus: always its real protons (red) and neutrons (grey) packed in a ball, growing as you come in; while
                 // it is too small to see, a small spark marks where it is
                 if (nr / s < 0.004) Add(glow, ax0, cy, az0, s * 0.004, 1f, 0.85f, 0.6f, s);
@@ -815,7 +820,7 @@ namespace DnaAnd.Shell
             double best = Math.Pow(24 * Math.Max(1, _lastH / 1080.0), 2); Body pick = null; var m = _lastVp;
             foreach (var b in _bodies)
             {
-                float x = (float)((b.X - _fx) / _scale), y = (float)(b.Y / _scale - 0.6), z = (float)((b.Z - _fz) / _scale);
+                float x = (float)((b.X - _fx) / _scale + _ex), y = (float)(b.Y / _scale + _ey), z = (float)((b.Z - _fz) / _scale + _ez);
                 float cx = x * m.M11 + y * m.M21 + z * m.M31 + m.M41, cy = x * m.M12 + y * m.M22 + z * m.M32 + m.M42, cw = x * m.M14 + y * m.M24 + z * m.M34 + m.M44;
                 if (cw <= 0) continue;
                 double sx = (cx / cw * 0.5 + 0.5) * _lastW, sy = (0.5 - cy / cw * 0.5) * _lastH, d2 = (sx - mx) * (sx - mx) + (sy - my) * (sy - my);
@@ -833,8 +838,8 @@ namespace DnaAnd.Shell
                     var d = (f + right * (float)(nx * t * aspect) + up * (float)(ny * t)).Normalized;
                     float cw = d.X * m.M14 + d.Y * m.M24 + d.Z * m.M34 + m.M44;              // in front of you?
                     if (cw <= 0 || d.Y >= -1e-4f) continue;
-                    double k = -0.6 / d.Y;                                                   // the surface lies 0.6 below you
-                    _tfx = _fx + d.X * k * _scale; _tfz = _fz + d.Z * k * _scale;
+                    double k = _ey / d.Y;                                                    // where the line meets the level of the point you dive into
+                    _tfx = _fx + (d.X * k - _ex) * _scale; _tfz = _fz + (d.Z * k - _ez) * _scale;
                     _picked = new Body { Kind = 2, X = _tfx, Y = 0, Z = _tfz, Size = _scale * 0.02 }; return true;
                 }
                 return false;
@@ -854,7 +859,7 @@ namespace DnaAnd.Shell
         {
             sx = sy = rpx = 0; if (_picked == null || !_haveVp) return false; var m = _lastVp;
             if (_picked.Kind == 0 && _scale < Grain * 0.35) return false;               // you are at its face: no ring round it
-            float x = (float)((_picked.X - _fx) / _scale), y = (float)(_picked.Y / _scale - 0.6), z = (float)((_picked.Z - _fz) / _scale);
+            float x = (float)((_picked.X - _fx) / _scale + _ex), y = (float)(_picked.Y / _scale + _ey), z = (float)((_picked.Z - _fz) / _scale + _ez);
             float cx = x * m.M11 + y * m.M21 + z * m.M31 + m.M41, cy = x * m.M12 + y * m.M22 + z * m.M32 + m.M42, cw = x * m.M14 + y * m.M24 + z * m.M34 + m.M44;
             if (cw <= 0) return false;
             sx = (cx / cw * 0.5 + 0.5) * _lastW; sy = (0.5 - cy / cw * 0.5) * _lastH;

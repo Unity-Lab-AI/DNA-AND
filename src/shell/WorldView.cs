@@ -691,7 +691,7 @@ namespace DnaAnd.Shell
                 } }
             // the camera turns smoothly to face what you picked
             double tdx, tdy, tdz, trad;
-            bool amongGrains = _ground != null && (_matterScale > 0 || AboveGround() < Units.Km(MatterView.OverlayKm));
+            bool amongGrains = _ground != null && _matterScale <= 0 && AboveGround() < Units.Km(MatterView.OverlayKm);
             if (amongGrains && !(_pressed && _dragged))
             {
                 // among the grains: the view looks down onto the point you dive into (the way you face kept), so it, and what you
@@ -1288,10 +1288,13 @@ namespace DnaAnd.Shell
             }
             if (_spaceScale > 0)
             {
-                // in a nebula's or cluster's gas: its atoms in front of space (its glow round you still drawn behind)
+                // in a nebula's or cluster's gas: its atoms in front of space (its glow round you still drawn behind), and below a tenth
+                // of a millimetre only the matter itself, no stars or galaxies behind (a draw distance for the very small)
+                if (_spaceScale < 1e-7) _gpu.ClearNow(0, 0, 0);
                 _gpu.ClearDepth();
                 _matter.Light[0] = 0.4f; _matter.Light[1] = 0.7f; _matter.Light[2] = 0.6f;
-                Mat4 sv = Mat4.LookAt(new Vec3(0, 0, 0), new Vec3(0.01f, -1, 0.02f).Normalized, new Vec3(0, 0, 1));
+                var slk = Look; _matter.SetEye(slk.X, slk.Y, slk.Z);                     // in the gas too: your eye goes round the point you dive into
+                Mat4 sv = Mat4.LookAt(new Vec3(0, 0, 0), slk, Math.Abs(slk.Y) > 0.98f ? new Vec3(0, 0, 1) : new Vec3(0, 1, 0));
                 _matter.Draw(sv, _spaceScale, w, h, time, _meshes, false);
                 _gpu.ClearDepth();
                 double qx, qy, qr; if (_matter.PickedOnScreen(out qx, out qy, out qr)) _hud.DrawRing(_meshes, qx, qy, Math.Min(qr, h * 0.45), w, h);
@@ -1420,10 +1423,12 @@ namespace DnaAnd.Shell
             var upL = new Vec3((float)(x / r), (float)(y / r), (float)(z / r));
             var east = Vec3.Cross(Math.Abs(upL.Y) < 0.99f ? new Vec3(0, 1, 0) : new Vec3(1, 0, 0), upL).Normalized; var north = Vec3.Cross(upL, east).Normalized;
             var lk = new Vec3(Vec3.Dot(look, east), Vec3.Dot(look, upL), Vec3.Dot(look, north));
-            if (lk.Y > -0.2f) lk = new Vec3(lk.X, -0.2f, lk.Z);                       // always looking down into it at least a little
+            if (lk.Y > -0.15f) lk = new Vec3(lk.X, -0.15f, lk.Z);                     // never from below the surface
             var sd = new Vec3((float)_ground.StarDir[0], (float)_ground.StarDir[1], (float)_ground.StarDir[2]);
             _matter.Light[0] = Vec3.Dot(sd, east); _matter.Light[1] = Vec3.Dot(sd, upL); _matter.Light[2] = Vec3.Dot(sd, north);
-            return Mat4.LookAt(new Vec3(0, 0, 0), lk.Normalized, Math.Abs(lk.Normalized.Y) > 0.98f ? new Vec3(0, 0, 1) : new Vec3(0, 1, 0));
+            var lkn = lk.Normalized;
+            if (_matterScale > 0) _matter.SetEye(lkn.X, lkn.Y, lkn.Z); else _matter.SetEye(0, -1, 0);   // in the matter your eye goes round the point you dive into
+            return Mat4.LookAt(new Vec3(0, 0, 0), lkn, Math.Abs(lkn.Y) > 0.98f ? new Vec3(0, 0, 1) : new Vec3(0, 1, 0));
         }
 
         private List<string> Card()
