@@ -99,14 +99,14 @@ namespace DnaAnd.Shell
             }
             foreach (var e in content.OfKind("minerals.dnat", "surface"))
             {
-                Mineral om; if (!_minerals.TryGetValue(e.Get("mineral", ""), out om)) continue;
+                Mineral om; bool fromGround = e.Get("mineral", "") == "ground"; if (!_minerals.TryGetValue(e.Get("mineral", ""), out om) && !fromGround) continue;
                 double lo, hi; if (!e.TryRange("size-km", out lo, out hi)) continue;
                 double ch, bl, ang; double.TryParse(e.Get("chance", "0.5"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out ch);
                 double.TryParse(e.Get("bond-nm", "0.1"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out bl);
                 double.TryParse(e.Get("angle", "180"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out ang);
                 string shape = e.Get("shape", "round");
                 _surf.Add(new SurfThing { Id = e.Id, Name = e.Name, M = om, Lo = lo, Hi = hi, Chance = ch, Flat = shape == "flat", Molecule = shape == "molecule",
-                    Bond = bl * 1e-12, Angle = ang, About = e.Get("about", "").Split('|').Select(q => q.Trim()).Where(q => q.Length > 0).ToArray() });
+                    Bond = bl * 1e-12, Angle = ang, FromGround = fromGround, Thick = TryD(e.Get("thickness", "0.05"), 0.05), About = e.Get("about", "").Split('|').Select(q => q.Trim()).Where(q => q.Length > 0).ToArray() });
             }
             foreach (var e in content.OfKind("minerals.dnat", "mix"))
             {
@@ -179,20 +179,23 @@ namespace DnaAnd.Shell
         {
             for (int t = 0; t < _surf.Count; t++)
             {
-                var st = _surf[t]; var om = st.M;
+                var st = _surf[t];
                 double cell = st.Hi * 4; long ci = (long)Math.Floor(x / cell), cj = (long)Math.Floor(z / cell);
                 for (long i = ci - 1; i <= ci + 1; i++)
                     for (long j = cj - 1; j <= cj + 1; j++)
                     {
                         if (Hash(i, j, 100 + t, _seed) > st.Chance) continue;
                         double tx = (i + Hash(i, j, 101 + t, _seed)) * cell, tz = (j + Hash(i, j, 102 + t, _seed)) * cell, size = st.Lo + (st.Hi - st.Lo) * Hash(i, j, 103 + t, _seed);
-                        if ((tx - x) * (tx - x) + (tz - z) * (tz - z) < size * size * 0.25) return om;
+                        if ((tx - x) * (tx - x) + (tz - z) * (tz - z) < size * size * 0.25) { var om = ThingMat(st, i, j); if (om != null) return om; }
                     }
             }
             return GrainMineral(FocusGI, FocusGJ);
         }
         // a thing on the grain picked (a clay platelet, a coating, a nanoparticle, the water film): its own mineral is what you go into
         // a mineral's lustre and clarity as one number the mesh shader reads (see MeshPipeline): tenths the lustre, hundredths the clarity
+        private static double TryD(string t, double f) { double v; return double.TryParse(t, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out v) ? v : f; }
+        // what one surface thing is made of: its own mineral, or (a speck of the ground) a mineral of this ground's mix
+        private Mineral ThingMat(SurfThing st, long i, long j) { return st.FromGround ? GrainMineral(i * 7 + 1000003, j * 13 + 7) : st.M; }
         private static float LustreCode(string lustre, string clarity)
         {
             double l = lustre == "vitreous" || lustre == "adamantine" ? 0.9 : lustre == "metallic" || lustre == "submetallic" ? 0.8 : lustre == "pearly" || lustre == "silky" ? 0.7
@@ -508,10 +511,10 @@ namespace DnaAnd.Shell
 
         // ── what sits on a grain's surface, each at its real size, fixed in place (from its cell), each pickable ──
         // (all of them from content/minerals.dnat @surface: what it is made of, its sizes, how common, its shape, what it is)
-        private sealed class SurfThing { public string Id, Name; public Mineral M; public double Lo, Hi, Chance, Bond, Angle; public bool Flat, Molecule; public string[] About; }
+        private sealed class SurfThing { public string Id, Name; public Mineral M; public double Lo, Hi, Chance, Bond, Angle; public bool Flat, Molecule, FromGround; public double Thick = 0.05; public string[] About; }
         private readonly List<SurfThing> _surf = new List<SurfThing>();
         private double _clock;                                                             // the matter's time, for the electrons of things drawn here
-        private void SurfaceThings(List<StarVertex> solid, List<StarVertex> glow, double s)
+        private void SurfaceThings(List<StarVertex> solid, List<StarVertex> glow, List<StarVertex> mesh, double s)
         {
             long fgi, fgj; double fgx, fgy, fgz, frad; FocusGrain(out fgi, out fgj, out fgx, out fgy, out fgz, out frad);
             for (int t = 0; t < _surf.Count; t++)
@@ -527,7 +530,13 @@ namespace DnaAnd.Shell
                         if (Hash(i, j, 100 + t, _seed) > st.Chance) continue;
                         double x = (i + Hash(i, j, 101 + t, _seed)) * cell, z = (j + Hash(i, j, 102 + t, _seed)) * cell, size = st.Lo + (st.Hi - st.Lo) * Hash(i, j, 103 + t, _seed), top;
                         if (!GrainTop(fgi, fgj, fgx, fgy, fgz, frad, x, z, Math.Max(size * 0.5, AtomSpacing), out top)) continue;
-                        double y = st.Flat ? top + size * 0.08 + AtomSpacing : top + size * 0.5;
+                        double y = top + size * 0.5; var tm = ThingMat(st, i, j); if (tm == null) continue;
+                        if (st.Flat)
+                        {
+                            // a plate or skin lies on the face: it rests on the highest point under it, clear of the face, never in it
+                            for (int q = 0; q < 6; q++) { double cq, a6 = q * Math.PI / 3; if (GrainTop(fgi, fgj, fgx, fgy, fgz, frad, x + Math.Cos(a6) * size * 0.5, z + Math.Sin(a6) * size * 0.5, Math.Max(size * 0.25, AtomSpacing), out cq)) top = Math.Max(top, cq); }
+                            y = top + size * st.Thick * 0.5 + Math.Max(AtomSpacing, s * 0.003);
+                        }
                         if (s < size * 0.4 && (x - _fx) * (x - _fx) + (z - _fz) * (z - _fz) < size * size * 0.25) continue;   // you are at it: its own atoms show instead (by where you are)
                         if (st.Molecule && st.M.Atoms.Length >= 3)
                         {
@@ -548,8 +557,8 @@ namespace DnaAnd.Shell
                         }
                         else
                         {
-                            Add(solid, x, y, z, size * 0.5 / 0.75, st.M.R, st.M.G, st.M.B, s);
-                            if (st.Flat && solid.Count > 0) { var tv = solid[solid.Count - 1]; tv.A = 0.5f; solid[solid.Count - 1] = tv; }   // a flat plate or skin on the surface
+                            if (st.Flat) { if (mesh != null) Plate(mesh, st, tm, x, y, z, size, i, j, s); }   // a six-sided plate (clay) or a thin skin (coating), with real thickness
+                            else Stone(mesh, solid, tm, x, y, z, size, i, j, s);
                         }
                         int nb = _bodies.Count; AddBody(8, i, j, x, y, z, size * 0.5, s); if (_bodies.Count > nb) _bodies[nb].Sym = st.Id;
                     }
@@ -558,8 +567,65 @@ namespace DnaAnd.Shell
 
         private static double Cov(Element e) { return e.Cov > 0 ? e.Cov : 1.5e-13; }
 
+        // a thin six-sided plate lying on the face, as wide as 'size' and as thick as its data gives, turned its own way;
+        // its top and bottom shaded smooth, its rim in facets
+        private void Plate(List<StarVertex> mesh, SurfThing st, Mineral m, double x, double y, double z, double size, long i, long j, double s)
+        {
+            double R = size * 0.5, t = size * st.Thick, turn = Hash(i, j, 105, _seed) * Math.PI;
+            float sh = (float)(0.85 + 0.25 * Hash(i, j, 106, _seed)), r = m.R * sh, g = m.G * sh, b = m.B * sh, lu = m.Lustre;
+            Func<double, double, double, StarVertex> V = (px, py, pz) => new StarVertex { X = (float)((px - _fx) / s + _ex), Y = (float)((py + _yOff - _fy) / s + _ey), Z = (float)((pz - _fz) / s + _ez), R = r, G = g, B = b, A = lu };
+            if (Math.Abs((x - _fx) / s) > 60 || Math.Abs((z - _fz) / s) > 60 || R / s < 0.002) return;
+            float up = PackNormal(0, 1, 0), down = PackNormal(0, -1, 0);
+            var cx = new double[6]; var cz = new double[6];
+            for (int q = 0; q < 6; q++) { double a = turn + q * Math.PI / 3; cx[q] = x + Math.Cos(a) * R; cz[q] = z + Math.Sin(a) * R; }
+            for (int q = 0; q < 6; q++)
+            {
+                int n = (q + 1) % 6;
+                var c0 = V(x, y + t * 0.5, z); var c1 = V(cx[q], y + t * 0.5, cz[q]); var c2 = V(cx[n], y + t * 0.5, cz[n]); c0.Size = c1.Size = c2.Size = up;
+                mesh.Add(c0); mesh.Add(c1); mesh.Add(c2);
+                var d0 = V(x, y - t * 0.5, z); var d1 = V(cx[n], y - t * 0.5, cz[n]); var d2 = V(cx[q], y - t * 0.5, cz[q]); d0.Size = d1.Size = d2.Size = down;
+                mesh.Add(d0); mesh.Add(d1); mesh.Add(d2);
+                var a0 = V(cx[q], y + t * 0.5, cz[q]); var a1 = V(cx[n], y + t * 0.5, cz[n]); var a2 = V(cx[n], y - t * 0.5, cz[n]); var a3 = V(cx[q], y - t * 0.5, cz[q]);
+                mesh.Add(a0); mesh.Add(a1); mesh.Add(a2); mesh.Add(a0); mesh.Add(a2); mesh.Add(a3);
+            }
+        }
+        // a small rounded speck (a silt grain, a nanoparticle): a lumpy ball of its own mineral, shaded smooth, sitting on the face
+        private void Stone(List<StarVertex> mesh, List<StarVertex> solid, Mineral m, double x, double y, double z, double size, long i, long j, double s)
+        {
+            if (mesh == null || _ico == null) { Add(solid, x, y, z, size * 0.5 / 0.75, m.R, m.G, m.B, s); return; }
+            double R = size * 0.5; if (R / s < 0.004 || Math.Abs((x - _fx) / s) > 60 || Math.Abs((z - _fz) / s) > 60) return;
+            float sh = (float)(0.8 + 0.3 * Hash(i, j, 107, _seed)), r = m.R * sh, g = m.G * sh, b = m.B * sh;
+            foreach (int k in _icoTri)
+            {
+                var d = _ico[k]; double lump = 1 + 0.18 * (Hash(i * 64 + k, j, 108, _seed) - 0.5) * 2 * 0 + 0.12 * Math.Sin(d.X * 3.1 + i) * Math.Cos(d.Z * 2.7 + j);
+                mesh.Add(new StarVertex { X = (float)((x + d.X * R * lump - _fx) / s + _ex), Y = (float)((y + d.Y * R * 0.8 * lump + _yOff - _fy) / s + _ey), Z = (float)((z + d.Z * R * lump - _fz) / s + _ez),
+                    Size = PackNormal(d.X, d.Y / 0.8, d.Z), R = r, G = g, B = b, A = m.Lustre });
+            }
+        }
+
+        // a bond's stick: a six-sided tube from one atom's middle to the other's, shaded smooth round it
+        private void Stick(List<StarVertex> mesh, double ax, double ay, double az, double bx, double by, double bz, double rad, float r, float g, float b, double s)
+        {
+            if (rad / s < 0.0008) return;
+            double dx = bx - ax, dy = by - ay, dz = bz - az, l = Math.Sqrt(dx * dx + dy * dy + dz * dz); if (l < 1e-20) return; dx /= l; dy /= l; dz /= l;
+            // two directions square to the stick
+            double ux = Math.Abs(dy) < 0.9 ? 0 : 1, uy = Math.Abs(dy) < 0.9 ? 1 : 0, uz = 0;
+            double px = dy * uz - dz * uy, py = dz * ux - dx * uz, pz = dx * uy - dy * ux, pl = Math.Sqrt(px * px + py * py + pz * pz); px /= pl; py /= pl; pz /= pl;
+            double qx = dy * pz - dz * py, qy = dz * px - dx * pz, qz = dx * py - dy * px;
+            Func<double, double, double, double, double, double, StarVertex> V = (x, y, z, nx, ny, nz) => new StarVertex { X = (float)((x - _fx) / s + _ex), Y = (float)((y + _yOff - _fy) / s + _ey), Z = (float)((z - _fz) / s + _ez), Size = PackNormal(nx, ny, nz), R = r, G = g, B = b, A = 0.9f + 0.002f };
+            for (int k = 0; k < 6; k++)
+            {
+                double a0 = k * Math.PI / 3, a1 = (k + 1) * Math.PI / 3;
+                double n0x = px * Math.Cos(a0) + qx * Math.Sin(a0), n0y = py * Math.Cos(a0) + qy * Math.Sin(a0), n0z = pz * Math.Cos(a0) + qz * Math.Sin(a0);
+                double n1x = px * Math.Cos(a1) + qx * Math.Sin(a1), n1y = py * Math.Cos(a1) + qy * Math.Sin(a1), n1z = pz * Math.Cos(a1) + qz * Math.Sin(a1);
+                var v0 = V(ax + n0x * rad, ay + n0y * rad, az + n0z * rad, n0x, n0y, n0z); var v1 = V(ax + n1x * rad, ay + n1y * rad, az + n1z * rad, n1x, n1y, n1z);
+                var v2 = V(bx + n1x * rad, by + n1y * rad, bz + n1z * rad, n1x, n1y, n1z); var v3 = V(bx + n0x * rad, by + n0y * rad, bz + n0z * rad, n0x, n0y, n0z);
+                mesh.Add(v0); mesh.Add(v1); mesh.Add(v2); mesh.Add(v0); mesh.Add(v2); mesh.Add(v3);
+            }
+        }
+
         // the bonds between the atoms drawn, as sticks of small beads, grey, from one atom to the other
-        private void Bonds(List<StarVertex> solid, List<CAtom> atoms, double s, float f)
+        private void Bonds(List<StarVertex> solid, List<StarVertex> mesh, List<CAtom> atoms, double s, float f)
         {
             if (f <= 0.02 || atoms.Count < 2) return;
             double cell = 3.2e-13; var grid = new Dictionary<long, List<int>>();
@@ -578,7 +644,8 @@ namespace DnaAnd.Shell
                         double ex = b.X - a.X, ey = b.Y - a.Y, ez = b.Z - a.Z, d = Math.Sqrt(ex * ex + ey * ey + ez * ez), lim = (Cov(a.E) + Cov(b.E)) * 1.2;
                         if (d < 1e-16 || d > lim) continue;
                         bonds++;
-                        for (int q = 1; q < 6; q++) { double t = q / 6.0; Add(solid, a.X + ex * t, a.Y + ey * t, a.Z + ez * t, 0.12e-13, 0.55f * f, 0.55f * f, 0.58f * f, s); }
+                        if (mesh != null) Stick(mesh, a.X, a.Y, a.Z, b.X, b.Y, b.Z, 0.16e-13, 0.62f * f, 0.62f * f, 0.66f * f, s);   // a real stick, not beads
+                        else for (int q = 1; q < 6; q++) { double t = q / 6.0; Add(solid, a.X + ex * t, a.Y + ey * t, a.Z + ez * t, 0.12e-13, 0.55f * f, 0.55f * f, 0.58f * f, s); }
                     }
                 }
             }
@@ -734,7 +801,7 @@ namespace DnaAnd.Shell
                         }
             }
             if (!_noGrains && !_space && mesh != null && s < FocusRad * 1.5 && s > AtomSpacing * 8) GrainPatch(mesh, s);
-            if (!_noGrains && !_space && s < FocusRad * 1.5) SurfaceThings(solid, glow, s);
+            if (!_noGrains && !_space && s < FocusRad * 1.5) SurfaceThings(solid, glow, mesh, s);
             if (overlay) return;                                                        // over the ground: only its grains so far
             // the focus grain's surface: detail at every size, fixed in place (cells of powers of ten, two at a time, blended),
             // in the grain's colour; its finest cells take on the colours of its atoms
@@ -790,7 +857,7 @@ namespace DnaAnd.Shell
                     if (s < AtomSpacing * 4) Cloud(glow, at.E, at.X, ay, at.Z, s, time, (long)(at.X / 1e-14) ^ (long)(at.Z / 1e-14) * 31, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
                     if (s < AtomSpacing * 20) { int nb = _bodies.Count; AddBody(1, 0, 0, at.X, ay, at.Z, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = at.E.Symbol; }   // every layer's atoms
                 }
-                Bonds(solid, drawnAt, s, (float)Fade(s, AtomSpacing * 30, AtomSpacing * 16) * (float)(1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2) * 0.6));
+                Bonds(solid, mesh, drawnAt, s, (float)Fade(s, AtomSpacing * 30, AtomSpacing * 16) * (float)(1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2) * 0.6));
             }
             else if (fm != null && s < AtomSpacing * 40)
             {
@@ -1038,6 +1105,7 @@ namespace DnaAnd.Shell
             {
                 var st = _surf.Find(q => q.Id == _picked.Sym); if (st == null) return L;
                 L.Add(st.Name);
+                if (st.FromGround) { var gm = ThingMat(st, _picked.I, _picked.J); if (gm != null) L.Add("made of: " + gm.Name.ToLowerInvariant() + " (" + gm.Formula + ")"); }
                 L.Add("width: about " + ScaleHud.Words(_picked.Size * 2));
                 L.AddRange(st.About);
                 return L;

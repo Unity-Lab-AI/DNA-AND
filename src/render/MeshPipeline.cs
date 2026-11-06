@@ -34,14 +34,24 @@ cbuffer C : register(b0)
 };
 struct V { float3 pos; float glow; float4 col; };
 StructuredBuffer<V> verts : register(t0);
-struct VO { float4 pos : SV_Position; float3 wp : TEXCOORD0; float4 col : COLOR0; float glow : TEXCOORD1; };
+struct VO { float4 pos : SV_Position; float3 wp : TEXCOORD0; float4 col : COLOR0; float glow : TEXCOORD1; float4 sn : TEXCOORD2; };
 
 VO VS(uint vid : SV_VertexID)
 {
     V v = verts[vid];
     VO o;
     o.pos = mul(float4(v.pos, 1), viewProj);
-    o.wp = v.pos; o.col = v.col; o.glow = v.glow;
+    o.wp = v.pos; o.col = v.col; o.glow = v.glow; o.sn = float4(0, 0, 0, 0);
+    if (v.glow < -1)
+    {
+        // a smooth surface: this corner's own direction (packed in two 12-bit halves), unpacked here so it blends across
+        // the triangle as a direction (blending the packed number itself would be noise)
+        uint code = (uint)(-v.glow - 2 + 0.5);
+        float2 e = float2((code & 4095) / 4095.0, (code >> 12) / 4095.0) * 2 - 1;
+        float3 n = float3(e.x, 1 - abs(e.x) - abs(e.y), e.y);
+        if (n.y < 0) { float2 t = (1 - abs(n.zx)) * float2(n.x >= 0 ? 1 : -1, n.z >= 0 ? 1 : -1); n.x = t.x; n.z = t.y; }
+        o.sn = float4(normalize(n), 1); o.glow = 0;
+    }
     return o;
 }
 
@@ -51,15 +61,7 @@ float4 PS(VO i) : SV_Target
     float3 cr = cross(ddx(i.wp), ddy(i.wp));
     float cl = length(cr);
     float3 n = cl > 1e-30 ? cr / cl : light.xyz;      // a tiny or broken triangle: treat it as facing the light
-    if (i.glow < -1)
-    {
-        // a smooth surface: its own direction at each corner (packed in two 12-bit halves), blended across the triangle
-        uint code = (uint)(-i.glow - 2);
-        float2 e = float2((code & 4095) / 4095.0, (code >> 12) / 4095.0) * 2 - 1;
-        float3 sn = float3(e.x, 1 - abs(e.x) - abs(e.y), e.y);
-        if (sn.y < 0) { float2 t = (1 - abs(sn.zx)) * float2(sn.x >= 0 ? 1 : -1, sn.z >= 0 ? 1 : -1); sn.x = t.x; sn.z = t.y; }
-        n = normalize(sn);
-    }
+    if (i.sn.w > 0.5 && dot(i.sn.xyz, i.sn.xyz) > 1e-6) n = normalize(i.sn.xyz);   // a smooth surface: its corners' directions, blended
     float3 toCam = cam.xyz - i.wp;
     if (dot(n, toCam) < 0) n = -n;
     float3 v = normalize(toCam);

@@ -1164,15 +1164,25 @@ minerals: water-ice 100
 
 # ── what lies on a grain's surface, everywhere, at its real size (soil science: clay platelets 0.2 to 2 um across,
 #   iron-oxide coatings 0.1 to 1 um, iron-oxide nanoparticles 5 to 50 nm, and a film of water one or two molecules thick
-#   from the air on every mineral surface). size-km: smallest to largest across; chance: how many of its cells hold one
+#   from the air on every mineral surface; and specks of silt, 4 to 62 um, stuck on sand grains by clay and water).
+#   mineral: ground means one of that ground's own minerals. size-km: smallest to largest across; chance: how many of its cells hold one
 #   (a cell is 4 of its largest size); mineral: what it is made of (you go into its own atoms); shape: flat (a plate or a
-#   skin), round, or molecule (drawn atom by atom from its mineral, with its bond length in nm and bond angle in degrees).
+#   skin, its thickness a share of its width: kaolinite plates about 1/15, coatings thinner), round, or molecule (drawn atom by atom from its mineral, with its bond length in nm and bond angle in degrees).
+@surface silt
+name: A speck of silt stuck to the grain
+mineral: ground
+size-km: 4e-9 6.2e-8
+chance: 0.35
+shape: round
+about: a tiny grain of the same ground, 4 to 62 micrometres across | held on by clay and the water film | wind and water carry it as dust and mud
+
 @surface clay-platelet
 name: A clay platelet (kaolinite)
 mineral: kaolinite
 size-km: 2e-10 2e-9
 chance: 0.6
 shape: flat
+thickness: 0.07
 about: a thin six-sided plate, Al2Si2O5(OH)4 | left by water slowly weathering feldspar
 
 @surface iron-coating
@@ -1181,6 +1191,7 @@ mineral: hematite
 size-km: 1e-10 1e-9
 chance: 0.5
 shape: flat
+thickness: 0.03
 about: a skin of iron oxide (hematite, goethite) | it colours sand red, orange and yellow
 
 @surface nanoparticle
