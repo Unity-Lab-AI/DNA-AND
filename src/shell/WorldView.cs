@@ -384,7 +384,7 @@ namespace DnaAnd.Shell
                 ChooseNear(); LocalStars(); ChooseSystem(); ChoosePlanet();
                 return true;
             }
-            if (_ground != null && input.Wheel > 0 && AboveGround() < Units.Km(1.5e-6) && _ground.Solid)
+            if (_ground != null && input.Wheel > 0 && AboveGround() < Units.Km(1.5e-6))
             {
                 // at the finest ground: on down into what it is made of
                 double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z);
@@ -412,7 +412,8 @@ namespace DnaAnd.Shell
                     {
                         // over the sea: no lower than a metre above the water, until the dive under the sea is in the one world
                         double cx0, cy0, cz0; CamFromPlanet(out cx0, out cy0, out cz0); double r0 = Math.Sqrt(cx0 * cx0 + cy0 * cy0 + cz0 * cz0);
-                        if (_ground.HasWater && _ground.GroundAt(cx0 / r0, cy0 / r0, cz0 / r0) < 0) floorKm = Math.Max(floorKm, 0.001);
+                        // over the sea the floor is the water itself, not the sea bed far below (whose pieces stay coarse): down to a millimetre
+                        if (_ground.HasWater && _ground.GroundAt(cx0 / r0, cy0 / r0, cz0 / r0) < 0) floorKm = 5e-7;
                     }
                     if (AboveGround() < Units.Km(floorKm))
                     {
@@ -588,7 +589,14 @@ namespace DnaAnd.Shell
                 // the matter, in front of everything; above a tenth of a millimetre the ground still shows through behind it
                 if (_matterScale < 1e-7) _gpu.ClearNow(0, 0, 0);                    // deep in the matter: only the matter is in view
                 _gpu.ClearDepth();
-                _matter.Draw(view, _matterScale, w, h, time);
+                // the matter lies under the planet's own up and down: turn the view into that frame (up = away from the planet's middle)
+                double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z);
+                var upL = new Vec3((float)(x / r), (float)(y / r), (float)(z / r));
+                var east = Vec3.Cross(Math.Abs(upL.Y) < 0.99f ? new Vec3(0, 1, 0) : new Vec3(1, 0, 0), upL).Normalized; var north = Vec3.Cross(upL, east).Normalized;
+                var lk = new Vec3(Vec3.Dot(look, east), Vec3.Dot(look, upL), Vec3.Dot(look, north));
+                if (lk.Y > -0.2f) lk = new Vec3(lk.X, -0.2f, lk.Z);               // always looking down into it at least a little
+                Mat4 mview = Mat4.LookAt(new Vec3(0, 0, 0), lk.Normalized, Math.Abs(lk.Normalized.Y) > 0.98f ? new Vec3(0, 0, 1) : new Vec3(0, 1, 0));
+                _matter.Draw(mview, _matterScale, w, h, time);
             }
             DrawScale(w, h);
         }
