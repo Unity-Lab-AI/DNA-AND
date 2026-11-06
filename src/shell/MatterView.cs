@@ -516,7 +516,7 @@ namespace DnaAnd.Shell
 
         // ── what sits on a grain's surface, each at its real size, fixed in place (from its cell), each pickable ──
         // (name, smallest and largest size across in km, how many per cell (cell = 4 of its largest size), colour, flat?)
-        private sealed class SurfThing { public string Id, Name; public double Lo, Hi, Chance; public float R, G, B; public bool Flat, Sunk; }
+        private sealed class SurfThing { public string Id, Name; public double Lo, Hi, Chance; public float R, G, B; public bool Flat; }
         private static readonly SurfThing[] SurfThings =
         {
             new SurfThing { Id = "clay-platelet", Name = "a clay platelet (kaolinite)", Lo = 2e-10, Hi = 2e-9, Chance = 0.6, R = 0.85f, G = 0.8f, B = 0.7f, Flat = true },
@@ -541,7 +541,7 @@ namespace DnaAnd.Shell
                         if (Hash(i, j, 100 + t, _seed) > st.Chance) continue;
                         double x = (i + Hash(i, j, 101 + t, _seed)) * cell, z = (j + Hash(i, j, 102 + t, _seed)) * cell, size = st.Lo + (st.Hi - st.Lo) * Hash(i, j, 103 + t, _seed), top;
                         if (!GrainTop(fgi, fgj, fgx, fgy, fgz, frad, x, z, Math.Max(size * 0.5, AtomSpacing), out top)) continue;
-                        double y = st.Sunk ? top - size * 0.3 : st.Flat ? top + size * 0.08 + AtomSpacing : top + size * 0.5;
+                        double y = st.Flat ? top + size * 0.08 + AtomSpacing : top + size * 0.5;
                         if (s < size * 0.4 && (x - _fx) * (x - _fx) + (z - _fz) * (z - _fz) < size * size * 0.25) continue;   // you are at it: its own atoms show instead (by where you are)
                         if (st.Id == "water")
                         {
