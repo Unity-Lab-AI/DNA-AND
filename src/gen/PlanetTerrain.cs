@@ -291,11 +291,11 @@ namespace DnaAnd.Gen
 
         private void SwapGround()
         {
-            foreach (var kv in _pending) { Patch old; if (_cache.TryGetValue(kv.Key, out old)) old.Buffer.Dispose(); _cache[kv.Key] = kv.Value; }
+            foreach (var kv in _pending) { Patch old; if (_cache.TryGetValue(kv.Key, out old)) Release(old); _cache[kv.Key] = kv.Value; }
             _pending.Clear();
             // pieces of the old shape that were out of view are dropped, so they are made fresh in the new shape when needed
             var stale = new List<PKey>(); foreach (var kv in _cache) if (kv.Value.Gen != Generation) stale.Add(kv.Key);
-            foreach (var k in stale) { _cache[k].Buffer.Dispose(); _cache.Remove(k); }
+            foreach (var k in stale) { Release(_cache[k]); _cache.Remove(k); }
             DrawnGeneration = Generation; _framesWaiting = 0; Swaps++;
         }
 
@@ -987,9 +987,22 @@ namespace DnaAnd.Gen
         }
 
         // a built piece goes to the graphics card (main thread only)
+        // pieces' buffers on the card are kept and used again (making a new one is the slow part of putting a piece on the card);
+        // every frame waits for the card to finish, so a buffer let go before this frame's drawing is free to be written again
+        private const int PoolVerts = Grid * Grid * 6 + 4 * Grid * 6;
+        private readonly Stack<UploadBuffer> _pool = new Stack<UploadBuffer>();
+        private void Release(Patch p)
+        {
+            if (p == null || p.Buffer == null) return;
+            if (p.Buffer.Bytes == (long)PoolVerts * Marshal.SizeOf(typeof(StarVertex)) && _pool.Count < 4000) _pool.Push(p.Buffer); else p.Buffer.Dispose();
+            p.Buffer = null;
+        }
+
         private void Upload(Patch p)
         {
-            p.Buffer = new UploadBuffer(_device, (long)Math.Max(1, p.Count) * Marshal.SizeOf(typeof(StarVertex)));
+            int stride = Marshal.SizeOf(typeof(StarVertex));
+            if (p.Count <= PoolVerts) p.Buffer = _pool.Count > 0 ? _pool.Pop() : new UploadBuffer(_device, (long)PoolVerts * stride);
+            else p.Buffer = new UploadBuffer(_device, (long)Math.Max(1, p.Count) * stride);
             p.Buffer.Write(p.Verts, p.Count); p.Verts = null;
         }
 
@@ -1070,7 +1083,7 @@ namespace DnaAnd.Gen
                 if (a.Gen != Generation) { _droppedOld++; continue; }             // built for a shape the planet no longer has
                 Upload(np); np.LastUsed = _frame; np.Gen = a.Gen;
                 if (a.Pending) _pending[a.Key] = np;
-                else { Patch old; if (_cache.TryGetValue(a.Key, out old)) old.Buffer.Dispose(); _cache[a.Key] = np; }
+                else { Patch old; if (_cache.TryGetValue(a.Key, out old)) Release(old); _cache[a.Key] = np; }
             }
         }
         private volatile bool _disposed;
@@ -1355,13 +1368,14 @@ namespace DnaAnd.Gen
             if (_cache.Count <= MaxCached) return;
             var old = new List<PKey>();
             foreach (var kv in _cache) if (kv.Value.Level > 1 && _frame - kv.Value.LastUsed > 30) old.Add(kv.Key);
-            foreach (PKey k in old) { _cache[k].Buffer.Dispose(); _cache.Remove(k); }
+            foreach (PKey k in old) { Release(_cache[k]); _cache.Remove(k); }
         }
 
         public void Dispose()
         {
             _disposed = true; lock (_askLock) _asks.Clear();
             foreach (var p in _cache.Values) p.Buffer.Dispose();
+            while (_pool.Count > 0) _pool.Pop().Dispose();
             _cache.Clear();
             foreach (var p in _pending.Values) p.Buffer.Dispose();
             _pending.Clear();
