@@ -229,6 +229,13 @@ namespace DnaAnd.Shell
         private void ChooseSystem()
         {
             double d; int k = NearestStar(out d);
+            if (_system != null && k >= 0 && k != _sysStar)
+            {
+                // the same star can come back under a new number as the stars around you are made again: it is another
+                // star only if it sits somewhere else (more than an AU from this system's star, the anchor)
+                double sx0, sy0, sz0; StarPos(k, out sx0, out sy0, out sz0);
+                if (Math.Abs(sx0 - _ax) + Math.Abs(sy0 - _ay) + Math.Abs(sz0 - _az) < Units.Au(1)) _sysStar = k;
+            }
             if (_system != null && (k != _sysStar && d < SystemRange * 0.5 || DistToSysStar() > SystemRange * 1.5))
             {
                 ZoomLog("SYSTEM CLOSED: " + (DistToSysStar() > SystemRange * 1.5 ? "left it, " + Units.Describe(DistToSysStar()) + " from its star" : "another star " + k + " (was " + _sysStar + ") within " + Units.Describe(d)));
