@@ -496,7 +496,9 @@ namespace DnaAnd.Shell
                 for (int b = 0; b <= N; b++)
                 {
                     double x = _fx + at(a), z = _fz + at(b), y;
-                    double near0 = Math.Max(Math.Abs(at(a)), Math.Abs(at(b))); double cellHere = Math.Max(cell * 0.3, near0 * 0.04);
+                    // no detail finer than the gap between this point and the next (finer would only alias into speckle)
+                    double gapA = Math.Abs(at(Math.Min(N, a + 1)) - at(Math.Max(0, a - 1))) * 0.5, gapB = Math.Abs(at(Math.Min(N, b + 1)) - at(Math.Max(0, b - 1))) * 0.5;
+                    double cellHere = Math.Max(Math.Max(gapA, gapB) * 1.5, s / 300);
                     ok[a, b] = GrainTop(gi, gj, gx, gy, gz, rad, x, z, cellHere, out y); hy[a, b] = y;
                 }
             float sh = FocusShade;
@@ -517,7 +519,6 @@ namespace DnaAnd.Shell
         private sealed class SurfThing { public string Id, Name; public double Lo, Hi, Chance; public float R, G, B; public bool Flat, Sunk; }
         private static readonly SurfThing[] SurfThings =
         {
-            new SurfThing { Id = "fluid-inclusion", Name = "a fluid inclusion", Lo = 2e-9, Hi = 2e-8, Chance = 0.35, R = 0.75f, G = 0.85f, B = 0.95f, Sunk = true },
             new SurfThing { Id = "clay-platelet", Name = "a clay platelet (kaolinite)", Lo = 2e-10, Hi = 2e-9, Chance = 0.6, R = 0.85f, G = 0.8f, B = 0.7f, Flat = true },
             new SurfThing { Id = "iron-coating", Name = "an iron-oxide coating", Lo = 1e-10, Hi = 1e-9, Chance = 0.5, R = 0.65f, G = 0.28f, B = 0.14f, Flat = true },
             new SurfThing { Id = "nanoparticle", Name = "an iron-oxide nanoparticle", Lo = 5e-12, Hi = 5e-11, Chance = 0.5, R = 0.55f, G = 0.25f, B = 0.15f },
