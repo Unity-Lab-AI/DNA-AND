@@ -1,8 +1,8 @@
 ---
 title: R6 · Planet
 status: partial
-sources: [content/geology.dnat, content/climate.dnat, docs/DESIGN.md (rounds 1, 2, 4), docs/LISTS.md, docs/ROADMAP.md#R6]
-last-verified: fdaea69
+sources: [content/geology.dnat, content/terrain.dnat, src/gen/PlanetTerrain.cs, content/climate.dnat, docs/DESIGN.md (rounds 1, 2, 4), docs/LISTS.md, docs/ROADMAP.md#R6]
+last-verified: 5dd380b
 ---
 
 # 🌍 R6 · Planet
@@ -52,6 +52,8 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 - **Sky and water:** an air glow, turning clouds, weather near the ground, see-through water with a sea floor, and light fading with depth.
 - **Resource fields:** volcanoes, rivers and 16 kinds of field placed by geology, plus the resource view.
 - **Air:** each world kind's air make-up is in content (`air:`).
+- **World kinds:** each kind's size, ground colours by height, seas, clouds, air colour, rock, base temperature and behaviours (molten cracks, dunes, frozen seas, a tidally locked day and night, tropical soils, life or none, volcanoes, giants' belts and storms) are `@terrain` entries in `content/terrain.dnat`; any kind can take any of them.
+- **Universe seed:** a new universe every launch (seed in the title bar); `--seed N` plays one again.
 - **The fly-down** (`src/shell/PlanetView.cs`):
   - from orbit to the ground, into the ground (solid colour darkening with depth), and under the sea
   - sea life at true scale (`src/sim/SeaLife.cs`)

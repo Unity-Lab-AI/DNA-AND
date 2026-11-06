@@ -1,8 +1,8 @@
 ---
 title: R5 · Universe
 status: partial
-sources: [docs/DESIGN.md (rounds 1-2), docs/ROADMAP.md#R5]
-last-verified: fdaea69
+sources: [docs/DESIGN.md (rounds 1-2), docs/ROADMAP.md#R5, src/gen/GalaxyGen.cs, src/gen/StarGen.cs, src/gen/DysonGen.cs]
+last-verified: 5dd380b
 ---
 
 # 🌌 R5 · Universe
@@ -38,6 +38,7 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 
 - `content/galaxies.dnat`: 47 entries (Galaxy types (real), Extra galaxy types (from research), Real examples, Parts a galaxy is built from, Structures between galaxies) and 11 rules
 - `content/solar-systems.dnat`: 31 entries (Kinds of systems (real), Real examples, Zones a system is built from) and 12 rules
+- Each galaxy kind gives its `layout:` (spiral, barred spiral, elliptical, lenticular, irregular, ring); each star its `surface-kind:`, `spots:` and `remnant:`; the Dyson builds are `@build` entries in `content/space-tech.dnat`, made of parts (mirrors, swarm, bubble, shell, jet).
 - `content/stars.dnat`: 34 entries (Main-sequence stars (the seven classic types), Giants and supergiants, Young and failed stars, Dead and strange stars, Luminosity classes (how bright for its type), Extra star types) and 5 rules
 - `content/black-holes.dnat`: 35 entries (Kinds of black hole, Parts, Active galaxy cores (a feeding supermassive black hole), Events, Real examples) and 7 rules
 - `content/nebulas.dnat`: 12 entries (The five main kinds, Star-forming structures) and 6 rules

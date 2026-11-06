@@ -159,3 +159,4 @@ Append-only. Newest at the bottom.
 - r04 renderer: the one-world camera begins (universe and galaxies, no handoff).
 - r04 renderer: reversed float depth everywhere; the one world goes on into matter, down to atoms.
 - r04 renderer: ground pieces built in the background on every core; the frame never waits.
+- r04/r05/r06: everything drawn from the data, nothing named in code (crystals from published unit cells, lustre, surface things, element colours and sizes, world kinds and behaviours, star faces, galaxy layouts, Dyson builds); smooth shading; drag speed; a new universe each launch.

@@ -1,8 +1,8 @@
 ---
 title: R4 · Renderer
 status: verified
-sources: [docs/DESIGN.md (round 1, round 4, items 62-76), docs/ROADMAP.md#R4, src/render/, src/gen/PlanetTerrain.cs, src/shell/PlanetView.cs]
-last-verified: 034010e
+sources: [docs/DESIGN.md (round 1, round 4, items 62-76), docs/ROADMAP.md#R4, src/render/, src/gen/PlanetTerrain.cs, src/shell/PlanetView.cs, src/shell/MatterView.cs, content/minerals.dnat, content/terrain.dnat]
+last-verified: 5dd380b
 ---
 
 # 🎨 R4 · Renderer
@@ -59,13 +59,13 @@ The renderer draws what the live generators build. Every asset is generated on t
 | Part | How it works | Where |
 |---|---|---|
 | 💡 Billboards | Glowing or faceted points for stars, gas, rings, weather; they test depth but never write it; each draw can set a smallest and a largest size on screen (galaxy points never cover more than about 0.7 degrees) | `src/render/Pipeline.cs`, `Draw.cs` |
-| 🧱 Solid ground | Flat-shaded triangles lit by one star; three modes: solid, glowing air (adds light), see-through (clouds, water) | `src/render/MeshPipeline.cs` |
+| 🧱 Solid ground | Triangles lit by one star, flat-shaded or smooth (a vertex can carry its own packed surface direction, unpacked per corner); three modes: solid, glowing air (adds light), see-through (clouds, water) | `src/render/MeshPipeline.cs` |
 | 🕳️ Depth | A float depth buffer used reversed (near at 1, far at 0, nearer passes as greater), so precision holds at every distance, from micrometres in front of you to across a galaxy | `src/render/Gpu.cs` |
 | 🌍 Planets | A cube blown into a ball; each face splits into smaller pieces near the camera (up to 40 levels, about a micrometre). Pieces are made nearest first, a few milliseconds per frame. Layers: ground and sea floor, see-through sea, turning clouds, a glowing air shell | `src/gen/PlanetTerrain.cs` |
 | 🪂 Fly-down | Orbit to the surface, then on down to micrometres; the camera always lands on finished ground; rain, snow, ash or dust under clouds; under water it turns dark and murky | `src/shell/PlanetView.cs` |
 | 🪐 Resource fields | Volcanoes, rivers and 16 kinds of field placed by real geology, seen on the ground; R lights every field in its own colour | `src/gen/PlanetTerrain.cs` |
 | 🏭 Dyson sphere | A shell around a star: industrial machinery outside (sectors, trenches, blocks, towers, pipes), a planet landscape turned inside out on the inside, held on by spin; free flight inside | `src/gen/PlanetTerrain.cs`, `src/gen/DysonGen.cs`, `src/shell/PlanetView.cs` |
-| ⚛️ Into matter | Below the finest ground: grains (mode-E), the mineral's crystal face, then its atoms in chemistry's colours, filling the view; quartz on land, water on seas and ice, basalt on lava worlds | `src/shell/MatterView.cs` |
+| ⚛️ Into matter | Below the finest ground, one zoom with no switches: grains of the ground's own mix (`content/minerals.dnat`), the grain's face (smooth shaded, its atomic terraces fading in below about 600 nm), the things on it at real sizes (silt specks, six-sided clay plates, iron-oxide skins, nanoparticles, the water film, all `@surface` entries), then from about 10 nm the mineral's real crystal filling the view: every mineral's published unit cell and sites (Crystallography Open Database), tiled by one engine, shared sites filled at their real shares, bonds as sticks by each element's covalent size; then each atom's electrons, nucleus, nucleons and quarks. Every grain, thing and atom is clickable with its card. Lustre and clarity per mineral drive the shading (glassy glint, metal glint, pearly sheen, light through clear grains) | `src/shell/MatterView.cs`, `src/render/MeshPipeline.cs`, `content/minerals.dnat`, `content/elements.dnat` |
 | ❓ Preview menu | The one world's menu bar: Exit; View (scale on screen, render scale); Help (Readme, Credits, About), its words in one place | `src/platform/Window.cs`, `src/shell/PreviewText.cs` |
 | 🌐 One world | `--world`: one camera through every scale, no views to switch. Universe, galaxies and star systems so far (the camera keeps its place relative to an anchor, a galaxy's centre or the star of the system it is in, so it stays exact; a galaxy is one continuous field of its own stars (its far glow's stars come first, the rest are added in the background, more are drawn as it grows on screen, each smaller), and fills in with its real stars at true density around you; the wheel homes on the star or planet you point at; the system's star shows its real body): galaxies placed by size, tilt and turn; the nearest one fades from its far glow into its own stars; the wheel flies along the mouse's line by a share of the distance to the nearest thing (a grid finds the nearest star). Star systems, planets and the ground join next, then it replaces the journey's separate views | `src/shell/WorldView.cs` |
 | 🌌 The journey | One zoom from a universe of galaxies to a galaxy (zoom where the mouse points, click any star), a solar system (click a planet), a planet, its surface, then sea life at true scale or the soil fading to black, then microbes. Zooming out climbs back up | `src/shell/UniverseView.cs`, `DeepView.cs`, `PlanetView.cs`, `src/sim/SeaLife.cs`, `src/sim/MicrobeWorld.cs` |

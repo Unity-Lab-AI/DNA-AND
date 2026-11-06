@@ -9,7 +9,7 @@ How the game gets built, system by system, all from scratch. 🟡 = draft (plan 
 | 🟡 | [R1 · Seed spec](systems/r01a-seed-spec.md "Exact spec for the hand-typed hex loader") | Step 0: what the seed does, the hex format, its exe layout, how it's proven |
 | 🟡 | [R2 · Windows layer](systems/r02-windows-layer.md "Talking to Windows directly") | Window, input, sound, files, clock, threads, network |
 | 🟡 | [R3 · Engine core](systems/r03-engine-core.md "Math, memory, giant arrays, threads, saves") | The base every system sits on |
-| 🟡 | [R4 · Renderer](systems/r04-renderer.md "AAA 3D graphics from scratch") | Graphics; the one-world camera (galaxies to atoms, no handoffs), the CDF 9/7 coefficient waveform and mode-E, reversed float depth, background ground building, the preview menu |
+| 🟡 | [R4 · Renderer](systems/r04-renderer.md "AAA 3D graphics from scratch") | Graphics; the one-world camera (galaxies to atoms and quarks, no handoffs; every mineral's real crystal, things on grains at real sizes, all clickable), the CDF 9/7 coefficient waveform and mode-E, reversed float depth, background ground building, the preview menu |
 | 🟡 | [R4.4 · Live generators](systems/r04b-generators.md "Every asset built on the fly, nothing pre-built") | Creature, city, space tech and 15 more generators (18 in all) |
 | 🟡 | [R4.5 · Style samples](systems/r04-renderer.md#-style-samples-come-first "The style is locked; sets 1-8 approved") | Locked: Populous-like for everything. Sets 1–8 approved (galaxies to microbes, elements, Dyson sphere), the journey built |
 
