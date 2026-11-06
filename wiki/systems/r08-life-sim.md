@@ -83,3 +83,16 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
   - Each stage competes for room only with its own kind.
 - **Food web:** each region shares its nutrients among its plant-like life; grazers live on plant-like life and hunters on animal life, and each eats its food down. Defences, a tough coat, armour and speed cut the losses. Life spreads only into neighbouring regions whose nutrients and conditions suit it.
 - **What you see follows it:** microbes and sea animals follow the stage reached at each spot. On land, the region's plants, fungi and animals are drawn at true size from their own genes (`src/shell/LandLife.cs`), with what an intelligent species has built where one lives. After communication it goes step by step: living wild on the land, tribes, villages, towns, cities, then into space (`PlanetLife.CivSteps`); how fast it goes is meant to follow how much the god helps; until that is built, each step takes an even share of that stage's play time. On land you see its camp, village, town or city, and once in space a ship of its own over its city. Plants grow in thick stands; animals go about in small groups. Under water, the region's water-going species (jellies and finned animals) swim around you at true size, built from their genes (`src/shell/SeaBodies.cs`); the stock fish shapes are only used where the planet has no life sim.
+
+## 🔬 Real-life checklist (what is still missing)
+
+From the research review (DESIGN 149, TODO R8b), checked against the code:
+
+| Area | In the code now | Missing |
+|---|---|---|
+| Stages | 7 stand-in stages | All 100 stages of `docs/wiki/stages-of-life.md`, nucleus and swallowed partners included |
+| Properties of life | Fit to heat, wetness and light; growth; spreading; mutation | Energy budgets, homeostasis limits, development, senses, reproduction modes, lifespan |
+| Interactions | Predation, herbivory and competition (food web per region) | Mutualism, commensalism, parasitism, amensalism, shifting relationships |
+| Ecosystems | Region nutrients, crowding | Trophic levels with energy loss, nutrient cycles, niches, keystone and invasive species, succession, biomes, seasons |
+| Species change | Mutation and splitting at random | Selection by fitness, sexual selection, drift, gene flow, geographic splitting, hybrids |
+| World and life | None | Life making the air, rock and soil; the world reshaping life |

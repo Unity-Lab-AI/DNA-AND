@@ -172,7 +172,7 @@ Every creature, plant, microbe and virus carries a **real-style genome**: string
 | 🌱 **New species** | When a group's genes drift far enough apart, it splits in two. Nobody scripts it |
 | ✋ **Hands off** | You can't edit DNA directly. You can only push: radiation, pressure, plagues, gene powers with good and bad outcomes |
 
-👉 [Genes & DNA](docs/wiki/genes-and-dna.md "How real-style genomes build life") · [100 Stages of Life](docs/wiki/stages-of-life.md "From chemistry to spacefarers")
+👉 [Genes & DNA](docs/wiki/genes-and-dna.md "How real-style genomes build life") · [100 Stages of Life](docs/wiki/stages-of-life.md "From chemistry to spacefarers") · [Ecology](docs/wiki/ecology.md "Who eats whom, and how a living world works")
 
 ---
 

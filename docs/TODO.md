@@ -427,6 +427,74 @@ Order: galactic scale down, the same order as the sample sets.
 - [ ] Milestones for every stage of life: 100 per stage (10,000), built from the lists (`docs/wiki/milestones.md`)
   - All 100 stages (`docs/wiki/stages-of-life.md`). Each stage is one of the 100 unlock points. Every power unlocks at exactly one stage.
 
+### R8b — What real life does, needs and is (research review)
+**Asked:** "wtf we are making a true life game do reaseach and super -review of what the todo is missing that life does and needs and is" / "update the todo and docs where they are all lacking \"all\" means all of them"
+**Sources:** the properties of life (OpenStax biology: order, sensitivity, reproduction, adaptation, growth and development, regulation, homeostasis, metabolism, energy), the six kinds of species interaction (competition, predation including herbivory, mutualism, commensalism, parasitism, amensalism), the major transitions in evolution (Maynard Smith and Szathmáry, 1995). Spec: `docs/wiki/ecology.md`, `wiki/systems/r08-life-sim.md`.
+
+- [ ] **The life sim runs all 100 stages, not 7:** the code's ladder (replicators, single cells, many-celled life, nerves, brains, big-brained hunters, communication) is a stand-in. Every stage in `docs/wiki/stages-of-life.md` must be a real step, from the first chemistry through the nucleus (stage 25), swallowed partners, sex, colonies and many-celled life, each reached by evolution.
+- **What every living thing is and does (the properties of life)**
+  - [ ] Cells and order: every living thing is one or more cells, or (viruses) uses another's cells
+  - [ ] Metabolism and energy: every species gets energy one real way (light, chemicals from vents, eating others, fermenting, breathing oxygen) and pays for its body, its moving and its breeding out of it
+  - [ ] Homeostasis: each species keeps its body within limits (heat, water, salt, acid); outside them it weakens and dies
+  - [ ] Growth and development: life grows from small to adult, and its body is built step by step from its genes (embryo, young, adult)
+  - [ ] Response to stimuli: life senses and reacts: moving toward food and light, away from poison and danger (chemotaxis, phototropism), up to eyes, ears, smell and electric senses
+  - [ ] Reproduction: with and without sex, each line's own way and rate (splitting, budding, spores, seeds, eggs, live birth)
+  - [ ] Heredity: offspring carry their parents' genes, with mutation
+  - [ ] Adaptation and evolution: populations change over generations by natural selection; one living thing never "adapts" its genes in its own lifetime
+- **Life cycles, ageing and death**
+  - [ ] Life cycles: eggs, larvae, metamorphosis (caterpillar to butterfly), seeds and seedlings, spores, alternation of generations in plants
+  - [ ] Lifespan and ageing: every species has its own lifespan from its genes and size; old age always comes
+  - [ ] Parental care: from none (millions of eggs) to long care (few young), set by the genes
+  - [ ] Death feeds life: what dies is eaten by scavengers and rotted by fungi and bacteria back into nutrients
+- **Every kind of species interaction**
+  - [~] Predation and herbivory (+/−): hunters eat prey, grazers eat plants (first pass built: the food web per region)
+  - [~] Competition (−/−): for food, light, space and mates, within a species and between species (first pass built: crowding per stage, sharing nutrients)
+  - [ ] Mutualism (+/+): pollinators and flowers, root fungi and plants, gut bacteria, nitrogen-fixing bacteria, cleaner fish
+  - [ ] Commensalism (+/0): one gains, the other is untouched (remoras, plants growing on trees)
+  - [ ] Parasitism (+/−): parasites living on or in a host for a long time, unlike a hunter's quick kill
+  - [ ] Amensalism (−/0): one harms another for nothing in return (a mould's poison killing bacteria)
+  - [ ] Relationships shift: a partnership can turn parasitic and back as genes change
+- **Ecosystems**
+  - [ ] Trophic levels: producers, grazers, hunters, top hunters, scavengers and decomposers, with energy lost at each step so there are always fewer hunters than prey
+  - [ ] Nutrient cycles: carbon, nitrogen, phosphorus and water cycle through air, sea, rock and life (`content` top-100 nutrients list)
+  - [ ] Carrying capacity: each place holds only so much life; boom and crash when food comes and goes
+  - [ ] Niches: each species fills its own way of living; two cannot share one for long
+  - [ ] Keystone species: some species hold a whole system together; lose them and it collapses
+  - [ ] Invasive species: life carried to a new place can take over where nothing eats it
+  - [ ] Succession: bare rock, then lichen and moss, grass, bushes, forest; after a fire or flood it starts again
+  - [ ] Biomes: deserts, grasslands, forests, tundra, reefs, deep sea and the rest, set by heat, water and light
+  - [ ] Seasons, day and night: life times its breeding, growing, sleeping, hibernating and migrating to them
+- **How species change and split**
+  - [ ] Natural selection: the ones that fit best leave the most young
+  - [ ] Sexual selection: mates choose, so displays, songs, horns and colours evolve
+  - [ ] Genetic drift: in small groups, genes change by chance
+  - [ ] Gene flow: groups that meet mix their genes
+  - [ ] Speciation: groups cut off by seas, mountains or distance become new species (allopatric), or split in one place
+  - [ ] Hybrids: close species can cross; sometimes a new species comes of it
+  - [ ] Convergence and arms races: the same answers evolve again (wings, eyes); hunters and prey, parasites and hosts push each other
+  - [ ] Mass extinction and recovery: after a die-off, survivors spread into the emptied world
+- **Bodies, behaviour and minds**
+  - [ ] Body systems from the genes: breathing (gills, lungs, skin), blood and hearts, guts, skeletons, nerves, hormones
+  - [ ] Warm and cold bodies: warm-blooded life needs more food but lives in the cold; cold-blooded life needs the sun
+  - [ ] Camouflage, mimicry and warning colours
+  - [ ] Behaviour: territory, migration, hibernation, sleep, courtship, nest building, hunting together
+  - [ ] Learning and memory: from simple habits up to teaching the young, then culture
+  - [ ] Signals: scents (pheromones), calls, song, colour, light, dances
+  - [ ] Kin and helping: helping relatives, colonies with workers that do not breed (ants, bees, termites, naked mole rats)
+- **The great steps of life (the major transitions)**
+  - [ ] Molecules that copy themselves gather in bubbles (protocells)
+  - [ ] Genes join into chromosomes
+  - [ ] RNA gives way to DNA and proteins (the genetic code)
+  - [ ] Simple cells become complex cells with a nucleus, by swallowing partners that become their power plants and chloroplasts
+  - [ ] Sex: mixing genes from two parents
+  - [ ] Many-celled life with cells that take on different jobs
+  - [ ] Colonies with castes that do not breed
+  - [ ] Societies held together by language
+- **Life changes its world, and the world changes life**
+  - [ ] Life makes the air: oxygen from photosynthesis, the great oxidation, the ozone shield, methane from archaea
+  - [ ] Life makes rock and soil: reefs, chalk, coal, soil from roots and rot
+  - [ ] The world shapes life: plate movement splits and joins lands, ice ages, warming, impacts and volcanoes
+
 ### R9 — Intelligent life
 **Spec:** `wiki/systems/r09-civilization.md`, `docs/wiki/ages-of-civilization.md`, `docs/wiki/tech-tree.md`, `docs/wiki/society.md`
 - [ ] Build from `content/cities.dnat`: all 50 entries (Settlement sizes, Layouts, Districts, Infrastructure, in rough order of invention, Building materials by age) and these rules:

@@ -140,3 +140,4 @@ Append-only. Newest at the bottom.
 - r03 engine core: the job system, one worker per core on a shared queue.
 - r03 engine core: the save file format (versioned chunks) and the life chunk.
 - r08 life sim: a food web per region (producers, grazers, hunters, nutrients); spreading follows conditions.
+- r08 life sim: research review of what real life does; a real-life checklist added; TODO R8b; player page docs/wiki/ecology.md.
