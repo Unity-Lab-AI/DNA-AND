@@ -38,7 +38,7 @@ Your world saves to save slots, so you can keep several galaxies going at once.
 |---|---|
 | 🖼️ **Graphics** | Resolution, render scale (draw at 50% to 200% of the window: lower is faster, higher is sharper), quality, detail distance |
 | 🔊 **Sound** | Master, music, nature, effects |
-| 🎮 **Controls** | Rebind keys, mouse speed, edge panning on/off |
+| 🎮 **Controls** | Rebind keys, mouse speed, edge panning on/off, invert left-right and up-down drag (by default dragging moves the view the other way to the mouse) |
 | ⏱️ **Gameplay** | Milestone slow-downs and cinematics on/off, tooltips on/off |
 | 🌐 **Online** | Leaderboard and Genebank on/off |
 | ♿ **Accessibility** | Colorblind modes, text size, subtitles, reduced motion |
