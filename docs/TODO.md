@@ -227,6 +227,27 @@ Order: galactic scale down, the same order as the sample sets.
 - [x] Lock in the chosen style, recorded verbatim in `docs/DESIGN.md`
   - Locked: Populous-like for everything, "yup same one the center one is the best, dont need to test them twice" (DESIGN.md item 67).
 
+### R4.6 — The coefficient waveform engine everywhere (galaxies down to microbes)
+**Asked:** "should we use our coeffient 9c waveformes for this project for better resolutions and game effienciency on such large scales, maybe look into the uni vs matics project on D:/ usb and see if we can fully impliment cofffiencient wave form to everything we do since its our code its okay to use it" / "option 2 everything from galaxies down to microbes and everything inbetween for the complete full game" / "with infinate zoom it should be fun re maping the zoom features"
+**Source:** the lab's Uni Vs Matics engine (`UnityAILab/UniVsMatics`, `ftcore/reconstruct.py`, `docs/ARCHITECTURE.md`). Spec: `wiki/systems/r04-renderer.md`.
+
+- [x] Port the CDF 9/7 engine into the core: forward and inverse lifting, energy-target term selection, Int16 values, dv1 positions (LEB128 deltas), save and load, a strongest-share rebuild dial (`src/core/Wavelet97.cs`). Checked against the reference engine: coefficients match to 3e-17; dv1 round-trips exactly
+- [ ] Mode-E: the endless self-similar detail stage (Newton on z³ − K, the 3D cubic continuation, decimal-lattice cellular texture, basin colouring), ported from Uni Vs Matics / Deviant 3D, for detail that never runs out as you zoom
+- [ ] Re-map the zoom features onto wavelet levels for infinite zoom: each zoom band reads its own level of terms, and mode-E carries on past the finest stored level
+- [ ] Planet ground: the height and colour fields of each planet as wavelet equations per cube face; the living planet's changes (drift, erosion, craters, sea level) written as term edits; ground pieces rebuilt from the level that fits their size (fixes the coarse, blocky ground seen from orbit at native resolution)
+- [ ] Planet saves: the changed ground saved as its wavelet terms
+- [ ] Clouds, weather and air: cloud cover, rain and temperature fields as wavelet fields
+- [ ] Resource fields and the element map as wavelet fields
+- [ ] Galaxies: star density and gas as wavelet fields; zooming from the universe to a galaxy to a star system reads deeper levels
+- [ ] Nebulas and the deep sky as wavelet fields
+- [ ] Stars up close: surface plasma as a wavelet field with mode-E detail
+- [ ] Gas giants: cloud bands and storms as wavelet fields
+- [ ] Life on the ground: where each species lives (population density) as wavelet fields per planet
+- [ ] Microbes and the micro world: the soil and water seen at microbe size from mode-E detail
+- [ ] Bodies of creatures and builds: surface detail and colour as small wavelet fields
+- [ ] Doc pictures and clips: stored as wavelet equations, not images, where that is smaller
+- [ ] Sound: the master music equation (each field sings its own coefficients), as in Uni Vs Matics
+
 ### R5 — Universe
 **Spec:** `wiki/systems/r05-universe.md`, `docs/wiki/space-and-dyson-spheres.md`
 - [ ] Build from `content/small-bodies.dnat`: all 39 entries (Asteroids by makeup, Asteroids by orbit, Comets, Dwarf planets and far bodies, Meteors and meteorites) and these rules:
