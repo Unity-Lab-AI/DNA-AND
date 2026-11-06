@@ -332,6 +332,55 @@ Order: galactic scale down, the same order as the sample sets.
 - [ ] Chemistry and minerals that life can use
   - All 118 elements. Lab-made ones (93+) unlock once a civilization creates them.
 
+### R6b — The living planet (it runs even with no life on it)
+**Asked:** "a planet is a living breathing thing even without life, did you do all the magnma cores mangnetic fielsds atetonic plates volcanos earthqueakes all of that shit in totaltiy that ive already told you.? what elese have you skipped" Earlier: "dont forget the forces of nature weak and nuclear forces of atoms pysics electormagnatisim magma in plantes that arte tectonic with magnic fields and shit come one wwhat about gravity and atmosphers"
+**Today in the code:** the ground is a fixed height map from noise; mountain belts, volcanoes, rivers and resource fields are placed once and never change; rain and snow are only pictures. Nothing below is simulated yet. Data: `content/physics.dnat` (interiors, processes, atmospheres), `content/resource-fields.dnat`. Spec: `wiki/systems/r06-planet.md`, `docs/wiki/forces-of-nature.md`.
+
+- [ ] **A planet clock:** the planet's own processes run on the game clock from the moment it forms, before and after life, at every time speed
+- **Inside**
+  - [ ] Core, mantle and crust from the planet's size and makeup; a molten or solid inner and outer core
+  - [ ] Heat inside: from forming, from radioactive decay, from tides; it cools over billions of years, and as it cools tectonics and the magnetic field can die (a Mars-like end)
+  - [ ] Mantle convection that drives everything above it
+  - [ ] Magma: where it forms, rises and pools; magma oceans on young or very hot worlds
+- **Plates**
+  - [ ] Plate tectonics or a stagnant lid, decided by the heat inside
+  - [ ] Plates that move over time: continents drift, split, crash together and form supercontinents
+  - [ ] Plate edges: spreading ridges, trenches where one plate dives under another, mountain ranges where they crash, faults where they slide past
+  - [ ] Earthquakes along plate edges and faults, with real sizes (magnitude) and tsunamis from undersea quakes
+  - [ ] Volcanoes at plate edges and hot spots that erupt over time: lava, ash clouds that cool the world, new land, island chains
+  - [ ] Hot springs, geysers and deep-sea vents (where life can start)
+- **The magnetic shield**
+  - [ ] The geodynamo: a molten, churning outer core makes the magnetic field
+  - [ ] The magnetosphere shields the air and life from the star's wind and radiation; without it the air is stripped away over time
+  - [ ] Auroras near the poles; the field wanders and flips now and then
+- **Air**
+  - [ ] Air layers (troposphere to exosphere), pressure and makeup, from `content/physics.dnat`
+  - [ ] The greenhouse effect and runaway greenhouse; air escaping to space (thermal, hydrodynamic, non-thermal)
+  - [ ] Volcanoes add gases; rock and sea take carbon back out over millions of years (the carbon-silicate cycle that keeps a world steady)
+- **Water and weather**
+  - [ ] The water cycle: seas evaporate, clouds form, rain and snow fall, rivers run back to the sea, water soaks into the ground
+  - [ ] Real weather: winds from heat and spin, storms, hurricanes, monsoons, drought
+  - [ ] Ocean currents carrying heat around the world; upwelling that brings nutrients up
+  - [ ] Tides from moons and the star
+  - [ ] Ice: glaciers and ice caps that grow and shrink, ice ages, snowball worlds, sea levels rising and falling with them
+- **Climate and seasons**
+  - [ ] Climate zones from heat, water and spin; they shift as continents move and the air changes
+  - [ ] Seasons from the planet's tilt, day and night from its spin, years from its orbit
+  - [ ] Long climate swings: orbit wobbles, the star brightening over billions of years
+- **The surface changes**
+  - [ ] Erosion: rain, rivers, wind and ice wear mountains down and carry the pieces to the sea
+  - [ ] The rock cycle: rock melts to magma, cools to new rock, wears to sand and mud, is buried and pressed into stone, and is lifted up again
+  - [ ] Soil forms from worn rock (and later from life)
+  - [ ] Landslides, floods, sinkholes and coastlines that move
+- **From outside**
+  - [ ] Impacts: meteorites, asteroids and comets hit, leaving craters and changing the climate (sizes from the space page)
+  - [ ] The star's flares and wind; the star ageing
+- **Everything feeds everything**
+  - [ ] Each process changes the others and the life on the world: plates make mountains, mountains change rain, rain feeds rivers, rivers carry nutrients to the sea; volcanoes and impacts cause die-offs; ice ages move life toward the warm middle
+  - [ ] Resource fields form and change with this geology over time (magma makes ores, hot fluids make veins, seas lay down sediments)
+- **Content still to write (researched, like `content/physics.dnat`)**
+  - [ ] Earthquakes and faults, erosion and the rock cycle, ocean currents and tides, the water cycle, glaciers and ice ages, weather systems, climate zones and cycles
+
 ### R7 — Genomes
 **Spec:** `wiki/systems/r07-genome.md`, `docs/wiki/genes-and-dna.md`
 

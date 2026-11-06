@@ -56,3 +56,17 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
   - from orbit to the ground, into the ground (solid colour darkening with depth), and under the sea
   - sea life at true scale (`src/sim/SeaLife.cs`)
   - on land, the view fades to black before the microbes
+
+## 🌋 The living planet: what runs today and what does not
+
+| Process | In the code now | To build (TODO R6b) |
+|---|---|---|
+| Inside (core, mantle, crust, heat) | Nothing | Layers from size and makeup; heat that cools over billions of years |
+| Plates | Mountain belts placed once by noise | Moving plates, drift, ridges, trenches, faults, supercontinents |
+| Earthquakes | Nothing | Quakes along edges and faults, tsunamis |
+| Volcanoes | Placed once, never erupt | Eruptions over time, ash, new land, island chains |
+| Magnetic field | Nothing | Geodynamo, magnetosphere, air stripping, auroras, flips |
+| Air | A glowing shell, fixed | Layers, greenhouse, escape, gases from volcanoes, carbon-silicate cycle |
+| Water and weather | Seas fixed; rain and snow are pictures | Water cycle, winds, storms, currents, tides, ice ages, sea level |
+| Surface | Fixed height map | Erosion, the rock cycle, soil, landslides |
+| From outside | Nothing | Impacts, star flares, the star ageing |
