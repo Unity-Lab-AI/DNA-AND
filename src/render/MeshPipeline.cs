@@ -51,6 +51,15 @@ float4 PS(VO i) : SV_Target
     float3 cr = cross(ddx(i.wp), ddy(i.wp));
     float cl = length(cr);
     float3 n = cl > 1e-30 ? cr / cl : light.xyz;      // a tiny or broken triangle: treat it as facing the light
+    if (i.glow < -1)
+    {
+        // a smooth surface: its own direction at each corner (packed in two 12-bit halves), blended across the triangle
+        uint code = (uint)(-i.glow - 2);
+        float2 e = float2((code & 4095) / 4095.0, (code >> 12) / 4095.0) * 2 - 1;
+        float3 sn = float3(e.x, 1 - abs(e.x) - abs(e.y), e.y);
+        if (sn.y < 0) { float2 t = (1 - abs(sn.zx)) * float2(sn.x >= 0 ? 1 : -1, sn.z >= 0 ? 1 : -1); sn.x = t.x; sn.z = t.y; }
+        n = normalize(sn);
+    }
     float3 toCam = cam.xyz - i.wp;
     if (dot(n, toCam) < 0) n = -n;
     float3 v = normalize(toCam);
@@ -80,7 +89,8 @@ float4 PS(VO i) : SV_Target
         // clouds scatter light through themselves: lit from the star's side of the planet, glowing grey from below
         lit = 0.45 + 0.55 * saturate(abs(dot(n, light.xyz)));
     }
-    float3 c = misc.z > 1.5 && misc.z < 2.5 ? i.col.rgb * max(lit, i.glow) * sc : i.col.rgb * max(lit3, i.glow);
+    float gl = max(i.glow, 0);
+    float3 c = misc.z > 1.5 && misc.z < 2.5 ? i.col.rgb * max(lit, gl) * sc : i.col.rgb * max(lit3, gl);
     float alpha = misc.z > 1.5 ? i.col.a : 1;
     if (misc.z > 2.5)
     {

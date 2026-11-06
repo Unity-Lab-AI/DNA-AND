@@ -502,6 +502,15 @@ namespace DnaAnd.Shell
                     ok[a, b] = GrainTop(gi, gj, gx, gy, gz, rad, x, z, cellHere, out y); hy[a, b] = y;
                 }
             float sh = FocusShade;
+            // each corner's surface direction, from the slope to its neighbours (so it is shaded smooth, not in facets)
+            var nrm = new float[N + 1, N + 1];
+            for (int a = 0; a <= N; a++)
+                for (int b = 0; b <= N; b++)
+                {
+                    int a0 = Math.Max(0, a - 1), a1 = Math.Min(N, a + 1), b0 = Math.Max(0, b - 1), b1 = Math.Min(N, b + 1);
+                    double dx = at(a1) - at(a0), dz = at(b1) - at(b0), sx = (hy[a1, b] - hy[a0, b]) / Math.Max(1e-30, dx), sz = (hy[a, b1] - hy[a, b0]) / Math.Max(1e-30, dz);
+                    nrm[a, b] = PackNormal(-sx, 1, -sz);
+                }
             for (int a = 0; a < N; a++)
                 for (int b = 0; b < N; b++)
                 {
@@ -509,7 +518,7 @@ namespace DnaAnd.Shell
                     double x0 = at(a), z0 = at(b);
                     float t = (float)(0.93 + 0.14 * Hash((long)Math.Floor((_fx + x0) / (step * 4)), (long)Math.Floor((_fz + z0) / (step * 4)), 61, _seed)) * sh;
                     float r = m.R * t, g = m.G * t, bl = m.B * t;
-                    Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)(at(aa) / s + _ex), Y = (float)((hy[aa, bb] + _yOff - _fy) / s + _ey), Z = (float)(at(bb) / s + _ez), R = r, G = g, B = bl, A = 1 };
+                    Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)(at(aa) / s + _ex), Y = (float)((hy[aa, bb] + _yOff - _fy) / s + _ey), Z = (float)(at(bb) / s + _ez), Size = nrm[aa, bb], R = r, G = g, B = bl, A = 1 };
                     mesh.Add(v(a, b)); mesh.Add(v(a + 1, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b + 1));
                 }
         }
@@ -602,6 +611,16 @@ namespace DnaAnd.Shell
             }
         }
 
+        // a surface direction packed into a vertex's glow (below -1), so the mesh is shaded smooth, not in facets
+        private static float PackNormal(double x, double y, double z)
+        {
+            double l = Math.Abs(x) + Math.Abs(y) + Math.Abs(z); if (l <= 0) return 0; x /= l; y /= l; z /= l;
+            double ex = x, ey = z;
+            if (y < 0) { double tx = (1 - Math.Abs(z)) * (x >= 0 ? 1 : -1), tz = (1 - Math.Abs(x)) * (z >= 0 ? 1 : -1); ex = tx; ey = tz; }
+            int a = (int)Math.Round((ex * 0.5 + 0.5) * 4095), b = (int)Math.Round((ey * 0.5 + 0.5) * 4095);
+            return -(2 + (a | (b << 12)));
+        }
+
         private static double Fade(double s, double from, double to) { return Math.Max(0, Math.Min(1, Math.Log(from / s) / Math.Log(from / to))); }
 
         // a grain as a lit, lumpy stone: a once-split icosahedron, squashed and turned its own way, each corner pushed in or out
@@ -633,7 +652,7 @@ namespace DnaAnd.Shell
                 double rr = GrainSurface(gi, gj, rad, _ico[k].X, _ico[k].Y, _ico[k].Z, rad * 0.2);   // the same surface as close in, coarse
                 pts[k * 3] = (cx + _ico[k].X * rr - _fx) / s + _ex; pts[k * 3 + 1] = (cy + _ico[k].Y * rr + _yOff - _fy) / s + _ey; pts[k * 3 + 2] = (cz + _ico[k].Z * rr - _fz) / s + _ez;
             }
-            foreach (int k in _icoTri) l.Add(new StarVertex { X = (float)pts[k * 3], Y = (float)pts[k * 3 + 1], Z = (float)pts[k * 3 + 2], Size = 0, R = r, G = g, B = b, A = 1 });
+            foreach (int k in _icoTri) l.Add(new StarVertex { X = (float)pts[k * 3], Y = (float)pts[k * 3 + 1], Z = (float)pts[k * 3 + 2], Size = PackNormal(_ico[k].X, _ico[k].Y, _ico[k].Z), R = r, G = g, B = b, A = 1 });   // shaded smooth
         }
 
         // a far grain: eight faces, squashed and turned its own way
@@ -672,7 +691,7 @@ namespace DnaAnd.Shell
                 if (px > 10 && balls < 2500)
                 {
                     balls++;
-                    foreach (int k in _icoTri) mesh.Add(new StarVertex { X = (float)(v.X + _ico[k].X * rad), Y = (float)(v.Y + _ico[k].Y * rad), Z = (float)(v.Z + _ico[k].Z * rad), Size = 0, R = v.R, G = v.G, B = v.B, A = 1 });
+                    foreach (int k in _icoTri) mesh.Add(new StarVertex { X = (float)(v.X + _ico[k].X * rad), Y = (float)(v.Y + _ico[k].Y * rad), Z = (float)(v.Z + _ico[k].Z * rad), Size = PackNormal(_ico[k].X, _ico[k].Y, _ico[k].Z), R = v.R, G = v.G, B = v.B, A = 1 });
                 }
                 else
                 {
@@ -1096,6 +1115,16 @@ namespace DnaAnd.Shell
                 var seen = new List<string>(); foreach (var a in g.Atoms) if (!seen.Contains(a)) seen.Add(a);
                 L.Add("elements: " + string.Join(", ", seen.ToArray()));
                 L.Add("ground: " + (_mixes.ContainsKey(_mixId) ? _mixId : "rock"));
+                return L;
+            }
+            if (_picked == null && !_space && _scale > AtomSpacing * 8)
+            {
+                // above the atoms: the surface you are over, not an atom far too small to see
+                var gm = FocusMineral; if (gm == null) return L;
+                L.Add("the surface of a grain of " + gm.Name.ToLowerInvariant());
+                L.Add("made of: " + gm.Formula + StructureName(gm));
+                L.Add("you are " + ScaleHud.Words(_scale * 0.6) + " above it");
+                if (_scale < 6e-10) L.Add("its face steps down in atomic layers, 0.3 nm each");
                 return L;
             }
             var e = _picked != null && _picked.Kind == 1 && _picked.Sym != null ? El(_picked.Sym) : FocusAtom();
