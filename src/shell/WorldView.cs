@@ -586,13 +586,13 @@ namespace DnaAnd.Shell
             bool amongGrains = _ground != null && (_matterScale > 0 || AboveGround() < Units.Km(MatterView.OverlayKm));
             if (amongGrains && !(_pressed && _dragged))
             {
-                // among the grains: the view tilts down to look at them (about 70 degrees down, the way you face kept), so what
-                // lies under you, and what you pick there, is in view
+                // among the grains: the view looks down onto the point you dive into (the way you face kept), so it, and what you
+                // pick there (which eases to it), sits in the middle of the screen
                 double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z);
                 double ux = x / r, uy = y / r, uz = z / r; var lk0 = Look; double d0 = lk0.X * ux + lk0.Y * uy + lk0.Z * uz;
                 double hx = lk0.X - ux * d0, hy = lk0.Y - uy * d0, hz = lk0.Z - uz * d0, hl = Math.Sqrt(hx * hx + hy * hy + hz * hz);
                 if (hl < 1e-6) { hx = -uz; hy = 0; hz = ux; hl = Math.Sqrt(hx * hx + hz * hz); if (hl < 1e-6) { hx = 1; hl = 1; } }
-                double dn = Math.Sin(70 * Math.PI / 180), fl = Math.Cos(70 * Math.PI / 180);
+                double dn = Math.Sin(88 * Math.PI / 180), fl = Math.Cos(88 * Math.PI / 180);
                 double wx = hx / hl * fl - ux * dn, wy = hy / hl * fl - uy * dn, wz = hz / hl * fl - uz * dn;
                 double wantYaw = Math.Atan2(wz, wx), wantPitch = Math.Asin(Math.Max(-1, Math.Min(1, wy))), k = 1 - Math.Exp(-dt * 4);
                 _yaw += Math.IEEERemainder(wantYaw - _yaw, 2 * Math.PI) * k; _pitch += (wantPitch - _pitch) * k;
@@ -638,34 +638,33 @@ namespace DnaAnd.Shell
             if (input.RightClicked) { if (_matterScale > 0) _matter.Unpick(); else { _tKind = -1; _tName = ""; } }                    // right click: let go of what you picked
             if (input.WasPressed(0x48)) { _hud.Visible = !_hud.Visible; MenuChanged = true; }   // H: the scale on screen, on or off
             if (input.WasPressed(Win32.VK_ESCAPE)) return false;
-            if (input.LeftDown)
+            if (input.LeftDown && (input.MouseDX != 0 || input.MouseDY != 0))
             {
-                // dragging looks around; by default the view moves the other way to the mouse (like pulling the sky), both ways
-                // can be flipped in the View menu
-                double sx = Settings.Get("invert-left-right", false) ? 1 : -1, sy = Settings.Get("invert-up-down", false) ? -1 : 1;
-                double odx, ody, odz, orad;
-                if (_tKind >= 0 && _tKind != 3 && _dragged && TargetFromCamera(out odx, out ody, out odz, out orad) && odx * odx + ody * ody + odz * odz > 0)
+                // one rule for dragging at every scale: what is under the mouse stays under the mouse. The view turns by the turn
+                // that takes the line under the mouse now back onto the line it was under a moment ago; with something picked, the
+                // camera circles round it by that same turn (so its surface moves with your hand). The View menu can flip either way.
+                int dxm = Settings.Get("invert-left-right", false) ? -input.MouseDX : input.MouseDX, dym = Settings.Get("invert-up-down", false) ? -input.MouseDY : input.MouseDY;
+                var d1 = MouseRay(input.MouseX, input.MouseY, w, h); var d0 = MouseRay(input.MouseX - dxm, input.MouseY - dym, w, h);
+                var axis = Vec3.Cross(d1, d0); float al = axis.Length;
+                if (al > 1e-9f)
                 {
-                    // with something picked: circle round it at the distance you are at, always facing it
-                    // (see a solar system from above, a galaxy edge-on, a planet from any side)
-                    double r = Math.Sqrt(odx * odx + ody * ody + odz * odz);
-                    double ox = -odx / r, oy = -ody / r, oz = -odz / r;                // from the pick to the camera
-                    double th = Math.Atan2(oz, ox) - sx * input.MouseDX * 0.006, ph = Math.Asin(Math.Max(-1, Math.Min(1, oy)));
-                    ph = Math.Max(-1.55, Math.Min(1.55, ph - sy * input.MouseDY * 0.006));   // up-down follows the mouse
-                    double nx = Math.Cos(ph) * Math.Cos(th) * r, ny = Math.Sin(ph) * r, nz = Math.Cos(ph) * Math.Sin(th) * r;
-                    _ox += nx + odx; _oy += ny + ody; _oz += nz + odz;                  // the camera moves to its new place round the pick
-                    _yaw = Math.Atan2(-nz, -nx); _pitch = Math.Asin(Math.Max(-1, Math.Min(1, -ny / r)));
+                    axis = new Vec3(axis.X / al, axis.Y / al, axis.Z / al);
+                    double ang = Math.Atan2(al, Vec3.Dot(d1, d0));
+                    var f = Turn(Look, axis, ang);
+                    double odx, ody, odz, orad;
+                    bool circle = _tKind >= 0 && _tKind != 3 && _dragged && !(_ground != null && (_matterScale > 0 || AboveGround() < Units.Km(MatterView.OverlayKm)))
+                                  && TargetFromCamera(out odx, out ody, out odz, out orad) && odx * odx + ody * ody + odz * odz > 0;
+                    if (circle)
+                    {
+                        // round the pick: the camera's place from it turned the same way, still facing it
+                        TargetFromCamera(out odx, out ody, out odz, out orad);
+                        var o = new Vec3((float)-odx, (float)-ody, (float)-odz); double ol = Math.Sqrt(odx * odx + ody * ody + odz * odz);
+                        var on = Turn(new Vec3((float)(o.X / ol), (float)(o.Y / ol), (float)(o.Z / ol)), axis, ang);
+                        _ox += on.X * ol + odx; _oy += on.Y * ol + ody; _oz += on.Z * ol + odz;
+                        f = new Vec3(-on.X, -on.Y, -on.Z);
+                    }
+                    if (Math.Abs(f.Y) < 0.9995f) { _yaw = Math.Atan2(f.Z, f.X); _pitch = Math.Asin(Math.Max(-1, Math.Min(1, f.Y))); }
                 }
-                else if (_ground != null)
-                {
-                    // near a planet: look around its own up, so turning stays level with its horizon
-                    var u = ViewUp(); var f = Look;
-                    f = Turn(f, u, -sx * input.MouseDX * 0.004);              // the same way round as looking around in space
-                    var rt = Vec3.Cross(f, u).Normalized; var f2 = Turn(f, rt, sy * input.MouseDY * 0.004);
-                    if (Math.Abs(Vec3.Dot(f2, u)) < 0.995f) f = f2;                   // never quite straight up or down
-                    _yaw = Math.Atan2(f.Z, f.X); _pitch = Math.Asin(Math.Max(-1, Math.Min(1, f.Y)));
-                }
-                else { _yaw += sx * input.MouseDX * 0.004; _pitch = Math.Max(-1.55, Math.Min(1.55, _pitch - sy * input.MouseDY * 0.004)); }   // up-down follows the mouse
             }
             Jumped("dragging");
             double reach = NearestDistance();
