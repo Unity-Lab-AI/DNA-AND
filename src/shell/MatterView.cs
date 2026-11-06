@@ -489,13 +489,16 @@ namespace DnaAnd.Shell
             float sh = FocusShade;
             double sink = Structured(m) ? AtomSpacing * 3 * Fade(s, AtomSpacing * 40, AtomSpacing * 22) : 0;   // under the atoms once they show
             // each corner's surface direction, from the slope to its neighbours (so it is shaded smooth, not in facets)
-            var nrm = new float[N + 1, N + 1];
+            var nrm = new float[N + 1, N + 1]; var occ = new float[N + 1, N + 1];
             for (int a = 0; a <= N; a++)
                 for (int b = 0; b <= N; b++)
                 {
                     int a0 = Math.Max(0, a - 1), a1 = Math.Min(N, a + 1), b0 = Math.Max(0, b - 1), b1 = Math.Min(N, b + 1);
                     double dx = at(a1) - at(a0), dz = at(b1) - at(b0), sx = (hy[a1, b] - hy[a0, b]) / Math.Max(1e-30, dx), sz = (hy[a, b1] - hy[a, b0]) / Math.Max(1e-30, dz);
                     nrm[a, b] = PackNormal(-sx, 1, -sz);
+                    // the light that reaches a hollow: lower than its neighbours round it, it sees less of the sky (a soft shadow)
+                    double hollow = (hy[a0, b] + hy[a1, b] + hy[a, b0] + hy[a, b1]) * 0.25 - hy[a, b], span = Math.Max(1e-30, (dx + dz) * 0.5);
+                    occ[a, b] = (float)Math.Max(0.55, Math.Min(1.08, 1 - hollow / span * 3));
                 }
             for (int a = 0; a < N; a++)
                 for (int b = 0; b < N; b++)
@@ -504,7 +507,7 @@ namespace DnaAnd.Shell
                     double x0 = at(a), z0 = at(b);
                     float t = (float)(0.93 + 0.14 * Hash((long)Math.Floor((_fx + x0) / (step * 4)), (long)Math.Floor((_fz + z0) / (step * 4)), 61, _seed)) * sh;
                     float r = m.R * t, g = m.G * t, bl = m.B * t;
-                    Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)(at(aa) / s + _ex), Y = (float)((hy[aa, bb] - sink + _yOff - _fy) / s + _ey), Z = (float)(at(bb) / s + _ez), Size = nrm[aa, bb], R = r, G = g, B = bl, A = m.Lustre };
+                    Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)(at(aa) / s + _ex), Y = (float)((hy[aa, bb] - sink + _yOff - _fy) / s + _ey), Z = (float)(at(bb) / s + _ez), Size = nrm[aa, bb], R = r * occ[aa, bb], G = g * occ[aa, bb], B = bl * occ[aa, bb], A = m.Lustre };
                     mesh.Add(v(a, b)); mesh.Add(v(a + 1, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b + 1));
                 }
         }
