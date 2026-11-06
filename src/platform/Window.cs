@@ -124,7 +124,8 @@ namespace DnaAnd.Platform
             if (Handle == IntPtr.Zero)
                 throw new InvalidOperationException("CreateWindowEx failed: " + Marshal.GetLastWin32Error());
 
-            Win32.ShowWindow(Handle, quiet ? Win32.SW_SHOWNOACTIVATE : Win32.SW_SHOW);
+            // normal play opens maximized, so the game draws at the screen's full resolution (still a window: display settings untouched)
+            Win32.ShowWindow(Handle, quiet ? Win32.SW_SHOWNOACTIVATE : Win32.SW_SHOWMAXIMIZED);
             IsOpen = true;
         }
 
