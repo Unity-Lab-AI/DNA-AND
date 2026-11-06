@@ -540,13 +540,15 @@ namespace DnaAnd.Shell
                 if (_tKind < 0) { double tdist; var tdir = AimStar(dir, out tdist); if (input.Wheel > 0 && tdist > 0) { dir = tdir; reach = Math.Min(reach, tdist); } }
                 double step = reach * (1 - Math.Pow(0.87, Math.Abs(input.Wheel))) * Math.Sign(input.Wheel);
                 if (input.Wheel < 0) step = -Math.Max(reach, 0.01) * (Math.Pow(1 / 0.87, -input.Wheel) - 1);
+                double altBefore = _ground != null ? AboveGround() / Units.Km(1) : 0;
                 _ox += dir.X * step; _oy += dir.Y * step; _oz += dir.Z * step;
                 if (_ground != null)
                 {
-                    // never lower than a few steps of the finest ground already made under you (so you never see the rough
-                    // first pieces stretched across the screen), and never below half a millimetre
-                    double ready = _ground.ReadyStep < 1e30 ? _ground.ReadyStep * 3 : _ground.Radius;
-                    double floorKm = Math.Max(5e-7, ready);
+                    // slow down near the finest ground already made under you (so the rough first pieces are not stretched
+                    // across the screen), but never push you back and always let each notch close in a tenth, so the finer
+                    // ground is asked for and catches up; never below half a millimetre
+                    double ready = _ground.ReadyStep < 1e30 ? _ground.ReadyStep * 3 : 0;
+                    double floorKm = Math.Max(5e-7, Math.Min(ready, altBefore * 0.9));
                     {
                         // over the sea: no lower than a metre above the water, until the dive under the sea is in the one world
                         double cx0, cy0, cz0; CamFromPlanet(out cx0, out cy0, out cz0); double r0 = Math.Sqrt(cx0 * cx0 + cy0 * cy0 + cz0 * cz0);
