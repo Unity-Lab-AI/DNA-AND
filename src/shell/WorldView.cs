@@ -574,11 +574,11 @@ namespace DnaAnd.Shell
             {
                 // W A S D, Q and E: fly like a first-person game, at a speed scaled to the nearest thing (half its distance a
                 // second, Shift four times faster), so it feels the same among galaxies as a metre above the ground
-                double mf = (input.IsDown(0x57) ? 1 : 0) - (input.IsDown(0x53) ? 1 : 0), mr = (input.IsDown(0x41) ? 1 : 0) - (input.IsDown(0x44) ? 1 : 0), mu = (input.IsDown(0x45) ? 1 : 0) - (input.IsDown(0x51) ? 1 : 0);
+                double mf = (input.IsDown(0x57) ? 1 : 0) - (input.IsDown(0x53) ? 1 : 0), mr = (input.IsDown(0x44) ? 1 : 0) - (input.IsDown(0x41) ? 1 : 0), mu = (input.IsDown(0x45) ? 1 : 0) - (input.IsDown(0x51) ? 1 : 0);
                 if (mf != 0 || mr != 0 || mu != 0)
                 {
                     _tKind = -1;                                                       // flying yourself lets go of the pick
-                    var f = Look; var rt = Vec3.Cross(f, ViewUp()).Normalized; var upv = Vec3.Cross(rt, f).Normalized;
+                    var f = Look; var rt = _haveAxes ? _viewRight : Vec3.Cross(f, ViewUp()).Normalized; var upv = _haveAxes ? _viewUp : Vec3.Cross(rt, f).Normalized;
                     double sp = reach * 0.5 * dt * (input.IsDown(0x10) ? 4 : 1);
                     _ox += (f.X * mf + rt.X * mr + upv.X * mu) * sp; _oy += (f.Y * mf + rt.Y * mr + upv.Y * mu) * sp; _oz += (f.Z * mf + rt.Z * mr + upv.Z * mu) * sp;
                     if (_ground != null && AboveGround() < Units.Km(5e-7))
@@ -721,10 +721,12 @@ namespace DnaAnd.Shell
             return u.Normalized;
         }
 
+        private Vec3 _viewRight, _viewUp; private bool _haveAxes;
         private Vec3 MouseRay(int mx, int my, int w, int h)
         {
             double nx = mx / (double)Math.Max(1, w) * 2 - 1, ny = 1 - my / (double)Math.Max(1, h) * 2, t = Math.Tan(0.45), aspect = w / (double)Math.Max(1, h);
-            var f = Look; var right = Vec3.Cross(f, ViewUp()).Normalized; var up = Vec3.Cross(right, f).Normalized;
+            // the screen's own right and up, as the view was last drawn (so the line goes exactly through the pixel clicked)
+            var f = Look; var right = _haveAxes ? _viewRight : Vec3.Cross(f, ViewUp()).Normalized; var up = _haveAxes ? _viewUp : Vec3.Cross(right, f).Normalized;
             return (f + right * (float)(nx * t * aspect) + up * (float)(ny * t)).Normalized;
         }
 
@@ -823,6 +825,7 @@ namespace DnaAnd.Shell
             Mat4 vp = view * proj;
             _lastVp = vp; _lastW = w; _lastH = h; _haveVp = true;
             var right = new Vec3(view.M11, view.M21, view.M31); var up = new Vec3(view.M12, view.M22, view.M32);
+            _viewRight = right; _viewUp = up; _haveAxes = true;
             double share = NearShare();
             for (int i = 0; i < _galaxies.Count; i++)
             {
