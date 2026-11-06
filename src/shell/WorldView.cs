@@ -598,7 +598,7 @@ namespace DnaAnd.Shell
                 if (input.Wheel != 0) _matterScale *= Math.Pow(0.87, input.Wheel);
                 if (_matterScale > MatterView.TopKm) _matterScale = 0;                 // back up to the ground
                 else _matterScale = Math.Max(MatterView.BottomKm, _matterScale);
-                ChooseNear(); LocalStars(); ChooseSystem(); ChoosePlanet(); FollowBody();
+                ChooseNear(); LocalStars(); ChooseSystem(); FollowBody(); ChoosePlanet();
                 return true;
             }
             if (_ground != null && input.Wheel > 0 && AboveGround() < Units.Km(1.5e-6))
@@ -632,7 +632,7 @@ namespace DnaAnd.Shell
                 // a star close to the line you point along (within about 4 degrees) is flown at straight, not past
                 if (_tKind < 0) { double tdist; var tdir = AimStar(dir, out tdist); if (input.Wheel > 0 && tdist > 0) { dir = tdir; reach = Math.Min(reach, tdist); } }
                 double step = reach * (1 - Math.Pow(0.87, Math.Abs(input.Wheel))) * Math.Sign(input.Wheel);
-                if (input.Wheel < 0) step = -Math.Max(reach, 0.01) * (Math.Pow(1 / 0.87, -input.Wheel) - 1);
+                if (input.Wheel < 0) step = -Math.Max(reach, Units.Km(1e-9)) * (Math.Pow(1 / 0.87, -input.Wheel) - 1);   // out from right at the ground: a tiny step, never light-years
                 double altBefore = _ground != null ? AboveGround() / Units.Km(1) : 0;
                 ZoomLog("wheel " + input.Wheel.ToString("0") + " step " + Units.Describe(Math.Abs(step)) + " reach " + Units.Describe(reach) + " pick " + _tKind + ":" + _tIndex + " planet " + _planet + " nearest-body " + _cpBest + " at " + _cpBd.ToString("0.##") + " radii follow " + _followBody + (_ground != null ? " ground-ready " + (_ground.ReadyStep < 1e30 ? _ground.ReadyStep.ToString("0.###") + " km" : "none") : ""));
                 _ox += dir.X * step; _oy += dir.Y * step; _oz += dir.Z * step;
@@ -663,8 +663,10 @@ namespace DnaAnd.Shell
             ChooseNear(); Jumped("ChooseNear");
             LocalStars(); Jumped("LocalStars");
             ChooseSystem(); Jumped("ChooseSystem");
-            ChoosePlanet(); Jumped("ChoosePlanet");
+            // ride along with the body first, then see which one you are at: planets move about a hundred thousand km a frame,
+            // so choosing before riding along saw you many radii behind (a moon never got its ground, and flickered)
             FollowBody(); Jumped("FollowBody");
+            ChoosePlanet(); Jumped("ChoosePlanet");
             return true;
         }
 
