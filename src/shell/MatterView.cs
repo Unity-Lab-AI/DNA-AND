@@ -589,7 +589,8 @@ namespace DnaAnd.Shell
                         {
                             if (i == 0 && j == 0 && k == 0) continue;
                             var ge = GasAtom(i, j, k); double jx = (Hash(i, j, k + 91, _seed) - 0.5) * a, jy = (Hash(i, j, k + 92, _seed) - 0.5) * a, jz = (Hash(i, j, k + 93, _seed) - 0.5) * a;
-                            Add(glow, i * a + jx, k * a + jy, j * a + jz, s * 0.002, ge.R * 0.6f, ge.G * 0.6f, ge.B * 0.6f, s);
+                            float gf = (float)Fade(s, _gasSpacing * 10, _gasSpacing * 4);       // fading in as you come within about ten spacings
+                            Add(glow, i * a + jx, k * a + jy, j * a + jz, s * 0.002, ge.R * 0.6f * gf, ge.G * 0.6f * gf, ge.B * 0.6f * gf, s);
                         }
             }
             // grains: lumpy stones, each its own mineral from the mix, scattered (not on a grid) in two layers, the top one

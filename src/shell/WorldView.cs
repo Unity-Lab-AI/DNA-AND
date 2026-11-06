@@ -1168,6 +1168,10 @@ namespace DnaAnd.Shell
 
         public void Draw(int w, int h, double time)
         {
+            {
+                double fine = _spaceScale > 0 ? _spaceScale : _matterScale > 0 ? _matterScale : 1;
+                _sky = (float)Math.Max(0, Math.Min(1, Math.Log(fine / 1.7e-8) / Math.Log(1.7e-6 / 1.7e-8)));   // from a millimetre down to 10 microns
+            }
             var look = Look;
             Mat4 view = Mat4.LookAt(new Vec3(0, 0, 0), look, ViewUp());
             double reach = Math.Max(1e-12, NearestDistance());
@@ -1198,9 +1202,9 @@ namespace DnaAnd.Shell
                 order.Sort((a, b) => a.Key.CompareTo(b.Key));
                 foreach (var kv in order)
                 {
-                    if (drawn >= 8) break; var g = _galaxies[kv.Value];
+                    if (drawn >= 12) break; var g = _galaxies[kv.Value];
                     if (g.Features == null) { if (made) continue; EnsureStruct(g); made = true; }
-                    if (g.StructCount > 0) { DrawPoints(g.Struct, g.StructCount, Placement(g) * vp, right, up, 1f, 0.0016f, w, h, time); drawn++; }
+                    if (g.StructCount > 0) { DrawPoints(g.Struct, g.StructCount, Placement(g) * vp, right, up, 1f, 0.0016f, w, h, time, 0, (float)Math.Max(0, Math.Min(1, (60 - kv.Key) / 20))); drawn++; }   // fading in from 60 to 40 of its sizes
                 }
             }
             if (_cstars.Count > 0)
@@ -1239,7 +1243,13 @@ namespace DnaAnd.Shell
                 // the system's planets and moons fade in as you close in on its star (from 2,000 AU to 500 AU), never all at once
                 double sysFade = Math.Max(0, Math.Min(1, (SystemRange - DistToSysStar()) / (SystemRange * 0.75)));
                 for (int i = 1; i < _bodyCount; i++) { _bodyVerts[i].R *= (float)sysFade; _bodyVerts[i].G *= (float)sysFade; _bodyVerts[i].B *= (float)sysFade; }
-                if (_ground != null && _planet + 1 < _bodyCount) { _bodyVerts[_planet + 1].Size = 0; _bodyVerts[_planet + 1].R = _bodyVerts[_planet + 1].G = _bodyVerts[_planet + 1].B = 0; }
+                if (_ground != null && _planet + 1 < _bodyCount)
+                {
+                    // its glow fades into its real ground as you come in (from 40 to 20 of its widths), never swapped
+                    double gx0, gy0, gz0; CamFromPlanet(out gx0, out gy0, out gz0);
+                    float gk = (float)Math.Max(0, Math.Min(1, (Math.Sqrt(gx0 * gx0 + gy0 * gy0 + gz0 * gz0) / _ground.Radius - 20) / 20));
+                    _bodyVerts[_planet + 1].R *= gk; _bodyVerts[_planet + 1].G *= gk; _bodyVerts[_planet + 1].B *= gk; if (gk <= 0) _bodyVerts[_planet + 1].Size = 0;
+                }
                 _sysBodies.Write(_bodyVerts, _bodyCount);
                 DrawPoints(_sysBodies, _bodyCount, vp, right, up, 1f, 0.004f, w, h, time);
                 // close enough to see its disc: the star's real body at its real size
@@ -1294,7 +1304,6 @@ namespace DnaAnd.Shell
             {
                 // in a nebula's or cluster's gas: its atoms in front of space (its glow round you still drawn behind), and below a tenth
                 // of a millimetre only the matter itself, no stars or galaxies behind (a draw distance for the very small)
-                if (_spaceScale < 1e-7) _gpu.ClearNow(0, 0, 0);
                 _gpu.ClearDepth();
                 _matter.Light[0] = 0.4f; _matter.Light[1] = 0.7f; _matter.Light[2] = 0.6f;
                 var slk = Look; _matter.SetEye(slk.X, slk.Y, slk.Z);                     // in the gas too: your eye goes round the point you dive into
@@ -1307,7 +1316,6 @@ namespace DnaAnd.Shell
             if (_matterScale > 0)
             {
                 // the matter, in front of everything; above a tenth of a millimetre the ground still shows through behind it
-                if (_matterScale < 1e-7) _gpu.ClearNow(0, 0, 0);                    // deep in the matter: only the matter is in view
                 _gpu.ClearDepth();
                 Mat4 mview = MatterFrame(look);
                 _matter.Draw(mview, _matterScale, w, h, _matterClock, _meshes, false);
@@ -1347,14 +1355,16 @@ namespace DnaAnd.Shell
             _hud.Draw(_meshes, viewKm / Math.Max(1, w), w, h);
         }
 
-        private void DrawPoints(UploadBuffer buf, int count, Mat4 vp, Vec3 right, Vec3 up, float sizeScale, float minSize, int w, int h, double time, float maxSize = 0)
+        private float _sky = 1;                                                           // how much of space shows behind (fades away at the very small)
+        private void DrawPoints(UploadBuffer buf, int count, Mat4 vp, Vec3 right, Vec3 up, float sizeScale, float minSize, int w, int h, double time, float maxSize = 0, float bright = 1)
         {
             if (buf == null || count <= 0) return;
+            float b = bright * _sky; if (b <= 0.003f) return;
             var c = new float[BillboardPipeline.ConstantCount];
             c[0] = vp.M11; c[1] = vp.M12; c[2] = vp.M13; c[3] = vp.M14; c[4] = vp.M21; c[5] = vp.M22; c[6] = vp.M23; c[7] = vp.M24;
             c[8] = vp.M31; c[9] = vp.M32; c[10] = vp.M33; c[11] = vp.M34; c[12] = vp.M41; c[13] = vp.M42; c[14] = vp.M43; c[15] = vp.M44;
             c[16] = right.X; c[17] = right.Y; c[18] = right.Z; c[20] = up.X; c[21] = up.Y; c[22] = up.Z;
-            c[24] = (float)time; c[25] = sizeScale; c[26] = 2; c[27] = 4; c[28] = w; c[29] = h; c[30] = minSize; c[31] = maxSize;
+            c[24] = (float)time; c[25] = sizeScale; c[26] = 2; c[27] = 4; c[28] = w; c[29] = h; c[30] = minSize; c[31] = maxSize; c[32] = 1 - Math.Min(1, b);
             _dots.Draw(buf, count, c, 0, 0, w, h);
         }
 

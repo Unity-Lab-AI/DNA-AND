@@ -31,6 +31,7 @@ cbuffer C : register(b0)
     float4 up;      // xyz camera up
     float4 misc;    // x time, y size scale, z style (0 glow, otherwise faceted)
     float4 screen;  // x width, y height (of this tile, in pixels), z minimum size per unit of distance, w maximum (0: none)
+    float4 extra;   // x: how much dimmer (0 full bright, 1 gone), so things fade in and out, never switch
 };
 struct Star { float3 pos; float size; float4 color; };
 StructuredBuffer<Star> stars : register(t0);
@@ -49,7 +50,7 @@ VO VS(uint vid : SV_VertexID, uint iid : SV_InstanceID)
     VO o;
     o.pos = mul(float4(world, 1), viewProj);
     o.uv = c;
-    o.col = s.color;
+    o.col = s.color * (1 - extra.x);
     return o;
 }
 
