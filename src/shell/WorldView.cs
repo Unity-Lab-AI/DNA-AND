@@ -253,7 +253,7 @@ namespace DnaAnd.Shell
 
         private void CloseSystem()
         {
-            DropPlanet();
+            DropPlanet(); _hadPos = false; _followBody = -1;                       // a new system's bodies are new: ride along afresh
             _system = null; _sysStar = -1;
             if (_sysStatic != null) { _sysStatic.Dispose(); _sysStatic = null; }
             if (_sysBodies != null) { _sysBodies.Dispose(); _sysBodies = null; }
@@ -325,7 +325,7 @@ namespace DnaAnd.Shell
         private int _followBody = -1; private double _fbx, _fby, _fbz;
 
         private bool _hadPos;
-        private void DropPlanet() { _hadPos = false; if (_ground != null) { _ground.Dispose(); _ground = null; } _planet = -1; }
+        private void DropPlanet() { if (_ground != null) { _ground.Dispose(); _ground = null; } _planet = -1; }
 
         // how far above the planet's ground the camera is (universe units)
         private double AboveGround()
