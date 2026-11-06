@@ -18,6 +18,7 @@ namespace DnaAnd.Shell
             "Click a galaxy, star, planet or a spot on the ground: the camera turns to it and the wheel flies straight to it.\n" +
             "Mouse wheel: fly in or out toward what the mouse points at. A star or planet near the pointer is flown at straight.\n" +
             "Hold Ctrl with the wheel: eight times as fast.\n" +
+            "Right click: let go of what you picked.\n" +
             "W A S D: fly forward, back, left and right; Q and E: down and up. The speed scales to the nearest thing, so it feels the same among galaxies as above the ground. Hold Shift: four times as fast. Flying yourself lets go of what you picked.\n" +
             "Drag with the left button: with something picked, circle round it at the distance you are at (see a solar system from above, a galaxy edge-on); with nothing picked, look around. The View menu can invert left-right and up-down.\n" +
             "Whatever you pick gets an information card beside it: what it is, its id and its facts (a star's temperature, planets and habitable zone; a planet's orbit, year and what it is made of; the ground's height, and whether it is land, sea or ice).\n" +
