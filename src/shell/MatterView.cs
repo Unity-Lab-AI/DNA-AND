@@ -106,7 +106,7 @@ namespace DnaAnd.Shell
                 double.TryParse(e.Get("angle", "180"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out ang);
                 string shape = e.Get("shape", "round");
                 _surf.Add(new SurfThing { Id = e.Id, Name = e.Name, M = om, Lo = lo, Hi = hi, Chance = ch, Flat = shape == "flat", Molecule = shape == "molecule",
-                    Bond = bl * 1e-12, Angle = ang, FromGround = fromGround, Thick = TryD(e.Get("thickness", "0.05"), 0.05), About = e.Get("about", "").Split('|').Select(q => q.Trim()).Where(q => q.Length > 0).ToArray() });
+                    Bond = bl * 1e-12, Angle = ang, FromGround = fromGround, Thick = TryD(e.Get("thickness", "0.05"), 0.05), Cell = TryD(e.Get("spacing", "4"), 4), About = e.Get("about", "").Split('|').Select(q => q.Trim()).Where(q => q.Length > 0).ToArray() });
             }
             foreach (var e in content.OfKind("minerals.dnat", "mix"))
             {
@@ -180,7 +180,7 @@ namespace DnaAnd.Shell
             for (int t = 0; t < _surf.Count; t++)
             {
                 var st = _surf[t];
-                double cell = st.Hi * 4; long ci = (long)Math.Floor(x / cell), cj = (long)Math.Floor(z / cell);
+                double cell = st.Hi * st.Cell; long ci = (long)Math.Floor(x / cell), cj = (long)Math.Floor(z / cell);
                 for (long i = ci - 1; i <= ci + 1; i++)
                     for (long j = cj - 1; j <= cj + 1; j++)
                     {
@@ -189,7 +189,7 @@ namespace DnaAnd.Shell
                         if ((tx - x) * (tx - x) + (tz - z) * (tz - z) < size * size * 0.25) { var om = ThingMat(st, i, j); if (om != null) return om; }
                     }
             }
-            return GrainMineral(FocusGI, FocusGJ);
+            return GrainMineral(FocusGI * 2, FocusGJ * 2);   // the same grain the surface and stones draw (layer 0: its number doubled)
         }
         // a thing on the grain picked (a clay platelet, a coating, a nanoparticle, the water film): its own mineral is what you go into
         // a mineral's lustre and clarity as one number the mesh shader reads (see MeshPipeline): tenths the lustre, hundredths the clarity
@@ -511,7 +511,7 @@ namespace DnaAnd.Shell
 
         // ── what sits on a grain's surface, each at its real size, fixed in place (from its cell), each pickable ──
         // (all of them from content/minerals.dnat @surface: what it is made of, its sizes, how common, its shape, what it is)
-        private sealed class SurfThing { public string Id, Name; public Mineral M; public double Lo, Hi, Chance, Bond, Angle; public bool Flat, Molecule, FromGround; public double Thick = 0.05; public string[] About; }
+        private sealed class SurfThing { public string Id, Name; public Mineral M; public double Lo, Hi, Chance, Bond, Angle; public bool Flat, Molecule, FromGround; public double Thick = 0.05, Cell = 4; public string[] About; }
         private readonly List<SurfThing> _surf = new List<SurfThing>();
         private double _clock;                                                             // the matter's time, for the electrons of things drawn here
         private void SurfaceThings(List<StarVertex> solid, List<StarVertex> glow, List<StarVertex> mesh, double s)
@@ -521,7 +521,7 @@ namespace DnaAnd.Shell
             {
                 var st = _surf[t];
                 if (st.Hi / s < 0.004 || st.Lo / s > 3) continue;                           // only at sizes where it shows
-                double cell = st.Hi * 4; long n = (long)Math.Ceiling(2 * s / cell);
+                double cell = st.Hi * st.Cell; long n = (long)Math.Ceiling(2 * s / cell);
                 if (n > 40) continue;
                 long ci0 = (long)Math.Floor(_fx / cell), cj0 = (long)Math.Floor(_fz / cell);
                 for (long i = ci0 - n; i <= ci0 + n; i++)
@@ -855,7 +855,7 @@ namespace DnaAnd.Shell
                     if (ball > 0.03) Add(solid, at.X, ay + ar * (1 - f) * 0.6, at.Z, ar * 0.38 * (0.25 + 0.75 * f) * ball, at.E.R * sh, at.E.G * sh, at.E.B * sh, s);   // ball and stick: the balls small, so the bonds show
                     if ((at.X - _fx) * (at.X - _fx) + (at.Z - _fz) * (at.Z - _fz) < bondReach * bondReach) drawnAt.Add(new CAtom { E = at.E, X = at.X, Y = ay, Z = at.Z });
                     if (s < AtomSpacing * 4) Cloud(glow, at.E, at.X, ay, at.Z, s, time, (long)(at.X / 1e-14) ^ (long)(at.Z / 1e-14) * 31, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
-                    if (s < AtomSpacing * 20) { int nb = _bodies.Count; AddBody(1, 0, 0, at.X, ay, at.Z, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = at.E.Symbol; }   // every layer's atoms
+                    { int nb = _bodies.Count; AddBody(1, 0, 0, at.X, ay, at.Z, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = at.E.Symbol; }   // every layer's atoms
                 }
                 Bonds(solid, mesh, drawnAt, s, (float)Fade(s, AtomSpacing * 30, AtomSpacing * 16) * (float)(1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2) * 0.6));
             }

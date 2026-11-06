@@ -103,11 +103,11 @@ float4 PS(VO i) : SV_Target
         float fres = pow(1 - nv, 5);
         float shine = 0, power = 8; float3 spec = float3(1, 1, 1);
         if (lu > 0.85) { shine = 0.55; power = 90; }                                  // vitreous: a sharp glassy glint
-        else if (lu > 0.75) { shine = 1.1; power = 40; spec = i.col.rgb * 1.6; c *= 0.55; }   // metallic: the glint in its own colour, dark body
+        else if (lu > 0.75) { shine = 0.7; power = 40; spec = lerp(i.col.rgb, float3(1, 1, 1), 0.35); c *= 0.7; }   // metallic: the glint in its own colour, dark body
         else if (lu > 0.65) { shine = 0.35; power = 14; c += fres * 0.25 * sc; }      // pearly: a soft sheen across it
         else if (lu > 0.55) { shine = 0.3; power = 20; }                              // resinous, waxy: a soft greasy glint
         else if (lu > 0.45) { shine = 0.9; power = 140; }                             // wet: a mirror glint
-        c += spec * sc * shine * pow(nh, power) * saturate(sun * 4);
+        c += spec * sc * shine * pow(nh, power) * saturate(sun * 4) * 0.8;   // a glint, never blown out to white
         c += sc * fres * (lu > 0.75 && lu < 0.85 ? 0.15 : 0.35) * shine;               // the edge catches the light (glass and ice most)
         if (clr > 0.5)
         {
