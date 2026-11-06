@@ -694,7 +694,7 @@ namespace DnaAnd.Shell
                 float shrink = (float)Math.Sqrt(FarStars / (double)Math.Max(FarStars, count));
                 var buf = i == _near && _nearBuf != null ? _nearBuf : g.Far;
                 // inside the galaxy its points ease down from glows to plain points of light, so no nearby one looms as a blob
-                float glow = i == _near ? (float)(1 - 0.97 * InsideShare()) : 1f;
+                float glow = i == _near ? (float)Math.Pow(1 - InsideShare(), 3) : 1f;   // to nothing at all well inside: only points of light remain
                 DrawPoints(buf, count, Placement(g) * vp, right, up, 0.006f * g.Scale * shrink * glow, 0.0016f, w, h, time);
             }
             double inside = InsideShare();
