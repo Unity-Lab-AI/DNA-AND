@@ -506,6 +506,26 @@ namespace DnaAnd.Shell
         {
             double reachPx = 24 * Math.Max(1, _lastH / 1080.0), best = reachPx * reachPx; int kind = -1, idx = 0; double tx = 0, ty = 0, tz = 0, trad = 0; string name = "";
             Func<double, double, double, double> near = (dx, dy, dz) => { double sx, sy; if (!ToScreen(dx, dy, dz, out sx, out sy)) return double.MaxValue; return (sx - mx) * (sx - mx) + (sy - my) * (sy - my); };
+            if (_tKind == 5 && _near >= 0 && _tIndex < _features.Count && _ground == null)
+            {
+                // inside a picked nebula or cluster: a click is a point in its gas, right where you click, at the depth you are at
+                // (a star only if you click right on it), so the wheel flies there and on into its atoms
+                var g = _galaxies[_near]; var ft = _features[_tIndex]; double cux, cuy, cuz; ToUniverse(g, ft[0], ft[1], ft[2], out cux, out cuy, out cuz);
+                double ex = (cux - _ax) - _ox, ey = (cuy - _ay) - _oy, ez = (cuz - _az) - _oz, toCentre = Math.Sqrt(ex * ex + ey * ey + ez * ez);
+                if (toCentre < ft[3] * g.Scale * 1.2)
+                {
+                    double tight = Math.Pow(6 * Math.Max(1, _lastH / 1080.0), 2);
+                    for (int k = 0; k < _localCount; k++)
+                    {
+                        var s0 = _localList[k]; double ux, uy, uz; ToUniverse(g, s0.X, s0.Y, s0.Z, out ux, out uy, out uz);
+                        if (near((ux - _ax) - _ox, (uy - _ay) - _oy, (uz - _az) - _oz) < tight) { _tKind = 1; _tx = ux; _ty = uy; _tz = uz; _tRadius = Units.Km(696000); _tName = "a " + _kinds[_localKind[k]].Name; return; }
+                    }
+                    double cdx, cdy, cdz, crad; TargetFromCamera(out cdx, out cdy, out cdz, out crad);
+                    double depth = Math.Max(Units.Km(10), Math.Sqrt(cdx * cdx + cdy * cdy + cdz * cdz));
+                    _tx = _ax + _ox + dir.X * depth; _ty = _ay + _oy + dir.Y * depth; _tz = _az + _oz + dir.Z * depth; _tRadius = 0;
+                    _tName = "a point in the gas of " + _tName.Replace("a point in the gas of ", ""); return;
+                }
+            }
             if (_ground != null)
             {
                 // the ground: where the line under the mouse meets the planet
