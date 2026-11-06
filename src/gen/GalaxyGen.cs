@@ -23,7 +23,7 @@ namespace DnaAnd.Gen
             {
                 if (!e.Props.ContainsKey("share-of-stars") || (!e.Props.ContainsKey("color") && !e.Props.ContainsKey("temp-k"))) continue;
                 float r, g, b; ColorFor(e, out r, out g, out b);
-                bool remnant = e.Id == "white-dwarf" || e.Id == "neutron-star" || e.Id == "pulsar" || e.Id == "magnetar";
+                bool remnant = e.Get("remnant", "no") == "yes";                        // from the data (stars.dnat)
                 list.Add(new StarKind { Id = e.Id, Name = e.Name, R = r, G = g, B = b, Weight = ShareWeight(e.Get("share-of-stars", "common")), Remnant = remnant });
             }
             if (list.Count == 0) list.Add(new StarKind { Id = "g-type", Name = "G", R = 1, G = 0.95f, B = 0.8f, Weight = 1 });
