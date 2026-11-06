@@ -8,7 +8,7 @@ namespace DnaAnd.Render
 {
     internal sealed class BillboardPipeline : IDisposable
     {
-        public const int ConstantCount = 32; // root constants (32-bit values) per draw
+        public const int ConstantCount = 40; // root constants (32-bit values) per draw
         public IntPtr RootSignature, Pipeline;
 
         [DllImport("d3d12.dll")]

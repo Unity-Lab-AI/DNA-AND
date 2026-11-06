@@ -29,6 +29,8 @@ cbuffer C : register(b0)
     float4 cam;
     float4 misc;
     float4 fog;
+    float4 sunCol;      // the starlight's colour on this ground (the star's colour through the air); a = 0: plain white
+    float4 nightCol;    // the night side's light: half bright, in the colour of the air's glow and the starlight
 };
 struct V { float3 pos; float glow; float4 col; };
 StructuredBuffer<V> verts : register(t0);
@@ -71,13 +73,14 @@ float4 PS(VO i) : SV_Target
     }
     float sun = saturate(dot(n, light.xyz));
     float lit = 0.5 + 0.5 * sun;                                  // a god sees by night: the night side is about half as bright, never black
+    float3 sc = sunCol.a > 0 ? sunCol.rgb : float3(1, 1, 1), nc = sunCol.a > 0 ? nightCol.rgb : float3(0.5, 0.5, 0.5);
+    float3 lit3 = lerp(nc, sc, sun);                              // by day the star's own light through the air, by night the air's glow
     if (misc.z > 1.5 && misc.z < 2.5)
     {
         // clouds scatter light through themselves: lit from the star's side of the planet, glowing grey from below
         lit = 0.45 + 0.55 * saturate(abs(dot(n, light.xyz)));
     }
-    float3 c = i.col.rgb * max(lit, i.glow);
-    c *= lerp(float3(0.78, 0.86, 1.08), float3(1, 1, 1), saturate(sun * 3));   // and a slight cool tint, so night still reads as night
+    float3 c = misc.z > 1.5 && misc.z < 2.5 ? i.col.rgb * max(lit, i.glow) * sc : i.col.rgb * max(lit3, i.glow);
     float alpha = misc.z > 1.5 ? i.col.a : 1;
     if (misc.z > 2.5)
     {

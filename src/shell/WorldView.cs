@@ -900,6 +900,7 @@ namespace DnaAnd.Shell
                 Mat4 kproj = Mat4.Perspective(0.9f, w / (float)Math.Max(1, h), (float)Math.Max(alt * 0.15, 1e-9), (float)(horizon * 1.3 + 100));
                 var sd = _system.StarRadius; double lx = -_px, ly = -_py, lz = -_pz, ll = Math.Sqrt(lx * lx + ly * ly + lz * lz);
                 if (ll > 0) { _ground.StarDir[0] = lx / ll; _ground.StarDir[1] = ly / ll; _ground.StarDir[2] = lz / ll; }
+                GroundLight();
                 _ground.Draw(_meshes, x, y, z, view, kproj, time, 3.0 * Math.Max(1, h / 600.0), 0, 0, 0, 0, 0, 0, w, h, 400);
             }
             if (_matterScale > 0)
@@ -988,6 +989,24 @@ namespace DnaAnd.Shell
                 System.IO.File.AppendAllText(f, DateTime.Now.ToString("HH:mm:ss.f") + "  " + what + "  |  " + Title.Replace("DNA-AND · one world · ", "").Split(new[] { " · wheel:" }, StringSplitOptions.None)[0] + Environment.NewLine);
             }
             catch { }
+        }
+
+        // the light on the ground: by day the star's own colour (from its temperature) through the air, which takes a little of
+        // its own colour out of the direct light the thicker it is (a blue sky leaves the light warmer); by night half as bright,
+        // in the colour of the air's glow and scattered starlight (airless worlds: the starlight alone)
+        private void GroundLight()
+        {
+            float sr = _system.SR, sg = _system.SG, sb = _system.SB, m = Math.Max(1e-3f, Math.Max(sr, Math.Max(sg, sb)));
+            sr /= m; sg /= m; sb /= m;
+            double air = _ground.AirKm > 0 ? Math.Min(1, _ground.AirKm / 100.0) : 0;
+            float ar = _ground.AirR, ag = _ground.AirG, ab = _ground.AirB;
+            float dr = sr * (float)(1 - 0.3 * air * ag * ab), dg = sg * (float)(1 - 0.3 * air * ar * ab), db = sb * (float)(1 - 0.3 * air * ar * ag);
+            float dm = Math.Max(1e-3f, Math.Max(dr, Math.Max(dg, db))); dr /= dm; dg /= dm; db /= dm;
+            float nr = (float)(sr * (1 - air * 0.6) + ar * air * 0.6), ng = (float)(sg * (1 - air * 0.6) + ag * air * 0.6), nb = (float)(sb * (1 - air * 0.6) + ab * air * 0.6);
+            float nm = Math.Max(1e-3f, Math.Max(nr, Math.Max(ng, nb)));
+            if (_ground.SunColour == null) { _ground.SunColour = new float[3]; _ground.NightColour = new float[3]; }
+            _ground.SunColour[0] = dr; _ground.SunColour[1] = dg; _ground.SunColour[2] = db;
+            _ground.NightColour[0] = nr / nm * 0.5f; _ground.NightColour[1] = ng / nm * 0.5f; _ground.NightColour[2] = nb / nm * 0.5f;
         }
 
         private List<string> Card()

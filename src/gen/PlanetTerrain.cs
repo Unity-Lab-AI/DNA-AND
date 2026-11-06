@@ -16,7 +16,8 @@ namespace DnaAnd.Gen
         public readonly string Kind, Name;
         public readonly double Radius;          // km
         public readonly bool Solid;             // false for gas and ice giants: no ground, only cloud tops
-        public double[] StarDir = { 0.78, 0.35, 0.52 };   // direction the starlight comes from (unit length)
+        public double[] StarDir = { 0.78, 0.35, 0.52 };
+        public float[] SunColour, NightColour;           // the light on the ground by day and by night (null: plain white)   // direction the starlight comes from (unit length)
         private readonly uint _seed;
         private const int Grid = 16;            // quads along a patch edge
         // deepest split for each layer: the ground goes down to about a millionth of a metre (microbe size),
@@ -1208,6 +1209,7 @@ namespace DnaAnd.Gen
                 }
                 c[20] = -ox; c[21] = -oy; c[22] = -oz;          // the camera, in the patch's own frame
                 c[25] = fogDist; c[26] = surface; c[28] = fr; c[29] = fg; c[30] = fb;
+                Light(c);
                 if (Shell)
                 {
                     // outward direction of this piece (turned into the drawing frame for the turning clouds)
@@ -1219,6 +1221,13 @@ namespace DnaAnd.Gen
                 }
                 drawer.Draw(p.Buffer, p.Count, c, x, y, w, h);
             }
+        }
+
+        private void Light(float[] c)
+        {
+            if (SunColour == null || NightColour == null) return;
+            c[32] = SunColour[0]; c[33] = SunColour[1]; c[34] = SunColour[2]; c[35] = 1;
+            c[36] = NightColour[0]; c[37] = NightColour[1]; c[38] = NightColour[2];
         }
 
         private static float[] Pack(Mat4 vp)
@@ -1254,7 +1263,7 @@ namespace DnaAnd.Gen
             var c = Pack(vp);
             c[16] = lx; c[17] = ly; c[18] = lz;
             c[20] = (float)camX; c[21] = (float)camY; c[22] = (float)camZ;
-            c[26] = 1;
+            c[26] = 1; Light(c);
             drawer.Draw(_airShell, _airCount, c, x, y, w, h);
         }
 
