@@ -30,7 +30,7 @@ namespace DnaAnd.Shell
         private const double AtomSpacing = 2.5e-13; // about 0.25 nm between atoms in a crystal
         private const double Nucleon = 0.85e-18;    // a proton's or neutron's radius, about 0.85 femtometres
 
-        private sealed class Mineral { public string Id, Name, Formula; public string[] Atoms; public float R, G, B, Lustre = 1; }
+        private sealed class Mineral { public string Id, Name, Formula; public string[] Atoms; public float R, G, B, Lustre = 1; public Lattice Lat; public KeyValuePair<string, double[]>[] Molecule; public string Structure = ""; }
         private sealed class Element { public string Symbol, Name; public int Z, A; public float R, G, B; public double Radius, Cov; public int[] Shells; }
         private readonly Dictionary<string, Mineral> _minerals = new Dictionary<string, Mineral>();
         private readonly Dictionary<string, List<KeyValuePair<Mineral, double>>> _mixes = new Dictionary<string, List<KeyValuePair<Mineral, double>>>();
@@ -93,7 +93,9 @@ namespace DnaAnd.Shell
                 var col = e.Get("colour", "0.7 0.7 0.7").Split(' ');
                 var m = new Mineral { Id = e.Id, Name = e.Name, Formula = e.Get("formula", ""), Atoms = e.Get("atoms", "Si O O").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries) };
                 float r, g, b; float.TryParse(col[0], out r); float.TryParse(col.Length > 1 ? col[1] : col[0], out g); float.TryParse(col.Length > 2 ? col[2] : col[0], out b);
-                m.R = r; m.G = g; m.B = b; m.Lustre = LustreCode(e.Get("lustre", "earthy"), e.Get("clarity", "opaque")); _minerals[m.Id] = m;
+                m.R = r; m.G = g; m.B = b; m.Lustre = LustreCode(e.Get("lustre", "earthy"), e.Get("clarity", "opaque"));
+                m.Lat = Lattice.From(e); m.Structure = e.Get("structure", ""); m.Molecule = MoleculeFrom(e.Get("molecule", ""));
+                _minerals[m.Id] = m;
             }
             foreach (var e in content.OfKind("minerals.dnat", "surface"))
             {
@@ -203,8 +205,7 @@ namespace DnaAnd.Shell
         private Element SiteAtom(Mineral m, long i, long j, long k)
         {
             if (m == null) return null;
-            KeyValuePair<string, double[]>[] mol;
-            if (Molecules.TryGetValue(m.Id, out mol)) return El(mol[0].Key);                    // a molecule's first atom sits on the site
+            if (m.Molecule != null) return El(m.Molecule[0].Key);                             // a molecule's first atom sits on the site
             return El(m.Atoms[(int)(Hash(i, j, k + 20, _seed) * m.Atoms.Length) % m.Atoms.Length]);
         }
 
@@ -217,11 +218,11 @@ namespace DnaAnd.Shell
             var m = FocusMineral; x = FocusAI * AtomSpacing; z = FocusAJ * AtomSpacing; y = 0;
             if (_space) { x = y = z = 0; return GasAtom(0, 0, 0); }                     // in the gas: the atom right where you dive
             if (m == null) return null;
-            if (Structured(m.Id))
+            if (Structured(m))
             {
                 // the atom nearest the point you dive into, in any layer (worked out from where it is)
                 Element best = null; double bd = double.MaxValue, fy = _fy;                   // (heights here measured from the surface under you)
-                foreach (var at in Crystal(m.Id, _fx, _fz, AtomSpacing * 3, 1))
+                foreach (var at in Crystal(m, _fx, _fz, AtomSpacing * 3, AtomSpacing * 8, 4000))
                 {
                     double ay = at.Y - AtomRadius(at.E), d = (at.X - _fx) * (at.X - _fx) + (ay - fy) * (ay - fy) + (at.Z - _fz) * (at.Z - _fz);
                     if (d < bd) { bd = d; best = at.E; x = at.X; y = ay - _yOff; z = at.Z; }
@@ -234,128 +235,100 @@ namespace DnaAnd.Shell
 
         // ── real crystal structures, where they are in: rock salt (halite) and the silica network (quartz) ──
         private sealed class CAtom { public Element E; public double X, Y, Z; }
-        // which structure a mineral has: the silicate network (every silicate: SiO4 tetrahedra joined at their corners, with
-        // aluminium in some tetrahedra and the larger atoms in the gaps), a rock-salt pattern of ions or ion groups (halite;
-        // calcite of Ca and CO3; pyrite of Fe and S2; gypsum of Ca and SO4; the iron and titanium oxides, as an approximation),
-        // or neither (molecular ices, sulfur)
-        private static readonly HashSet<string> RockSalt = new HashSet<string> { "halite", "calcite", "pyrite", "gypsum", "hematite", "magnetite", "ilmenite" };
-        private bool Structured(string id) { Mineral m; return RockSalt.Contains(id) || (_minerals.TryGetValue(id, out m) && Array.IndexOf(m.Atoms, "Si") >= 0); }
-        private string StructureName(Mineral m)
+        // a crystal from its data (content/minerals.dnat): its unit cell (edges in angstroms, angles in degrees) and every atom
+        // site in it (fractional positions; a site shared by several kinds of atom holds each as often as the data says)
+        private sealed class Lattice
         {
-            if (m == null) return "";
-            if (m.Id == "halite") return ", a rock-salt crystal";
-            if (m.Id == "calcite") return ", a rock-salt pattern of calcium and carbonate groups";
-            if (m.Id == "pyrite") return ", a rock-salt pattern of iron and sulfur pairs";
-            if (m.Id == "gypsum") return ", calcium and sulfate groups";
-            if (RockSalt.Contains(m.Id)) return ", metal ions among oxygen (shown as a rock-salt pattern)";
-            if (Array.IndexOf(m.Atoms, "Si") >= 0) return ", a silicate network (shown in its simplest cubic form)";
-            return "";
-        }
-
-        // the atoms of a structured crystal within reach of (cx, cz), top layer at height 0 and below it 'layers' cells deep
-        private List<CAtom> Crystal(string id, double cx, double cz, double reach, int layers)
-        {
-            var list = new List<CAtom>();
-            if (id == "halite")
+            public double[] A, B, C;                 // the cell's edges in km, world x, height, z (c points up, out of the face)
+            public double[][] Pos; public string[][] Els; public double[][] Occ; public double Area;
+            public static Lattice From(ContentEntry e)
             {
-                // rock salt: sodium and chlorine alternating on a cube grid, 0.282 nm apart
-                double d = 2.82e-13; long n = (long)Math.Min(40, Math.Ceiling(reach / d) + 1), i0 = (long)Math.Round(cx / d), j0 = (long)Math.Round(cz / d);
-                Element na = El("Na"), cl = El("Cl");
-                for (long i = i0 - n; i <= i0 + n; i++)
-                    for (long j = j0 - n; j <= j0 + n; j++)
-                        for (long k = 0; k > -2 * layers - 1; k--)
-                            list.Add(new CAtom { E = ((i + j + k) & 1) == 0 ? na : cl, X = i * d, Y = k * d, Z = j * d });
-            }
-            else if (RockSalt.Contains(id))
-            {
-                // a rock-salt pattern: cations and anions (or anion groups) alternating on a cube grid
-                var m = _minerals[id]; double d; string cat, cat2 = null; KeyValuePair<string, double[]>[] grp;
-                double co = 1.28e-13, ss = 2.16e-13 / 2, so = 1.47e-13 / Math.Sqrt(3);
-                switch (id)
+                var ci = System.Globalization.CultureInfo.InvariantCulture; var fs = System.Globalization.NumberStyles.Float;
+                var c = e.Get("cell", "").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries); var sites = e.All("site");
+                if (c.Length != 6 || sites.Count == 0) return null;
+                var v = new double[6]; for (int q = 0; q < 6; q++) if (!double.TryParse(c[q], fs, ci, out v[q])) return null;
+                double a = v[0] * 1e-13, b = v[1] * 1e-13, cc = v[2] * 1e-13, al = v[3] * Math.PI / 180, be = v[4] * Math.PI / 180, ga = v[5] * Math.PI / 180;
+                double cx = cc * Math.Cos(be), cy = cc * (Math.Cos(al) - Math.Cos(be) * Math.Cos(ga)) / Math.Sin(ga), cz = Math.Sqrt(Math.Max(0, cc * cc - cx * cx - cy * cy));
+                var L = new Lattice { A = new[] { a, 0, 0 }, B = new[] { b * Math.Cos(ga), 0, b * Math.Sin(ga) }, C = new[] { cx, cz, cy } };
+                L.Area = Math.Abs(L.A[0] * L.B[2] - L.A[2] * L.B[0]);
+                var pos = new List<double[]>(); var els = new List<string[]>(); var occ = new List<double[]>();
+                foreach (var line in sites)
                 {
-                    case "calcite": d = 3.2e-13; cat = "Ca"; grp = new[] { P("C", 0, 0, 0), P("O", co, 0, 0), P("O", -co / 2, 0, co * 0.866), P("O", -co / 2, 0, -co * 0.866) }; break;   // CO3: flat triangle, C-O 0.128 nm
-                    case "pyrite": d = 2.7e-13; cat = "Fe"; grp = new[] { P("S", ss, ss * 0.3, 0), P("S", -ss, -ss * 0.3, 0) }; break;                                          // S2 pairs, S-S 0.216 nm
-                    case "gypsum": d = 3.5e-13; cat = "Ca"; grp = new[] { P("S", 0, 0, 0), P("O", so, so, so), P("O", so, -so, -so), P("O", -so, so, -so), P("O", -so, -so, so) }; break;   // SO4 tetrahedra, S-O 0.147 nm
-                    case "ilmenite": d = 2.1e-13; cat = "Fe"; cat2 = "Ti"; grp = new[] { P("O", 0, 0, 0) }; break;
-                    default: d = 2.1e-13; cat = "Fe"; grp = new[] { P("O", 0, 0, 0) }; break;                                                                                 // Fe-O about 0.21 nm
+                    var w = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries); if (w.Length < 4) continue;
+                    double x, y, z; if (!double.TryParse(w[0], fs, ci, out x) || !double.TryParse(w[1], fs, ci, out y) || !double.TryParse(w[2], fs, ci, out z)) continue;
+                    var el = new List<string>(); var oc = new List<double>();
+                    for (int q = 3; q < w.Length; q++)
+                    {
+                        double o; if (double.TryParse(w[q], fs, ci, out o)) { if (oc.Count > 0) oc[oc.Count - 1] = o; continue; }
+                        el.Add(w[q]); oc.Add(1);
+                    }
+                    if (el.Count == 0) continue;
+                    pos.Add(new[] { x, y, z }); els.Add(el.ToArray()); occ.Add(oc.ToArray());
                 }
-                long n = (long)Math.Min(40, Math.Ceiling(reach / d) + 1), i0 = (long)Math.Round(cx / d), j0 = (long)Math.Round(cz / d);
-                for (long i = i0 - n; i <= i0 + n; i++)
-                    for (long j = j0 - n; j <= j0 + n; j++)
-                        for (long k = 0; k > -2 * layers - 1; k--)
+                if (pos.Count == 0) return null;
+                L.Pos = pos.ToArray(); L.Els = els.ToArray(); L.Occ = occ.ToArray(); return L;
+            }
+        }
+        // a molecule from the data ("C 0 0 0, H 0.063 0.063 0.063, ..." in nm, from its first atom)
+        private static KeyValuePair<string, double[]>[] MoleculeFrom(string t)
+        {
+            if (string.IsNullOrEmpty(t)) return null;
+            var ci = System.Globalization.CultureInfo.InvariantCulture; var l = new List<KeyValuePair<string, double[]>>();
+            foreach (var part in t.Split(','))
+            {
+                var w = part.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries); if (w.Length != 4) continue;
+                l.Add(P(w[0], double.Parse(w[1], ci) * 1e-12, double.Parse(w[2], ci) * 1e-12, double.Parse(w[3], ci) * 1e-12));
+            }
+            return l.Count > 0 ? l.ToArray() : null;
+        }
+        private bool Structured(Mineral m) { return m != null && m.Lat != null; }
+        private string StructureName(Mineral m) { return m == null || m.Structure.Length == 0 ? "" : ", " + m.Structure; }
+
+        // the atoms of a crystal within reach of (cx, cz): its face at height 0, down to 'depth' below it, at most 'budget' atoms
+        // (the reach shrinks to fit). Each site's atom from its cell and site (a shared site picks by the data's shares); a
+        // molecule's other atoms round each of its first atoms, turned its own way.
+        private List<CAtom> Crystal(Mineral m, double cx, double cz, double reach, double depth, int budget)
+        {
+            var list = new List<CAtom>(); var L = m.Lat; if (L == null) return list;
+            int per = L.Pos.Length * (m.Molecule != null ? m.Molecule.Length : 1);
+            long nk = (long)Math.Max(1, Math.Ceiling(depth / Math.Max(1e-20, L.C[1])));
+            double most = Math.Sqrt(budget * L.Area / Math.Max(1, per * nk)) * 0.5; reach = Math.Min(reach, most);
+            // cells covering the square round (cx, cz): solve x = i*A + j*B in the face's plane
+            double det = L.A[0] * L.B[2] - L.A[2] * L.B[0];
+            for (long k = -1; k >= -nk; k--)
+            {
+                double ox = cx - k * L.C[0], oz = cz - k * L.C[2];
+                double i0 = double.MaxValue, i1 = double.MinValue, j0 = double.MaxValue, j1 = double.MinValue;
+                for (int q = 0; q < 4; q++)
+                {
+                    double px = ox + ((q & 1) == 0 ? -reach : reach), pz = oz + ((q & 2) == 0 ? -reach : reach);
+                    double fi = (px * L.B[2] - pz * L.B[0]) / det, fj = (pz * L.A[0] - px * L.A[2]) / det;
+                    i0 = Math.Min(i0, fi); i1 = Math.Max(i1, fi); j0 = Math.Min(j0, fj); j1 = Math.Max(j1, fj);
+                }
+                for (long i = (long)Math.Floor(i0) - 1; i <= (long)Math.Ceiling(i1); i++)
+                    for (long j = (long)Math.Floor(j0) - 1; j <= (long)Math.Ceiling(j1); j++)
+                        for (int q = 0; q < L.Pos.Length; q++)
                         {
-                            double X = i * d, Y = k * d, Z = j * d;
-                            if (((i + j + k) & 1) == 0) list.Add(new CAtom { E = El(cat2 != null && ((i + k) & 2) == 0 ? cat2 : cat), X = X, Y = Y, Z = Z });
-                            else foreach (var gp in grp) { double ox, oy, oz; Orient(i, j, k, gp.Value, out ox, out oy, out oz); if (grp.Length == 1) { ox = oy = oz = 0; } list.Add(new CAtom { E = El(gp.Key), X = X + ox, Y = Y + oy, Z = Z + oz }); }
+                            var f = L.Pos[q]; double u = i + f[0], w = j + f[1], h = k + f[2];
+                            double X = u * L.A[0] + w * L.B[0] + h * L.C[0], Y = h * L.C[1], Z = u * L.A[2] + w * L.B[2] + h * L.C[2];
+                            if (Y > 0 || Y < -depth || Math.Abs(X - cx) > reach || Math.Abs(Z - cz) > reach) continue;
+                            // which atom is on this site here (a shared site: each as often as the data gives; maybe none)
+                            var els = L.Els[q]; var oc = L.Occ[q]; string sym = null; double r = Hash(i * 977 + q, j, k + 90, _seed), acc = 0;
+                            for (int t = 0; t < els.Length; t++) { acc += oc[t]; if (r < acc) { sym = els[t]; break; } }
+                            if (sym == null) continue;
+                            var e = El(sym); if (e == null) continue;
+                            list.Add(new CAtom { E = e, X = X, Y = Y, Z = Z });
+                            if (m.Molecule != null && m.Molecule[0].Key == sym)
+                                for (int t = 1; t < m.Molecule.Length; t++)
+                                {
+                                    var me = El(m.Molecule[t].Key); if (me == null) continue; double dx, dy, dz; Orient(i * 31 + q, j, k, m.Molecule[t].Value, out dx, out dy, out dz);
+                                    if (Y + dy <= 0) list.Add(new CAtom { E = me, X = X + dx, Y = Y + dy, Z = Z + dz });
+                                }
                         }
-                list.RemoveAll(at => at.Y > 0.6 * d * 0.5);
-            }
-            else if (id != "quartz" && Structured(id))
-            {
-                // the silicate network: SiO4 tetrahedra joined at their corners (cristobalite's cubic form, 0.716 nm), with this
-                // mineral's own silicon and aluminium in the tetrahedra (in its ratio) and its larger atoms in the gaps
-                var m = _minerals[id];
-                var tl = new List<string>(); var big = new List<string>(); int ox = 0;
-                foreach (var a in m.Atoms) { if (a == "Si" || a == "Al") tl.Add(a); else if (a == "O") ox++; else if (a != "H") big.Add(a); }
-                if (tl.Count == 0) tl.Add("Si");
-                double fill = Math.Min(1, big.Count * 2.0 / tl.Count);                              // gaps filled per two tetrahedra, from the formula
-                double A = 7.16e-13; long n = (long)Math.Min(12, Math.Ceiling(reach / A) + 1), i0 = (long)Math.Floor(cx / A), j0 = (long)Math.Floor(cz / A);
-                Element o = El("O");
-                double[][] fcc = { new[] { 0, 0, 0.0 }, new[] { 0, 0.5, 0.5 }, new[] { 0.5, 0, 0.5 }, new[] { 0.5, 0.5, 0.0 } };
-                double[][] bonds = { new[] { 0.25, 0.25, 0.25 }, new[] { 0.25, -0.25, -0.25 }, new[] { -0.25, 0.25, -0.25 }, new[] { -0.25, -0.25, 0.25 } };
-                for (long i = i0 - n; i <= i0 + n; i++)
-                    for (long j = j0 - n; j <= j0 + n; j++)
-                        for (long k = 0; k > -layers - 1; k--)
-                            for (int q = 0; q < 4; q++)
-                            {
-                                var b = fcc[q]; double bx = (i + b[0]) * A, by = (k + b[1]) * A - A * 0.25, bz = (j + b[2]) * A;
-                                list.Add(new CAtom { E = El(tl[(int)(Hash(i * 8 + q, j, k + 70, _seed) * tl.Count) % tl.Count]), X = bx, Y = by, Z = bz });
-                                list.Add(new CAtom { E = El(tl[(int)(Hash(i * 8 + q, j, k + 71, _seed) * tl.Count) % tl.Count]), X = bx + 0.25 * A, Y = by + 0.25 * A, Z = bz + 0.25 * A });
-                                foreach (var v in bonds) list.Add(new CAtom { E = o, X = bx + v[0] * A * 0.5, Y = by + v[1] * A * 0.5, Z = bz + v[2] * A * 0.5 });
-                                if (big.Count > 0 && Hash(i * 8 + q, j, k + 72, _seed) < fill)
-                                    list.Add(new CAtom { E = El(big[(int)(Hash(i * 8 + q, j, k + 73, _seed) * big.Count) % big.Count]), X = bx + 0.5 * A, Y = by + 0.5 * A, Z = bz + 0.5 * A });
-                            }
-                list.RemoveAll(at => at.Y > 1e-20);
-            }
-            else if (id == "quartz")
-            {
-                // the silica network: each silicon bonded to four oxygens, each oxygen bridging two silicons (shown here in its
-                // simplest form, cristobalite's cubic cell, 0.716 nm across: silicon on a diamond lattice, oxygen mid-bond)
-                double A = 7.16e-13; long n = (long)Math.Min(12, Math.Ceiling(reach / A) + 1), i0 = (long)Math.Floor(cx / A), j0 = (long)Math.Floor(cz / A);
-                Element si = El("Si"), o = El("O");
-                double[][] fcc = { new[] { 0, 0, 0.0 }, new[] { 0, 0.5, 0.5 }, new[] { 0.5, 0, 0.5 }, new[] { 0.5, 0.5, 0.0 } };
-                double[][] bonds = { new[] { 0.25, 0.25, 0.25 }, new[] { 0.25, -0.25, -0.25 }, new[] { -0.25, 0.25, -0.25 }, new[] { -0.25, -0.25, 0.25 } };
-                for (long i = i0 - n; i <= i0 + n; i++)
-                    for (long j = j0 - n; j <= j0 + n; j++)
-                        for (long k = 0; k > -layers - 1; k--)
-                            foreach (var b in fcc)
-                            {
-                                double bx = (i + b[0]) * A, by = (k + b[1]) * A - A * 0.25, bz = (j + b[2]) * A;
-                                list.Add(new CAtom { E = si, X = bx, Y = by, Z = bz });
-                                list.Add(new CAtom { E = si, X = bx + 0.25 * A, Y = by + 0.25 * A, Z = bz + 0.25 * A });
-                                foreach (var v in bonds) list.Add(new CAtom { E = o, X = bx + v[0] * A * 0.5, Y = by + v[1] * A * 0.5, Z = bz + v[2] * A * 0.5 });
-                            }
-                list.RemoveAll(at => at.Y > 1e-20);                                          // the grain's face: nothing above it
             }
             return list;
         }
 
-        // minerals made of separate molecules: each lattice site holds one, its atoms in the molecule's real shape (km, from its
-        // first atom, which sits on the site). Network minerals (quartz, feldspar, olivine...) have none: their atoms are the sites.
-        private static readonly Dictionary<string, KeyValuePair<string, double[]>[]> Molecules = BuildMolecules();
-        private static Dictionary<string, KeyValuePair<string, double[]>[]> BuildMolecules()
-        {
-            var d = new Dictionary<string, KeyValuePair<string, double[]>[]>();
-            double oh = 0.957e-13, half = 104.5 / 2 * Math.PI / 180;                       // water: O-H 0.0957 nm, bent at 104.5 degrees
-            var water = new[] { P("O", 0, 0, 0), P("H", oh * Math.Sin(half), oh * Math.Cos(half), 0), P("H", -oh * Math.Sin(half), oh * Math.Cos(half), 0) };
-            d["water-ice"] = water; d["sea-water"] = water;
-            double co = 1.16e-13;                                                            // carbon dioxide: straight, C=O 0.116 nm
-            d["dry-ice"] = new[] { P("C", 0, 0, 0), P("O", co, 0, 0), P("O", -co, 0, 0) };
-            double ch = 1.09e-13 / Math.Sqrt(3);                                             // methane: a tetrahedron, C-H 0.109 nm
-            d["methane-ice"] = new[] { P("C", 0, 0, 0), P("H", ch, ch, ch), P("H", ch, -ch, -ch), P("H", -ch, ch, -ch), P("H", -ch, -ch, ch) };
-            d["nitrogen-ice"] = new[] { P("N", 0, 0, 0), P("N", 1.10e-13, 0, 0) };          // nitrogen: a pair, N-N 0.110 nm
-            return d;
-        }
         private static KeyValuePair<string, double[]> P(string el, double x, double y, double z) { return new KeyValuePair<string, double[]>(el, new[] { x, y, z }); }
 
         // turns a molecule's offset by its site's own orientation (from the site's hash)
@@ -511,6 +484,7 @@ namespace DnaAnd.Shell
                     ok[a, b] = GrainTop(gi, gj, gx, gy, gz, rad, x, z, cellHere, out y); hy[a, b] = y;
                 }
             float sh = FocusShade;
+            double sink = Structured(m) ? AtomSpacing * 3 * Fade(s, AtomSpacing * 40, AtomSpacing * 22) : 0;   // under the atoms once they show
             // each corner's surface direction, from the slope to its neighbours (so it is shaded smooth, not in facets)
             var nrm = new float[N + 1, N + 1];
             for (int a = 0; a <= N; a++)
@@ -527,7 +501,7 @@ namespace DnaAnd.Shell
                     double x0 = at(a), z0 = at(b);
                     float t = (float)(0.93 + 0.14 * Hash((long)Math.Floor((_fx + x0) / (step * 4)), (long)Math.Floor((_fz + z0) / (step * 4)), 61, _seed)) * sh;
                     float r = m.R * t, g = m.G * t, bl = m.B * t;
-                    Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)(at(aa) / s + _ex), Y = (float)((hy[aa, bb] + _yOff - _fy) / s + _ey), Z = (float)(at(bb) / s + _ez), Size = nrm[aa, bb], R = r, G = g, B = bl, A = m.Lustre };
+                    Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)(at(aa) / s + _ex), Y = (float)((hy[aa, bb] - sink + _yOff - _fy) / s + _ey), Z = (float)(at(bb) / s + _ez), Size = nrm[aa, bb], R = r, G = g, B = bl, A = m.Lustre };
                     mesh.Add(v(a, b)); mesh.Add(v(a + 1, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b + 1));
                 }
         }
@@ -674,8 +648,13 @@ namespace DnaAnd.Shell
         {
             if (_ico == null) MakeIco();
             int balls = 0;
-            foreach (var v in solid)
+            // nearest first, so the round balls (and the room in the mesh) go to the atoms closest to you
+            var order = new int[solid.Count]; var dd = new float[solid.Count];
+            for (int q = 0; q < order.Length; q++) { var w = solid[q]; order[q] = q; dd[q] = w.X * w.X + w.Y * w.Y + w.Z * w.Z; }
+            Array.Sort(dd, order);
+            foreach (int oi in order)
             {
+                var v = solid[oi];
                 double rad = v.Size * 0.75, dist = Math.Sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z), px = rad / Math.Max(1e-9, dist) * h / (2 * Math.Tan(0.45));
                 if (px < 0.6 || mesh.Count > 1500000) continue;
                 if (v.A < 0.9f)
@@ -687,7 +666,7 @@ namespace DnaAnd.Shell
                     mesh.Add(a0); mesh.Add(a1); mesh.Add(a2); mesh.Add(a0); mesh.Add(a2); mesh.Add(a3);
                     continue;
                 }
-                if (px > 10 && balls < 2500)
+                if (px > 6 && balls < 6000)
                 {
                     balls++;
                     foreach (int k in _icoTri) mesh.Add(new StarVertex { X = (float)(v.X + _ico[k].X * rad), Y = (float)(v.Y + _ico[k].Y * rad), Z = (float)(v.Z + _ico[k].Z * rad), Size = PackNormal(_ico[k].X, _ico[k].Y, _ico[k].Z), R = v.R, G = v.G, B = v.B, A = 1 });
@@ -696,7 +675,7 @@ namespace DnaAnd.Shell
                 {
                     double[][] p = { new[] { rad, 0, 0.0 }, new[] { -rad, 0, 0.0 }, new[] { 0, rad, 0.0 }, new[] { 0, -rad, 0.0 }, new[] { 0, 0, rad }, new[] { 0, 0, -rad } };
                     int[] f = { 0, 2, 4, 4, 2, 1, 1, 2, 5, 5, 2, 0, 0, 4, 3, 4, 1, 3, 1, 5, 3, 5, 0, 3 };
-                    foreach (int k in f) mesh.Add(new StarVertex { X = (float)(v.X + p[k][0]), Y = (float)(v.Y + p[k][1]), Z = (float)(v.Z + p[k][2]), Size = 0, R = v.R, G = v.G, B = v.B, A = 1 });
+                    foreach (int k in f) mesh.Add(new StarVertex { X = (float)(v.X + p[k][0]), Y = (float)(v.Y + p[k][1]), Z = (float)(v.Z + p[k][2]), Size = PackNormal(p[k][0], p[k][1], p[k][2]), R = v.R, G = v.G, B = v.B, A = 1 });
                 }
             }
         }
@@ -783,18 +762,21 @@ namespace DnaAnd.Shell
                             if (c < 3e-10) { const double tw = 4e-11; long ti = (long)Math.Floor(x / tw), tj = (long)Math.Floor(z / tw); ty = -Math.Floor(Hash(ti, tj, 60, _seed) * 4) * 3e-13; sh *= (float)(1 + ty / 3e-13 * 0.08); }
                             float fsh = FocusShade, r = fm.R * fsh, g = fm.G * fsh, b = fm.B * fsh;             // the stone's own colour, carried on
                             if (atomish > 0) { var ae = El(fm.Atoms[(int)(Hash(ci, cj, 5, _seed) * fm.Atoms.Length) % fm.Atoms.Length]); if (ae != null) { r = (float)(r * (1 - atomish) + ae.R * atomish); g = (float)(g * (1 - atomish) + ae.G * atomish); b = (float)(b * (1 - atomish) + ae.B * atomish); } }
-                            float f = (float)(1 - Fade(s, AtomSpacing * 14, AtomSpacing * 8));
-                            if (f > 0.01) { Add(solid, x, ty - c * 0.05, z, c * 0.72, r * sh, g * sh, b * sh, s); if (solid.Count > 0) { var tv = solid[solid.Count - 1]; tv.A = 0.5f; solid[solid.Count - 1] = tv; } }   // a flat tile of the face
+                            float f = (float)(1 - Fade(s, AtomSpacing * 40, AtomSpacing * 22));
+                            if (f > 0.01) { Add(solid, x, ty - c * 0.05 - (Structured(fm) ? AtomSpacing * 3 * (1 - f) : 0), z, c * 0.72, r * sh, g * sh, b * sh, s); if (solid.Count > 0) { var tv = solid[solid.Count - 1]; tv.A = 0.5f; solid[solid.Count - 1] = tv; } }   // a flat tile of the face
                         }
                 }
             }
             // the mineral's atoms, rows about 0.25 nm apart, in its real ratio; one atom right at the point you dive into
             double fax, fay, faz; var focus = Focus(out fax, out fay, out faz);
-            if (fm != null && s < AtomSpacing * 14 && Structured(fm.Id))
+            if (fm != null && s < AtomSpacing * 40 && Structured(fm))
             {
-                float f = (float)Fade(s, AtomSpacing * 14, AtomSpacing * 9);
-                var drawnAt = new List<CAtom>();
-                foreach (var at0 in Crystal(fm.Id, _fx, _fz, 2.4 * s, 3))   // deep and wide all round you, solid every way you look
+                // from about 40 atom spacings (some 10 nm) the crystal's real lattice fills the whole view, coming in as a fine
+                // grain of atoms over the surface and opening into its rows, layers and bonds as you come in
+                float f = (float)Fade(s, AtomSpacing * 40, AtomSpacing * 20);
+                var drawnAt = new List<CAtom>(); double bondReach = Math.Min(1.2 * s, AtomSpacing * 22);
+                double depth = s < AtomSpacing * 14 ? AtomSpacing * 9 : AtomSpacing * 3;     // close in, deep: solid every way you look
+                foreach (var at0 in Crystal(fm, _fx, _fz, 2.4 * s, depth, 60000))
                 {
                     var at = at0; double ar = AtomRadius(at.E), ay = at.Y - ar - _yOff;                     // on the grain's real surface
                     bool inFocus = at.E == focus && Math.Abs(at.X - fax) < 1e-20 && Math.Abs(ay - fay) < 1e-20 && Math.Abs(at.Z - faz) < 1e-20 && s < ar * 4;
@@ -804,16 +786,16 @@ namespace DnaAnd.Shell
                     // (its nucleus and its electrons on their paths), as the electrons are what an atom's size really is
                     double ball = 1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2);
                     if (ball > 0.03) Add(solid, at.X, ay + ar * (1 - f) * 0.6, at.Z, ar * 0.38 * (0.25 + 0.75 * f) * ball, at.E.R * sh, at.E.G * sh, at.E.B * sh, s);   // ball and stick: the balls small, so the bonds show
-                    if ((at.X - _fx) * (at.X - _fx) + (at.Z - _fz) * (at.Z - _fz) < 1.44 * s * s) drawnAt.Add(new CAtom { E = at.E, X = at.X, Y = ay, Z = at.Z });
+                    if ((at.X - _fx) * (at.X - _fx) + (at.Z - _fz) * (at.Z - _fz) < bondReach * bondReach) drawnAt.Add(new CAtom { E = at.E, X = at.X, Y = ay, Z = at.Z });
                     if (s < AtomSpacing * 4) Cloud(glow, at.E, at.X, ay, at.Z, s, time, (long)(at.X / 1e-14) ^ (long)(at.Z / 1e-14) * 31, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
-                    { int nb = _bodies.Count; AddBody(1, 0, 0, at.X, ay, at.Z, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = at.E.Symbol; }   // every layer's atoms
+                    if (s < AtomSpacing * 20) { int nb = _bodies.Count; AddBody(1, 0, 0, at.X, ay, at.Z, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = at.E.Symbol; }   // every layer's atoms
                 }
-                Bonds(solid, drawnAt, s, f * (float)(1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2) * 0.6));
+                Bonds(solid, drawnAt, s, (float)Fade(s, AtomSpacing * 30, AtomSpacing * 16) * (float)(1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2) * 0.6));
             }
-            else if (fm != null && s < AtomSpacing * 14)
+            else if (fm != null && s < AtomSpacing * 40)
             {
-                double a = AtomSpacing; long n = (long)Math.Min(24, Math.Ceiling(2.4 * s / a) + 1), ai0 = FocusAI, aj0 = FocusAJ;
-                float f = (float)Fade(s, AtomSpacing * 14, AtomSpacing * 9);
+                double a = AtomSpacing; long n = (long)Math.Min(60, Math.Ceiling(2.4 * s / a) + 1), ai0 = FocusAI, aj0 = FocusAJ;
+                float f = (float)Fade(s, AtomSpacing * 40, AtomSpacing * 20);
                 for (long i = ai0 - n; i <= ai0 + n; i++)
                     for (long j = aj0 - n; j <= aj0 + n; j++)
                         for (long k = 0; k >= -7; k--)
@@ -824,8 +806,8 @@ namespace DnaAnd.Shell
                             bool inFocus = i == ai0 && j == aj0 && k == 0 && s < ar * 4;
                             if (inFocus) continue;                                          // you are going into this one: drawn from inside below
                             float sh = (float)(1 - 0.25 * -k);
-                            KeyValuePair<string, double[]>[] mol;
-                            if (Molecules.TryGetValue(fm.Id, out mol))
+                            var mol = fm.Molecule;
+                            if (mol != null)
                             {
                                 // a whole molecule on this site, in its real shape, each turned its own way
                                 for (int q = 1; q < mol.Length; q++)
@@ -1069,7 +1051,7 @@ namespace DnaAnd.Shell
                 else if (f0 == "CO2") { L.Add("straight; C=O bonds 0.116 nm"); }
                 else if (f0 == "CH4") { L.Add("a tetrahedron; C-H bonds 0.109 nm"); }
                 else if (f0 == "N2") { L.Add("a pair; N-N triple bond 0.110 nm"); }
-                KeyValuePair<string, double[]>[] mol0; L.Add("atoms in it: " + (Molecules.TryGetValue(mm.Id, out mol0) ? mol0.Length : mm.Atoms.Length));
+                L.Add("atoms in it: " + (mm.Molecule != null ? mm.Molecule.Length : mm.Atoms.Length));
                 return L;
             }
             if (_picked != null && _picked.Kind == 7)
@@ -1132,7 +1114,7 @@ namespace DnaAnd.Shell
                 L.Add("about " + perCc.ToString(perCc < 10 ? "0.#" : "N0") + " atoms a cubic centimetre (air has 25 billion billion)");
                 L.Add(inView >= 2 ? "in view: about " + Big(inView) + " atoms, far too thin to see" : "in view: the one atom ahead of you");
                 L.Add("each about " + ScaleHud.Words(_gasSpacing) + " from the next"); }
-            else if (fm != null && Molecules.ContainsKey(fm.Id)) L.Add("in a molecule of " + fm.Formula.Split(' ')[0] + ", in " + fm.Name.ToLowerInvariant());
+            else if (fm != null && fm.Molecule != null && fm.Lat == null) L.Add("in a molecule of " + fm.Formula.Split(' ')[0] + ", in " + fm.Name.ToLowerInvariant());
             else if (fm != null) L.Add("in a grain of " + fm.Name.ToLowerInvariant() + " (" + fm.Formula + ")" + StructureName(fm));
             return L;
         }
