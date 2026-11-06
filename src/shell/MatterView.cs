@@ -362,7 +362,7 @@ namespace DnaAnd.Shell
             if (s > ar * 3) return "the atoms of " + mn + "; under you " + e.Name.ToLowerInvariant();
             string sh = string.Join(", ", Array.ConvertAll(e.Shells, x => x.ToString()));
             if (s > nr * 40) return "an atom of " + e.Name.ToLowerInvariant() + ": " + e.Z + " electrons in shells of " + sh + ", round a nucleus far below";
-            if (s < Nucleon * 4) return "inside a proton or neutron at the middle of the nucleus of " + e.Name.ToLowerInvariant() + ": its three quarks, held by gluons";
+            if (s < Nucleon * 8) return "the nucleus of " + e.Name.ToLowerInvariant() + ", close in: each of its " + e.Z + " protons and " + (e.A - e.Z) + " neutrons three quarks, held by gluons";
             return "the nucleus of " + e.Name.ToLowerInvariant() + ": " + e.Z + " protons and " + (e.A - e.Z) + " neutrons";
         }
 
@@ -613,18 +613,21 @@ namespace DnaAnd.Shell
                     double rr = nr * Math.Pow((k + 0.5) / A, 1 / 3.0), u = k * 2.399963, v = Math.Acos(1 - 2 * ((k * 0.618034) % 1));
                     bool proton = protons < Z && (k * Z) / A >= protons; if (proton) protons++;
                     double nx = ax0 + rr * Math.Sin(v) * Math.Cos(u), ny = cy + rr * Math.Cos(v), nz = az0 + rr * Math.Sin(v) * Math.Sin(u);
-                    if (k == 0 && s < Nucleon * 4)
+                    // every proton and neutron, close in, shows its three quarks; from afar it is a ball (red a proton, grey a neutron)
+                    double nball = 1 - Fade(s, Nucleon * 8, Nucleon * 3);
+                    if (s < Nucleon * 8)
                     {
                         // the one at the middle, from inside: its three quarks (a proton two up and one down, a neutron one up
                         // and two down), points as far as measured, moving in about 0.84 fm, in the glow of the gluons that hold them
-                        float gf = (float)Fade(s, Nucleon * 4, Nucleon * 2);
+                        float gf = (float)Math.Max(0.15, Fade(s, Nucleon * 8, Nucleon * 3));
+                        if (nball > 0.03) Add(solid, nx, ny, nz, Nucleon / 0.75 * nball, proton ? 0.9f : 0.6f, proton ? 0.22f : 0.65f, proton ? 0.2f : 0.75f, s);
                         Add(glow, nx, ny, nz, Nucleon, 0.25f * gf, 0.12f * gf, 0.05f * gf, s);
                         string q = proton ? "uud" : "udd"; float[][] colour = { new[] { 1f, 0.2f, 0.2f }, new[] { 0.2f, 1f, 0.2f }, new[] { 0.3f, 0.4f, 1f } };   // their three colour charges
                         for (int qi = 0; qi < 3; qi++)
                         {
-                            double a1 = time * (1.3 + qi * 0.4) + qi * 2.1, a2 = time * (0.9 + qi * 0.3) + qi, qr = Nucleon * (0.35 + 0.2 * Math.Sin(time * 0.7 + qi));
+                            double a1 = time * (1.3 + qi * 0.4) + qi * 2.1 + k * 0.77, a2 = time * (0.9 + qi * 0.3) + qi + k * 1.3, qr = Nucleon * (0.35 + 0.2 * Math.Sin(time * 0.7 + qi + k));
                             double qx = nx + qr * Math.Sin(a2) * Math.Cos(a1), qy = ny + qr * Math.Cos(a2), qz = nz + qr * Math.Sin(a2) * Math.Sin(a1);
-                            Add(glow, qx, qy, qz, 1e-21, colour[qi][0] * gf, colour[qi][1] * gf, colour[qi][2] * gf, s);
+                            Add(glow, qx, qy, qz, s * 0.003, colour[qi][0] * gf, colour[qi][1] * gf, colour[qi][2] * gf, s);
                             int nb = _bodies.Count; AddBody(4, qi, q[qi] == 'u' ? 1 : 0, qx, qy, qz, Nucleon * 0.15, s); if (_bodies.Count > nb) _bodies[nb].Sym = q[qi] == 'u' ? "up" : "down";
                         }
                         continue;
