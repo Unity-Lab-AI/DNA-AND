@@ -24,6 +24,8 @@ namespace DnaAnd.Render
 
         /// <summary>Set to a file path to save the next finished frame as a picture (.bmp). Only the game's own picture is saved.</summary>
         public string CaptureNext;
+        /// <summary>Set to copy the next finished frame into <see cref="Grabbed"/> (RGB bytes, top row first), for clips.</summary>
+        public bool GrabNext; public byte[] Grabbed;
 
         // per-frame calls, looked up once
         private D3D12.PresentFn _present; private D3D12.GetCurrentBackBufferIndexFn _getIndex;
@@ -171,9 +173,9 @@ namespace DnaAnd.Render
         /// <summary>Finishes the frame and shows it, synced to the monitor (vsync).</summary>
         public void EndFrame()
         {
-            string capture = CaptureNext; CaptureNext = null;
+            string capture = CaptureNext; CaptureNext = null; bool grab = GrabNext; GrabNext = false;
             IntPtr readback = IntPtr.Zero; uint pitch = 0;
-            if (capture != null)
+            if (capture != null || grab)
             {
                 pitch = (uint)((Width * 4 + 255) & ~255);
                 readback = MakeReadback((long)pitch * Height);
@@ -196,7 +198,7 @@ namespace DnaAnd.Render
             Com.Check(_present(_swapChain, 1, 0), "Present");
             WaitForGpu();
             _frameIndex = _getIndex(_swapChain);
-            if (readback != IntPtr.Zero) { try { SaveBmp(readback, pitch, capture); } finally { Com.Release(ref readback); } }
+            if (readback != IntPtr.Zero) { try { if (capture != null) SaveBmp(readback, pitch, capture); if (grab) Grabbed = Rgb(readback, pitch); } finally { Com.Release(ref readback); } }
         }
 
         [StructLayout(LayoutKind.Sequential)] private struct HeapProps { public int Type, CpuPage, Pool; public uint CreateMask, VisibleMask; }
@@ -219,6 +221,18 @@ namespace DnaAnd.Render
             Guid iid = D3D12.IID_ID3D12Resource; IntPtr res;
             Com.Check(Com.Method<CreateCommittedResourceFn>(_device, 27)(_device, ref heap, 0, ref desc, D3D12.RESOURCE_STATE_COPY_DEST, IntPtr.Zero, ref iid, out res), "CreateCommittedResource(readback)");
             return res;
+        }
+
+        private byte[] Rgb(IntPtr readback, uint pitch)
+        {
+            IntPtr data;
+            Com.Check(Com.Method<MapFn>(readback, 8)(readback, 0, IntPtr.Zero, out data), "Map(readback)");
+            var px = new byte[pitch * Height];
+            Marshal.Copy(data, px, 0, px.Length);
+            var rgb = new byte[Width * Height * 3];
+            for (int y = 0; y < Height; y++)
+                for (int x = 0; x < Width; x++) { int sp = (int)pitch * y + x * 4, dp = (y * Width + x) * 3; rgb[dp] = px[sp]; rgb[dp + 1] = px[sp + 1]; rgb[dp + 2] = px[sp + 2]; }
+            return rgb;
         }
 
         private void SaveBmp(IntPtr readback, uint pitch, string path)

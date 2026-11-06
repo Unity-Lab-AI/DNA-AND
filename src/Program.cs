@@ -13,7 +13,7 @@ namespace DnaAnd
         private static int Main(string[] args)
         {
             // --smoke <ms>: a timed test run that closes itself after <ms> milliseconds.
-            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int openSet = 0; int openLook = 0; double testEvolve = 0; int testPlanet = -1; double clickAt = -1, clickX = 0.5, clickY = 0.5; double wheelFrom = -1, wheelFor = 0, backFrom = -1, backFor = 0; int pressKey = -1; double pressAt = -1; int testDyson = -1; bool testInside = false; int testJumps = 0; bool testFieldView = false; double testAlt = -1; double[] tour = null; int tourStep = 0; string tourName = "tour"; double shotAt = -1; string shotPath = null; int testSpeed = -1; double tryEvery = -1;
+            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int openSet = 0; int openLook = 0; double testEvolve = 0; int testPlanet = -1; double clickAt = -1, clickX = 0.5, clickY = 0.5; double wheelFrom = -1, wheelFor = 0, backFrom = -1, backFor = 0; int pressKey = -1; double pressAt = -1; int testDyson = -1; bool testInside = false; int testJumps = 0; bool testFieldView = false; double testAlt = -1; double[] tour = null; int tourStep = 0; string tourName = "tour"; double shotAt = -1; string shotPath = null; int testSpeed = -1; double tryEvery = -1; int wheelEvery = 1; double clipAt = -1, clipFor = 10; string clipPath = null; DnaAnd.Render.GifWriter clip = null; int clipFrame = 0;
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i] == "--smoke" && i + 1 < args.Length) int.TryParse(args[i + 1], out smokeMs);
@@ -46,6 +46,12 @@ namespace DnaAnd
                 {
                     double.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out wheelFrom);
                     double.TryParse(args[i + 2], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out wheelFor);
+                }
+                if (args[i] == "--wheelevery" && i + 1 < args.Length) { int.TryParse(args[i + 1], out wheelEvery); wheelEvery = Math.Max(1, wheelEvery); }   // with --wheel: one notch every N frames, for a gentler zoom
+                if (args[i] == "--clip" && i + 3 < args.Length)   // --clip <start s> <seconds> <file.gif>: save a looping clip of the game
+                {
+                    var ic = System.Globalization.CultureInfo.InvariantCulture; var nf = System.Globalization.NumberStyles.Float;
+                    double.TryParse(args[i + 1], nf, ic, out clipAt); double.TryParse(args[i + 2], nf, ic, out clipFor); clipPath = args[i + 3];
                 }
                 if (args[i] == "--press" && i + 2 < args.Length)   // --press <key letter> <seconds>: press a key once, for test runs
                 {
@@ -169,7 +175,7 @@ namespace DnaAnd
                     testDeep = -1;
                 }
                 if (pressKey >= 0 && clock.Total >= pressAt) { window.Input.Press(pressKey); pressKey = -1; }
-                if (wheelFrom >= 0 && clock.Total >= wheelFrom && clock.Total < wheelFrom + wheelFor) window.Input.Wheel = 1;
+                if (wheelFrom >= 0 && clock.Total >= wheelFrom && clock.Total < wheelFrom + wheelFor && frames % wheelEvery == 0) window.Input.Wheel = 1;
                 if (backFrom >= 0 && clock.Total >= backFrom && clock.Total < backFrom + backFor) window.Input.Wheel = -1;
                 if (clickAt >= 0 && clock.Total >= clickAt) { window.Input.MouseX = (int)(clickX * gpu.Width); window.Input.MouseY = (int)(clickY * gpu.Height); window.Input.LeftClicked = true; clickAt = -1; }
                 if (window.Input.IsDown(0x11)) window.Input.Wheel *= 8;          // hold Ctrl: the wheel zooms eight times as fast, in every view
@@ -242,6 +248,13 @@ namespace DnaAnd
                 else if (deep == null && universe != null) universe.Draw(gpu.Width, gpu.Height, clock.Total);
                 else if (deep == null) viewer.Draw(gpu.Width, gpu.Height, clock.Total); else deep.Draw(gpu.Width, gpu.Height, clock.Total);
                 if (shotPath != null && clock.Total >= shotAt) { gpu.CaptureNext = shotPath; shotPath = null; }
+                if (clipPath != null && clipAt >= 0 && clock.Total >= clipAt)
+                {
+                    // every fourth frame (15 a second at 60 frames a second) goes into the clip
+                    if (gpu.Grabbed != null) { if (clip == null) clip = new DnaAnd.Render.GifWriter(gpu.Width, gpu.Height, 7); if (gpu.Grabbed.Length == gpu.Width * gpu.Height * 3) clip.Add(gpu.Grabbed); gpu.Grabbed = null; }
+                    if (clock.Total < clipAt + clipFor) { if (clipFrame++ % 4 == 0) gpu.GrabNext = true; }
+                    else { if (clip != null) clip.Save(clipPath); clipPath = null; smokeMs = (int)(clock.Total * 1000) + 300; }
+                }
                 if (tour != null && planet != null && tourStep < tour.Length * 2 && clock.Total >= 1.0 + tourStep * 3.0)
                 {
                     if (tourStep % 2 == 0) planet.SetAltitude(tour[tourStep / 2]);
