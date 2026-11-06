@@ -47,10 +47,10 @@
 One scroll wheel takes you through every scale of the game, in and out, with no loading screens:
 
 ```
-🌌 Universe → 🌀 Galaxy → ⭐ Star → ☀️ Solar system → 🌍 Planet → 🗺️ Continent → 🌳 Forest → 🐜 Creature → 🦠 Microbe
+🌌 Universe → 🌀 Galaxy → ⭐ Star → ☀️ Solar system → 🌍 Planet → 🗺️ Continent → 🌳 Forest → 🐜 Creature → 🦠 Microbe → 🪨 Grain → 💎 Crystal → ⚛️ Atom
 ```
 
-Everything keeps its true size. A red supergiant can be over a thousand times wider than our star, and a planet stays a speck until you are close. In the sea, life shows at the size you are looking at, from great sharks down to amoebas. On land, the view fades into the dark of the soil before the microbes appear.
+Everything keeps its true size. A red supergiant can be over a thousand times wider than our star, and a planet stays a speck until you are close. In the sea, life shows at the size you are looking at, from great sharks down to amoebas. On land, the view fades into the dark of the soil before the microbes appear. Below the smallest grains of the ground you go on into its matter: the crystal of its mineral, then its atoms. It is all one camera: it flies toward what you point at, at any angle, and slows by itself as things come close.
 
 > 💡 **Tip:** Powers work at the scale you're looking at. Zoom in to touch one tide pool. Zoom out to touch a whole continent.
 
