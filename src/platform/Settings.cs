@@ -25,9 +25,14 @@ namespace DnaAnd.Platform
 
         public static bool Get(string name, bool fallback) { string s; return V.TryGetValue(name, out s) ? s == "on" : fallback; }
 
-        public static void Set(string name, bool value)
+        public static int Get(string name, int fallback) { string s; int v; return V.TryGetValue(name, out s) && int.TryParse(s, out v) ? v : fallback; }
+
+        public static void Set(string name, int value) { V[name] = value.ToString(); Save(); }
+
+        public static void Set(string name, bool value) { V[name] = value ? "on" : "off"; Save(); }
+
+        private static void Save()
         {
-            V[name] = value ? "on" : "off";
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(FilePath));

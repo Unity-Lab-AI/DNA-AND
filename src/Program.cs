@@ -9,6 +9,8 @@ namespace DnaAnd
 {
     internal static class Program
     {
+        static long _lastFrameT; static double _tuneMs;        // the GPU use: the last frame's time, and time since the detail was last nudged
+
         [STAThread]
         private static int Main(string[] args)
         {
@@ -111,6 +113,12 @@ namespace DnaAnd
                 window.RenderScale = gpu.AdapterMemoryMB < 1500 ? 0.5 : 0.75;
                 gpu.Resize(window.RenderWidth, window.RenderHeight); window.Resized = false;
             }
+            // how much of the card to use: kept from last time, else from its video memory (small cards start light, strong ones higher)
+            Window.GpuName = gpu.AdapterName ?? ""; Window.GpuMB = gpu.AdapterMemoryMB;
+            {
+                int def = gpu.AdapterMemoryMB <= 0 ? 40 : gpu.AdapterMemoryMB < 1500 ? 25 : gpu.AdapterMemoryMB < 4000 ? 40 : 60;
+                Window.GpuUse = Math.Max(10, Math.Min(90, Settings.Get("gpu-use", def))) / 100.0;
+            }
             BillboardPipeline pipeline; SampleViewer viewer; MeshPipes meshes = null;
             try
             {
@@ -165,6 +173,7 @@ namespace DnaAnd
                 if (cmd == Window.CmdExit) { endReason = "closed with the Exit button"; window.Close(); }
                 else if (cmd == Window.CmdAskNow) askNow = true;
                 else if (cmd == Window.CmdLegend) window.Tell(style != null ? style.Legend() : microbes != null ? microbes.Legend() : elements != null ? elements.Legend() : planet != null ? planet.Legend() : viewer.Legend(), "DNA-AND · Legend");
+                else if (cmd >= Window.CmdGpuBase && cmd < Window.CmdGpuBase + Window.GpuPercents.Length) { Window.GpuUse = Window.GpuPercents[cmd - Window.CmdGpuBase] / 100.0; Settings.Set("gpu-use", Window.GpuPercents[cmd - Window.CmdGpuBase]); menuDirty = true; }
                 else if (cmd >= Window.CmdScaleBase && cmd < Window.CmdScaleBase + Window.ScalePercents.Length) { window.RenderScale = Window.ScalePercents[cmd - Window.CmdScaleBase] / 100.0; menuDirty = true; }
                 // the documents open in their own viewer window, beside the game
                 else if (cmd == Window.CmdAbout) DocViewer.Show(window.Handle, PreviewText.Docs(), 0);
@@ -288,6 +297,24 @@ namespace DnaAnd
                     if (tourStep == tour.Length * 2) smokeMs = (int)(clock.Total * 1000) + 500;
                 }
                 gpu.EndFrame();
+                // keep the card as busy as the GPU use asks (never over 90%): its working time against the frame's time, the
+                // detail nudged up or down twice a second
+                {
+                    long nowT = System.Diagnostics.Stopwatch.GetTimestamp();
+                    if (_lastFrameT > 0 && gpu.GpuMs > 0)
+                    {
+                        double frameMs = (nowT - _lastFrameT) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
+                        if (frameMs > 0.5 && frameMs < 500) Window.GpuBusy += (Math.Min(1, gpu.GpuMs / frameMs) - Window.GpuBusy) * 0.1;
+                        _tuneMs += frameMs;
+                        if (_tuneMs > 500 && world != null && world.AtGround)                   // what it tunes so far: the ground's detail
+                        {
+                            _tuneMs = 0; double want = Math.Min(0.9, Window.GpuUse);
+                            if (Window.GpuBusy < want - 0.05) Window.Detail = Math.Min(8, Window.Detail * 1.08);
+                            else if (Window.GpuBusy > want + 0.03) Window.Detail = Math.Max(0.2, Window.Detail * 0.9);
+                        }
+                    }
+                    _lastFrameT = nowT;
+                }
                 if (firstFrame) { firstFrame = false; watchdog.Running(); }
 
                 frames++; titleTimer += clock.Delta;

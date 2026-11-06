@@ -18,6 +18,8 @@ namespace DnaAnd.Gen
         public readonly bool Solid;             // false for gas and ice giants: no ground, only cloud tops
         public double[] StarDir = { 0.78, 0.35, 0.52 };
         public float[] SunColour, NightColour;
+        /// <summary>The detail the ground is built for (1 = the usual): its upload time a frame and its builders scale with it.</summary>
+        public static double Power = 1;
         /// <summary>Where the camera looks (unit, planet frame) and the half-angle the view covers corner to corner; null: everything round you.</summary>
         public double[] ViewDir; public double ViewHalfAngle = 0.85;           // the light on the ground by day and by night (null: plain white)   // direction the starlight comes from (unit length)
         private readonly uint _seed;
@@ -1022,7 +1024,7 @@ namespace DnaAnd.Gen
                 _asks.Sort((p0, p1) => p0.Need.CompareTo(p1.Need));                // the pieces you need most (close for their size) first
             }
             _askedThisFrame.Clear(); _askedKeys.Clear();
-            int want = Math.Max(1, Jobs.Workers - 1);
+            int want = Math.Max(1, (int)Math.Round((Jobs.Workers - 1) * Math.Min(1, 0.25 + 0.75 * Power)));   // builders: fewer on light settings
             while (_workersBusy < want)
             {
                 System.Threading.Interlocked.Increment(ref _workersBusy);
@@ -1057,7 +1059,7 @@ namespace DnaAnd.Gen
         private void TakeFinished()
         {
             var clock = System.Diagnostics.Stopwatch.StartNew();
-            while (clock.Elapsed.TotalMilliseconds < 12)
+            while (clock.Elapsed.TotalMilliseconds < Math.Max(2, Math.Min(30, 12 * Power)))   // uploads a frame: more on stronger settings
             {
                 KeyValuePair<Ask, Patch> d; bool wanted;
                 lock (_askLock) { if (_done.Count == 0) break; int bi = 0; for (int q = 1; q < _done.Count; q++) if (_done[q].Key.Need < _done[bi].Key.Need) bi = q; d = _done[bi]; _done[bi] = _done[_done.Count - 1]; _done.RemoveAt(_done.Count - 1); _inFlight.Remove(d.Key.Key); wanted = d.Key.Pending || Wanted(d.Key.Key); }

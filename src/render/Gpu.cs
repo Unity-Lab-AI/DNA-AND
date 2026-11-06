@@ -192,7 +192,10 @@ namespace DnaAnd.Render
             _setRT(_list, 1, ref rtv, 0, ref dsv);
             _clear(_list, rtv, new[] { r, g, b, 1f }, 0, IntPtr.Zero);
             _clearDepth(_list, _dsv, 1, 0f, 0, 0, IntPtr.Zero);
+            if (!_timedStart) { _timedStart = true; StartTiming(); }
+            if (_timing) Com.Method<EndQueryFn>(_list, 53)(_list, _queryHeap, 2, 0);          // the card starts this frame's work
         }
+        private bool _timedStart;
 
         /// <summary>Clears the picture (and depth) again partway through a frame, to a new colour.</summary>
         public void ClearNow(float r, float g, float b)
@@ -227,10 +230,25 @@ namespace DnaAnd.Render
             var toPresent = new D3D12.TransitionBarrier { Resource = _backBuffers[_frameIndex], Subresource = 0xFFFFFFFF,
                 StateBefore = D3D12.RESOURCE_STATE_RENDER_TARGET, StateAfter = D3D12.RESOURCE_STATE_PRESENT };
             _barrier(_list, 1, ref toPresent);
+            if (_timing)
+            {
+                Com.Method<EndQueryFn>(_list, 53)(_list, _queryHeap, 2, 1);                   // ...and ends it
+                Com.Method<ResolveQueryDataFn>(_list, 54)(_list, _queryHeap, 2, 0, 2, _queryRead, 0);
+            }
             Com.Check(_close(_list), "CommandList.Close");
             _execute(_queue, 1, new[] { _list });
             Com.Check(_present(_swapChain, 1, 0), "Present");
             WaitForGpu();
+            if (_timing)
+            {
+                IntPtr data;
+                if (Com.Method<MapFn>(_queryRead, 8)(_queryRead, 0, IntPtr.Zero, out data) >= 0)
+                {
+                    long t0 = Marshal.ReadInt64(data, 0), t1 = Marshal.ReadInt64(data, 8);
+                    Com.Method<UnmapFn2>(_queryRead, 9)(_queryRead, 0, IntPtr.Zero);
+                    if (t1 > t0) GpuMs = (t1 - t0) * 1000.0 / _tsFreq;
+                }
+            }
             _frameIndex = _getIndex(_swapChain);
             if (readback != IntPtr.Zero) { try { if (capture != null) SaveBmp(readback, pitch, capture); if (grab) Grabbed = Rgb(readback, pitch); } finally { Com.Release(ref readback); } }
         }
@@ -292,6 +310,30 @@ namespace DnaAnd.Render
             System.IO.File.WriteAllBytes(path, bmp);
         }
 
+        // ── how long the card works on each frame: two timestamps, at the start and end of its work ──
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)] private delegate int CreateQueryHeapFn(IntPtr self, ref QueryHeapDesc desc, ref Guid iid, out IntPtr heap); // device 39
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)] private delegate void EndQueryFn(IntPtr self, IntPtr heap, int type, uint index);                     // list 53
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)] private delegate void ResolveQueryDataFn(IntPtr self, IntPtr heap, int type, uint start, uint count, IntPtr dest, ulong offset); // list 54
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)] private delegate int GetTimestampFrequencyFn(IntPtr self, out ulong freq);                          // queue 16
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)] private delegate void UnmapFn2(IntPtr self, uint sub, IntPtr range);                                // resource 9
+        [StructLayout(LayoutKind.Sequential)] private struct QueryHeapDesc { public int Type; public uint Count, NodeMask; }
+        private IntPtr _queryHeap, _queryRead; private ulong _tsFreq; private bool _timing;
+        /// <summary>How long the card worked on the last frame, in milliseconds (0 until it is known).</summary>
+        public double GpuMs { get; private set; }
+
+        private void StartTiming()
+        {
+            try
+            {
+                var d = new QueryHeapDesc { Type = 1, Count = 2, NodeMask = 0 };           // a timestamp heap of two
+                var iid = new Guid("0d9658ae-ed45-469e-a61d-970ec583cab4");               // ID3D12QueryHeap
+                if (Com.Method<CreateQueryHeapFn>(_device, 39)(_device, ref d, ref iid, out _queryHeap) < 0) return;
+                if (Com.Method<GetTimestampFrequencyFn>(_queue, 16)(_queue, out _tsFreq) < 0 || _tsFreq == 0) return;
+                _queryRead = MakeReadback(16); _timing = true;
+            }
+            catch { _timing = false; }
+        }
+
         private void WaitForGpu()
         {
             ulong value = ++_fenceValue;
@@ -306,6 +348,7 @@ namespace DnaAnd.Render
         public void Dispose()
         {
             if (_queue != IntPtr.Zero && _fence != IntPtr.Zero) WaitForGpu();
+            Com.Release(ref _queryRead); Com.Release(ref _queryHeap);
             for (int i = 0; i < FrameCount; i++) Com.Release(ref _backBuffers[i]);
             Com.Release(ref _depth); Com.Release(ref _dsvHeap);
             Com.Release(ref _fence); Com.Release(ref _list); Com.Release(ref _allocator); Com.Release(ref _rtvHeap);

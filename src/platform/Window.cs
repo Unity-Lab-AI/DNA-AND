@@ -20,6 +20,16 @@ namespace DnaAnd.Platform
         public int RenderHeight { get { return Math.Max(1, (int)(Height * Input.Scale)); } }
         public static readonly int[] ScalePercents = { 50, 75, 100, 150, 200 };
         public const int CmdScaleBase = 50;   // render scale i is CmdScaleBase + i
+        public const int CmdGpuBase = 70;     // GPU use i is CmdGpuBase + i
+        /// <summary>How much of the graphics card's time the universe may use, in per cent of each frame (never more than 90).</summary>
+        public static readonly int[] GpuPercents = { 10, 25, 40, 50, 60, 75, 90 };
+        /// <summary>The GPU use asked for, as a fraction (0.9 = 90%); the detail is turned up or down until the card is that busy.</summary>
+        public static double GpuUse = 0.6;
+        /// <summary>The detail now (1 = the usual): raised or lowered a little at a time to keep the card at the GPU use asked for.</summary>
+        public static double Detail = 1;
+        /// <summary>How busy the card was, last measured (0 to 1).</summary>
+        public static double GpuBusy;
+        public static string GpuName = ""; public static long GpuMB;
         public int MenuCommand; // the last menu item picked, 0 when none
 
         public const int CmdExit = 1, CmdAskNow = 2, CmdClearMarks = 3;
@@ -58,6 +68,14 @@ namespace DnaAnd.Platform
             for (int i = 0; i < ScalePercents.Length; i++)
                 Win32.AppendMenu(scale, Win32.MF_STRING | (Math.Abs(ScalePercents[i] - Input.Scale * 100) < 1 ? Win32.MF_CHECKED : 0), (IntPtr)(CmdScaleBase + i), ScalePercents[i] + "%" + (ScalePercents[i] < 100 ? " (faster, softer)" : ScalePercents[i] > 100 ? " (sharper, slower)" : " (the window's own size)"));
             Win32.AppendMenu(view, Win32.MF_POPUP, scale, "Render scale");
+            IntPtr gpuMenu = Win32.CreatePopupMenu();
+            if (GpuName.Length > 0) { Win32.AppendMenu(gpuMenu, Win32.MF_STRING | 0x1u, IntPtr.Zero, GpuName + (GpuMB > 0 ? ", " + GpuMB + " MB" : "")); Win32.AppendMenu(gpuMenu, Win32.MF_SEPARATOR, IntPtr.Zero, null); }
+            for (int i = 0; i < GpuPercents.Length; i++)
+                Win32.AppendMenu(gpuMenu, Win32.MF_STRING | (Math.Abs(GpuPercents[i] - GpuUse * 100) < 1 ? Win32.MF_CHECKED : 0), (IntPtr)(CmdGpuBase + i),
+                    GpuPercents[i] + "%" + (GpuPercents[i] <= 25 ? " (light)" : GpuPercents[i] <= 50 ? " (balanced)" : GpuPercents[i] < 90 ? " (high)" : " (the most: never more than 90%)"));
+            Win32.AppendMenu(gpuMenu, Win32.MF_SEPARATOR, IntPtr.Zero, null);
+            Win32.AppendMenu(gpuMenu, Win32.MF_STRING | 0x1u, IntPtr.Zero, "now: card " + (int)Math.Round(GpuBusy * 100) + "% busy, detail " + (int)Math.Round(Detail * 100) + "%");
+            Win32.AppendMenu(view, Win32.MF_POPUP, gpuMenu, "GPU use");
             Win32.AppendMenu(view, Win32.MF_SEPARATOR, IntPtr.Zero, null);
             Win32.AppendMenu(view, Win32.MF_STRING | (Settings.Get("invert-left-right", false) ? Win32.MF_CHECKED : 0), (IntPtr)CmdInvertX, "Invert left-right drag");
             Win32.AppendMenu(view, Win32.MF_STRING | (Settings.Get("invert-up-down", false) ? Win32.MF_CHECKED : 0), (IntPtr)CmdInvertY, "Invert up-down drag");
