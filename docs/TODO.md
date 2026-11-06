@@ -785,6 +785,10 @@ Order: galactic scale down, the same order as the sample sets.
     - [ ] Technical readme and instructions: how to build, change and deploy your own .exe
     - [~] A base readme about the universe and how it works, non-technical, layman-like and fun to read. Drafted: `docs/release/UNIVERSE-README.md`
     - [ ] The .exe carries all of the public docs for it
+    - [ ] **Credits, readmes and repo links, pushed and released:** "and make sure the apps cedits redadmes technical readmes and documentations and links to the repose for Universe project are made and correctly pushed and deployed a release of the .exe for the full universe and all needed files and documentations of them for public release, but i stell need to test all the fixes weve talked about"
+      - [~] The program's Credits and About link the Universe repo (git.unityailab.com/GFourteen/Universe); the GitHub link once that repo is made
+      - [ ] Technical readme (build, change, deploy your own .exe) and the public docs, in the repo and inside the .exe
+      - [ ] Pushed to both remotes and the .exe released, only after the creator has tested all the fixes
   - [~] About, Readme and Credits built into the program's menu bar, and its header tools such as the scale HUD for the zoom: "make sure the e.xe has a proper about and readme and credits built into the program header tools like the sclae hud for zoom relation" Built: the one world's menu bar has Exit, View (scale on screen, render scale) and Help (Readme, Credits, About) (`Window.SetWorldMenu`, `src/shell/PreviewText.cs`); the release build still to come.
   - [ ] Windows and Linux installs: "need linix and windows install" / "for the .exe". The engine talks to Windows directly (Direct3D 12, Win32), so Linux needs its own port: Vulkan graphics and Linux windowing, our own code, no outside libraries
 - [x] **No tearing at full zoom:** "at full zoom it like screen tears do u see that". The camera stays above the finest ground made under it.
