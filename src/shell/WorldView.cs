@@ -340,14 +340,21 @@ namespace DnaAnd.Shell
         private int _cpBest = -1; private double _cpBd;                         // for the log: the nearest body in its own radii
         private void DropPlanet() { if (_ground != null) { _ground.Dispose(); _ground = null; } _planet = -1; }
 
+        // the top of what is under a direction, in km from the planet's radius: the sea's surface where there is sea, else the
+        // real ground (a dry basin below sea level is ground, not water)
+        private double Surface(double x, double y, double z)
+        {
+            double h = _ground.GroundAt(x, y, z);
+            return h < 0 && _ground.HasWater ? 0 : h;
+        }
+
         // how far above the planet's ground the camera is (universe units)
         private double AboveGround()
         {
             if (_ground == null) return double.MaxValue;
             double x, y, z; CamFromPlanet(out x, out y, out z);
             double r = Math.Sqrt(x * x + y * y + z * z); if (r <= 0) return 0;
-            double g = _ground.Solid ? _ground.GroundAt(x / r, y / r, z / r) : 0;
-            return Math.Max(1e-9, (r - _ground.Radius - Math.Max(0, g))) * Units.Km(1);
+            return Math.Max(1e-9, (r - _ground.Radius - (_ground.Solid ? Surface(x / r, y / r, z / r) : 0))) * Units.Km(1);
         }
 
         // the system's planets, moons and star placed around the star (anchor), and the nearest surface to the camera
@@ -420,7 +427,7 @@ namespace DnaAnd.Shell
             { double x, y, z; BodyPos(_tIndex, out x, out y, out z); dx = x - _ox; dy = y - _oy; dz = z - _oz; radius = _system.Bodies[_tIndex].RadiusUnits; return true; }
             if (_tKind == 3 && _ground != null)
             {
-                double g = _ground.Solid ? Math.Max(0, _ground.GroundAt(_tx, _ty, _tz)) : 0, r = (_ground.Radius + g) * Units.Km(1);
+                double g = _ground.Solid ? Surface(_tx, _ty, _tz) : 0, r = (_ground.Radius + g) * Units.Km(1);
                 dx = _px + _tx * r - _ox; dy = _py + _ty * r - _oy; dz = _pz + _tz * r - _oz; radius = 0; return true;
             }
             return false;
@@ -587,7 +594,7 @@ namespace DnaAnd.Shell
                     {
                         // never through the ground, nor into its drawn pieces: back up above them
                         double x, y, z; CamFromPlanet(out x, out y, out z);
-                        double r = Math.Sqrt(x * x + y * y + z * z), g = _ground.Solid ? Math.Max(0, _ground.GroundAt(x / r, y / r, z / r)) : 0;
+                        double r = Math.Sqrt(x * x + y * y + z * z), g = _ground.Solid ? Surface(x / r, y / r, z / r) : 0;
                         double want = _ground.Radius + g + fk, k = Units.Km(1);
                         _ox = _px + x / r * want * k; _oy = _py + y / r * want * k; _oz = _pz + z / r * want * k;
                     }
@@ -656,7 +663,7 @@ namespace DnaAnd.Shell
                     if (AboveGround() < Units.Km(floorKm))
                     {
                         double x, y, z; CamFromPlanet(out x, out y, out z);
-                        double r = Math.Sqrt(x * x + y * y + z * z), g = _ground.Solid ? Math.Max(0, _ground.GroundAt(x / r, y / r, z / r)) : 0;
+                        double r = Math.Sqrt(x * x + y * y + z * z), g = _ground.Solid ? Surface(x / r, y / r, z / r) : 0;
                         double want = _ground.Radius + g + floorKm, k = Units.Km(1);
                         _ox = _px + x / r * want * k; _oy = _py + y / r * want * k; _oz = _pz + z / r * want * k;
                     }
