@@ -17,7 +17,9 @@ namespace DnaAnd.Gen
         public readonly double Radius;          // km
         public readonly bool Solid;             // false for gas and ice giants: no ground, only cloud tops
         public double[] StarDir = { 0.78, 0.35, 0.52 };
-        public float[] SunColour, NightColour;           // the light on the ground by day and by night (null: plain white)   // direction the starlight comes from (unit length)
+        public float[] SunColour, NightColour;
+        /// <summary>Where the camera looks (unit, planet frame) and the half-angle the view covers corner to corner; null: everything round you.</summary>
+        public double[] ViewDir; public double ViewHalfAngle = 0.85;           // the light on the ground by day and by night (null: plain white)   // direction the starlight comes from (unit length)
         private readonly uint _seed;
         private const int Grid = 16;            // quads along a patch edge
         // deepest split for each layer: the ground goes down to about a millionth of a metre (microbe size),
@@ -1305,6 +1307,13 @@ namespace DnaAnd.Gen
             {
                 double horizon = Math.Sqrt(camDist * camDist - Radius * Radius) + Math.Sqrt(Math.Max(0, r * r - Radius * Radius));
                 if (dist > horizon + p.Edge * 1.6 + 12) return;
+            }
+            // out of view (behind you or off to the side): drawn as it is, but not split finer, so only what you see loads in
+            // detail; pieces right around you always split, so turning your head never shows a hole
+            if (ViewDir != null && level >= 3 && dist > p.Edge * 1.5)
+            {
+                double ang = Math.Acos(Math.Max(-1, Math.Min(1, (dx * ViewDir[0] + dy * ViewDir[1] + dz * ViewDir[2]) / Math.Max(1e-12, dist))));
+                if (ang > ViewHalfAngle + Math.Asin(Math.Min(1, p.Edge * 0.9 / dist)) + 0.05) { _drawList.Add(p); return; }
             }
             bool mustSplit = Shell && (Mask != 0 || Cutaway != null) && level < 4;     // rings, gaps and cutaways show only once the shell is cut into small enough pieces
             if (level < MaxLevel[layer] && (dist < p.Edge * splitFactor || mustSplit))

@@ -901,6 +901,10 @@ namespace DnaAnd.Shell
                 var sd = _system.StarRadius; double lx = -_px, ly = -_py, lz = -_pz, ll = Math.Sqrt(lx * lx + ly * ly + lz * lz);
                 if (ll > 0) { _ground.StarDir[0] = lx / ll; _ground.StarDir[1] = ly / ll; _ground.StarDir[2] = lz / ll; }
                 GroundLight();
+                // what the ground needs to detail: only what is in view (the view's half-angle, corner to corner)
+                var lk = Look; if (_ground.ViewDir == null) _ground.ViewDir = new double[3];
+                _ground.ViewDir[0] = lk.X; _ground.ViewDir[1] = lk.Y; _ground.ViewDir[2] = lk.Z;
+                _ground.ViewHalfAngle = Math.Atan(Math.Tan(0.45) * Math.Sqrt(1 + (w / (double)Math.Max(1, h)) * (w / (double)Math.Max(1, h))));
                 _ground.Draw(_meshes, x, y, z, view, kproj, time, 3.0 * Math.Max(1, h / 600.0), 0, 0, 0, 0, 0, 0, w, h, 400);
             }
             if (_matterScale > 0)
