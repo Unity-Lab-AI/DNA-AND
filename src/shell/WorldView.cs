@@ -695,7 +695,8 @@ namespace DnaAnd.Shell
                 var buf = i == _near && _nearBuf != null ? _nearBuf : g.Far;
                 // inside the galaxy its points ease down from glows to plain points of light, so no nearby one looms as a blob
                 float glow = i == _near ? (float)Math.Pow(1 - InsideShare(), 3) : 1f;   // to nothing at all well inside: only points of light remain
-                DrawPoints(buf, count, Placement(g) * vp, right, up, 0.006f * g.Scale * shrink * glow, 0.0016f, w, h, time);
+                // a galaxy's points never cover more than a small angle on screen: from afar they glow, up close they stay points of light
+                DrawPoints(buf, count, Placement(g) * vp, right, up, 0.006f * g.Scale * shrink * glow, 0.0016f, w, h, time, 0.012f);
             }
             double inside = InsideShare();
             if (_near >= 0 && _localCount > 0 && inside > 0)
@@ -781,14 +782,14 @@ namespace DnaAnd.Shell
             _hud.Draw(_meshes, viewKm / Math.Max(1, w), w, h);
         }
 
-        private void DrawPoints(UploadBuffer buf, int count, Mat4 vp, Vec3 right, Vec3 up, float sizeScale, float minSize, int w, int h, double time)
+        private void DrawPoints(UploadBuffer buf, int count, Mat4 vp, Vec3 right, Vec3 up, float sizeScale, float minSize, int w, int h, double time, float maxSize = 0)
         {
             if (buf == null || count <= 0) return;
             var c = new float[BillboardPipeline.ConstantCount];
             c[0] = vp.M11; c[1] = vp.M12; c[2] = vp.M13; c[3] = vp.M14; c[4] = vp.M21; c[5] = vp.M22; c[6] = vp.M23; c[7] = vp.M24;
             c[8] = vp.M31; c[9] = vp.M32; c[10] = vp.M33; c[11] = vp.M34; c[12] = vp.M41; c[13] = vp.M42; c[14] = vp.M43; c[15] = vp.M44;
             c[16] = right.X; c[17] = right.Y; c[18] = right.Z; c[20] = up.X; c[21] = up.Y; c[22] = up.Z;
-            c[24] = (float)time; c[25] = sizeScale; c[26] = 2; c[27] = 4; c[28] = w; c[29] = h; c[30] = minSize;
+            c[24] = (float)time; c[25] = sizeScale; c[26] = 2; c[27] = 4; c[28] = w; c[29] = h; c[30] = minSize; c[31] = maxSize;
             _dots.Draw(buf, count, c, 0, 0, w, h);
         }
 

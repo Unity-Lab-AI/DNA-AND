@@ -30,7 +30,7 @@ cbuffer C : register(b0)
     float4 right;   // xyz camera right
     float4 up;      // xyz camera up
     float4 misc;    // x time, y size scale, z style (0 glow, otherwise faceted)
-    float4 screen;  // x width, y height (of this tile, in pixels), z minimum size per unit of distance
+    float4 screen;  // x width, y height (of this tile, in pixels), z minimum size per unit of distance, w maximum (0: none)
 };
 struct Star { float3 pos; float size; float4 color; };
 StructuredBuffer<Star> stars : register(t0);
@@ -44,6 +44,7 @@ VO VS(uint vid : SV_VertexID, uint iid : SV_InstanceID)
     float2 c = corners[vid];
     float4 cc0 = mul(float4(s.pos, 1), viewProj);
     float size = max(s.size * misc.y, cc0.w * screen.z); // never smaller than screen.z of the view distance
+    if (screen.w > 0) size = min(size, cc0.w * screen.w);   // and, when asked, never bigger than screen.w of it (points of light stay points up close)
     float3 world = s.pos + (right.xyz * c.x + up.xyz * c.y) * size;
     VO o;
     o.pos = mul(float4(world, 1), viewProj);

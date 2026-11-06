@@ -58,7 +58,7 @@ The renderer draws what the live generators build. Every asset is generated on t
 
 | Part | How it works | Where |
 |---|---|---|
-| 💡 Billboards | Glowing or faceted points for stars, gas, rings, weather; they test depth but never write it | `src/render/Pipeline.cs`, `Draw.cs` |
+| 💡 Billboards | Glowing or faceted points for stars, gas, rings, weather; they test depth but never write it; each draw can set a smallest and a largest size on screen (galaxy points never cover more than about 0.7 degrees) | `src/render/Pipeline.cs`, `Draw.cs` |
 | 🧱 Solid ground | Flat-shaded triangles lit by one star; three modes: solid, glowing air (adds light), see-through (clouds, water) | `src/render/MeshPipeline.cs` |
 | 🕳️ Depth | A float depth buffer used reversed (near at 1, far at 0, nearer passes as greater), so precision holds at every distance, from micrometres in front of you to across a galaxy | `src/render/Gpu.cs` |
 | 🌍 Planets | A cube blown into a ball; each face splits into smaller pieces near the camera (up to 40 levels, about a micrometre). Pieces are made nearest first, a few milliseconds per frame. Layers: ground and sea floor, see-through sea, turning clouds, a glowing air shell | `src/gen/PlanetTerrain.cs` |
