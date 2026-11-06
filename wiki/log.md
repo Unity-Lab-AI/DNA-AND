@@ -155,3 +155,4 @@ Append-only. Newest at the bottom.
 - r04 renderer: the coefficient waveform engine (CDF 9/7, from Uni Vs Matics) ported to the core; plan to use it everywhere (TODO R4.6).
 - r04 renderer: mode-E endless detail ported (identical to the lab's fractalize.ts).
 - r06 planet: whole-planet swap for ground changes at big moments; r04: ground detail true to screen resolution.
+- r05/r04: dead stars kept out of young arms (pulsars rarest); the wheel glides; planet handoff at the planet view's own distance; skirts lit; planet changes as wavelet change fields.

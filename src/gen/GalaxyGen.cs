@@ -10,6 +10,7 @@ namespace DnaAnd.Gen
     internal sealed class StarKind
     {
         public string Id, Name; public float R, G, B; public double Weight;
+        public bool Remnant;     // a dead star (white dwarf, neutron star, pulsar, magnetar): found among old stars, not young ones
     }
 
     internal static class GalaxyGen
@@ -22,7 +23,8 @@ namespace DnaAnd.Gen
             {
                 if (!e.Props.ContainsKey("share-of-stars") || (!e.Props.ContainsKey("color") && !e.Props.ContainsKey("temp-k"))) continue;
                 float r, g, b; ColorFor(e, out r, out g, out b);
-                list.Add(new StarKind { Id = e.Id, Name = e.Name, R = r, G = g, B = b, Weight = ShareWeight(e.Get("share-of-stars", "common")) });
+                bool remnant = e.Id == "white-dwarf" || e.Id == "neutron-star" || e.Id == "pulsar" || e.Id == "magnetar";
+                list.Add(new StarKind { Id = e.Id, Name = e.Name, R = r, G = g, B = b, Weight = ShareWeight(e.Get("share-of-stars", "common")), Remnant = remnant });
             }
             if (list.Count == 0) list.Add(new StarKind { Id = "g-type", Name = "G", R = 1, G = 0.95f, B = 0.8f, Weight = 1 });
             return list;
@@ -84,6 +86,8 @@ namespace DnaAnd.Gen
 
         private static double Biased(StarKind k, double hotBias)
         {
+            // dead stars glow blue-white but are old: the young arms (hotBias > 1) have fewer of them, the old core more
+            if (k.Remnant) return k.Weight * Math.Min(4, 1 / Math.Max(0.25, hotBias));
             double hot = k.B - k.R + 0.6; // bluer = hotter
             return k.Weight * Math.Pow(Math.Max(0.05, hot), Math.Log(hotBias + 1e-9) * 2.0 + 0.0001);
         }

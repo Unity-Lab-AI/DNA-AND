@@ -216,7 +216,7 @@ namespace DnaAnd.Shell
             if (_focusBody >= 0) minDist = _system.Bodies[_focusBody].RadiusUnits * 1.05;
             _dist = Math.Max(minDist, Math.Min(4.0, _dist));
             // close enough to a planet: hand over to the planet view, at the same distance
-            if (_focusBody >= 0 && input.Wheel > 0 && _dist < _system.Bodies[_focusBody].RadiusUnits * 6) HandOff = _focusBody;
+            if (_focusBody >= 0 && input.Wheel > 0 && _dist < _system.Bodies[_focusBody].RadiusUnits * 3.3) HandOff = _focusBody;   // the planet view starts 2.3 radii above the ground: 3.3 from the middle, so the zoom carries straight on
             if (input.WasPressed(0x20)) _paused = !_paused;                          // Space: pause
             for (int k = 0; k < 5; k++) if (input.WasPressed(0x31 + k)) { _speed = Speeds[k]; _paused = false; } // 1-5: speeds
             if (!_paused) _simYears += dt / SecondsPerYearAt1x * _speed;
@@ -229,7 +229,7 @@ namespace DnaAnd.Shell
         public double Distance { get { return _dist; } }
 
         /// <summary>Back from the planet view: hover just above the planet, where the planet view let go.</summary>
-        public void ReturnFromPlanet() { HandOff = -1; if (_focusBody >= 0) _dist = _system.Bodies[_focusBody].RadiusUnits * 6.5; }
+        public void ReturnFromPlanet() { HandOff = -1; if (_focusBody >= 0) _dist = _system.Bodies[_focusBody].RadiusUnits * 3.4; }
 
         /// <summary>Test runs: go to the middle star's system and centre on its first planet.</summary>
         public void TestJourney(int w, int h)
@@ -257,7 +257,8 @@ namespace DnaAnd.Shell
                 FocusFields = new PlanetTerrain(_gpu.Device, kind, body.Kind, tseed, true, km);
             }
             double outer = 0; foreach (var b in _system.Bodies) if (b.Parent < 0) outer = Math.Max(outer, b.OrbitUnits);
-            _dist = _focusBody < 0 ? outer * 2.2 : _system.Bodies[_focusBody].RadiusUnits * 60;
+            // picking keeps the distance you were at (no jump straight to the planet): you fly in with the wheel through every scale
+            _dist = _focusBody < 0 ? outer * 2.2 : Math.Min(_dist, outer * 2.2);
         }
 
         private bool ClickBody(int mx, int my, int w, int h)

@@ -264,7 +264,7 @@ namespace DnaAnd.Shell
                     if (_seaBodies != null && _seaBodies.Here.Length > 0) names.Insert(0, _seaBodies.Here);
                     where += " · in the water around you: " + string.Join(", ", names.ToArray());
                 }
-                if (_core != null) where += " · PLANET: " + _core.Describe() + (_plates != null && _core.Plates ? ", " + _plates.Describe() : "") + (_air != null ? " · " + _air.Describe() : "") + (_weather != null ? ", " + _weather.Describe() : "") + (_surface != null ? ", " + _surface.Describe(_life) : "") + (_impacts != null ? ", " + _impacts.Describe() + ", " + _normal.Craters.Count + " craters on the ground (changed " + _normal.Swaps + " times)" : "") + (_time < _coreNewsUntil ? " · NEWS: " + _coreNews : "");
+                if (_core != null) where += " · PLANET: " + _core.Describe() + (_plates != null && _core.Plates ? ", " + _plates.Describe() : "") + (_air != null ? " · " + _air.Describe() : "") + (_weather != null ? ", " + _weather.Describe() : "") + (_surface != null ? ", " + _surface.Describe(_life) : "") + (_impacts != null ? ", " + _impacts.Describe() + ", " + _normal.Craters.Count + " craters on the ground (changed " + _normal.Swaps + " times" + (_normal.ChangeTerms != null ? ", " + _normal.ChangeTermCount.ToString("N0") + " wavelet terms for " + (12 * DnaAnd.Gen.PlanetTerrain.ChangeGrid * DnaAnd.Gen.PlanetTerrain.ChangeGrid).ToString("N0") + " cells" : "") + ")" : "") + (_time < _coreNewsUntil ? " · NEWS: " + _coreNews : "");
                 if (_life != null)
                 {
                     where += " · LIFE: " + (_life.Sparks == 0 ? "none yet (L: lightning, the first spark is free)" :
@@ -323,6 +323,7 @@ namespace DnaAnd.Shell
             _normal.SeaDropKm = _shapeSea;
             _normal.MountainScale = (x, y, z) => scales[DnaAnd.Sim.PlanetLife.RegionAt(x, y, z)];
             _normal.Craters.Clear(); foreach (var c in _impacts.Craters) if (c[3] >= 8) _normal.Craters.Add(c);
+            _normal.BakeChanges();                                                   // the changes become wavelet terms
             _normal.Generation++;
         }
 

@@ -277,8 +277,89 @@ namespace DnaAnd.Gen
             DrawnGeneration = Generation; _framesWaiting = 0; Swaps++;
         }
 
+        // ── the planet's changes as coefficient waveforms ──
+        // Each change is a field over the planet's six cube faces (Bake), stored as sparse CDF 9/7 wavelet terms (the lab's
+        // engine, src/core/Wavelet97.cs) and read back by the rebuilt grid. Mountain height scale and the crater shapes are
+        // two fields; the ground looks them up at any spot without touching every crater, and saves carry only the terms.
+        public const int ChangeGrid = 512;                                           // cells along each cube face
+        /// <summary>The change fields as wavelet equations: [0..5] mountain scale per face, [6..11] crater depth per face (km).</summary>
+        public Wavelet97.Field[] ChangeTerms;
+        private double[][] _change;                                                  // the rebuilt grids, read by the ground
+        /// <summary>How many wavelet terms the change fields carry in all, against the grid cells they stand for.</summary>
+        public int ChangeTermCount { get { int n = 0; if (ChangeTerms != null) foreach (var f in ChangeTerms) n += f.Terms; return n; } }
+
+        /// <summary>Writes the planet's current changes (mountain scale, craters) into the wavelet change fields.</summary>
+        public void BakeChanges()
+        {
+            int N = ChangeGrid;
+            var terms = new Wavelet97.Field[12]; var grids = new double[12][];
+            for (int fi = 0; fi < 12; fi++)
+            {
+                int f = fi % 6; bool crater = fi >= 6;
+                var g = new double[N * N];
+                Jobs.For(N, row =>
+                {
+                    for (int col = 0; col < N; col++)
+                    {
+                        double s = (col + 0.5) / N * 2 - 1, t = (row + 0.5) / N * 2 - 1, x, y, z; Dir(f, s, t, out x, out y, out z);
+                        g[row * N + col] = crater ? CraterAt(x, y, z) : (MountainScale != null ? MountainScale(x, y, z) - 1 : 0);
+                    }
+                });
+                Wavelet97.Forward(g, N, N);
+                terms[fi] = Wavelet97.Keep(g, N, N, 0.01);                           // 99.99% of the change's energy
+                grids[fi] = Wavelet97.Rebuild(terms[fi]);
+            }
+            ChangeTerms = terms; _change = grids;
+        }
+
+        /// <summary>Puts back change fields read from a save.</summary>
+        public void LoadChanges(Wavelet97.Field[] terms)
+        {
+            var grids = new double[terms.Length][];
+            for (int i = 0; i < terms.Length; i++) grids[i] = Wavelet97.Rebuild(terms[i]);
+            ChangeTerms = terms; _change = grids;
+        }
+
+        // a change field read at a spot: the cube face it falls on, then the rebuilt grid smoothly between cells
+        private double ChangeAt(int which, double x, double y, double z)
+        {
+            int f = 0; double best = -2;
+            for (int q = 0; q < 6; q++) { double k = FaceN[q, 0] * x + FaceN[q, 1] * y + FaceN[q, 2] * z; if (k > best) { best = k; f = q; } }
+            double s = (FaceU[f, 0] * x + FaceU[f, 1] * y + FaceU[f, 2] * z) / best, t = (FaceV[f, 0] * x + FaceV[f, 1] * y + FaceV[f, 2] * z) / best;
+            int N = ChangeGrid;
+            double gx = (s + 1) / 2 * N - 0.5, gy = (t + 1) / 2 * N - 0.5;
+            int x0 = Math.Max(0, Math.Min(N - 2, (int)Math.Floor(gx))), y0 = Math.Max(0, Math.Min(N - 2, (int)Math.Floor(gy)));
+            double fx = Math.Max(0, Math.Min(1, gx - x0)), fy = Math.Max(0, Math.Min(1, gy - y0));
+            var g = _change[which * 6 + f];
+            double a = g[y0 * N + x0] * (1 - fx) + g[y0 * N + x0 + 1] * fx, b = g[(y0 + 1) * N + x0] * (1 - fx) + g[(y0 + 1) * N + x0 + 1] * fx;
+            return a * (1 - fy) + b * fy;
+        }
+
+        // the craters' shape at a spot, as the change field stores it
+        private double CraterAt(double x, double y, double z)
+        {
+            double h = 0;
+            for (int k = 0; k < Craters.Count; k++)
+            {
+                var c = Craters[k];
+                double d = (1 - (x * c[0] + y * c[1] + z * c[2])) * 2;
+                double rad = c[3] / Radius; if (d > rad * rad * 9) continue;
+                double t = Math.Sqrt(d) / rad;
+                double depth = Math.Min(4, 0.3 + c[3] * 0.025);
+                double bowl = t < 0.6 ? 1 : 1 - (t - 0.6) / 0.4 * ((t - 0.6) / 0.4);
+                h += t < 1 ? -depth * Math.Max(0, bowl) + depth * 0.15 * t * t : depth * 0.15 * Math.Exp(-(t - 1) * 3);
+            }
+            return h;
+        }
+
         private double Reshaped(double x, double y, double z, double h)
         {
+            if (_change != null)
+            {
+                // the baked change fields, rebuilt from their wavelet terms
+                if (h > 0) h *= 1 + ChangeAt(0, x, y, z);
+                return h + SeaDropKm + ChangeAt(1, x, y, z);
+            }
             if (h > 0 && MountainScale != null) h *= MountainScale(x, y, z);
             h += SeaDropKm;
             for (int k = 0; k < Craters.Count; k++)
@@ -901,8 +982,12 @@ namespace DnaAnd.Gen
             var B = new StarVertex { X = (float)_hx[b], Y = (float)_hy[b], Z = (float)_hz[b], Size = _cgl[b], R = _cr[a], G = _cg[a], B = _cb[a], A = 1 };
             var A2 = A; A2.X = (float)(_hx[a] - ax / al * drop); A2.Y = (float)(_hy[a] - ay / al * drop); A2.Z = (float)(_hz[a] - az / al * drop);
             var B2 = B; B2.X = (float)(_hx[b] - bx / bl * drop); B2.Y = (float)(_hy[b] - by / bl * drop); B2.Z = (float)(_hz[b] - bz / bl * drop);
-            _scratch[v++] = A; _scratch[v++] = B; _scratch[v++] = B2;
-            _scratch[v++] = A; _scratch[v++] = B2; _scratch[v++] = A2;
+            // the skirt hangs down under the edge to hide cracks between pieces of different detail; it faces sideways, so the
+            // light would leave it black: it glows a little instead, to read as the ground beside it
+            var As = A; As.Size = Math.Max(A.Size, 0.6f); var Bs = B; Bs.Size = Math.Max(B.Size, 0.6f);
+            A2.Size = As.Size; B2.Size = Bs.Size;
+            _scratch[v++] = As; _scratch[v++] = Bs; _scratch[v++] = B2;
+            _scratch[v++] = As; _scratch[v++] = B2; _scratch[v++] = A2;
         }
 
         private Patch Get(int layer, int f, int level, long i, long j, bool mayMake)

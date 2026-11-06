@@ -181,10 +181,10 @@ namespace DnaAnd
                 if (aimCentre) { window.Input.MouseX = gpu.Width / 2; window.Input.MouseY = gpu.Height / 2; }
                 if (deep != null && deepSince < 0) deepSince = clock.Total;
                 if (deep != null && journeyAt >= 0 && clock.Total >= deepSince + journeyAt) { deep.TestJourney(gpu.Width, gpu.Height); journeyAt = -1; }
-                if (wheelFrom >= 0 && clock.Total >= wheelFrom && clock.Total < wheelFrom + wheelFor && frames % wheelEvery == 0) window.Input.Wheel = 1;
-                if (backFrom >= 0 && clock.Total >= backFrom && clock.Total < backFrom + backFor) window.Input.Wheel = -1;
+                if (wheelFrom >= 0 && clock.Total >= wheelFrom && clock.Total < wheelFrom + wheelFor && frames % wheelEvery == 0) window.Input.Notch(1);
+                if (backFrom >= 0 && clock.Total >= backFrom && clock.Total < backFrom + backFor) window.Input.Notch(-1);
                 if (clickAt >= 0 && clock.Total >= clickAt) { window.Input.MouseX = (int)(clickX * gpu.Width); window.Input.MouseY = (int)(clickY * gpu.Height); window.Input.LeftClicked = true; clickAt = -1; }
-                if (window.Input.IsDown(0x11)) window.Input.Wheel *= 8;          // hold Ctrl: the wheel zooms eight times as fast, in every view
+                window.Input.Glide(clock.Delta, window.Input.IsDown(0x11));      // the wheel glides in smoothly; hold Ctrl: eight times as fast, in every view
                 if (style != null) style.Update(window.Input, clock.Delta, gpu.Width, gpu.Height);
                 else if (microbes != null) microbes.Update(window.Input, clock.Delta);
                 else if (elements != null) elements.Update(window.Input, clock.Delta);
