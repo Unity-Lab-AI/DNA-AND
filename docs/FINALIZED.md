@@ -176,3 +176,4 @@ LAW 11 now includes a content-coverage check.
 - [x] "and the lading page should have a rec option for the tour with option to open recordings and play them or open the folder location": Film the tour, Clips with Play and Open folder (DESIGN 388).
 - [x] "and it zoomed into a astroid and nothing was there" / "csmae with the comet no trail not gas clud nevbula around the comet": the bodies' sizes no longer scaled twice (DESIGN 389).
 - [x] "comets and astorida can be near plaent small size only once things get big enough do they globe like, and the tour is just spining sround and around the planet like hitintg gimble lock again": small bodies lumpy, big ones round; no circling the world or rolling in place (DESIGN 390).
+- [x] "do you not understand the universe and how to make a proper tour without long boring pauses and enough time to actual pan around to see at crusial poioints": no pauses; zooms pan; real circling at the points that matter (DESIGN 391).
