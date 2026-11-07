@@ -183,3 +183,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (no balls, no sticks): the lattice's level the quantum picture, electron clouds and shared electrons; the stick routine gone (DESIGN 590).
 - 2026-11-07 (the well an inward spike, from the creator's shots): DESIGN 591.
 - 2026-11-07 (looking round the well as you fall): DESIGN 592.
+- 2026-11-07 (the patterning found; the way into a hole not its size): DESIGN 593, 594; `StarGen.cs`, `UniverseView.DrawFallGrid`, the fall's card.
