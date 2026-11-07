@@ -37,6 +37,7 @@ if exist "%U%\installer\universe-names.ps1" del "%U%\installer\universe-names.ps
 if exist "%U%\installer\dna-and.ico" del "%U%\installer\dna-and.ico"
 rem its own name throughout its code and content (namespace, file headers, content labels), never DNA-AND's
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0installer\universe-names.ps1" "%U%" || exit /b 1
-> "%U%\.gitignore" echo build/
+rem the Universe project keeps its own .gitignore, .claude/, wiki/ and workflow docs: never written over from here
+if not exist "%U%\.gitignore" (> "%U%\.gitignore" echo build/)
 >> "%U%\.gitignore" echo release/
 echo Universe synced into %U%
