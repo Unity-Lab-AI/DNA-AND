@@ -61,7 +61,9 @@ namespace DnaAnd.Platform
             Win32.DrawMenuBar(Handle);
         }
 
-        public const int CmdAbout = 200, CmdReadme = 201, CmdCredits = 202, CmdScaleHud = 203, CmdInvertX = 204, CmdInvertY = 205, CmdHowItWorks = 206, CmdPause = 207, CmdFps = 208;
+        public const int CmdAbout = 200, CmdReadme = 201, CmdCredits = 202, CmdScaleHud = 203, CmdInvertX = 204, CmdInvertY = 205, CmdHowItWorks = 206, CmdPause = 207, CmdFps = 208, CmdShot = 209, CmdRecord = 210, CmdTour = 211;
+        /// <summary>Whether a clip is being recorded, and the panoramic tour is playing (ticked in the View menu).</summary>
+        public static bool Recording, Touring;
         /// <summary>Frames a second, measured over the last half second or so (shown on screen when View > Show FPS is on).</summary>
         public static double Fps;
         public const int CmdTimeBase = 90;    // time speed i is CmdTimeBase + i
@@ -90,6 +92,10 @@ namespace DnaAnd.Platform
             Win32.AppendMenu(timeMenu, Win32.MF_STRING | 0x1u, IntPtr.Zero, "slower: ,   faster: .");
             Win32.AppendMenu(view, Win32.MF_SEPARATOR, IntPtr.Zero, null);
             Win32.AppendMenu(view, Win32.MF_STRING | (Settings.Get("show-fps", true) ? Win32.MF_CHECKED : 0), (IntPtr)CmdFps, "Show FPS (frames a second)");
+            Win32.AppendMenu(view, Win32.MF_SEPARATOR, IntPtr.Zero, null);
+            Win32.AppendMenu(view, Win32.MF_STRING | (Touring ? Win32.MF_CHECKED : 0), (IntPtr)CmdTour, "Panoramic tour (galaxies down to the quarks)\tT");
+            Win32.AppendMenu(view, Win32.MF_STRING, (IntPtr)CmdShot, "Screenshot (PNG, in captures)\tF12");
+            Win32.AppendMenu(view, Win32.MF_STRING | (Recording ? Win32.MF_CHECKED : 0), (IntPtr)CmdRecord, "Record a clip (MP4 video, in captures)\tF9");
             IntPtr dragMenu = Win32.CreatePopupMenu();
             for (int i = 1; i <= 10; i++) Win32.AppendMenu(dragMenu, Win32.MF_STRING | (DragSpeed == i ? Win32.MF_CHECKED : 0), (IntPtr)(CmdDragBase + i), i + "x" + (i == 1 ? " (the view moves with the mouse exactly)" : i == 4 ? " (the usual)" : ""));
             Win32.AppendMenu(view, Win32.MF_POPUP, dragMenu, "Drag speed (look and turn)");

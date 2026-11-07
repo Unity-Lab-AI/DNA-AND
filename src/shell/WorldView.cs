@@ -781,6 +781,8 @@ namespace DnaAnd.Shell
             return true;
         }
         public bool Touring { get { return _tour != null; } }
+        /// <summary>Stops the tour; the controls are yours again.</summary>
+        public void StopTour() { _tour = null; _pressed = false; }
         private double _tourH0;
         private string TourCaption { get { return _tour != null && _tourAt < _tour.Count ? _tour[_tourAt].Caption + "   (the view: " + ScaleHud.Words(ViewDistanceKm()) + ")" : ""; } }   // the scale is what the tour shows
         // one frame of the tour: what the stop asks, given to the controls; on to the next when it is done
@@ -791,7 +793,7 @@ namespace DnaAnd.Shell
             {
                 // you take the controls back: a click, or a key (not the mouse's own buttons); never in its first moments
                 if (input.LeftClicked || input.RightClicked) { _tour = null; _pressed = false; return; }
-                for (int k = 8; k < 256; k++) if (input.WasPressed(k)) { _tour = null; _pressed = false; return; }
+                for (int k = 8; k < 256; k++) if (k != 0x78 && k != 0x7B && input.WasPressed(k)) { _tour = null; _pressed = false; return; }   // (screenshots and recording never stop it)
             }
             if (_tourAt >= _tour.Count) { _tour = null; _pressed = false; return; }
             var st = _tour[_tourAt]; _tourT += dt; bool done = false;
@@ -873,6 +875,9 @@ namespace DnaAnd.Shell
                     TourPick(st.Target); done = true; break;
                 default: done = true; break;
             }
+            // the story is read, never rushed: a stop goes on only once its words have had time to be read (a calm pace, about a
+            // third of a second a word, after a moment to look); a zoom that has arrived holds still till then
+            if (done && st.Do != "pick" && _tourT < 2.5 + st.Caption.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length * 0.33) { done = false; input.Wheel = 0; }
             if (done) { _tourAt++; _tourT = 0; }
         }
         // what a stop picks, as a click would
