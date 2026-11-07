@@ -90,10 +90,10 @@ The sample subjects come first (round 15): planets, stars, gas giants, Dyson sph
 - `content/bodies.dnat` (`@place` entries: every kind of body made round you, black holes, neutron stars, rogue planets, asteroids, Kuiper bodies and comets, with their shares and where they live)
 - `content/cities.dnat`
 - `content/climate.dnat`
-- `content/elements.dnat` (each `@element` also carries `colour`, `covalent-a`, `atomic-a`; the unstable ones `half-life` and `decays`)
+- `content/elements.dnat` (each `@element` also carries `colour`, `covalent-a`, `atomic-a`, `made-in` (where its atoms were forged); the unstable ones `half-life` and `decays`)
 - `content/galaxies.dnat`
 - `content/gas-giants.dnat`
-- `content/minerals.dnat` (`@mineral` with `lustre`, `clarity` and `trace` lines, `@mix`, `@surface`)
+- `content/minerals.dnat` (`@mineral` with `lustre`, `clarity` and `trace` lines, `@mix` with `vary` (each body's own shares of the kind's minerals, scattered by its seed), `@surface`)
 - `content/life/animals.dnat`
 - `content/life/archaea.dnat`
 - `content/life/bacteria.dnat`
