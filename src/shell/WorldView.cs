@@ -1487,7 +1487,12 @@ namespace DnaAnd.Shell
                 // inside the galaxy its points ease down from glows to plain points of light, so no nearby one looms as a blob
                 float glow = i == _near ? (float)Math.Pow(1 - InsideShare(), 3) : 1f;   // to nothing at all well inside: only points of light remain
                 // a galaxy's points never cover more than a small angle on screen: from afar they glow, up close they stay points of light
-                DrawPoints(buf, count, Placement(g) * vp, right, up, 0.006f * g.Scale * shrink * glow, 0.0016f, w, h, time, 0.012f);
+                // its light, never more than it has: when its stars crowd a small patch of screen they would add up to a white blot,
+                // so each is dimmed by how many share the galaxy's patch (its true glow and colour, at any distance)
+                double gdx = g.X - _cx, gdy = g.Y - _cy, gdz = g.Z - _cz, gd = Math.Max(1e-9, Math.Sqrt(gdx * gdx + gdy * gdy + gdz * gdz));
+                double gpx = g.Scale / gd * h / (2 * Math.Tan(0.45)), dotPx = Math.Max(1.5, 0.0016 * h);
+                float crowd = (float)Math.Max(0.03, Math.Min(1, Math.PI * gpx * gpx / (count * dotPx * dotPx) * 2.5));
+                DrawPoints(buf, count, Placement(g) * vp, right, up, 0.006f * g.Scale * shrink * glow, 0.0016f, w, h, time, 0.012f, crowd);
             }
             double inside = InsideShare();
             {
