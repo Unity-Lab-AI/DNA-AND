@@ -900,7 +900,7 @@ namespace DnaAnd.Shell
                 // and fall, as a person would on reaching somewhere new
                 done = false; input.Wheel = 0; _tourLook = Math.Min(1, _tourLook + dt / 2);
                 double e = _tourLook * _tourLook * (3 - 2 * _tourLook);
-                TourTurn(1.5 * Math.PI / 180 * dt * e, Math.Sin(_tourClock * 0.35) * 0.6 * Math.PI / 180 * dt * e);
+                if (_matterScale <= 0 && _spaceScale <= 0) TourTurn(1.5 * Math.PI / 180 * dt * e, Math.Sin(_tourClock * 0.35) * 0.6 * Math.PI / 180 * dt * e);   // (deep in the matter it holds steady)
             }
             else _tourLook = 0;
             if (done) { _tourAt++; _tourT = 0; }
