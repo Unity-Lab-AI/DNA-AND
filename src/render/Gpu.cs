@@ -210,6 +210,7 @@ namespace DnaAnd.Render
         /// <summary>Finishes the frame and shows it, synced to the monitor (vsync).</summary>
         public void EndFrame()
         {
+            UploadBuffer.Collect();
             string capture = CaptureNext; CaptureNext = null; bool grab = GrabNext; GrabNext = false;
             IntPtr readback = IntPtr.Zero; uint pitch = 0;
             if (capture != null || grab)
