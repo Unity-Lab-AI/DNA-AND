@@ -1168,7 +1168,7 @@ namespace DnaAnd.Shell
                 {
                     if (_matterScale > 0 || _spaceScale > 0) _matter.Pick(input.MouseX, input.MouseY);    // in the matter or the gas: what is there
                     else if (_ground != null && AboveGround() < Units.Km(MatterView.OverlayKm) && _matter.Pick(input.MouseX, input.MouseY))
-                    { _matterScale = Math.Max(MatterView.BottomKm, AboveGround() / Units.Km(1) / 0.6); _matterTop = Math.Max(MatterView.TopKm, _matterScale * 1.1); }   // a grain over the ground: on into the matter, the same picture, flying to it
+                    { }   // a grain over the ground: picked, its card shown; the ground itself carries you on down to it (never a second layer of grains)   // a grain over the ground: on into the matter, the same picture, flying to it
                     else Pick(MouseRay(input.MouseX, input.MouseY, w, h), input.MouseX, input.MouseY);
                 } }
             // the camera turns smoothly to face what you picked
@@ -1353,7 +1353,7 @@ namespace DnaAnd.Shell
                 ChooseNear(); LocalStars(); ChooseSystem(); FollowBody(); ChoosePlanet();
                 return true;
             }
-            if (_ground != null && input.Wheel > 0 && AboveGround() < Units.Km(3e-8))   // (the ground itself carries its grains down to about 30 micrometres)
+            if (_ground != null && input.Wheel > 0 && AboveGround() < Units.Km(2e-9))   // (the ground itself, its grains its own, carries you down to about 2 micrometres: on one grain's face)
             {
                 // at the finest ground: on down into what it is made of
                 double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z);
@@ -1448,12 +1448,12 @@ namespace DnaAnd.Shell
                     // ...but never inside the drawn ground: its pieces are flat triangles about ReadyStep across that can stand above
                     // the true ground, so stay at least 0.6 of a step above it until finer pieces are made (close enough to ask for them)
                     double floorKm = Math.Max(5e-7, Math.Min(ready, Math.Max(altBefore * 0.9, ready / 3 * 0.6)));
-                    if (altBefore < MatterView.OverlayKm) floorKm = 2e-8;                 // below a centimetre the grains cover the ground: no waiting, on down past the 30 micrometres where the matter takes over
+                    if (altBefore < MatterView.OverlayKm) floorKm = 1e-9;                 // below a centimetre the grains cover the ground: no waiting, on down past the 30 micrometres where the matter takes over
                     {
                         // over the sea: no lower than a metre above the water, until the dive under the sea is in the one world
                         double cx0, cy0, cz0; CamFromPlanet(out cx0, out cy0, out cz0); double r0 = Math.Sqrt(cx0 * cx0 + cy0 * cy0 + cz0 * cz0);
                         // over the sea the floor is the water itself, not the sea bed far below (whose pieces stay coarse): down to a millimetre
-                        if (_ground.HasWater && _ground.GroundAt(cx0 / r0, cy0 / r0, cz0 / r0) < 0) floorKm = 2e-8;
+                        if (_ground.HasWater && _ground.GroundAt(cx0 / r0, cy0 / r0, cz0 / r0) < 0) floorKm = 1e-9;
                     }
                     if (AboveGround() < Units.Km(floorKm))
                     {

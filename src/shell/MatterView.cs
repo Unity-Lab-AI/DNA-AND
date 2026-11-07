@@ -22,7 +22,7 @@ namespace DnaAnd.Shell
     {
         private readonly Gpu _gpu; private readonly BillboardDrawer _dots;
         private UploadBuffer _solidBuf, _glowBuf, _meshBuf; private StarVertex[] _sv = new StarVertex[0], _gv = new StarVertex[0], _mv = new StarVertex[0];
-        public const double TopKm = 5e-8;           // where the matter alone is drawn, about 1.5 mm up (above it the grains lie over the ground)
+        public const double TopKm = 3e-9;           // where the matter alone is drawn, about 3 micrometres up, on one grain's face (above it the ground itself, its grains its own)
         public const double OverlayKm = 1e-5;       // 1 cm up: the grains begin to show over the ground, as specks that grow as you come down
         public const double BottomKm = 1e-20;       // 0.01 femtometres: inside a proton or neutron, among its quarks
         private double Grain = 2e-7;                // a grain's size across (km): from its ground's mix (content: grain-mm)
@@ -1141,7 +1141,7 @@ namespace DnaAnd.Shell
             // (once you are down at the grain's own surface it is no longer drawn as a stone: you are at its face)
             if (!_noGrains)
             {
-                int meshes = 0, smalls = 0; var focusG = FocusRec;
+                var focusG = FocusRec;
                 var nearG = NearGrains(_fx, _fz, Math.Max(Grain * 12, Math.Min((overlay ? 30 : 110) * Grain, 2.2 * s) + Grain));   // always the grains round you, to the horizon
                 // the biggest on screen first, so the grains right in front of you always get their real 3D bodies (never a flat
                 // eight-sided stand-in, which is only for grains a few pixels across)
@@ -1160,8 +1160,7 @@ namespace DnaAnd.Shell
                     // the grain you are on keeps its whole 3D body while its shape shows (its fine face lies over it round you, in round
                     // rings); closer in than a twentieth of its size its face and atoms are all there is to see
                     if (under && s < FocusRad * 0.05) continue;
-                    if (mesh != null && px > 8 && meshes < 700) { int at0 = _stoneMesh.Count; Stone(_stoneMesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); _stones.Add(new double[] { at0, _stoneMesh.Count - at0, gi, gx, gy, gz, rad, m.Lustre }); meshes++; }   // its detail and stains worked out on the card
-                    else if (mesh != null && px <= 8 && smalls < 24000) { Octa(mesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); smalls++; }
+                    // (no grain bodies of its own: the grains are the ground's, drawn by the ground; here only the one you are on, its face)
                 }
             }
             if (overlay) return;                                                         // over the ground: the ground itself is its grains; nothing is laid over it (only the grains to click)
@@ -1451,7 +1450,8 @@ namespace DnaAnd.Shell
                 {
                     double rad = st[6], sr2 = _scale / Math.Max(1e-30, rad);
                     var k2 = (float[])sc0.Clone();
-                    k2[40] = (float)((_fx - st[3]) / rad - _ex * sr2); k2[41] = (float)((_fy - _yOff - st[4]) / rad - _ey * sr2); k2[42] = (float)((_fz - st[5]) / rad - _ez * sr2); k2[43] = (float)sr2;
+                    double sx0 = (_fx - st[3]) / rad - _ex * sr2, sy0 = (_fy - _yOff - st[4]) / rad - _ey * sr2, sz0 = (_fz - st[5]) / rad - _ez * sr2;
+                    k2[40] = (float)sx0; k2[41] = (float)sy0; k2[42] = (float)sz0; k2[43] = (float)sr2; k2[19] = (float)(sx0 - k2[40]); k2[23] = (float)(sy0 - k2[41]); k2[31] = (float)(sz0 - k2[42]);
                     k2[44] = BitConverter.ToSingle(BitConverter.GetBytes((uint)((long)st[2] & 0xFFFFFFFF)), 0); k2[45] = (float)(rad / Math.Max(1e-30, _scale)); k2[46] = 1; k2[47] = 1;
                     pipes.Solid.Draw(_stoneBuf, (int)st[0], (int)st[1], k2, 0, 0, w, h);
                 }
@@ -1464,7 +1464,9 @@ namespace DnaAnd.Shell
                 for (int q = 0; q < 16; q++) pc[q] = c[q];
                 pc[16] = Light[0]; pc[17] = Light[1]; pc[18] = Light[2];
                 double sr = _scale / Math.Max(1e-30, _patchRad);
-                pc[40] = (float)((_fx - _patchGX) / _patchRad - _ex * sr); pc[41] = (float)((_fy - _yOff - _patchGY) / _patchRad - _ey * sr); pc[42] = (float)((_fz - _patchGZ) / _patchRad - _ez * sr); pc[43] = (float)sr;
+                double ox0 = (_fx - _patchGX) / _patchRad - _ex * sr, oy0 = (_fy - _yOff - _patchGY) / _patchRad - _ey * sr, oz0 = (_fz - _patchGZ) / _patchRad - _ez * sr;
+                pc[40] = (float)ox0; pc[41] = (float)oy0; pc[42] = (float)oz0; pc[43] = (float)sr;
+                pc[19] = (float)(ox0 - pc[40]); pc[23] = (float)(oy0 - pc[41]); pc[31] = (float)(oz0 - pc[42]);   // the low halves
                 pc[44] = BitConverter.ToSingle(BitConverter.GetBytes((uint)(_patchKey & 0xFFFFFFFF)), 0); pc[45] = (float)(_patchRad / Math.Max(1e-30, _scale)); pc[46] = 1; pc[47] = 1;
                 Put(_patchMesh, ref _patchArr, ref _patchBuf);
                 pipes.Solid.Draw(_patchBuf, _patchMesh.Count, pc, 0, 0, w, h);

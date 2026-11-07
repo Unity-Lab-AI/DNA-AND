@@ -91,6 +91,48 @@ float woctave(float3 p, uint key, uint k)
 }
 // octaves from frequency f0, each twice as fine and gain as strong, as fine as maxF (the finest the pixel can show), the
 // finest fading in, never switching
+// ── the same detail with the place in double precision, so it stays sharp at any zoom: a float only resolves a grain to about
+// a ten-millionth of its size (tens of nanometres on a sand grain), so below that every pixel would read the same place and the
+// detail would freeze into flat colour; the place is kept in doubles and brought into each octave's own repeat before floats ──
+float wreduce(double x, float P)
+{
+    float invP = 1.0 / P;
+    double r = x - (double)floor((float)(x * (double)invP)) * (double)P;          // near: off by at most a few thousand repeats
+    r = r - (double)floor((float)(r * (double)invP)) * (double)P;                  // exact
+    float rf = (float)r; if (rf < 0) rf += P; if (rf >= P) rf -= P; return rf;
+}
+float wtileR(uint k, float mu, float mv)
+{
+    mu = mu > WT - 1 ? 2.0 * (WT - 1) - mu : mu; mv = mv > WT - 1 ? 2.0 * (WT - 1) - mv : mv;
+    int x0 = (int)mu, y0 = (int)mv, x1 = min(WT - 1, x0 + 1), y1 = min(WT - 1, y0 + 1); float fx = mu - x0, fy = mv - y0;
+    int b = (int)(k % 6) * WT * WT;
+    float a0 = lerp(wave[b + y0 * WT + x0], wave[b + y0 * WT + x1], fx), a1 = lerp(wave[b + y1 * WT + x0], wave[b + y1 * WT + x1], fx);
+    return lerp(a0, a1, fy);
+}
+float woctaveD(double3 p, uint key, uint k)
+{
+    float sum = 0;
+    for (uint pl = 0; pl < 3; pl++)
+    {
+        double u = pl == 0 ? p.x : pl == 1 ? p.y : p.z, v = pl == 0 ? p.y : pl == 1 ? p.z : p.x;
+        float a = wh01(key + pl * 31u, k) * 6.2832, c = cos(a), s = sin(a);
+        double uu = u * (double)c - v * (double)s + (double)(wh01(key + pl * 31u, k + 97u) * 37), vv = u * (double)s + v * (double)c + (double)(wh01(key + pl * 31u, k + 191u) * 41);
+        if (k < (uint)WSTORED) sum += wtileR(k + pl, wreduce(uu * (double)(0.02 * WT), 2.0 * (WT - 1)), wreduce(vv * (double)(0.02 * WT), 2.0 * (WT - 1)));
+        else sum += (wmodeE(wreduce(uu * 0.02, 3) - 1.5, wreduce(vv * 0.02, 3) - 1.5, exp2(k - WSTORED + 1), wh01(key, k + 5u), wh01(key, k + 7u), wh01(key, k + 9u) * 6.28) - 0.75) * 1.4;
+    }
+    return sum / 3;
+}
+float woctavesD(double3 p, uint key, float f0, float amp0, float gain, float maxF)
+{
+    float sum = 0, amp = amp0, f = f0;
+    for (uint k = 0; k < 40; k++)
+    {
+        float fine = maxF / f; if (fine < 0.5) break;
+        sum += min(1, fine - 0.5) * amp * woctaveD(p * (double)f, key, k);
+        amp *= gain; f *= 2;
+    }
+    return sum;
+}
 // the ground's grains on the card: the same 32-bit hash and cells as the processor's grain field, so the very same grains
 static const int GPALB = 6 * WT * WT, GPALM = 16, GPALS = 2 + 16 + 48;
 uint ghash(uint i, uint j, uint seedW) { uint h = i * 0x9E3779B1u ^ j * 0x85EBCA77u ^ seedW; h ^= h >> 16; h *= 0x7FEB352Du; h ^= h >> 15; h *= 0x846CA68Bu; h ^= h >> 16; return h; }
@@ -160,16 +202,17 @@ float4 PS(VO i) : SV_Target
     {
         // the grain's face, worked out here per pixel (never on the processor): its roughness from the waveform, as fine as
         // this pixel can show, bending the light; its stains and cracks
-        float3 L = i.wp * detA.w + detA.xyz; uint key = asuint(detB.x);
-        float3 Ld = L / max(1e-9, length(L));
-        float fw = max(1e-12, length(fwidth(Ld))), maxF = 0.5 / fw;
-        float h = woctaves(Ld, key, 2.5, 0.16, 0.5, maxF) * detB.y;                  // in view units
+        // where this pixel is on the grain, in its own frame (radius 1), in double precision: the part the camera's place gives
+        // (high and low halves) and the pixel's own small offset
+        double3 L = (double3)i.wp * (double)detA.w + (double3)detA.xyz + double3(light.w, cam.w, fog.w); uint key = asuint(detB.x);
+        float fw = max(1e-15, length(fwidth(i.wp)) * detA.w), maxF = 0.5 / fw;        // this pixel's size on the grain (from the view, exact)
+        float h = woctavesD(L, key, 2.5, 0.16, 0.5, maxF) * detB.y;                    // in view units
         float3 dpdx = ddx(i.wp), dpdy = ddy(i.wp); float dhx = ddx(h), dhy = ddy(h);
         float3 r1 = cross(dpdy, n), r2 = cross(n, dpdx); float det = dot(dpdx, r1);
         if (abs(det) > 1e-20) n = normalize(abs(det) * n - sign(det) * (dhx * r1 + dhy * r2));
         float lim = min(maxF * 0.8, 5e5);
-        float iron = woctaves(Ld, key * 7u + 300u, 2.0, 1, 0.6, lim), clay = woctaves(Ld + float3(9, 0, -4), key * 7u + 400u, 2.0, 1, 0.6, lim);
-        float crk = woctaves(Ld * 1.7, key * 7u + 500u, 2.0, 1, 0.6, lim), dark = clamp(0.5 - abs(crk) * 3, 0, 0.6);
+        float iron = woctavesD(L, key * 7u + 300u, 2.0, 1, 0.6, lim), clay = woctavesD(L + double3(9, 0, -4), key * 7u + 400u, 2.0, 1, 0.6, lim);
+        float crk = woctavesD(L * 1.7, key * 7u + 500u, 2.0, 1, 0.6, lim), dark = clamp(0.5 - abs(crk) * 3, 0, 0.6);
         float ir = clamp(iron / 2.4 * 2.4 - 0.15, 0, 0.6), cl = clamp(clay / 2.4 * 2.4 - 0.2, 0, 0.5);
         stain = float3(1 + ir * 0.25 + cl * 0.3, 1 - ir * 0.35 + cl * 0.3, 1 - ir * 0.55 + cl * 0.25) * (1 - dark);
     }
