@@ -297,6 +297,14 @@ namespace DnaAnd.Shell
                     }
                     ex.Lines.Add("mass: " + (ex.Mass > 0 ? ex.Mass.ToString(ex.Mass >= 1e4 ? "0.##E+0" : "0.#") : e.Get("mass-sol", "")) + " Suns");
                 }
+                if (e.Kind == "star" && e.Id == "neutron-star" && ex.Mass > 0)
+                {
+                    // a neutron star is an atom's nucleus the size of a city: its mass in a ball about 10 km across its middle, as dense
+                    // as nuclear matter (about 2.3e17 kg a cubic metre), made almost all of neutrons pressed together
+                    double rm = pl.SizeKm * 500, kg = ex.Mass * 1.989e30, rho = kg / (4.0 / 3 * Math.PI * rm * rm * rm);
+                    ex.Lines.Add("density: " + rho.ToString("0.#E+0") + " kg a cubic metre, " + (rho / 2.3e17).ToString("0.#") + " times an atom's nucleus");
+                    ex.Lines.Add("made of: neutrons pressed together, as in a nucleus; a teaspoon would weigh " + (rho * 5e-6 / 1e12).ToString("0.#") + " billion tonnes");
+                }
                 if (e.Kind == "blackhole" && ex.Mass > 0)
                 {
                     // a black hole is its mass: its event horizon the Schwarzschild radius 2GM/c^2 (2.95 km a Sun), the shadow round it

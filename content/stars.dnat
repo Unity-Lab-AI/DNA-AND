@@ -214,6 +214,7 @@ real: yes
 stage: the crushed core left by a supernova
 tags: tiny, extremely dense
 radius-sol: 0.000014..0.000017
+mass-sol: 1.17..2.35
 temp-k: 600000..1000000
 share-of-stars: rare
 
