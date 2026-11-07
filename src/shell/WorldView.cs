@@ -1347,6 +1347,8 @@ namespace DnaAnd.Shell
             }
             _gpu.ClearDepth();                                                         // the scale, cards and rings always on top of everything
             DrawScale(w, h);
+            if (Settings.Get("show-fps", true))                                       // frames a second, top right (View > Show FPS)
+                _hud.DrawCard(_meshes, new[] { Window.Fps.ToString("0") + " FPS" }, w - 150 * Math.Max(1, h / 1080.0), 12 * Math.Max(1, h / 1080.0), w, h);
             double mdx, mdy, mdz, mrad, msx, msy;
             if (_tKind >= 0 && _matterScale <= 0 && TargetFromCamera(out mdx, out mdy, out mdz, out mrad) && ToScreen(mdx, mdy, mdz, out msx, out msy))
             {

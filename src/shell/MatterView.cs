@@ -614,56 +614,78 @@ namespace DnaAnd.Shell
         }
 
         // the patch of the grain's surface under you, as a fine lit mesh
-        private void GrainPatch(List<StarVertex> mesh, double s)
+        private readonly Dictionary<long, double[]> _patchCache = new Dictionary<long, double[]>(); private long _patchGrain = long.MinValue;
+                private void GrainPatch(List<StarVertex> mesh, double s)
         {
             long gi, gj; double gx, gy, gz, rad; FocusGrain(out gi, out gj, out gx, out gy, out gz, out rad);
             var m = GrainMineral(gi, gj); if (m == null) return;
-            // a grid fixed on the grain itself (never on the camera), a power of two in size, so its points stay put as you zoom
-            // and move; between two sizes the in-between points ease from the coarser shape to their own (no pops, no swimming)
-            const int N0 = 72; double want = 4.8 * s / N0, lv = Math.Log(want / AtomSpacing, 2), L = Math.Floor(lv), frac = lv - L;
-            double step = AtomSpacing * Math.Pow(2, L);
-            int N = (int)Math.Min(160, Math.Ceiling(4.8 * s / step / 2) * 2);              // always the whole view across (two to four of its steps finer than the view needs)
+            if (_patchGrain != gi || _patchCache.Count > 600000) { _patchCache.Clear(); _patchGrain = gi; }
+            // the grain's face as rings of detail round you: the finest grid under you, then rings each four times coarser out
+            // to the whole grain, each on a grid fixed on the grain (never on the camera, so nothing slides as you zoom and
+            // move), each point worked out once; the finest eases between its two sizes so nothing pops
+            const int N0 = 40; double want = 4.8 * s / N0, lv = Math.Log(want / AtomSpacing, 2), L = Math.Floor(lv), frac = lv - L;
+            double inner = 0;
+            for (int ring = 0; ring < 12; ring++)
+            {
+                double Lr = L + ring * 2, step = AtomSpacing * Math.Pow(2, Lr);
+                double half = (ring == 0 ? 2.4 * s : inner * 4) * 1.02;
+                int N = (int)Math.Min(160, Math.Ceiling(2 * half / step / 2) * 2);
+                PatchRing(mesh, s, m, gi, gj, gx, gy, gz, rad, Lr, step, N, ring == 0 ? frac : 0, ring == 0 ? 0 : inner * 0.98);
+                inner = N / 2 * step;
+                if (inner > rad * 1.3) break;                                            // the whole grain is drawn
+            }
+        }
+        // one ring: a grid of N x N steps round the point you dive into, its quads inside 'hole' (the finer ring's reach) left out
+        private void PatchRing(List<StarVertex> mesh, double s, Mineral m, long gi, long gj, double gx, double gy, double gz, double rad, double L, double step, int N, double frac, double hole)
+        {
             long ia0 = (long)Math.Round(_fx / step) - N / 2, ib0 = (long)Math.Round(_fz / step) - N / 2;
             Func<int, double> atA = q => (ia0 + q) * step - _fx; Func<int, double> atB = q => (ib0 + q) * step - _fz;
-            var hy = new double[N + 1, N + 1]; var ok = new bool[N + 1, N + 1];
+            var hy = new double[N + 1, N + 1]; var ok = new bool[N + 1, N + 1]; var st = new float[N + 1, N + 1, 3];
             for (int a = 0; a <= N; a++)
                 for (int b = 0; b <= N; b++)
                 {
-                    double y; ok[a, b] = GrainTop(gi, gj, gx, gy, gz, rad, _fx + atA(a), _fz + atB(b), step * 1.5, out y); hy[a, b] = y;
+                    long key = ((long)L * 1000003L + (ia0 + a)) * 2000003L + (ib0 + b); double[] c;   // each point fixed on the grain: worked out once
+                    if (!_patchCache.TryGetValue(key, out c))
+                    {
+                        double y; bool o = GrainTop(gi, gj, gx, gy, gz, rad, _fx + atA(a), _fz + atB(b), step * 1.5, out y);
+                        float sr = 1, sg = 1, sb2 = 1;
+                        if (o) { double ex = atA(a) + _fx - gx, ey = y - gy, ez = atB(b) + _fz - gz, el = Math.Sqrt(ex * ex + ey * ey + ez * ez) + 1e-30; DnaAnd.Gen.GrainField.Stain(gi, ex / el, ey / el, ez / el, rad, step * 1.5, out sr, out sg, out sb2); }
+                        c = new[] { y, o ? 1 : 0, sr, sg, sb2 }; _patchCache[key] = c;
+                    }
+                    hy[a, b] = c[0]; ok[a, b] = c[1] > 0; st[a, b, 0] = (float)c[2]; st[a, b, 1] = (float)c[3]; st[a, b, 2] = (float)c[4];
                 }
-            // the points that the next coarser grid does not have ease toward its shape as this size gives way to it
-            var hm = (double[,])hy.Clone(); double ease = frac * frac * (3 - 2 * frac);
-            for (int a = 1; a < N; a++)
-                for (int b = 1; b < N; b++)
-                {
-                    bool oa = ((ia0 + a) & 1) != 0, ob = ((ib0 + b) & 1) != 0; if (!oa && !ob) continue;
-                    double c = oa && ob ? (hy[a - 1, b - 1] + hy[a + 1, b - 1] + hy[a - 1, b + 1] + hy[a + 1, b + 1]) * 0.25 : oa ? (hy[a - 1, b] + hy[a + 1, b]) * 0.5 : (hy[a, b - 1] + hy[a, b + 1]) * 0.5;
-                    hm[a, b] = hy[a, b] + (c - hy[a, b]) * ease;
-                }
-            hy = hm;
+            if (frac > 0)
+            {
+                // the points the next coarser grid does not have ease toward its shape as this size gives way to it
+                var hm = (double[,])hy.Clone(); double ease = frac * frac * (3 - 2 * frac);
+                for (int a = 1; a < N; a++)
+                    for (int b = 1; b < N; b++)
+                    {
+                        bool oa = ((ia0 + a) & 1) != 0, ob = ((ib0 + b) & 1) != 0; if (!oa && !ob) continue;
+                        double c = oa && ob ? (hy[a - 1, b - 1] + hy[a + 1, b - 1] + hy[a - 1, b + 1] + hy[a + 1, b + 1]) * 0.25 : oa ? (hy[a - 1, b] + hy[a + 1, b]) * 0.5 : (hy[a, b - 1] + hy[a, b + 1]) * 0.5;
+                        hm[a, b] = hy[a, b] + (c - hy[a, b]) * ease;
+                    }
+                hy = hm;
+            }
             float sh = FocusShade;
             double sink = Structured(m) ? AtomSpacing * 3 * Fade(s, AtomSpacing * 40, AtomSpacing * 22) : 0;   // under the atoms once they show
-            // each corner's surface direction, from the slope to its neighbours (so it is shaded smooth, not in facets)
-            var nrm = new float[N + 1, N + 1]; var occ = new float[N + 1, N + 1]; var stn = new float[N + 1, N + 1, 3];
+            var nrm = new float[N + 1, N + 1]; var occ = new float[N + 1, N + 1];
             for (int a = 0; a <= N; a++)
                 for (int b = 0; b <= N; b++)
                 {
                     int a0 = Math.Max(0, a - 1), a1 = Math.Min(N, a + 1), b0 = Math.Max(0, b - 1), b1 = Math.Min(N, b + 1);
                     double dx = atA(a1) - atA(a0), dz = atB(b1) - atB(b0), sx = (hy[a1, b] - hy[a0, b]) / Math.Max(1e-30, dx), sz = (hy[a, b1] - hy[a, b0]) / Math.Max(1e-30, dz);
-                    nrm[a, b] = PackNormal(-sx, 1, -sz);
-                    // the light that reaches a hollow: lower than its neighbours round it, it sees less of the sky (a soft shadow)
+                    nrm[a, b] = PackNormal(-sx, 1, -sz);                                      // each corner's surface direction: shaded smooth
                     double hollow = (hy[a0, b] + hy[a1, b] + hy[a, b0] + hy[a, b1]) * 0.25 - hy[a, b], span = Math.Max(1e-30, (dx + dz) * 0.5);
-                    occ[a, b] = (float)Math.Max(0.55, Math.Min(1.08, 1 - hollow / span * 3));
-                    { double ex = atA(a) + _fx - gx, ey = hy[a, b] - gy, ez = atB(b) + _fz - gz, el = Math.Sqrt(ex * ex + ey * ey + ez * ez) + 1e-30; float sr, sg, sb2;
-                      DnaAnd.Gen.GrainField.Stain(gi, ex / el, ey / el, ez / el, rad, step * 1.5, out sr, out sg, out sb2); stn[a, b, 0] = sr; stn[a, b, 1] = sg; stn[a, b, 2] = sb2; }   // its stains and cracks
+                    occ[a, b] = (float)Math.Max(0.55, Math.Min(1.08, 1 - hollow / span * 3));   // a hollow sees less of the sky
                 }
+            float r = m.R * sh, g = m.G * sh, bl = m.B * sh;
+            Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)(atA(aa) / s + _ex), Y = (float)((hy[aa, bb] - sink + _yOff - _fy) / s + _ey), Z = (float)(atB(bb) / s + _ez), Size = nrm[aa, bb], R = r * occ[aa, bb] * st[aa, bb, 0], G = g * occ[aa, bb] * st[aa, bb, 1], B = bl * occ[aa, bb] * st[aa, bb, 2], A = m.Lustre };
             for (int a = 0; a < N; a++)
                 for (int b = 0; b < N; b++)
                 {
                     if (!ok[a, b] || !ok[a + 1, b] || !ok[a, b + 1] || !ok[a + 1, b + 1]) continue;
-                    float t = sh;
-                    float r = m.R * t, g = m.G * t, bl = m.B * t;
-                    Func<int, int, StarVertex> v = (aa, bb) => new StarVertex { X = (float)(atA(aa) / s + _ex), Y = (float)((hy[aa, bb] - sink + _yOff - _fy) / s + _ey), Z = (float)(atB(bb) / s + _ez), Size = nrm[aa, bb], R = r * occ[aa, bb] * stn[aa, bb, 0], G = g * occ[aa, bb] * stn[aa, bb, 1], B = bl * occ[aa, bb] * stn[aa, bb, 2], A = m.Lustre };
+                    if (hole > 0 && Math.Abs(atA(a)) < hole && Math.Abs(atA(a + 1)) < hole && Math.Abs(atB(b)) < hole && Math.Abs(atB(b + 1)) < hole) continue;   // the finer ring is there
                     mesh.Add(v(a, b)); mesh.Add(v(a + 1, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b + 1));
                 }
         }
@@ -962,24 +984,25 @@ namespace DnaAnd.Shell
             // grains: lumpy stones, each its own mineral from the mix, scattered (not on a grid) in two layers, the top one
             // resting with its tops at the level you dive into; near ones are lit 3D stones, far ones specks of their colour
             // (once you are down at the grain's own surface it is no longer drawn as a stone: you are at its face)
-            if (!_noGrains && s > AtomSpacing * 40)
+            if (!_noGrains)
             {
                 int meshes = 0, smalls = 0; var focusG = FocusRec;
-                foreach (var gr in NearGrains(_fx, _fz, Math.Max(Grain * 5, Math.Min((overlay ? 30 : 110) * Grain, 2.2 * s) + Grain)))
+                foreach (var gr in NearGrains(_fx, _fz, Math.Max(Grain * 12, Math.Min((overlay ? 30 : 110) * Grain, 2.2 * s) + Grain)))   // always the grains round you, to the horizon
                 {
                     var m = gr.M; long gi = gr.Key, gj = 0;
-                    if (gr == focusG && s < FocusRad * 1.5) continue;                            // close in: drawn as its own surface under you (below), the same shape, finer
+                    bool under = gr == focusG && s < FocusRad * 1.5;                             // close in: its fine face is drawn round you (below); its body carries it on out to its curve
                     double rad = gr.Rad, gx = gr.X, gy = gr.Y, gz = gr.Z;
                     float sh = gr.Shade * (gr.Layer == 0 ? 1f : 0.7f);
                     double dx = gx - _fx, dz = gz - _fz, dist = Math.Sqrt(dx * dx + dz * dz + (0.6 * s - gy) * (0.6 * s - gy));
                     double px = rad / Math.Max(1e-30, dist) * _lastH / (2 * Math.Tan(0.45));    // its size on screen, in pixels
                     if (gr.Layer == 0) { int nb = _bodies.Count; AddBody(0, gi, gj, gx, gy, gz, rad, s); if (_bodies.Count > nb) _bodies[nb].Sym = m.Id; }
                     if (overlay || px < 1.5) continue;                                           // over the ground: the ground itself is their top
+                    if (under) continue;                                                         // its face is drawn in rings out to its edge (GrainPatch)
                     if (mesh != null && px > 8 && meshes < 700) { Stone(mesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); meshes++; }
                     else if (mesh != null && smalls < 24000) { Octa(mesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); smalls++; }
                 }
             }
-            if (!_noGrains && !_space && mesh != null && s < FocusRad * 1.5 && s > AtomSpacing * 8) GrainPatch(mesh, s);
+            if (!_noGrains && !_space && mesh != null && s < FocusRad * 1.5) GrainPatch(mesh, s);   // (down among the atoms too: its rings carry the grain on out round them)
             if (!_noGrains && !_space && s < FocusRad * 1.5) SurfaceThings(solid, glow, mesh, s);
             if (overlay) return;                                                        // over the ground: only its grains so far
             // the focus grain's surface: detail at every size, fixed in place (cells of powers of ten, two at a time, blended),
@@ -1176,7 +1199,7 @@ namespace DnaAnd.Shell
             if (mesh != null) { Solidify(solid, mesh, h); solid.Clear(); }
             Put(solid, ref _sv, ref _solidBuf); Put(glow, ref _gv, ref _glowBuf);
             if (mesh != null) Put(mesh, ref _mv, ref _meshBuf);
-            Mat4 vp = view * Mat4.Perspective(0.9f, w / (float)Math.Max(1, h), 0.001f, 200f);
+            Mat4 vp = view * Mat4.Perspective(0.9f, w / (float)Math.Max(1, h), 0.001f, 1e9f);   // out to the grains round you, however close in you are
             _lastVp = vp; _lastW = w; _lastH = h; _haveVp = true; _scale = scaleKm; _lastView = view;
             var right = new Vec3(view.M11, view.M21, view.M31); var up = new Vec3(view.M12, view.M22, view.M32);
             var c = new float[BillboardPipeline.ConstantCount];

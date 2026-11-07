@@ -189,6 +189,7 @@ namespace DnaAnd
                 else if (cmd == Window.CmdHowItWorks) DocViewer.Show(window.Handle, PreviewText.Docs(), 2);
                 else if (cmd == Window.CmdCredits) DocViewer.Show(window.Handle, PreviewText.Docs(), 5);
                 else if (cmd == Window.CmdInvertX) { Settings.Set("invert-left-right", !Settings.Get("invert-left-right", false)); menuDirty = true; }
+                else if (cmd == Window.CmdFps) { Settings.Set("show-fps", !Settings.Get("show-fps", true)); menuDirty = true; }
                 else if (cmd == Window.CmdInvertY) { Settings.Set("invert-up-down", !Settings.Get("invert-up-down", false)); menuDirty = true; }
                 else if (cmd == Window.CmdScaleHud && world != null) { world.ScaleOn = !world.ScaleOn; menuDirty = true; }
                 else if (cmd == Window.CmdClearMarks) { viewer.ClearMarks(); menuDirty = true; }
@@ -333,7 +334,7 @@ namespace DnaAnd
                 {
                     lastTitle = string.Format("{0} · {1:0} fps · universe " + Seed, world != null ? world.Title : style != null ? style.Title : microbes != null ? microbes.Title : elements != null ? elements.Title : planet != null ? planet.Title : deep == null ? (universe != null ? universe.Title : viewer.Title) : deep.Title, frames / titleTimer);
                     window.SetTitle(lastTitle);
-                    titleTimer = 0; frames = 0;
+                    Window.Fps = frames / titleTimer; titleTimer = 0; frames = 0;
                 }
 
                 window.Input.EndFrame();

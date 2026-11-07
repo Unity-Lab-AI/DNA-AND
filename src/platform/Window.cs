@@ -61,7 +61,9 @@ namespace DnaAnd.Platform
             Win32.DrawMenuBar(Handle);
         }
 
-        public const int CmdAbout = 200, CmdReadme = 201, CmdCredits = 202, CmdScaleHud = 203, CmdInvertX = 204, CmdInvertY = 205, CmdHowItWorks = 206, CmdPause = 207;
+        public const int CmdAbout = 200, CmdReadme = 201, CmdCredits = 202, CmdScaleHud = 203, CmdInvertX = 204, CmdInvertY = 205, CmdHowItWorks = 206, CmdPause = 207, CmdFps = 208;
+        /// <summary>Frames a second, measured over the last half second or so (shown on screen when View > Show FPS is on).</summary>
+        public static double Fps;
         public const int CmdTimeBase = 90;    // time speed i is CmdTimeBase + i
         public static string[] TimeNames = new string[0]; public static int TimeStep;
         /// <summary>The preview's menu bar: Exit; View (the scale on screen, render scale); Help (Readme, Credits, About).</summary>
@@ -87,6 +89,7 @@ namespace DnaAnd.Platform
             Win32.AppendMenu(timeMenu, Win32.MF_SEPARATOR, IntPtr.Zero, null);
             Win32.AppendMenu(timeMenu, Win32.MF_STRING | 0x1u, IntPtr.Zero, "slower: ,   faster: .");
             Win32.AppendMenu(view, Win32.MF_SEPARATOR, IntPtr.Zero, null);
+            Win32.AppendMenu(view, Win32.MF_STRING | (Settings.Get("show-fps", true) ? Win32.MF_CHECKED : 0), (IntPtr)CmdFps, "Show FPS (frames a second)");
             IntPtr dragMenu = Win32.CreatePopupMenu();
             for (int i = 1; i <= 10; i++) Win32.AppendMenu(dragMenu, Win32.MF_STRING | (DragSpeed == i ? Win32.MF_CHECKED : 0), (IntPtr)(CmdDragBase + i), i + "x" + (i == 1 ? " (the view moves with the mouse exactly)" : i == 4 ? " (the usual)" : ""));
             Win32.AppendMenu(view, Win32.MF_POPUP, dragMenu, "Drag speed (look and turn)");
