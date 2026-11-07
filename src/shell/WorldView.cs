@@ -424,7 +424,9 @@ namespace DnaAnd.Shell
             bool sea = _ground.HasWater && _ground.GroundAt(x / r, y / r, z / r) < 0, ice = Math.Abs(y / r) > 0.86;
             ulong spot = (ulong)(long)(x / r * 1e7) * 73856093UL ^ (ulong)(long)(y / r * 1e7) * 19349663UL ^ (ulong)(long)(z / r * 1e7) * 83492791UL;   // the same place, the same grains
             _matterSpot = spot; _matterPlanet = _planet; _mox = x / r; _moy = y / r; _moz = z / r;
-            _matter.Set(_system.Bodies[_planet].Kind == "Moon" ? "moon" : _ground.Kind, sea, ice, sea ? 0.2f : 0.58f, sea ? 0.4f : 0.5f, sea ? 0.6f : 0.4f, spot);
+            float mr0, mg0, mb0, mglow; _ground.Height(x / r, y / r, z / r, 30, out mr0, out mg0, out mb0, out mglow);
+            bool molten = mglow > 0.5;                                                    // glowing molten ground: the matter there is melt
+            _matter.Set(molten ? "melt" : _system.Bodies[_planet].Kind == "Moon" ? "moon" : _ground.Kind, sea, ice, sea ? 0.2f : 0.58f, sea ? 0.4f : 0.5f, sea ? 0.6f : 0.4f, spot);
             // the planet's own grains, on the land's slope here: the same ones its ground is the top of
             {
                 double ux = x / r, uy = y / r, uz = z / r, ex, ey, ez, nx, ny, nz; GrainField.Axes(ux, uy, uz, out ex, out ey, out ez, out nx, out ny, out nz);
@@ -434,7 +436,7 @@ namespace DnaAnd.Shell
                 double hn = (H(ux + nx * d / R, uy + ny * d / R, uz + nz * d / R) - H(ux - nx * d / R, uy - ny * d / R, uz - nz * d / R)) / (2 * d);
                 if (double.IsNaN(he) || Math.Abs(he) > 20) he = 0; if (double.IsNaN(hn) || Math.Abs(hn) > 20) hn = 0;
                 var gm = _ground.GrainMix(uy);
-                _matter.SetGround(R, ux, uy, uz, sea ? null : gm != null ? gm.Id : null, _ground.GrainSeed, he, hn);
+                _matter.SetGround(R, ux, uy, uz, sea || molten ? null : gm != null ? gm.Id : null, _ground.GrainSeed, he, hn);
             }
         }
 

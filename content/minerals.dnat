@@ -1053,6 +1053,16 @@ site: 0.6667 0.3333 0.2130 H 0.5
 site: 0.6667 0.3333 0.2870 H 0.5
 site: 0.3333 0.6667 0.7870 H 0.5
 
+@mineral basalt-melt
+name: Molten basalt (lava)
+formula: SiO2 49, Al2O3 16, FeO 11, CaO 10, MgO 8 (parts per 100)
+atoms: O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O Si Si Si Si Si Si Si Si Si Si Si Si Al Al Al Al Fe Fe Ca Ca Mg Mg Mg Na
+colour: 1 0.45 0.12
+lustre: wet
+clarity: opaque
+state: liquid
+spacing-nm: 0.21
+
 @mineral sea-water
 name: Sea water
 formula: H2O with dissolved salt
@@ -1165,6 +1175,11 @@ name: Sea floor
 grain-mm: 0.01..0.06
 clasts: pebble 4..64 0.02
 minerals: augite 30, anorthite 25, forsterite 15, calcite 15, kaolinite 10, pyrite 5
+
+@mix melt
+name: Molten rock (a lava lake or flow, about 1,100 to 1,200 C)
+grain-mm: 0..0
+minerals: basalt-melt 100
 
 @mix sea
 name: The sea
