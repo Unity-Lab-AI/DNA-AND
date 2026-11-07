@@ -22,7 +22,7 @@ copy /y "%~dp0docs\release\UNIVERSE-HOW-TO-BUILD.md" "%STAGE%\docs\HOW-TO-BUILD.
 if exist "%~dp0release\payload.zip" del "%~dp0release\payload.zip"
 powershell -NoProfile -Command "Compress-Archive -Path '%STAGE%\*' -DestinationPath '%~dp0release\payload.zip' -Force" || exit /b 1
 copy /y "%~dp0release\payload.zip" "%~dp0release\DNA-AND-%VER%-windows.zip" > nul
-"%CSC%" /nologo /target:winexe /platform:x64 /optimize+ /warnaserror+ /out:"%~dp0release\DNA-AND-Setup-%VER%.exe" /resource:"%~dp0release\payload.zip",payload.zip /r:"%FW%\System.IO.Compression.dll" /r:"%FW%\System.IO.Compression.FileSystem.dll" /r:System.Windows.Forms.dll /r:System.Drawing.dll "%~dp0installer\Setup.cs" || exit /b 1
+"%CSC%" /nologo /target:winexe /platform:x64 /optimize+ /warnaserror+ /win32icon:"%~dp0installer\dna-and.ico" /out:"%~dp0release\DNA-AND-Setup-%VER%.exe" /resource:"%~dp0release\payload.zip",payload.zip /r:"%FW%\System.IO.Compression.dll" /r:"%FW%\System.IO.Compression.FileSystem.dll" /r:System.Windows.Forms.dll /r:System.Drawing.dll "%~dp0installer\Setup.cs" || exit /b 1
 rmdir /s /q "%STAGE%"
 del "%~dp0release\payload.zip"
 echo Built release\DNA-AND-Setup-%VER%.exe and release\DNA-AND-%VER%-windows.zip
