@@ -264,7 +264,7 @@ namespace DnaAnd.Shell
                                 double x = gcx + (rng.NextDouble() * 2 - 1) * gr, y = gcy + (rng.NextDouble() * 2 - 1) * gr, z = gcz + (rng.NextDouble() * 2 - 1) * gr;
                                 if (x * x + y * y + z * z > R * R) continue;                         // inside the visible universe
                                 if ((x - gcx) * (x - gcx) + (y - gcy) * (y - gcy) + (z - gcz) * (z - gcz) > gr * gr) continue;   // within reach of where you are
-                                if (rng.NextDouble() * top > Web(x, y, z)) continue;
+                                double wv = Web(x, y, z); if (rng.NextDouble() * top * top > wv * wv) continue;   // kept by the web's density squared: its filaments and clusters stand out bright, its voids go dark (by the density alone it reads as an even dust)
                                 float warm = (float)rng.NextDouble();
                                 list.Add(new StarVertex { X = (float)x, Y = (float)y, Z = (float)z, Size = 1.2f, R = 0.75f + 0.25f * warm, G = 0.72f + 0.1f * warm, B = 1f - 0.3f * warm, A = 1 });
                             }
