@@ -206,3 +206,4 @@ LAW 11 now includes a content-coverage check.
 - [x] "on planet drop in its hit lows of 7fps": background workers never starve the frame (DESIGN 419).
 - [x] "andf ther should be an options to turn off day night cycle to be only day" / "and days need to be when the star is actuall on that side of planet" / "as polanets rotate and spin": true day and night with the sky turning; Time > Always day (DESIGN 420).
 - [x] "it stopped at 500 nano metter looking like a freeze": never held waiting over a pick (DESIGN 421).
+- [x] "and 2 nano meter is jsut static" / "its all jsaut stat from nanaometers to pico" "static": steady orbital clouds, only for the atom you are at (DESIGN 422).
