@@ -182,13 +182,24 @@ namespace DnaAnd.Shell
         private double MeanPerUnit3 { get { return _uGalaxies / (4.0 / 3.0 * Math.PI * _uRadius * _uRadius * _uRadius); } }
         // the galaxies of every region within reach of you that has none yet (each region's own from its place); at most a few a frame
         private long _addingRegion;
+        // a galaxy you go to is always made: picked, by the tour or a click, or come near to; its stars made at once (a few
+        // milliseconds) if the background workers have not got to it yet
+        private void EnsureMade(int i)
+        {
+            if (i < 0 || i >= _galaxies.Count) return; var g = _galaxies[i]; if (g.Far != null) return;
+            var st = g.Pending; int[] fk = g.PendingKinds;
+            if (st == null) { fk = new int[FarStars]; st = GalaxyGen.Generate(g.Type, g.Seed, FarStars, _kinds, fk); }
+            g.Far = new UploadBuffer(_gpu.Device, (long)st.Length * Stride); g.Far.Write(st, st.Length); g.FarCount = st.Length; g.FarPts = st; g.FarKinds = fk; g.Pending = null;
+        }
         // galaxies whose stars are ready go to the card, a few each frame
         private void TakeGalaxies()
         {
+            if (_tKind == 0) EnsureMade(_tIndex); EnsureMade(_tGal);
             int took = 0;
             foreach (var g in _galaxies)
             {
                 var st = g.Pending; if (st == null || took >= 6) continue;
+                if (g.Far != null) { g.Pending = null; continue; }                       // (already made at once when it was gone to)
                 g.Far = new UploadBuffer(_gpu.Device, (long)st.Length * Stride); g.Far.Write(st, st.Length); g.FarCount = st.Length; g.FarPts = st; g.FarKinds = g.PendingKinds; g.Pending = null; took++;
             }
         }
@@ -974,7 +985,7 @@ namespace DnaAnd.Shell
                     {
                         // the galaxy you begin in (the nearest), to open on
                         int bi = -1; double bd = double.MaxValue;
-                        for (int i = 0; i < _galaxies.Count; i++) { var g = _galaxies[i]; if (g.Far == null) continue; double dx = g.X - _cx, dy = g.Y - _cy, dz = g.Z - _cz, d = dx * dx + dy * dy + dz * dz; if (d < bd) { bd = d; bi = i; } }
+                        for (int i = 0; i < _galaxies.Count; i++) { var g = _galaxies[i]; double dx = g.X - _cx, dy = g.Y - _cy, dz = g.Z - _cz, d = dx * dx + dy * dy + dz * dz; if (d < bd) { bd = d; bi = i; } }
                         if (bi >= 0) { _tKind = 0; _tIndex = bi; _tName = _galaxies[bi].Name; }
                     }
                     break;
@@ -987,7 +998,7 @@ namespace DnaAnd.Shell
                         int bi = -1; double bs = double.MinValue; int skip = _tKind == 0 ? _tIndex : -1; var lk = Look;
                         for (int i = 0; i < _galaxies.Count; i++)
                         {
-                            if (i == skip) continue; var g = _galaxies[i]; if (g.Far == null) continue;   // (only galaxies already made and drawn: never one still being made, an empty dark spot) double dx = g.X - _cx, dy = g.Y - _cy, dz = g.Z - _cz, d = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+                            if (i == skip) continue; var g = _galaxies[i]; double dx = g.X - _cx, dy = g.Y - _cy, dz = g.Z - _cz, d = Math.Sqrt(dx * dx + dy * dy + dz * dz);
                             if (d < 3 || d > _nearUnits * 1.4) continue;
                             double ahead = (dx * lk.X + dy * lk.Y + dz * lk.Z) / d, score = ahead + rng.NextDouble() * 1.5 + Math.Min(1, d / 60);
                             if (score > bs) { bs = score; bi = i; }
@@ -1704,11 +1715,11 @@ namespace DnaAnd.Shell
             int best = -1; double bd = double.MaxValue;
             for (int i = 0; i < _galaxies.Count; i++)
             {
-                var g = _galaxies[i]; if (g.FarPts == null) continue;                  // (its stars still being made)
-                double dx = g.X - _cx, dy = g.Y - _cy, dz = g.Z - _cz, d = Math.Sqrt(dx * dx + dy * dy + dz * dz) / g.Scale;
+                var g = _galaxies[i]; double dx = g.X - _cx, dy = g.Y - _cy, dz = g.Z - _cz, d = Math.Sqrt(dx * dx + dy * dy + dz * dz) / g.Scale;
                 if (d < bd) { bd = d; best = i; }
             }
             if (bd > 8) best = -1;
+            EnsureMade(best);                                                          // (the galaxy you come near is made at once)
             if (best != _near)
             {
                 _near = best; CloseSystem(); _localCells.Clear(); _localKey = long.MinValue; _localCount = 0;
