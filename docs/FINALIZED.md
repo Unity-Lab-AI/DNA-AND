@@ -162,3 +162,6 @@ LAW 11 now includes a content-coverage check.
 - [x] Samples: The whole periodic table of elements (all 118) (3 examples × 3 styles). Approved: "looks good that can go in the wiki once we flush it out with tool tips throughought and propelry gate it all off for balanced play and leveling".
 - [x] Samples: Microbes (3 examples × 3 styles) and Viruses (3 examples × 3 styles), as the live ecosystem: "sound good and real biological like ecoosystem that balances and reacts and changes based on real things like mutation infection survival of the ifttest type stuff or werd combos that just out live anything and persist like plants becasue they are so sucessful".
 - [x] One journey, starting among the galaxies: "and its starts in the mix of glaxixies" / "no that started above a planet". Pushed: "push it we are good to go".
+
+## 2026-11-06: releases
+- [x] "okay we need to make sure that nboth project docs are complete for both of them and push bothe proect to both of eaches remotes onbly after all docs and shit are proper" / "that would incluse deploys and exe and releases" / "make sure each project is properly named and there is no over lap": Universe 0.1.0 released on git.unityailab.com/GFourteen/Universe and github.com/Unity-Lab-AI/Universe; DNA-AND 0.1.0 (universe preview) released on both its remotes; each project its own name.
