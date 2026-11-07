@@ -1009,3 +1009,5 @@ Everything the creator has said about this project, in order. Short process repl
 278. "and put a fps count on the display with option to turn off" and "in settings". The frames a second show at the top right; View > Show FPS turns it off or on (kept between runs, setting show-fps).
 
 279. "it crashed or something i couldnt control anything". It froze: the grain's rings of detail worked out ever finer points as you went in, down below the size of an atom, thousands of new ones each frame. The face is now never worked out finer than the atoms' spacing (the atoms are the face from there), and a frame works out at most 12,000 new points, the rest coming in over the next frames, so the frame never stalls.
+
+280. A law for the whole game: "new law every thing gerts implimented game wide, no bolt ons". Every feature and fix is built once as a general system for everything it can apply to (every world kind, every material, solid, liquid and gas, every zoom from galaxies to quarks, every view), driven by the content, never as a named special case or a layer laid over something else.
