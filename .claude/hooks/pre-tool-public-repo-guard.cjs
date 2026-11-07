@@ -237,6 +237,13 @@ function reasonFor(entry) {
 
   if (!inGitRepo()) process.exit(0);
 
+  // Per-project opt-out: a project whose owner has decided its `.claude/` is public (the marker file
+  // `.claude/.claude-public-ok` in the project) is not guarded. Written by the owner's own decision only.
+  try {
+    const projDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    if (fs.existsSync(path.join(projDir, '.claude', '.claude-public-ok'))) process.exit(0);
+  } catch (e) {}
+
   let involves;
   if (op === 'add') involves = gitAddInvolvesClaude(cmd);
   else if (op === 'commit') involves = gitCommitInvolvesClaude();
