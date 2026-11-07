@@ -902,3 +902,4 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **No still frame while the tour looks for what is next:** (built: DESIGN 452; waits on the test) "it pauses at 10570 light years way to long when it needs to look around a little instead of still frame pause for 10 seconds"
 - [~] **Comets at their real size, seen across the system:** (built: DESIGN 453; waits on the test) "zopomed to a comet and nothign was there and wtf u should be able to see comets all the way across a solar system"
 - [~] **Always day on to start with:** (built: DESIGN 454; waits on the test) "and we should default day only cycles on"
+- [~] **No driver time-out on the first frame of a grain's face:** (built: DESIGN 455; waits on the test) "i tried to f12 at 12 microns but it crashed"
