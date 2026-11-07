@@ -690,4 +690,5 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **The quarks tight in one clump from afar, spreading only close in:** (built: DESIGN 623; waits on the test) "and it need to have the qwurks alot tighter currently i think i can count them"
 - [~] **The singularity one uncountable mass of quarks, the nucleon's three never pulled apart:** (built: DESIGN 624; waits on the test) "but they dont pull apart they ar trillionX^e1000000000000 quarks" / "cramed into zero space"
 - [~] **The singularity five hundred overlapping glows, not six thousand:** (built: DESIGN 625; waits on the test) "lets not have 6 thousand glow we can handle this without frying my gpu"
+- [~] **The climb out of the hole as fast as the fall, about half a minute each way:** (built: DESIGN 626; waits on the test) "okay the fall in was much faster than the clibe out they need to be similar and not minutes and minutes of traveling up the tunnel used speed up"
 
