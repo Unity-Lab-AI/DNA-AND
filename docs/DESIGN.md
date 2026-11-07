@@ -1191,4 +1191,7 @@ Everything the creator has said about this project, in order. Short process repl
 
 367. Seen in the tour's own pictures: the glide over the hills ran nearly 300 km up. Going down to the land, the zoom is held above the ground until its finer pieces are made, and they came slowly, so the zoom stood still, was taken as stuck after twenty seconds and given up on. While ground is still being built (or the web's light made), a zoom that stands still now waits, never given up on (the tour's limit of four minutes a stop still holds).
 
-368. "credits is fucked just displays as: {tf1 ...} ... in the viewer". Found in the code: each page went to the viewer's rich-text box as plain window text, leaving the box to tell for itself that it was formatted text, and it took the credits page as words, showing its formatting raw. Every page now goes in said outright to be formatted text (EM_SETTEXTEX).
+368. "credits is fucked just displays as: {
+
+369. "the the fly by is selecting those glactic clusters that have nothing in them but empty space so the fly by just pans around blackness". Found in the code: since the galaxies' stars are made in the background, a galaxy still being made is not drawn, and the tour's pick could choose one, then circle an empty dark spot. The tour now picks only galaxies already made and drawn.
+tf1 ...} ... in the viewer". Found in the code: each page went to the viewer's rich-text box as plain window text, leaving the box to tell for itself that it was formatted text, and it took the credits page as words, showing its formatting raw. Every page now goes in said outright to be formatted text (EM_SETTEXTEX).

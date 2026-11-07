@@ -974,7 +974,7 @@ namespace DnaAnd.Shell
                     {
                         // the galaxy you begin in (the nearest), to open on
                         int bi = -1; double bd = double.MaxValue;
-                        for (int i = 0; i < _galaxies.Count; i++) { var g = _galaxies[i]; double dx = g.X - _cx, dy = g.Y - _cy, dz = g.Z - _cz, d = dx * dx + dy * dy + dz * dz; if (d < bd) { bd = d; bi = i; } }
+                        for (int i = 0; i < _galaxies.Count; i++) { var g = _galaxies[i]; if (g.Far == null) continue; double dx = g.X - _cx, dy = g.Y - _cy, dz = g.Z - _cz, d = dx * dx + dy * dy + dz * dz; if (d < bd) { bd = d; bi = i; } }
                         if (bi >= 0) { _tKind = 0; _tIndex = bi; _tName = _galaxies[bi].Name; }
                     }
                     break;
@@ -987,7 +987,7 @@ namespace DnaAnd.Shell
                         int bi = -1; double bs = double.MinValue; int skip = _tKind == 0 ? _tIndex : -1; var lk = Look;
                         for (int i = 0; i < _galaxies.Count; i++)
                         {
-                            if (i == skip) continue; var g = _galaxies[i]; double dx = g.X - _cx, dy = g.Y - _cy, dz = g.Z - _cz, d = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+                            if (i == skip) continue; var g = _galaxies[i]; if (g.Far == null) continue;   // (only galaxies already made and drawn: never one still being made, an empty dark spot) double dx = g.X - _cx, dy = g.Y - _cy, dz = g.Z - _cz, d = Math.Sqrt(dx * dx + dy * dy + dz * dz);
                             if (d < 3 || d > _nearUnits * 1.4) continue;
                             double ahead = (dx * lk.X + dy * lk.Y + dz * lk.Z) / d, score = ahead + rng.NextDouble() * 1.5 + Math.Min(1, d / 60);
                             if (score > bs) { bs = score; bi = i; }
