@@ -1927,7 +1927,7 @@ namespace DnaAnd.Shell
                 _matter.Draw(sv, _spaceScale, w, h, _matterClock, _meshes, false);
                 _gpu.ClearDepth();
                 double qx, qy, qr; if (_matter.PickedOnScreen(out qx, out qy, out qr)) _hud.DrawRing(_meshes, qx, qy, Math.Min(qr, h * 0.45), w, h);
-                if (_hud.Visible) _hud.DrawCard(_meshes, _matter.Card(), 24 * Math.Max(1, h / 1080.0), 24 * Math.Max(1, h / 1080.0), w, h);
+                if (_hud.Visible && _tour == null) _hud.DrawCard(_meshes, _matter.Card(), 24 * Math.Max(1, h / 1080.0), 24 * Math.Max(1, h / 1080.0), w, h);
             }
             if (_matterScale > 0)
             {
@@ -1937,7 +1937,7 @@ namespace DnaAnd.Shell
                 _matter.Draw(mview, _matterScale, w, h, _matterClock, _meshes, false);
                 _gpu.ClearDepth();                                                     // its ring and card on top of the grains
                 double qx, qy, qr; if (_matter.PickedOnScreen(out qx, out qy, out qr)) _hud.DrawRing(_meshes, qx, qy, Math.Min(qr, h * 0.45), w, h);   // what you picked, ringed
-                if (_hud.Visible) _hud.DrawCard(_meshes, _matter.Card(), 24 * Math.Max(1, h / 1080.0), 24 * Math.Max(1, h / 1080.0), w, h);   // what you are in, and what you picked
+                if (_hud.Visible && _tour == null) _hud.DrawCard(_meshes, _matter.Card(), 24 * Math.Max(1, h / 1080.0), 24 * Math.Max(1, h / 1080.0), w, h);   // what you are in, and what you picked
             }
             _gpu.ClearDepth();                                                         // the scale, cards and rings always on top of everything
             DrawScale(w, h);
@@ -1948,9 +1948,12 @@ namespace DnaAnd.Shell
                 var cs = _tourAt < _tour.Count ? _tour[_tourAt] : null;
                 float cap = cs == null ? 0 : (float)Math.Min(1, Math.Max(0, (_tourT - 0.8) / 1.5));
                 if (cs != null && cs.Do != "pick" && cap > 0.05 && TourCaption.Length > 0) _hud.DrawCard(_meshes, new[] { TourCaption }, w * 0.06, h * 0.915, w, h, cap);
+                _gpu.ClearDepth();                                                     // the cards and the frames a second on top of the bars
+                // what is in view and in focus, written as you go, just below the top bar
+                if (_hud.Visible && (_matterScale > 0 || _spaceScale > 0)) _hud.DrawCard(_meshes, _matter.Card(), 24 * Math.Max(1, h / 1080.0), h * 0.11, w, h);
             }
             if (Settings.Get("show-fps", true))                                       // frames a second, top right (View > Show FPS)
-                _hud.DrawCard(_meshes, new[] { Window.Fps.ToString("0") + " FPS" }, w - 150 * Math.Max(1, h / 1080.0), 12 * Math.Max(1, h / 1080.0), w, h);
+                _hud.DrawCard(_meshes, new[] { Window.Fps.ToString("0") + " FPS" }, w - 150 * Math.Max(1, h / 1080.0), _tour != null ? h * 0.11 : 12 * Math.Max(1, h / 1080.0), w, h);
             double mdx, mdy, mdz, mrad, msx, msy;
             if (_tKind >= 0 && _matterScale <= 0 && TargetFromCamera(out mdx, out mdy, out mdz, out mrad) && ToScreen(mdx, mdy, mdz, out msx, out msy))
             {
@@ -1958,7 +1961,7 @@ namespace DnaAnd.Shell
                 double rpx = Math.Max(14 * Math.Max(1, h / 1080.0), mrad / Math.Max(1e-30, l) / Math.Tan(0.45) * h * 0.5 * 1.25);
                 bool fills = rpx > h * 0.45;                                           // bigger than the view: no ring, the card sits top left
                 if (!fills) _hud.DrawRing(_meshes, msx, msy, rpx, w, h);
-                if (_hud.Visible) { if (fills) _hud.DrawCard(_meshes, Card(), 24 * Math.Max(1, h / 1080.0), 24 * Math.Max(1, h / 1080.0), w, h); else _hud.DrawCard(_meshes, Card(), msx + rpx + 12 * Math.Max(1, h / 1080.0), msy - rpx, w, h); }
+                if (_hud.Visible) { if (fills) _hud.DrawCard(_meshes, Card(), 24 * Math.Max(1, h / 1080.0), _tour != null ? h * 0.11 : 24 * Math.Max(1, h / 1080.0), w, h); else _hud.DrawCard(_meshes, Card(), msx + rpx + 12 * Math.Max(1, h / 1080.0), msy - rpx, w, h); }
             }
         }
 
