@@ -198,3 +198,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (the fireball as a star's face, every asteroid its own make-up and its elements' forges, the zoom from rest and the pan before the travel): DESIGN 609-611; `vary` on mixes, `made-in` on elements.
 - 2026-11-07 (the lattice's clouds readable, the matter levels handing over by degrees): DESIGN 612.
 - 2026-11-07 (every zoom ending at a crawl, chained zooms one movement): DESIGN 613.
+- 2026-11-07 (the climb out of the hole looking up): DESIGN 614.
