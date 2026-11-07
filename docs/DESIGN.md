@@ -1077,3 +1077,9 @@ Everything the creator has said about this project, in order. Short process repl
 312. Into a giant's matter part way down: inside a giant, a click picks the point just ahead in the layer you are in, and the wheel flies to it and on into that layer's own matter: its gases (molecular hydrogen), its plasma (metallic hydrogen: protons in a sea of free electrons), or its hot dense water, ammonia and methane (an ice giant's mantle).
 
 313. GPU first, the stones: each near stone (up to 700) is now drawn on its own with where each of its pixels is on it, so the card works out its fine roughness and stains per pixel from the waveform, as for the grain's face; the processor keeps only its coarse shape (42 corners) and no longer works out a stain. Still on the processor: the ground's grain bed, built by the ground's background workers.
+
+314. The waveform drives the stars' and giants' surfaces: a star's granulation cells and their finer boiling, and a gas giant's winds, curls and fine belt texture, now come from the same CDF 9/7 waveform as everything else (its stored octaves, mode-E past them), finer as you come closer.
+
+315. The grain field's hash and cell keys are now in 32-bit wrapped words, so the card's shaders can work out exactly the same grains as the processor (the step before the ground's grain bed moves onto the card).
+
+316. "i cant zoom in beyond 100 micro meters to land". Found in the code: the zoom's floor over the ground stayed at half a millimetre, above the 30 micrometres where the matter takes over, so the handoff was never reached. Below a centimetre the floor is now 20 micrometres (over the sea too), so the zoom goes on down into the matter.
