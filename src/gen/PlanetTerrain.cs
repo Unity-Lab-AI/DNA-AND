@@ -300,7 +300,7 @@ namespace DnaAnd.Gen
         {
             if (_noGrainsNow || !Solid || Shell || glow > 0.01 || (HasWater && h < 0) || layers <= 6) return h;
             var gm = GrainMix(y); if (gm == null || gm.Size <= 0) return h;
-            double W = Math.Max(Radius / (48 * Math.Pow(2, layers - 6)), _cellAtLeast), G = gm.Size;   // the finest detail here (km)
+            double W = Math.Max(Radius * 0.1125 / Math.Pow(2, layers - 6) * 2, _cellAtLeast), G = gm.Size;   // the finest detail here (km): twice the real spacing of this piece's corners, so a stone comes into the ground's shape only once its corners can round it (never a single coloured corner: a soft hexagon)
             double big = GrainField.SizeOf(gm, GrainField.Classes(gm) - 1);              // the biggest stones come in first
             if (W > big * 0.25) return h;
             double wgt = Math.Max(0, Math.Min(1, (G * 0.25 - W) / (G * 0.15)));         // the sand's own share (each size class weighs itself in Top)
