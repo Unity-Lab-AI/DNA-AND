@@ -184,3 +184,4 @@ LAW 11 now includes a content-coverage check.
 - [x] "and when i fust start up the universe app theher is a white box on the black app that looks funcky as the game is loading in for the first time, it should just be solid black while loading in" "before the landing page": black window background from the start (DESIGN 396).
 - [x] "okay problem like only half the scren is generating the glaxies and its hitting 4fps again" "right into the tour that happened": opening pick is the galaxy you are in; no real stars made while flying fast (DESIGN 397).
 - [x] "and ther is no home galaxy u fuck stop making shit up": no galaxy called home; the tour begins inside a galaxy (DESIGN 398).
+- [x] "same thing only the right half of the screen is propigating the galaxies unless they are really close" / "and its 6fps and only like 1 or two glaaxiers are ever in view": filming no longer slows the game (DESIGN 399).
