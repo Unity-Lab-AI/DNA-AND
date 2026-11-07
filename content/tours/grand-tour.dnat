@@ -34,7 +34,7 @@ caption: A hundred billion stars round a giant black hole
 @stop into-galaxy
 do: zoom
 rate: 0.3
-until-km: 1e16
+until-km: 3e16
 caption: Into it: the glow breaks into stars, each a sun
 
 @stop choose-star

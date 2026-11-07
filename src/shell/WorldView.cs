@@ -928,6 +928,13 @@ namespace DnaAnd.Shell
                             _tKind = 1; _tx = ux; _ty = uy; _tz = uz; _tRadius = Units.Km(696000); _tName = "a star";
                         }
                         else { double d; int k = NearestStar(out d); if (k >= 0) { double ux, uy, uz; StarPos(k, out ux, out uy, out uz); _tKind = 1; _tx = ux; _ty = uy; _tz = uz; _tRadius = Units.Km(696000); _tName = "a star"; } }
+                        if (_tKind != 1 && _near >= 0 && _nearLocal != null && _nearLocal.Length > 0)
+                        {
+                            // still among the galaxy's far stars (the ones close round you not made yet): one of the stars you can
+                            // see and click, the same ones a click would take
+                            var s0 = _nearLocal[rng.Below(_nearLocal.Length)]; double ux, uy, uz; ToUniverse(_galaxies[_near], s0.X, s0.Y, s0.Z, out ux, out uy, out uz);
+                            _tKind = 1; _tx = ux; _ty = uy; _tz = uz; _tRadius = Units.Km(696000); _tName = "a star";
+                        }
                     }
                     break;
                 case "next-planet":
