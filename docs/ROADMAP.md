@@ -243,6 +243,11 @@ The full set is written: the player wiki, the builder wiki, setup, the build gui
 
 ---
 
+### [ ] R18 — Every body landed on and zoomed into, with its real make-up
+> "ie i should be able to find a gold astroid or nickle being most common ect ect and zoom infinated on any body or abject" / "stars shoiuld be mostly hydrogen till getting to it heavey m,etal cores ect ect"
+
+Every body a place to land and zoom into without end, as worlds already are, with its real make-up from a template: asteroids by class (stony, carbonaceous, metal of iron and nickel with gold and platinum in their real traces), comets' ice and dust, moons' regolith, stars mostly hydrogen and helium down through their layers to the heavier elements at the core, neutron stars, the gas of nebulas. DESIGN 486.
+
 ## TOMBSTONES
 
 _(none)_
