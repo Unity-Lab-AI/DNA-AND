@@ -188,3 +188,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (the cone travelled down, the walls closing in): DESIGN 596.
 - 2026-11-07 (millions of light-years from the horizon to the singularity, a law): DESIGN 597; `@law hole-inside`.
 - 2026-11-07 (the way in by mass; the fall's pace): DESIGN 597, 598.
+- 2026-11-07 (the tour looking round the funnel): DESIGN 599.
