@@ -1962,7 +1962,7 @@ namespace DnaAnd.Shell
                 if (_hud.Visible && _tour == null) _hud.DrawCard(_meshes, _matter.Card(), 24 * Math.Max(1, h / 1080.0), 24 * Math.Max(1, h / 1080.0), w, h);   // what you are in, and what you picked
             }
             _gpu.ClearDepth();                                                         // the scale, cards and rings always on top of everything
-            DrawScale(w, h);
+            if (_tour == null) DrawScale(w, h);                                       // (on the tour the caption says the scale)
             if (_tour != null)
             {
                 // the tour is a film: letterbox bars, the caption in the lower one, faded in after a moment and out before the cut
