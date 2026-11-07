@@ -137,10 +137,23 @@ namespace DnaAnd.Shell
         public void DrawCard(MeshPipes pipes, IList<string> lines, double x, double y, int w, int h)
         {
             if (lines == null || lines.Count == 0) return;
-            float px = Math.Max(1, h / 540f), cell = 1.5f * px, adv = 6 * cell, lh = 10 * cell, pad = 6 * px;
+            // every card short and to one side: long lines wrap at a reading width, the text small enough for a corner, and a card
+            // that will not fit beside what you picked goes on its other side, never over it
+            const int Wrap = 38;
+            var wrapped = new List<string>();
+            foreach (var l0 in lines)
+            {
+                string l = l0;
+                while (l.Length > Wrap) { int cut = l.LastIndexOf(' ', Wrap); if (cut < Wrap / 2) cut = Wrap; wrapped.Add(l.Substring(0, cut).TrimEnd()); l = "  " + l.Substring(cut).TrimStart(); }
+                wrapped.Add(l);
+            }
+            lines = wrapped;
+            float px = Math.Max(1, h / 540f), cell = 1.1f * px, adv = 6 * cell, lh = 10 * cell, pad = 6 * px;
             int longest = 0; foreach (var l in lines) longest = Math.Max(longest, l.Length);
             float cw = longest * adv + pad * 2, ch = lines.Count * lh + pad * 2 - 3 * cell;
-            float x0 = (float)Math.Min(Math.Max(4, x), w - cw - 4), y0 = (float)Math.Min(Math.Max(4, y), h - ch - 4);
+            float x0 = (float)x, y0 = (float)Math.Min(Math.Max(4, y), h - ch - 4);
+            if (x0 + cw > w - 4) x0 = (float)(x - 70 * px - cw);                         // no room to its right: on its left
+            x0 = Math.Max(4, Math.Min(x0, w - cw - 4));
             var list = new List<StarVertex>();
             for (int i = 0; i < lines.Count; i++)
             {

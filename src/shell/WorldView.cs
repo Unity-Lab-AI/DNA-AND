@@ -302,8 +302,8 @@ namespace DnaAnd.Shell
                     // a black hole is its mass: its event horizon the Schwarzschild radius 2GM/c^2 (2.95 km a Sun), the shadow round it
                     // about 2.6 times that, the photon ring where light circles it
                     ex.Hole = true; double rs = 2.953 * ex.Mass; ex.R = Units.Km(rs * 2.6);
-                    ex.Lines.Add("event horizon: " + ScaleHud.Words(rs * 2) + " across (its Schwarzschild radius " + ScaleHud.Words(rs) + ")");
-                    ex.Lines.Add("its shadow: about " + ScaleHud.Words(rs * 5.2) + " across; light circles it at 1.5 times the horizon");
+                    ex.Lines.Add("event horizon: " + ScaleHud.Words(rs * 2) + " across");
+                    ex.Lines.Add("shadow: " + ScaleHud.Words(rs * 5.2) + " across");
                 }
                 if (e.Props.ContainsKey("made-by")) ex.Lines.Add("made by: " + e.Get("made-by", ""));
                 if (e.Props.ContainsKey("example")) ex.Lines.Add("for example: " + e.Get("example", ""));
