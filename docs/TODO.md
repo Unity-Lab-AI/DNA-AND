@@ -890,3 +890,4 @@ Order: galactic scale down, the same order as the sample sets.
 - [x] **Logs named for their program:** (DESIGN 441) "asnd wehy does it say dna log when we are working on the universe" / "oh we are doing both"
 - [~] **Nothing labelled wrong between the projects:** (built: DESIGN 442) "make sure nothing else is labels wrong between projects"
 - [x] **Universe content its own file type:** (DESIGN 443) "Universe gets its own (Recommended)"
+- [~] **All docs good to go, in the game and out:** (built: DESIGN 444) "make sure all docs are good to go" / "in game and out" / "the readme last i saw was pretty shit"
