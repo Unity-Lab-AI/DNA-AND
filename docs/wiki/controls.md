@@ -11,7 +11,7 @@
 | Action | What it does |
 |---|---|
 | 🖱️ **Left-click** | Use the selected [power](god-powers.md "Your god abilities: fire, water, plague, meteor and 96 more"), or pick a galaxy, star, planet, moon, a spot on the ground, a grain or an atom to go to; it lands exactly where you click, at every scale |
-| 🖱️ **Left-drag** | With something picked, circle round it at the distance you are at (see a solar system from above, a galaxy edge-on); with nothing picked, look around (on a planet, round its own up) |
+| 🖱️ **Left-drag** | With something picked, circle round it at the distance you are at (see a solar system from above, a galaxy edge-on); inside a black hole, look round the well as you fall; with nothing picked, look around (on a planet, round its own up) |
 | 🖱️ **Right-click** | Let go of what you picked |
 | 🖱️ **Scroll wheel** | Zoom where the mouse points, from the cosmic web of galaxies down to a single microbe, and on through the ground's grains to the atoms and the quarks inside them |
 | ⌨️🖱️ **Ctrl + scroll** | Zoom eight times as fast |
