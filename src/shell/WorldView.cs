@@ -1753,12 +1753,15 @@ namespace DnaAnd.Shell
             _lastVp = vp; _lastW = w; _lastH = h; _haveVp = true;
             var right = new Vec3(view.M11, view.M21, view.M31); var up = new Vec3(view.M12, view.M22, view.M32);
             _viewRight = right; _viewUp = up; _haveAxes = true;
-            double share = NearShare();
+            double share = NearShare(), within = InsideShare();
+            // inside a galaxy its own stars fill the sky and every other galaxy is faint behind them (from inside ours, Andromeda
+            // is barely seen with the eye): the others and the web's glow fade to a sixth as you go in
+            float others = (float)(1 - 0.85 * Math.Max(0, Math.Min(1, within)));
             {
                 // the rest of the universe's galaxies, a glow along the cosmic web (remade without the near ones as you move far)
                 if (double.IsNaN(_glowAtX) || (_glowAll == null && _glowReady != null) || Math.Abs(_cx - _glowAtX) + Math.Abs(_cy - _glowAtY) + Math.Abs(_cz - _glowAtZ) > _nearUnits * 0.25) MakeGlow();
                 var gm = Mat4.Identity; gm.M41 = (float)-_cx; gm.M42 = (float)-_cy; gm.M43 = (float)-_cz;
-                DrawPoints(_glowBuf, _glowCount, gm * vp, right, up, 1f, 0.0012f, w, h, time, 0.004f, 3.2f, 0f);   // each a galaxy at its true size (a pinpoint from afar), faint, so the web shows where they crowd
+                DrawPoints(_glowBuf, _glowCount, gm * vp, right, up, 1f, 0.0012f, w, h, time, 0.004f, 3.2f * others, 0f);   // each a galaxy at its true size (a pinpoint from afar), faint, so the web shows where they crowd
             }
             for (int i = 0; i < _galaxies.Count; i++)
             {
@@ -1779,7 +1782,7 @@ namespace DnaAnd.Shell
                 // so each is dimmed by how many share the galaxy's patch (its true glow and colour, at any distance)
                 double gdx = g.X - _cx, gdy = g.Y - _cy, gdz = g.Z - _cz, gd = Math.Max(1e-9, Math.Sqrt(gdx * gdx + gdy * gdy + gdz * gdz));
                 double gpx = g.Scale / gd * h / (2 * Math.Tan(0.45)), dotPx = Math.Max(1.5, 0.0016 * h);
-                float crowd = (float)Math.Max(0.06, Math.Min(1, Math.PI * gpx * gpx / (count * dotPx * dotPx) * 1.2)) * nearF;   // a visible soft smudge in its own colours from afar: never a white blot, never gone
+                float crowd = (float)Math.Max(0.06, Math.Min(1, Math.PI * gpx * gpx / (count * dotPx * dotPx) * 1.2)) * nearF * (i == _near ? 1f : others);   // a visible soft smudge in its own colours from afar: never a white blot, never gone
                 DrawPoints(buf, count, Placement(g) * vp, right, up, 0.006f * g.Scale * shrink * glow, 0.0016f, w, h, time, 0.012f, crowd, InsideShare() > 0.5 && i == _near ? 2f : 0f);   // a galaxy's stars from afar are soft glows that add up to its light (hard discs would merge into a white outline); among them, points
             }
             double inside = InsideShare();
