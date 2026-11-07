@@ -235,7 +235,7 @@ namespace DnaAnd.Shell
                 }
             }
             // left out round you, where the galaxies are made in full
-            double cx = _cx, cy = _cy, cz = _cz, keep = _nearUnits * 1.05;
+            double cx = _cx, cy = _cy, cz = _cz, keep = _nearUnits * 1.2;
             var shown = new List<StarVertex>(_glowAll.Length);
             // the web near you stands out and the far universe fades to a haze (seen through its whole depth at once, its walls
             // and filaments would stack into an even dust): each point's light falls off with distance, gone by about 3 billion
@@ -1502,13 +1502,18 @@ namespace DnaAnd.Shell
                 // the rest of the universe's galaxies, a glow along the cosmic web (remade without the near ones as you move far)
                 if (double.IsNaN(_glowAtX) || (_glowAll == null && _glowReady != null) || Math.Abs(_cx - _glowAtX) + Math.Abs(_cy - _glowAtY) + Math.Abs(_cz - _glowAtZ) > _nearUnits * 0.25) MakeGlow();
                 var gm = Mat4.Identity; gm.M41 = (float)-_cx; gm.M42 = (float)-_cy; gm.M43 = (float)-_cz;
-                DrawPoints(_glowBuf, _glowCount, gm * vp, right, up, 1f, 0.0007f, w, h, time, 0.0025f, 0.9f);   // each a galaxy at its true size (a pinpoint from afar), faint, so the web shows where they crowd
+                DrawPoints(_glowBuf, _glowCount, gm * vp, right, up, 1f, 0.0009f, w, h, time, 0.003f, 1.6f);   // each a galaxy at its true size (a pinpoint from afar), faint, so the web shows where they crowd
             }
             for (int i = 0; i < _galaxies.Count; i++)
             {
                 // every galaxy is one field of its own stars: the near one shows more of them as it grows on screen, each point
                 // a little smaller so the galaxy's glow stays the same; the first stars are always the same ones, so nothing swaps
                 var g = _galaxies[i]; int count = StarsShown(i);
+                // made in full only near you: past that the web's glow shows them (it stands for the same galaxies); fading out
+                // between the near reach and half again, so nothing pops
+                double ndx = g.X - _cx, ndy = g.Y - _cy, ndz = g.Z - _cz, nd = Math.Sqrt(ndx * ndx + ndy * ndy + ndz * ndz);
+                float nearF = i == _near || (_tKind == 0 && _tIndex == i) ? 1f : (float)Math.Max(0, Math.Min(1, (_nearUnits * 1.5 - nd) / (_nearUnits * 0.5)));
+                if (nearF <= 0) continue;
                 float shrink = (float)Math.Sqrt(FarStars / (double)Math.Max(FarStars, count));
                 var buf = i == _near && _nearBuf != null ? _nearBuf : g.Far;
                 // inside the galaxy its points ease down from glows to plain points of light, so no nearby one looms as a blob
@@ -1518,7 +1523,7 @@ namespace DnaAnd.Shell
                 // so each is dimmed by how many share the galaxy's patch (its true glow and colour, at any distance)
                 double gdx = g.X - _cx, gdy = g.Y - _cy, gdz = g.Z - _cz, gd = Math.Max(1e-9, Math.Sqrt(gdx * gdx + gdy * gdy + gdz * gdz));
                 double gpx = g.Scale / gd * h / (2 * Math.Tan(0.45)), dotPx = Math.Max(1.5, 0.0016 * h);
-                float crowd = (float)Math.Max(0.03, Math.Min(1, Math.PI * gpx * gpx / (count * dotPx * dotPx) * 2.5));
+                float crowd = (float)Math.Max(0.03, Math.Min(1, Math.PI * gpx * gpx / (count * dotPx * dotPx) * 2.5)) * nearF;
                 DrawPoints(buf, count, Placement(g) * vp, right, up, 0.006f * g.Scale * shrink * glow, 0.0016f, w, h, time, 0.012f, crowd);
             }
             double inside = InsideShare();
