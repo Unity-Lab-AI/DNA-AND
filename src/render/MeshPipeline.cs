@@ -346,14 +346,24 @@ float4 PS(VO i) : SV_Target
                 Marshal.WriteInt32(p, 612, (int)D3D12.DXGI_FORMAT_D32_FLOAT);
                 Marshal.WriteInt32(p, 616, 1);
                 Guid iid = D3D12.IID_ID3D12PipelineState;
-                Com.Check(Com.Method<CreateGraphicsPipelineStateFn>(device, 10)(device, p, ref iid, out Pipeline), "CreateGraphicsPipelineState(mesh)");
+                int hr = Com.Method<CreateGraphicsPipelineStateFn>(device, 10)(device, p, ref iid, out Pipeline);
+                if (hr < 0 && !NoDoubles)
+                {
+                    // a card without double precision in its shaders: the same detail in single precision (sharp down to tens
+                    // of nanometres on a sand grain, rather than to the atoms), never a game that will not start
+                    NoDoubles = true; Com.Release(ref ps); ps = Compile("PS", "ps_5_0");
+                    Marshal.WriteIntPtr(p, 24, BlobPtr(ps)); Marshal.WriteInt64(p, 32, (long)BlobSize(ps).ToUInt64());
+                    hr = Com.Method<CreateGraphicsPipelineStateFn>(device, 10)(device, p, ref iid, out Pipeline);
+                }
+                Com.Check(hr, "CreateGraphicsPipelineState(mesh)");
             }
             finally { Marshal.FreeHGlobal(p); Com.Release(ref vs); Com.Release(ref ps); }
         }
 
+        private static bool NoDoubles;
         private static IntPtr Compile(string entry, string target)
         {
-            byte[] src = Encoding.ASCII.GetBytes(Hlsl);
+            byte[] src = Encoding.ASCII.GetBytes(NoDoubles ? Hlsl.Replace("double", "float") : Hlsl);
             IntPtr code, err;
             int hr = D3DCompile(src, (UIntPtr)src.Length, "mesh", IntPtr.Zero, IntPtr.Zero, entry, target, 1u << 15, 0, out code, out err);
             if (hr < 0)
