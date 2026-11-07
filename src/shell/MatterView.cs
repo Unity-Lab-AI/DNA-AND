@@ -56,6 +56,29 @@ namespace DnaAnd.Shell
             _gasSpacing = 1e-5 / Math.Pow(perCc, 1 / 3.0);                                   // km between atoms (a centimetre is 1e-5 km)
             _fx = _fz = _tfx = _tfz = _fy = _tfy = 0; _picked = null;
         }
+        // ── an air: going into a world with no ground (a giant's clouds), its own gases at their real density ──
+        private readonly Dictionary<string, string[]> _gasAtoms = new Dictionary<string, string[]>(); private double _airPerCc = 2.5e19;
+        /// <summary>Into an air (its make-up as the content gives it, e.g. "hydrogen 90%, helium 10%, methane 0.3%"): each
+        /// molecule's atoms in their shares, at about one bar.</summary>
+        private string _airText = "";
+        public void SetAir(string air, ulong spot)
+        {
+            _airText = air ?? "";
+            var parts = new List<SpaceGen.Part>(); double total = 0;
+            foreach (var bit in (air ?? "").Split(','))
+            {
+                string t = bit.Trim(); int pc = t.IndexOf('%'); if (pc < 0) continue;
+                int sp = t.LastIndexOf(' ', pc); if (sp < 0) continue;
+                double share; if (!double.TryParse(t.Substring(sp + 1, pc - sp - 1), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out share)) continue;
+                string name = t.Substring(0, sp).Trim().ToLowerInvariant(); if (name.EndsWith(" vapour")) name = name.Substring(0, name.Length - 7);
+                string[] atoms; if (!_gasAtoms.TryGetValue(name, out atoms)) continue;
+                foreach (var a in atoms) { parts.Add(new SpaceGen.Part(name, a, share, 1, 1, 1)); total += share; }
+            }
+            if (total <= 0) { parts.Add(new SpaceGen.Part("hydrogen", "H", 1, 1, 1, 1)); total = 1; }
+            foreach (var q in parts) q.Share /= total;
+            SetSpace(10, spot, 0, parts.ToArray());
+            _gasSpacing = 1e-5 / Math.Pow(_airPerCc, 1 / 3.0);                           // about 3.4 nm between molecules at one bar
+        }
         private Element GasAtom(long i, long j, long k)
         {
             double u = Hash(i, j, k + 90, _seed);
@@ -108,8 +131,10 @@ namespace DnaAnd.Shell
                 _surf.Add(new SurfThing { Id = e.Id, Name = e.Name, M = om, Lo = lo, Hi = hi, Chance = ch, Flat = shape == "flat", Molecule = shape == "molecule",
                     Bond = bl * 1e-12, Angle = ang, FromGround = fromGround, Thick = TryD(e.Get("thickness", "0.05"), 0.05), Cell = TryD(e.Get("spacing", "4"), 4), About = e.Get("about", "").Split('|').Select(q => q.Trim()).Where(q => q.Length > 0).ToArray() });
             }
+            foreach (var e in content.OfKind("physics.dnat", "gas")) _gasAtoms[e.Id.ToLowerInvariant()] = e.Get("atoms", "").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var e in content.OfKind("physics.dnat", "law"))
             {
+                if (e.Id == "air-density") _airPerCc = TryD(e.Get("number-density", "2.5e19"), 2.5e19);
                 if (e.Id == "nuclear-force") { _coreFm = TryD(e.Get("core-fm", "1.7"), 1.7); _spacingFm = TryD(e.Get("spacing-fm", "1.8"), 1.8); _rangeFm = TryD(e.Get("range-fm", "2.6"), 2.6); }
                 if (e.Id == "coulomb") _kCoulomb = TryD(e.Get("k-mev-fm", "1.44"), 1.44);
                 if (e.Id == "mass-formula") { _aV = TryD(e.Get("volume-mev", "15.75"), 15.75); _aS = TryD(e.Get("surface-mev", "17.8"), 17.8); _aC = TryD(e.Get("coulomb-mev", "0.711"), 0.711); _aA = TryD(e.Get("asymmetry-mev", "23.7"), 23.7); _aP = TryD(e.Get("pairing-mev", "11.18"), 11.18); }
@@ -506,7 +531,7 @@ namespace DnaAnd.Shell
             if (_space && e != null && s > AtomRadius(e) * 3)
             {
                 string[] kinds = { "a globular cluster", "an open cluster", "an emission nebula", "a reflection nebula", "a planetary nebula", "a supernova remnant", "a dark nebula" };
-                string where = _spaceKind >= 0 && _spaceKind < kinds.Length ? kinds[_spaceKind] : "the space between the stars";
+                string where = _spaceKind == 10 ? "the air (the world's own gases, at about one bar)" : _spaceKind >= 0 && _spaceKind < kinds.Length ? kinds[_spaceKind] : "the space between the stars";
                 return "the gas of " + where + ": one atom about every " + ScaleHud.Words(_gasSpacing) + ", mostly hydrogen; the one ahead " + e.Name.ToLowerInvariant();
             }
             string mn = m != null ? m.Name.ToLowerInvariant() + " (" + m.Formula + ")" : "rock";
@@ -1347,7 +1372,7 @@ namespace DnaAnd.Shell
             L.Add("shells: " + string.Join(", ", Array.ConvertAll(e.Shells, x => x.ToString())));
             L.Add("width: about " + ScaleHud.Words(AtomRadius(e) * 2) + ", nucleus " + ScaleHud.Words(NucleusRadius(e) * 2));
             if (_space && _gasParts != null) { var top = (SpaceGen.Part[])_gasParts.Clone(); Array.Sort(top, (a, b) => b.Share.CompareTo(a.Share)); L.Add("made of: " + top[0].Name + ", " + top[1].Name + (top.Length > 2 ? ", " + top[2].Name : "")); }
-            if (_space) { L.Add("in the gas of " + (_spaceKind == 2 ? "an emission nebula (most of its hydrogen ionized by hot stars)" : _spaceKind == 3 ? "a reflection nebula" : _spaceKind == 4 ? "a planetary nebula (its gas glowing from the white dwarf at its middle)" : _spaceKind == 5 ? "a supernova remnant (hot, racing outward)" : _spaceKind == 6 ? "a dark nebula (cold, mostly molecules of hydrogen)" : _spaceKind == 9 ? "the space between the stars" : "space between a cluster's stars")); double inView = Math.Pow(_scale * 1.2 / _gasSpacing, 3), perCc = Math.Pow(1e-5 / _gasSpacing, 3);
+            if (_space) { L.Add("in the gas of " + (_spaceKind == 2 ? "an emission nebula (most of its hydrogen ionized by hot stars)" : _spaceKind == 3 ? "a reflection nebula" : _spaceKind == 4 ? "a planetary nebula (its gas glowing from the white dwarf at its middle)" : _spaceKind == 5 ? "a supernova remnant (hot, racing outward)" : _spaceKind == 6 ? "a dark nebula (cold, mostly molecules of hydrogen)" : _spaceKind == 9 ? "the space between the stars" : _spaceKind == 10 ? "the air: " + _airText : "space between a cluster's stars")); double inView = Math.Pow(_scale * 1.2 / _gasSpacing, 3), perCc = Math.Pow(1e-5 / _gasSpacing, 3);
                 L.Add("about " + perCc.ToString(perCc < 10 ? "0.#" : "N0") + " atoms a cubic centimetre (air has 25 billion billion)");
                 L.Add(inView >= 2 ? "in view: about " + Big(inView) + " atoms, far too thin to see" : "in view: the one atom ahead of you");
                 L.Add("each about " + ScaleHud.Words(_gasSpacing) + " from the next"); }

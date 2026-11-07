@@ -421,6 +421,15 @@ namespace DnaAnd.Shell
             double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z);
             double e, n;
             if (_matterSpot != ulong.MaxValue && _matterPlanet == _planet) { MatterOffset(out e, out n); if (e * e + n * n < 5e-4 * 5e-4) { _matter.Follow(e, n); return; } }   // within half a metre: the same grains, passing by
+            if (!_ground.Solid)
+            {
+                // a world with no ground (a giant): what is there is its air, its own gases at their real density
+                ulong gspot = (ulong)(long)(x / r * 1e7) * 73856093UL ^ (ulong)(long)(y / r * 1e7) * 19349663UL ^ (ulong)(long)(z / r * 1e7) * 83492791UL;
+                if (_matterSpot == gspot && _matterPlanet == _planet) return;
+                _matterSpot = gspot; _matterPlanet = _planet; _mox = x / r; _moy = y / r; _moz = z / r;
+                string air; if (!PlanetTerrain.Air.TryGetValue(_ground.Kind, out air)) air = "hydrogen 90%, helium 10%";
+                _matter.SetAir(air, gspot); return;
+            }
             bool sea = _ground.HasWater && _ground.GroundAt(x / r, y / r, z / r) < 0, ice = Math.Abs(y / r) > 0.86;
             ulong spot = (ulong)(long)(x / r * 1e7) * 73856093UL ^ (ulong)(long)(y / r * 1e7) * 19349663UL ^ (ulong)(long)(z / r * 1e7) * 83492791UL;   // the same place, the same grains
             _matterSpot = spot; _matterPlanet = _planet; _mox = x / r; _moy = y / r; _moz = z / r;
