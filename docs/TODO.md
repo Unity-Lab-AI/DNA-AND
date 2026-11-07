@@ -985,4 +985,5 @@ Order: galactic scale down, the same order as the sample sets.
 - [x] **A spot or grain pick never fails on an ice sheet or the sea:** (built: DESIGN 533; waits on the test) "is it normal the gpu only ever uses 124mb of 16 gb?vram? cant we make it better if we use more of the vram? and at 500 nanmoeter is pasues in eroor or crashed" / "it never went into atoms and qwerks"
 - [x] **On Linux, through Wine, with one script, and documented everywhere:** (DESIGN 534; the first Linux report decides it) "do .exe run on linix.. how does linix people install?" / "okay well make sure that path is real and its documented propley for how linix people can use the app with out crazy workarounds" / "make sure all the docs are proper with this requuest and fixes"
 - [ ] **The Linux path run on a Linux desktop:** (waits on a Linux machine or a Linux user's report) "okay well make sure that path is real"
+- [x] **Clips at thirty frames a second and a clip's bit rate, half the size:** (DESIGN 536) "and wtf fuck are u using to make these clips 500 mb for minutes,, wtf are u using f2000 instead of f16 or something"
 
