@@ -16,6 +16,8 @@ copy /y "%~dp0docs\release\UNIVERSE-README.md" "%U%\README.md" > nul
 copy /y "%~dp0docs\release\UNIVERSE-HOW-TO-BUILD.md" "%U%\docs\HOW-TO-BUILD.md" > nul
 copy /y "%~dp0docs\release\universe\README.txt" "%U%\docs\README.txt" > nul
 copy /y "%~dp0docs\release\universe\CREDITS.md" "%U%\CREDITS.md" > nul
+copy /y "%~dp0docs\release\LICENSE.txt" "%U%\LICENSE.txt" > nul
+copy /y "%~dp0docs\release\PRIVACY.txt" "%U%\PRIVACY.txt" > nul
 copy /y "%~dp0docs\release\universe\build.cmd" "%U%\build.cmd" > nul
 copy /y "%~dp0docs\release\universe\release.cmd" "%U%\release.cmd" > nul
 > "%U%\.gitignore" echo build/
