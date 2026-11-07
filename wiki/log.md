@@ -195,3 +195,5 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (the disc's far side over the rim, the horizon stop pulled back): DESIGN 603.
 - 2026-11-07 (the sheet round, the fall a travel first): DESIGN 604.
 - 2026-11-07 (the tour's pans eased in, the grid gone after the hole, the text rimmed and warm): DESIGN 606-608.
+- 2026-11-07 (the fireball as a star's face, every asteroid its own make-up and its elements' forges, the zoom from rest and the pan before the travel): DESIGN 609-611; `vary` on mixes, `made-in` on elements.
+- 2026-11-07 (the lattice's clouds readable, the matter levels handing over by degrees): DESIGN 612.
