@@ -201,3 +201,4 @@ LAW 11 now includes a content-coverage check.
 - [x] "yeah shit is fucked im not seeing any other galaxies unles it piced one on the edge of the universe" / "i should see galaxies in the sky": other galaxies and the web show from inside a galaxy; clips finished on close (DESIGN 413).
 - [x] "at 50 microns i started seeing through the palnet and weird teering ... at that scal of electrons zoom flys right by whats foccuesd on": a floor under the face; flies in only once over the pick (DESIGN 414).
 - [x] "and the thing need a proper zoom back out and fly around ending on web galaxy view": the flight back out to the web, ending over it (DESIGN 415).
+- [x] "probnelm: after it zooms out to galaxy web view it inprorply still shows the web once zoomed into another galaxy when ist should show gaslaxies in the sky noit just dots of the webbing": no web dots inside a galaxy; the galaxies themselves in its sky (DESIGN 417).
