@@ -16,7 +16,7 @@ namespace DnaAnd.Shell
 {
     internal sealed class WorldView : IDisposable
     {
-        private sealed class Galaxy { public string Type, Name; public ulong Seed; public double X, Y, Z; public float Tilt, Turn, Scale; public UploadBuffer Far; public int FarCount; public StarVertex[] FarPts; public int[] FarKinds; public UploadBuffer Struct; public int StructCount; public List<double[]> Features; }   // Struct and Features: its clusters and nebulae, made once it is near enough to see them
+        private sealed class Galaxy { public volatile StarVertex[] Pending; public int[] PendingKinds; public long Region; public string Type, Name; public ulong Seed; public double X, Y, Z; public float Tilt, Turn, Scale; public UploadBuffer Far; public int FarCount; public StarVertex[] FarPts; public int[] FarKinds; public UploadBuffer Struct; public int StructCount; public List<double[]> Features; }   // Struct and Features: its clusters and nebulae, made once it is near enough to see them
         private readonly List<Galaxy> _galaxies = new List<Galaxy>();
         private readonly Gpu _gpu; private readonly BillboardDrawer _dots; private readonly ContentLibrary _content;
         private readonly List<StarKind> _kinds;
@@ -135,9 +135,21 @@ namespace DnaAnd.Shell
         private void AddGalaxy(int t, ulong gseed, double x, double y, double z, float tilt, float turn, float scale)
         {
             var g = new Galaxy { Type = _types[t], Name = _typeNames[t], Seed = gseed, X = x, Y = y, Z = z, Tilt = tilt, Turn = turn, Scale = scale };
-            var fk = new int[FarStars];
-            var stars = GalaxyGen.Generate(g.Type, g.Seed, FarStars, _kinds, fk);
-            g.Far = new UploadBuffer(_gpu.Device, (long)stars.Length * Stride); g.Far.Write(stars, stars.Length); g.FarCount = stars.Length; g.FarPts = stars; g.FarKinds = fk;
+            g.Region = _addingRegion;
+            if (_galaxies.Count == 0)
+            {
+                // home: made at once (you begin there)
+                var fk = new int[FarStars];
+                var stars = GalaxyGen.Generate(g.Type, g.Seed, FarStars, _kinds, fk);
+                g.Far = new UploadBuffer(_gpu.Device, (long)stars.Length * Stride); g.Far.Write(stars, stars.Length); g.FarCount = stars.Length; g.FarPts = stars; g.FarKinds = fk;
+            }
+            else
+            {
+                // every other galaxy's stars made on the background workers, so the frame never waits; taken to the card a few each
+                // frame when ready (until then it is not drawn: the web's glow stands for it)
+                var kinds = _kinds; var gg = g;
+                Jobs.Run(() => { var fk = new int[FarStars]; var st = GalaxyGen.Generate(gg.Type, gg.Seed, FarStars, kinds, fk); gg.PendingKinds = fk; gg.Pending = st; });
+            }
             _galaxies.Add(g);
         }
         // how crowded the cosmic web is at a place: filaments and walls (ridges of a noise a web cell across) dense, voids empty
@@ -169,10 +181,39 @@ namespace DnaAnd.Shell
         }
         private double MeanPerUnit3 { get { return _uGalaxies / (4.0 / 3.0 * Math.PI * _uRadius * _uRadius * _uRadius); } }
         // the galaxies of every region within reach of you that has none yet (each region's own from its place); at most a few a frame
+        private long _addingRegion;
+        // galaxies whose stars are ready go to the card, a few each frame
+        private void TakeGalaxies()
+        {
+            int took = 0;
+            foreach (var g in _galaxies)
+            {
+                var st = g.Pending; if (st == null || took >= 6) continue;
+                g.Far = new UploadBuffer(_gpu.Device, (long)st.Length * Stride); g.Far.Write(st, st.Length); g.FarCount = st.Length; g.FarPts = st; g.FarKinds = g.PendingKinds; g.Pending = null; took++;
+            }
+        }
+        // galaxies far behind you let go (their regions make them again, the same ones, if you come back); the indices that point
+        // into the list kept right
+        private void DropFarGalaxies()
+        {
+            double far = _nearUnits * 1.8; var keep = new List<Galaxy>(_galaxies.Count); var map = new int[_galaxies.Count];
+            for (int i = 0; i < _galaxies.Count; i++)
+            {
+                var g = _galaxies[i]; double dx = g.X - _cx, dy = g.Y - _cy, dz = g.Z - _cz;
+                bool held = i == 0 || i == _near || (_tKind == 0 && i == _tIndex) || i == _tGal || g.Pending != null || (g.Far == null && g.FarPts == null && g.Region != 0 && dx * dx + dy * dy + dz * dz < far * far);
+                if (held || dx * dx + dy * dy + dz * dz < far * far) { map[i] = keep.Count; keep.Add(g); continue; }
+                map[i] = -1; if (g.Far != null) g.Far.Dispose(); if (g.Struct != null) g.Struct.Dispose(); _regions.Remove(g.Region);
+            }
+            if (keep.Count == _galaxies.Count) return;
+            Func<int, int> m = k => k >= 0 && k < map.Length ? map[k] : k;
+            _near = m(_near); _tGal = m(_tGal); if (_tKind == 0) { _tIndex = m(_tIndex); if (_tIndex < 0) _tKind = -1; }
+            _galaxies.Clear(); _galaxies.AddRange(keep);
+        }
         private void SpawnRegions()
         {
             double cx = _cx, cy = _cy, cz = _cz, R = _regionUnits; long ci = (long)Math.Floor(cx / R), cj = (long)Math.Floor(cy / R), ck = (long)Math.Floor(cz / R);
             long here = ci * 73856093L ^ cj * 19349663L ^ ck * 83492791L; if (here == _lastRegionCell) return; _lastRegionCell = here;
+            DropFarGalaxies();
             int n = (int)Math.Ceiling(_nearUnits / R), made = 0;
             for (long i = ci - n; i <= ci + n; i++)
                 for (long j = cj - n; j <= cj + n; j++)
@@ -181,7 +222,7 @@ namespace DnaAnd.Shell
                         double mx = (i + 0.5) * R, my = (j + 0.5) * R, mz = (k + 0.5) * R;
                         if ((mx - cx) * (mx - cx) + (my - cy) * (my - cy) + (mz - cz) * (mz - cz) > _nearUnits * _nearUnits) continue;
                         if (mx * mx + my * my + mz * mz > _uRadius * _uRadius) continue;            // past the edge: nothing
-                        long key = i * 73856093L ^ j * 19349663L ^ k * 83492791L; if (!_regions.Add(key)) continue;
+                        long key = i * 73856093L ^ j * 19349663L ^ k * 83492791L; if (!_regions.Add(key)) continue; _addingRegion = key;
                         // how many galaxies this region holds: the mean for its volume, crowded or thinned by the web, the rest by chance
                         var rng = new Rng((ulong)key * 0x9E3779B97F4A7C15UL ^ _seed);
                         double lambda = MeanPerUnit3 * R * R * R * Web(mx, my, mz);
@@ -1363,7 +1404,7 @@ namespace DnaAnd.Shell
                 }
             }
             Jumped("dragging");
-            SpawnRegions(); HoldInside();                                                   // the galaxies round you, and the edge of the visible universe
+            SpawnRegions(); TakeGalaxies(); HoldInside();                                   // the galaxies round you (their stars made in the background, a few taken to the card each frame), and the edge of the visible universe
             double reach = NearestDistance();
             if (_matterScale <= 0)
             {
@@ -1663,7 +1704,8 @@ namespace DnaAnd.Shell
             int best = -1; double bd = double.MaxValue;
             for (int i = 0; i < _galaxies.Count; i++)
             {
-                var g = _galaxies[i]; double dx = g.X - _cx, dy = g.Y - _cy, dz = g.Z - _cz, d = Math.Sqrt(dx * dx + dy * dy + dz * dz) / g.Scale;
+                var g = _galaxies[i]; if (g.FarPts == null) continue;                  // (its stars still being made)
+                double dx = g.X - _cx, dy = g.Y - _cy, dz = g.Z - _cz, d = Math.Sqrt(dx * dx + dy * dy + dz * dz) / g.Scale;
                 if (d < bd) { bd = d; best = i; }
             }
             if (bd > 8) best = -1;
@@ -1842,7 +1884,7 @@ namespace DnaAnd.Shell
                 float nearF = i == _near || (_tKind == 0 && _tIndex == i) ? 1f : (float)Math.Max(0, Math.Min(1, (_nearUnits * 1.5 - nd) / (_nearUnits * 0.5)));
                 if (nearF <= 0) continue;
                 float shrink = (float)Math.Sqrt(FarStars / (double)Math.Max(FarStars, count));
-                var buf = i == _near && _nearBuf != null ? _nearBuf : g.Far;
+                var buf = i == _near && _nearBuf != null ? _nearBuf : g.Far; if (buf == null) continue;   // (its stars still being made)
                 // inside the galaxy its points ease down from glows to plain points of light, so no nearby one looms as a blob
                 float glow = i == _near ? (float)Math.Pow(1 - InsideShare(), 3) : 1f;   // to nothing at all well inside: only points of light remain
                 // a galaxy's points never cover more than a small angle on screen: from afar they glow, up close they stay points of light
