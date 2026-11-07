@@ -16,7 +16,7 @@ namespace DnaAnd.Platform
         private readonly Clock _clock;
         private volatile bool _stop;
         private volatile bool _running; // false during start-up
-        private const double StartupLimitSeconds = 20.0;
+        private const double StartupLimitSeconds = 60.0;   // (a busy machine at a large size can take a while to start; only a true hang is stopped)
 
         public Watchdog(Clock clock, double stallSeconds, double hardLimitSeconds)
         {
