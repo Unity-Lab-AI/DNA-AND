@@ -224,7 +224,7 @@ Scores stored on jsonbin. The top players upload a genome, and other players can
 - Our own TLS 1.3 secure connection, written from scratch.
 - The Genebank top three is locked in weekly ("Genome of the Week").
 
-### [ ] R16 — Shipping the Windows exe (Mac and Linux later)
+### [ ] R16 — Shipping the Windows exe (Mac and Linux later; on Linux now through Wine, with `linux/run.sh` in the zip and `docs/release/UNIVERSE-LINUX.md`)
 > "once we build the exe like the past project like gladiator"
 
 A finished Windows program, built entirely with our own tools.
