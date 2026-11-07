@@ -915,3 +915,4 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **The crash log names the draw the card died on:** (built: DESIGN 461; waits on the next crash) "at 200 mm ant micor level it crashes still"
 - [~] **Ids for asteroids, comets and every body:** (built: DESIGN 464; waits on the test) "astroids and comets and shit dont have stellar ids"
 - [~] **The sky caption says what is really up:** (built: DESIGN 465; waits on the test) "the look up to thew sky at human ground level inproprly says its star and other worlds when worlds are viewable and  no star is in the sky at the moment"
+- [~] **No circling at the gravel; frames at 5 mm:** (built: DESIGN 466; waits on the test) "at its hitting 5fps at 5mm pan and it should not pan at those zoom levels only when at atom level and there is shit to see besides gravel"
