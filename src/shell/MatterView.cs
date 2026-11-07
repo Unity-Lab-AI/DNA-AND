@@ -277,7 +277,7 @@ namespace DnaAnd.Shell
                         Add(glow, x + ox * Math.Cos(turn) - oz * Math.Sin(turn), y + oy, z + ox * Math.Sin(turn) + oz * Math.Cos(turn), dot, (valence ? 1f : 0.45f) * f, (valence ? 0.8f : 0.75f) * f, (valence ? 0.25f : 1f) * f, s);
                     }
                 }
-            Add(glow, x, y, z, Math.Max(NucleusRadius(e) * 3, dot), 1f * f, 0.75f * f, 0.5f * f, s);
+            Add(glow, x, y, z, Math.Max(NucleusRadius(e), s * 0.0014), 1f * f, 0.95f * f, 0.9f * f, s);   // its nucleus: a sharp point of light (its true size once close enough), never a glow
         }
         private void Orbitals(List<StarVertex> glow, Element e, double x, double y, double z, double s, double time, long key, float f)
         {
@@ -1307,7 +1307,7 @@ namespace DnaAnd.Shell
                 }
                 // the nucleus: always its real protons (red) and neutrons (grey) packed in a ball, growing as you come in; while
                 // it is too small to see, a small spark marks where it is
-                if (nr / s < 0.004) Add(glow, ax0, cy, az0, s * 0.004, 1f, 0.85f, 0.6f, s);
+                if (nr / s < 0.004) Add(glow, ax0, cy, az0, s * 0.0014, 1f, 0.95f, 0.9f, s);   // a sharp point of light until its protons and neutrons can be seen
                 var nuc = NucleonsOf(focus); int A = nuc.Length;                                   // every one of its protons and neutrons, where the forces put them
                 for (int k = 0; k < A; k++)
                 {
@@ -1373,7 +1373,7 @@ namespace DnaAnd.Shell
                     double ph = _clock * (3 + k) + k * 1.7, rr0 = ar0 * (1.5 + 3 * Hash(k, 1, 7, _seed));
                     Add(glow, x + Math.Cos(ph) * rr0, y + Math.Sin(ph * 0.7) * rr0 * 0.6, z + Math.Sin(ph) * rr0, dt0, 1f * f, 0.8f * f, 0.25f * f, s);
                 }
-                Add(glow, x, y, z, Math.Max(NucleusRadius(e) * 3, dt0 * 1.2), 1f * f, 0.75f * f, 0.5f * f, s);
+                Add(glow, x, y, z, Math.Max(NucleusRadius(e), s * 0.0014), 1f * f, 0.95f * f, 0.9f * f, s);
                 { int nb = _bodies.Count; AddBody(7, 0, 0, x, y, z, ar0 * 0.08, s); if (_bodies.Count > nb) _bodies[nb].Sym = e.Symbol; }
                 return;
             }
@@ -1405,7 +1405,7 @@ namespace DnaAnd.Shell
                 }
             }
             Orbitals(glow, e, x, y, z, s, time, key, f);                                     // and where its electrons may be: their orbitals, as clouds
-            Add(glow, x, y, z, Math.Max(NucleusRadius(e) * 3, dot * 1.2), 1f * f, 0.75f * f, 0.5f * f, s);   // its nucleus, a spark at the middle
+            Add(glow, x, y, z, Math.Max(NucleusRadius(e), s * 0.0014), 1f * f, 0.95f * f, 0.9f * f, s);   // its nucleus: a sharp point of light at the middle
             { int nb = _bodies.Count; AddBody(7, 0, 0, x, y, z, ar * 0.08, s); if (_bodies.Count > nb) _bodies[nb].Sym = e.Symbol; }   // and its nucleus can be picked
         }
 
