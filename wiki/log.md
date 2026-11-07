@@ -193,3 +193,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (the well rings and straight spokes, the look up then down): DESIGN 601.
 - 2026-11-07 (the fall's grid at every scale): DESIGN 602.
 - 2026-11-07 (the disc's far side over the rim, the horizon stop pulled back): DESIGN 603.
+- 2026-11-07 (the sheet round, the fall a travel first): DESIGN 604.
