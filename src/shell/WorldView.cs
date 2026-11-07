@@ -259,6 +259,81 @@ namespace DnaAnd.Shell
             double k = lim / l; _ox = x * k - _ax; _oy = y * k - _ay; _oz = z * k - _az;
         }
 
+        // ── every other kind of body, made round you from content/bodies.dnat, drawn and clickable: a supermassive black hole at
+        // each galaxy's heart; stellar black holes, neutron stars and rogue planets among a galaxy's stars; stars and rogue
+        // planets between the galaxies; asteroids, Kuiper-belt bodies and Oort-cloud comets round a star ──
+        private sealed class Place { public string Id, Name, Where, Entry, Says; public double PerLy3, SizeKm; public int Shown; public float R, G, B; }
+        private sealed class Extra { public double X, Y, Z, R; public string Name; public List<string> Lines; public float Cr, Cg, Cb; }
+        private List<Place> _places; private readonly List<Extra> _extras = new List<Extra>(); private string _extraKey = "";
+        private UploadBuffer _extraBuf; private StarVertex[] _extraV = new StarVertex[0];
+        private void LoadPlaces()
+        {
+            _places = new List<Place>(); var ci = System.Globalization.CultureInfo.InvariantCulture; var fs = System.Globalization.NumberStyles.Float;
+            foreach (var e in _content.OfKind("bodies.dnat", "place"))
+            {
+                double v; var pl = new Place { Id = e.Id, Name = e.Name, Where = e.Get("where", ""), Entry = e.Get("entry", ""), Says = e.Get("says", "") };
+                if (double.TryParse(e.Get("per-cubic-ly", "0"), fs, ci, out v)) pl.PerLy3 = v; if (double.TryParse(e.Get("size-km", "1000"), fs, ci, out v)) pl.SizeKm = v;
+                int n; if (int.TryParse(e.Get("shown", "0"), out n)) pl.Shown = n;
+                var c = e.Get("colour", "1 1 1").Split(' '); float r = 1, g = 1, b = 1; if (c.Length == 3) { float.TryParse(c[0], fs, ci, out r); float.TryParse(c[1], fs, ci, out g); float.TryParse(c[2], fs, ci, out b); }
+                pl.R = r; pl.G = g; pl.B = b; _places.Add(pl);
+            }
+        }
+        private Extra MakeExtra(Place pl, double x, double y, double z)
+        {
+            var ex = new Extra { X = x, Y = y, Z = z, R = Units.Km(pl.SizeKm), Name = pl.Name, Cr = pl.R, Cg = pl.G, Cb = pl.B, Lines = new List<string>() };
+            ex.Lines.Add(pl.Name); if (pl.Says.Length > 0) ex.Lines.Add(pl.Says);
+            var en = pl.Entry.Split(' ');
+            if (en.Length == 2) foreach (var e in _content.Entries) if (e.Kind == en[0] && e.Id == en[1])
+            {
+                if (e.Props.ContainsKey("mass-sol")) ex.Lines.Add("mass: " + e.Get("mass-sol", "") + " Suns");
+                if (e.Props.ContainsKey("made-by")) ex.Lines.Add("made by: " + e.Get("made-by", ""));
+                if (e.Props.ContainsKey("example")) ex.Lines.Add("for example: " + e.Get("example", ""));
+                break;
+            }
+            return ex;
+        }
+        // the bodies round you, made again when where you are changes enough (each always the same, from its own place)
+        private void UpdateExtras()
+        {
+            if (_places == null) LoadPlaces();
+            bool inGalaxy = _near >= 0 && NearShare() > 0.5, between = !inGalaxy && (_near < 0 || NearShare() < 0.05);
+            double lyU = 1.0 / Units.LightYearsPerUnit;
+            string key = (inGalaxy ? "g" : between ? "b" : "-") + (_system != null ? "s" + _system.StarName : "") + ":" + (long)Math.Floor(_cx / 0.02) + "," + (long)Math.Floor(_cy / 0.02) + "," + (long)Math.Floor(_cz / 0.02) + ":" + _galaxies.Count;
+            if (key == _extraKey) return; _extraKey = key; _extras.Clear();
+            foreach (var pl in _places)
+            {
+                if (pl.Where == "galaxy-heart")
+                {
+                    foreach (var g in _galaxies) { double dx = g.X - _cx, dy = g.Y - _cy, dz = g.Z - _cz; if (dx * dx + dy * dy + dz * dz < Math.Pow(60 * g.Scale, 2)) _extras.Add(MakeExtra(pl, g.X, g.Y, g.Z)); }
+                }
+                else if ((pl.Where == "galaxy" && inGalaxy) || (pl.Where == "between-galaxies" && between))
+                {
+                    if (pl.PerLy3 <= 0) continue;
+                    // about two dozen of each round you: the reach that holds them at this density, in cells each from its own place
+                    double reachLy = Math.Pow(24 / (4.0 / 3 * Math.PI * pl.PerLy3), 1 / 3.0), cellLy = reachLy / 2, cell = cellLy * lyU;
+                    long ci0 = (long)Math.Floor(_cx / cell), cj0 = (long)Math.Floor(_cy / cell), ck0 = (long)Math.Floor(_cz / cell);
+                    for (long i = ci0 - 2; i <= ci0 + 2; i++) for (long j = cj0 - 2; j <= cj0 + 2; j++) for (long k = ck0 - 2; k <= ck0 + 2; k++)
+                    {
+                        var rng = new Rng((ulong)(i * 73856093L ^ j * 19349663L ^ k * 83492791L) ^ _seed ^ (ulong)pl.Id.GetHashCode());
+                        double lambda = pl.PerLy3 * cellLy * cellLy * cellLy; int n = (int)Math.Floor(lambda) + (rng.NextDouble() < lambda - Math.Floor(lambda) ? 1 : 0);
+                        for (int q = 0; q < n && q < 8; q++) _extras.Add(MakeExtra(pl, (i + rng.NextDouble()) * cell, (j + rng.NextDouble()) * cell, (k + rng.NextDouble()) * cell));
+                    }
+                }
+                else if (_system != null && (pl.Where == "belt" || pl.Where == "kuiper" || pl.Where == "oort"))
+                {
+                    double a0 = pl.Where == "belt" ? _system.BeltInAu : pl.Where == "kuiper" ? _system.KuiperInAu : _system.OortInAu, a1 = pl.Where == "belt" ? _system.BeltOutAu : pl.Where == "kuiper" ? _system.KuiperOutAu : _system.OortOutAu;
+                    if (a1 <= 0) continue;
+                    var rng = new Rng(_seed ^ (ulong)pl.Id.GetHashCode() ^ (ulong)_system.StarName.GetHashCode());
+                    for (int q = 0; q < pl.Shown; q++)
+                    {
+                        double au = a0 + (a1 - a0) * rng.NextDouble(), ang = rng.NextDouble() * Math.PI * 2, u = pl.Where == "oort" ? rng.NextDouble() * 2 - 1 : (rng.NextDouble() - 0.5) * 0.1, rr = Math.Sqrt(1 - u * u);
+                        double d = Units.Km(au * Units.KmPerAu);
+                        _extras.Add(MakeExtra(pl, _ax + Math.Cos(ang) * rr * d, _ay + u * d, _az + Math.Sin(ang) * rr * d));
+                    }
+                }
+            }
+        }
+
         private void LookAt(double x, double y, double z)
         {
             double dx = x - _cx, dy = y - _cy, dz = z - _cz, l = Math.Sqrt(dx * dx + dy * dy + dz * dz);
@@ -830,7 +905,7 @@ namespace DnaAnd.Shell
         {
             dx = dy = dz = 0; radius = 0;
             if (_tKind == 0) { var g = _galaxies[_tIndex]; dx = (g.X - _ax) - _ox; dy = (g.Y - _ay) - _oy; dz = (g.Z - _az) - _oz; radius = g.Scale * 0.3; return true; }
-            if (_tKind == 1 || _tKind == 4 || _tKind == 5) { dx = (_tx - _ax) - _ox; dy = (_ty - _ay) - _oy; dz = (_tz - _az) - _oz; radius = _tRadius; return true; }   // a star, or a spot in a belt
+            if (_tKind == 1 || _tKind == 4 || _tKind == 5 || _tKind == 6) { dx = (_tx - _ax) - _ox; dy = (_ty - _ay) - _oy; dz = (_tz - _az) - _oz; radius = _tRadius; return true; }   // a star, or a spot in a belt
             if (_tKind == 2 && _system != null && _tIndex < _system.Bodies.Count)
             { double x, y, z; BodyPos(_tIndex, out x, out y, out z); dx = x - _ox; dy = y - _oy; dz = z - _oz; radius = _system.Bodies[_tIndex].RadiusUnits; return true; }
             if (_tKind == 3 && _ground != null)
@@ -856,6 +931,12 @@ namespace DnaAnd.Shell
         {
             double reachPx = 24 * Math.Max(1, _lastH / 1080.0), best = reachPx * reachPx; int kind = -1, idx = 0; double tx = 0, ty = 0, tz = 0, trad = 0; string name = "";
             Func<double, double, double, double> near = (dx, dy, dz) => { double sx, sy; if (!ToScreen(dx, dy, dz, out sx, out sy)) return double.MaxValue; return (sx - mx) * (sx - mx) + (sy - my) * (sy - my); };
+            for (int q = 0; q < _extras.Count && _ground == null; q++)
+            {
+                // the other bodies round you (black holes, neutron stars, rogue planets, asteroids, comets...): clickable as any star
+                var ex = _extras[q]; double d2 = near((ex.X - _ax) - _ox, (ex.Y - _ay) - _oy, (ex.Z - _az) - _oz);
+                if (d2 < best) { best = d2; kind = 6; idx = q; tx = ex.X; ty = ex.Y; tz = ex.Z; trad = ex.R; name = ex.Name; }
+            }
             if (_tKind == 5 && _near >= 0 && _tGal == _near && _tIndex >= 0 && _tIndex < _features.Count && _ground == null)
             {
                 // inside a picked nebula or cluster: a click is a point in its gas, right where you click, at the depth you are at
@@ -1601,6 +1682,15 @@ namespace DnaAnd.Shell
                     if (g.StructCount > 0) { DrawPoints(g.Struct, g.StructCount, Placement(g) * vp, right, up, 1f, 0.0016f, w, h, time, 0, (float)Math.Max(0, Math.Min(1, (60 - kv.Key) / 20))); drawn++; }   // fading in from 60 to 40 of its sizes
                 }
             }
+            UpdateExtras();
+            if (_extras.Count > 0)
+            {
+                if (_extraV.Length < _extras.Count) _extraV = new StarVertex[_extras.Count + 256];
+                for (int q = 0; q < _extras.Count; q++) { var ex = _extras[q]; _extraV[q] = new StarVertex { X = (float)((ex.X - _ax) - _ox), Y = (float)((ex.Y - _ay) - _oy), Z = (float)((ex.Z - _az) - _oz), Size = (float)ex.R, R = ex.Cr, G = ex.Cg, B = ex.Cb, A = 1 }; }
+                if (_extraBuf == null || _extraBuf.Bytes < (long)_extras.Count * Stride) { if (_extraBuf != null) _extraBuf.Dispose(); _extraBuf = new UploadBuffer(_gpu.Device, (long)(_extras.Count + 256) * Stride); }
+                _extraBuf.Write(_extraV, _extras.Count);
+                DrawPoints(_extraBuf, _extras.Count, vp, right, up, 1f, 0.0024f, w, h, time);
+            }
             if (_cstars.Count > 0)
             {
                 // the cluster's own stars round you: old red and orange giants and yellow stars in a globular, young blue-white in an open one
@@ -1929,6 +2019,11 @@ namespace DnaAnd.Shell
                 else if (fk == 4) { L.Add("a shell of gas puffed off by a dying star"); L.Add("the star's hot core, a white dwarf, lights it"); L.Add("it fades in some tens of thousands of years"); }
                 else if (fk == 5) { L.Add("the expanding shell of an exploded star"); L.Add("hot gas, still racing outward"); L.Add("it seeds space with heavy elements"); }
                 else { L.Add("a cold cloud of dust and molecules"); L.Add("dark: it hides the stars behind it"); L.Add("stars are being born deep inside"); }
+                L.Add("distance: " + Units.Describe(dist));
+            }
+            else if (_tKind == 6 && _tIndex >= 0 && _tIndex < _extras.Count)
+            {
+                foreach (var ln in _extras[_tIndex].Lines) L.Add(ln);
                 L.Add("distance: " + Units.Describe(dist));
             }
             else if (_tKind == 4 && _system != null)
