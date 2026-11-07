@@ -800,6 +800,18 @@ namespace DnaAnd.Shell
         /// <summary>Stops the tour; the controls are yours again.</summary>
         public void StopTour() { _tour = null; _pressed = false; }
         private double _tourH0, _tourLook;
+        // how fast the tour may go now: never faster than the world round you is made (slower when the frames a second drop below
+        // about 45, and while many pieces of ground are still waiting to be built), eased so it never jerks
+        private double _tourPace = 1;
+        private double TourPace
+        {
+            get
+            {
+                double want = Math.Max(0.25, Math.Min(1, Window.Fps / 45.0));
+                if (_ground != null && _ground.Backlog > 40) want *= Math.Max(0.3, 40.0 / _ground.Backlog);
+                _tourPace += (want - _tourPace) * 0.05; return _tourPace;
+            }
+        }
         // the tour is looking round (up at the sky, round the view, gliding): the view is its own, never turned back to the pick
         private bool TourLooking { get { if (_tour == null || _tourAt >= _tour.Count) return false; var d = _tour[_tourAt].Do; return _ground != null && (d == "look" || d == "glide" || (d == "orbit" && _tKind != 2)); } }
         private string TourCaption { get { return _tour != null && _tourAt < _tour.Count ? _tour[_tourAt].Caption + "   (the view: " + ScaleHud.Words(ViewDistanceKm()) + ")" : ""; } }   // the scale is what the tour shows
@@ -823,7 +835,7 @@ namespace DnaAnd.Shell
                         // one steady rate in scale (each tenfold the same time), eased in and out
                         double d = ViewDistanceKm(), want = st.UntilKm, sign = st.Rate >= 0 ? 1 : -1;
                         double left = Math.Abs(Math.Log10(Math.Max(1e-40, d) / Math.Max(1e-40, want)));
-                        double target = Math.Abs(st.Rate) * Math.Min(1, left / 0.6);               // easing out over the last few tenths of a tenfold
+                        double target = Math.Abs(st.Rate) * Math.Min(1, left / 0.6) * TourPace;    // easing out over the last few tenths of a tenfold; never faster than the world is made
                         _tourRate += (target - _tourRate) * (1 - Math.Exp(-dt * 1.5));            // and easing in
                         double notches = _tourRate * Math.Log(10) / Math.Log(1 / 0.87) * dt;       // a wheel notch is 13% of the way
                         input.Wheel = OffTarget() < 0.07 ? sign * notches : 0;                     // never moving one way while looking another
@@ -851,7 +863,7 @@ namespace DnaAnd.Shell
                         double ease = Math.Min(1, _tourT / 3) * Math.Min(1, Math.Max(0, st.Seconds - _tourT) / 3); ease = ease * ease * (3 - 2 * ease);
                         double sign = st.Rate >= 0 ? 1 : -1, d = ViewDistanceKm();
                         bool there = st.UntilKm > 0 && ((sign > 0 && d <= st.UntilKm) || (sign < 0 && d >= st.UntilKm));
-                        if (!there && OffTarget() < 0.07) input.Wheel = sign * Math.Abs(st.Rate) * ease * Math.Log(10) / Math.Log(1 / 0.87) * dt;   // only moving where it looks
+                        if (!there && OffTarget() < 0.07) input.Wheel = sign * Math.Abs(st.Rate) * ease * TourPace * Math.Log(10) / Math.Log(1 / 0.87) * dt;   // only moving where it looks
                         if (Math.Abs(_pitch) > 0.9) _pitch += (Math.Sign(_pitch) * 0.9 - _pitch) * (1 - Math.Exp(-dt * 0.8));
                         TourTurn(st.Turn * Math.PI / 180 * dt * ease, 0);
                         if (_tourT >= st.Seconds) done = true;
