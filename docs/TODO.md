@@ -691,4 +691,7 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **The singularity one uncountable mass of quarks, the nucleon's three never pulled apart:** (built: DESIGN 624; waits on the test) "but they dont pull apart they ar trillionX^e1000000000000 quarks" / "cramed into zero space"
 - [~] **The singularity five hundred overlapping glows, not six thousand:** (built: DESIGN 625; waits on the test) "lets not have 6 thousand glow we can handle this without frying my gpu"
 - [~] **The climb out of the hole as fast as the fall, about half a minute each way:** (built: DESIGN 626; waits on the test) "okay the fall in was much faster than the clibe out they need to be similar and not minutes and minutes of traveling up the tunnel used speed up"
+- [~] **The asteroid's caption its own kind and minerals, the places' lines without stock make-up:** (built: DESIGN 627; waits on the test) "and astrodis astill only say rock and iron generically , i told you four times now to fix this"
+- [~] **The asteroid's dive all the way down to a quark:** (built: DESIGN 628; waits on the test) "and the astroid zoom into the the material need to go to subatomic levels as it goes down the the white and black crystaline structures and dots but then backs off beforee ever getting to atoms and elctrons and nucleus and qwerks"
+- [~] **The tour's supernova logged twice a second, so a blank stop can be read:** (built: DESIGN 629; waits on the test and its log) "the suprer novas still and blank focal points no black hole no nutron start no exploasion"
 
