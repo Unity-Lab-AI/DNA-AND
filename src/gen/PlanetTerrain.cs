@@ -548,11 +548,12 @@ namespace DnaAnd.Gen
         private void GiantColour(double x, double y, double z, int extra, out float r, out float g, out float b)
         {
             // bands of cloud, pushed and curled by the winds (layered warping), with many storms of different sizes
-            double wx = Fbm(x, y, z, _seed + 11u, 2.5, 4 + extra) - 0.5, wz = Fbm(x, y, z, _seed + 12u, 2.5, 4 + extra) - 0.5;
-            double curl = Fbm(x + wx * 0.6, y, z + wz * 0.6, _seed + 13u, 7, 3 + extra) - 0.5;
+            // the winds and their curls from the waveform (stored CDF 9/7 octaves, mode-E past them), finer as you come closer
+            double wx = 0.5 * Waveform.Octaves(x, y, z, _seed + 11u, 2.5, 1, 0.5, 2.5 * Math.Pow(2, 3 + extra)), wz = 0.5 * Waveform.Octaves(x, y, z, _seed + 12u, 2.5, 1, 0.5, 2.5 * Math.Pow(2, 3 + extra));
+            double curl = 0.5 * Waveform.Octaves(x + wx * 0.6, y, z + wz * 0.6, _seed + 13u, 7, 1, 0.5, 7 * Math.Pow(2, 2 + extra));
             double yy = y + wx * 0.06 + curl * 0.05;
             double band = Math.Sin(yy * _tk.Bands + curl * 4) * 0.5 + 0.5;
-            double fine = Fbm(x + wx, y * 6, z + wz, _seed + 14u, 12, 3 + extra);
+            double fine = 0.5 + 0.5 * Waveform.Octaves(x + wx, y * 6, z + wz, _seed + 14u, 12, 1, 0.5, 12 * Math.Pow(2, 2 + extra));
             band = band * 0.8 + fine * 0.2;
             // its dark belts and light zones, in this kind's colours (terrain.dnat)
             r = (float)(_tk.BandLow[0] + (_tk.BandHigh[0] - _tk.BandLow[0]) * band); g = (float)(_tk.BandLow[1] + (_tk.BandHigh[1] - _tk.BandLow[1]) * band); b = (float)(_tk.BandLow[2] + (_tk.BandHigh[2] - _tk.BandLow[2]) * band);

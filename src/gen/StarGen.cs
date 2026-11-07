@@ -24,8 +24,9 @@ namespace DnaAnd.Gen
                 Vec3 q = Normals[i];
                 float facing = Vec3.Dot(q, toEye);
                 if (facing < -0.05f) continue;                  // back side: hidden, and would wash the colour out
-                float cells = Noise.Fractal(q.X * Cell + t, q.Y * Cell - t * 0.7f, q.Z * Cell + 5, Seed, 3);
-                float fine = Noise.Fractal(q.X * Cell * 4 - t * 2, q.Y * Cell * 4, q.Z * Cell * 4 + t, Seed + 77, 2);
+                // its boiling surface from the waveform (stored CDF 9/7 octaves, mode-E past them): the granulation cells and finer
+                float cells = (float)(0.5 + 0.5 * Waveform.Octaves(q.X * Cell + t, q.Y * Cell - t * 0.7f, q.Z * Cell + 5, Seed, 1, 1, 0.5, 4));
+                float fine = (float)(0.5 + 0.5 * Waveform.Octaves(q.X * Cell * 4 - t * 2, q.Y * Cell * 4, q.Z * Cell * 4 + t, Seed + 77, 1, 1, 0.5, 2));
                 float heat;
                 if (Brown)
                 {
