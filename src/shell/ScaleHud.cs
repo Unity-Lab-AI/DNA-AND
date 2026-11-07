@@ -14,6 +14,8 @@ namespace DnaAnd.Shell
     {
         private readonly IntPtr _device; private UploadBuffer _buf; private StarVertex[] _v = new StarVertex[0];
         public bool Visible = true;
+        /// <summary>How long a card's line may run before it wraps (the corner cards keep short lines; a full screen of words, longer).</summary>
+        public int WrapAt = 38;
 
         public ScaleHud(IntPtr device) { _device = device; }
 
@@ -139,7 +141,7 @@ namespace DnaAnd.Shell
             if (lines == null || lines.Count == 0) return;
             // every card short and to one side: long lines wrap at a reading width, the text small enough for a corner, and a card
             // that will not fit beside what you picked goes on its other side, never over it
-            const int Wrap = 38;
+            int Wrap = WrapAt;
             var wrapped = new List<string>();
             foreach (var l0 in lines)
             {
