@@ -942,3 +942,6 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **The code's density, said plainly in the docs:** (built: DESIGN 487; waits on the read) "make notes in document this prokject code is mostly not human readible, right? thats correct right?"
 - [~] **Who can change what, said in the docs:** (built: DESIGN 488; waits on the read) "what i mean is without AI only advance coders can manually edit it"
 - [~] **The code note is a suggestion, not a rule:** (built: DESIGN 489; waits on the read) "its not who can do what its a suggestion"
+- [~] **Stars exact on the card, no lattice, no empty squares:** (built: DESIGN 490; waits on the test) "at 1 aU scale the stars are appearing in grids and somene ggrids no starts like squares of starless areas i took a screenshots"
+- [~] **Focus on the star flown to:** (built: DESIGN 491; waits on the test) "and its like zooming around with no focus"
+- [~] **No white fuzz of near stars on a fast zoom out:** (built: DESIGN 492; waits on the test) "and another thing on zoom out u see the stars all like converge in a white fuzz pattern as zooming out fast that looks scetch"
