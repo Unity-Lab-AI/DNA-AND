@@ -837,7 +837,11 @@ namespace DnaAnd.Shell
                 for (int b = 0; b < N; b++)
                 {
                     if (!ok[a, b] || !ok[a + 1, b] || !ok[a, b + 1] || !ok[a + 1, b + 1]) continue;
-                    if (hole > 0 && Math.Abs(atA(a)) < hole && Math.Abs(atA(a + 1)) < hole && Math.Abs(atB(b)) < hole && Math.Abs(atB(b + 1)) < hole) continue;   // the finer ring is there
+                    // each ring round, never a square: the finer ring inside its hole, its own edge a circle, the grain's body beyond
+                    double r00 = Math.Sqrt(atA(a) * atA(a) + atB(b) * atB(b)), r11 = Math.Sqrt(atA(a + 1) * atA(a + 1) + atB(b + 1) * atB(b + 1)), r10 = Math.Sqrt(atA(a + 1) * atA(a + 1) + atB(b) * atB(b)), r01 = Math.Sqrt(atA(a) * atA(a) + atB(b + 1) * atB(b + 1));
+                    double rmax = Math.Max(Math.Max(r00, r11), Math.Max(r10, r01)), edge = N / 2 * step * 0.98;
+                    if (hole > 0 && rmax < hole) continue;
+                    if (Math.Min(Math.Min(r00, r11), Math.Min(r10, r01)) > edge) continue;
                     mesh.Add(v(a, b)); mesh.Add(v(a + 1, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b)); mesh.Add(v(a + 1, b + 1)); mesh.Add(v(a, b + 1));
                 }
         }
@@ -1148,7 +1152,7 @@ namespace DnaAnd.Shell
                     double px = rad / Math.Max(1e-30, dist) * _lastH / (2 * Math.Tan(0.45));    // its size on screen, in pixels
                     if (gr.Layer == 0) { int nb = _bodies.Count; AddBody(0, gi, gj, gx, gy, gz, rad, s); if (_bodies.Count > nb) _bodies[nb].Sym = m.Id; }
                     if (overlay || px < 1.5) continue;                                           // over the ground: the ground itself is their top
-                    if (under) continue;                                                         // its face is drawn in rings out to its edge (GrainPatch)
+                    // (the grain you are on keeps its whole 3D body; its fine face lies over it round you, in round rings)
                     if (mesh != null && px > 8 && meshes < 700) { int at0 = _stoneMesh.Count; Stone(_stoneMesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); _stones.Add(new double[] { at0, _stoneMesh.Count - at0, gi, gx, gy, gz, rad, m.Lustre }); meshes++; }   // its detail and stains worked out on the card
                     else if (mesh != null && smalls < 24000) { Octa(mesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); smalls++; }
                 }
