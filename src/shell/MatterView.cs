@@ -1245,6 +1245,21 @@ namespace DnaAnd.Shell
                 // in gold (the nucleus is drawn below, for real)
                 float cloud = (float)Fade(s, Math.Max(ar, AtomSpacing) * 4, Math.Max(ar, AtomSpacing) * 2);
                 Cloud(glow, focus, ax0, cy, az0, s, time, 777, Math.Max(0.6f, cloud));   // fully drawn from as far as every atom's
+                if (s < ar * 0.5)
+                {
+                    // inside its electron cloud it is not empty: the innermost electrons (1s) are densest at the nucleus itself,
+                    // |psi|^2 falling as exp(-2Zr/a0), so all the way down to the nucleus you are inside their cloud: a shimmer of
+                    // where they may be found, as bright as that density, sampled afresh a few times a second
+                    double a1s = 5.29e-14 / Math.Max(1, focus.Z); long tick = (long)Math.Floor(time * 6);
+                    for (int k = 0; k < 400; k++)
+                    {
+                        double u = Hash(k, tick, 401, _seed), v = Hash(k, tick, 402, _seed), wq = Hash(k, tick, 403, _seed);
+                        double rr = s * Math.Exp(Math.Log(0.15) + wq * Math.Log(4 / 0.15)), th = Math.Acos(1 - 2 * u), ph = v * 2 * Math.PI;
+                        double dens = Math.Exp(-2 * rr / a1s); if (dens < 0.02) continue;
+                        float b = (float)(0.2 * dens);
+                        Add(glow, ax0 + rr * Math.Sin(th) * Math.Cos(ph), cy + rr * Math.Cos(th), az0 + rr * Math.Sin(th) * Math.Sin(ph), s * 0.004, b * 0.6f, b * 0.75f, b, s);
+                    }
+                }
                 // the nucleus: always its real protons (red) and neutrons (grey) packed in a ball, growing as you come in; while
                 // it is too small to see, a small spark marks where it is
                 if (nr / s < 0.004) Add(glow, ax0, cy, az0, s * 0.004, 1f, 0.85f, 0.6f, s);
