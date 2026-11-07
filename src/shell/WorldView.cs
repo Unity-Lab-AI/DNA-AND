@@ -149,7 +149,7 @@ namespace DnaAnd.Shell
             }
             // how near the point is to a wall (equal distance to its two nearest voids), a filament (three), a node (four)
             double w = _wallUnits, wall = Math.Exp(-Math.Pow((d2 - d1) / w, 2)), fil = Math.Exp(-Math.Pow((d3 - d1) / (w * 1.4), 2)), node = Math.Exp(-Math.Pow((d4 - d1) / (w * 2), 2));
-            return 0.04 + wall * 1.0 + fil * _webContrast + node * _webContrast * 6;
+            return 0.005 + wall * 0.6 + fil * _webContrast + node * _webContrast * 8;   // voids nearly empty; walls thin; most on filaments and in clusters
         }
         private double MeanPerUnit3 { get { return _uGalaxies / (4.0 / 3.0 * Math.PI * _uRadius * _uRadius * _uRadius); } }
         // the galaxies of every region within reach of you that has none yet (each region's own from its place); at most a few a frame
@@ -184,26 +184,29 @@ namespace DnaAnd.Shell
         }
         // the glow of the rest of the universe's galaxies: points drawn from the same web, each standing for many galaxies,
         // left out round you where the galaxies are made in full
-        private System.Threading.Thread _glowMaker; private volatile StarVertex[] _glowReady;
+        private System.Threading.Thread _glowMaker; private volatile StarVertex[] _glowReady; private double _glowCX, _glowCY, _glowCZ;
         private void MakeGlow()
         {
+            double reachU = 3.0e9 / Units.LightYearsPerUnit;
+            if (_glowAll != null && _glowMaker == null && Math.Sqrt((_cx - _glowCX) * (_cx - _glowCX) + (_cy - _glowCY) * (_cy - _glowCY) + (_cz - _glowCZ) * (_cz - _glowCZ)) > reachU * 0.3) { _glowAll = null; _glowReady = null; }   // far from where they were made: made again round you
             if (_glowAll == null)
             {
-                if (_glowReady != null) { _glowAll = _glowReady; }
+                if (_glowReady != null) { _glowAll = _glowReady; _glowMaker = null; }
                 else
                 {
                     if (_glowMaker == null)
                     {
                         // points through the whole sphere, each kept as often as the web is crowded there: the walls, filaments and
                         // clusters show, the voids stay dark; made on a thread of its own so nothing waits
-                        int want = _glowPoints; double R = _uRadius, top = 0.04 + 1 + _webContrast + _webContrast * 6; ulong sd = _seed;
+                        int want = _glowPoints; double R = _uRadius, gcx = _cx, gcy = _cy, gcz = _cz, gr = reachU; _glowCX = gcx; _glowCY = gcy; _glowCZ = gcz; double top = 0.005 + 0.6 + _webContrast + _webContrast * 8; ulong sd = _seed;
                         _glowMaker = new System.Threading.Thread(() =>
                         {
                             var rng = new Rng(sd ^ 0x6107UL); var list = new List<StarVertex>(want); long tries = 0;
                             while (list.Count < want && tries++ < (long)want * 60)
                             {
-                                double x = (rng.NextDouble() * 2 - 1) * R, y = (rng.NextDouble() * 2 - 1) * R, z = (rng.NextDouble() * 2 - 1) * R;
-                                if (x * x + y * y + z * z > R * R) continue;
+                                double x = gcx + (rng.NextDouble() * 2 - 1) * gr, y = gcy + (rng.NextDouble() * 2 - 1) * gr, z = gcz + (rng.NextDouble() * 2 - 1) * gr;
+                                if (x * x + y * y + z * z > R * R) continue;                         // inside the visible universe
+                                if ((x - gcx) * (x - gcx) + (y - gcy) * (y - gcy) + (z - gcz) * (z - gcz) > gr * gr) continue;   // within reach of where you are
                                 if (rng.NextDouble() * top > Web(x, y, z)) continue;
                                 float warm = (float)rng.NextDouble();
                                 list.Add(new StarVertex { X = (float)x, Y = (float)y, Z = (float)z, Size = 1.2f, R = 0.75f + 0.25f * warm, G = 0.72f + 0.1f * warm, B = 1f - 0.3f * warm, A = 1 });
@@ -218,7 +221,15 @@ namespace DnaAnd.Shell
             // left out round you, where the galaxies are made in full
             double cx = _cx, cy = _cy, cz = _cz, keep = _nearUnits * 1.05;
             var shown = new List<StarVertex>(_glowAll.Length);
-            foreach (var v in _glowAll) { double dx = v.X - cx, dy = v.Y - cy, dz = v.Z - cz; if (dx * dx + dy * dy + dz * dz > keep * keep) shown.Add(v); }
+            // the web near you stands out and the far universe fades to a haze (seen through its whole depth at once, its walls
+            // and filaments would stack into an even dust): each point's light falls off with distance, gone by about 3 billion
+            // light-years
+            double fadeU = 1.0e9 / Units.LightYearsPerUnit, cut = fadeU * 3;
+            foreach (var v0 in _glowAll)
+            {
+                double dx = v0.X - cx, dy = v0.Y - cy, dz = v0.Z - cz, d2 = dx * dx + dy * dy + dz * dz; if (d2 < keep * keep || d2 > cut * cut) continue;
+                var v = v0; float k = (float)Math.Exp(-Math.Sqrt(d2) / fadeU); v.R *= k; v.G *= k; v.B *= k; shown.Add(v);
+            }
             _glowCount = shown.Count;
             if (_glowBuf == null || _glowBuf.Bytes < (long)Math.Max(1, _glowCount) * Stride) { if (_glowBuf != null) _glowBuf.Dispose(); _glowBuf = new UploadBuffer(_gpu.Device, (long)(_glowAll.Length + 16) * Stride); }
             if (_glowCount > 0) _glowBuf.Write(shown.ToArray(), _glowCount);
@@ -1475,7 +1486,7 @@ namespace DnaAnd.Shell
                 // the rest of the universe's galaxies, a glow along the cosmic web (remade without the near ones as you move far)
                 if (double.IsNaN(_glowAtX) || (_glowAll == null && _glowReady != null) || Math.Abs(_cx - _glowAtX) + Math.Abs(_cy - _glowAtY) + Math.Abs(_cz - _glowAtZ) > _nearUnits * 0.25) MakeGlow();
                 var gm = Mat4.Identity; gm.M41 = (float)-_cx; gm.M42 = (float)-_cy; gm.M43 = (float)-_cz;
-                DrawPoints(_glowBuf, _glowCount, gm * vp, right, up, 1f, 0.0007f, w, h, time, 0.0025f, 0.35f);   // each a galaxy at its true size (a pinpoint from afar), faint, so the web shows where they crowd
+                DrawPoints(_glowBuf, _glowCount, gm * vp, right, up, 1f, 0.0007f, w, h, time, 0.0025f, 0.9f);   // each a galaxy at its true size (a pinpoint from afar), faint, so the web shows where they crowd
             }
             for (int i = 0; i < _galaxies.Count; i++)
             {
