@@ -189,3 +189,4 @@ LAW 11 now includes a content-coverage check.
 - [x] "it zooms out ant i cant see shit its just black no glaxies nothing are you aout running the loading i dontt wee the galaxy webbing" / "and glazxies are just appearing and disappearing like its side scrolling to infinitey and only close in glaaxies are rendering" "in darkness": the web's light made fast, wider, never dropped, overlapping the near galaxies (DESIGN 401).
 - [x] "still nothing in view at 122km above a astroid" / "same with comet no trail no dust nothing": the near drawing distance counts the small bodies (DESIGN 402).
 - [x] "and it pausdes to long on a glaxy it makes me think its frozen so i know others will think that too": faster galaxy arcs; never still while waiting, and says so (DESIGN 403).
+- [x] "and it jsut rotates around the planet it zooms into for loike 20 rotations making me dizzy as fuck with gimle losk happening stilkl": no circling on the way down to a world (DESIGN 404).
