@@ -878,3 +878,4 @@ Order: galactic scale down, the same order as the sample sets.
 - [ ] (Later, DNA-AND only) **Habitable means carbon-based:** "and remember habital is only for carbon based life but thats nanother thing for later and for dna and only". The habitable zone is only where carbon-based life with liquid water can live; other chemistries of life have their own zones.
 - [~] **Smooth, continuous tour camera:** (built: DESIGN 430; waits on the test) "and make sure ther are no abrupt turns or wild pans as it cant look shooppy and needs to be smooth and continueous"
 - [~] **Rings on any world:** (built: DESIGN 431; waits on the test) "planets can have rings too"
+- [~] **Physics docs, all four forces:** (built: DESIGN 432; waits on the test) "what about physics and the natural laws like strong nuclear and weak forces electromagnaism and gravity where all all those docs"
