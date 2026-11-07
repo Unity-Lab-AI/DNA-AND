@@ -15,7 +15,7 @@ Welcome, god. This is everything you need to know — from the first lightning b
 |:-:|---|---|
 | 🌱 | [Getting Started](getting-started.md) | Your first world, your first hour |
 | 🖥️ | [The HUD](hud.md) | Header bar, build-your-own action bar, panels, element tree, painter brushes |
-| 🎮 | [Controls](controls.md) | Mouse, keys, and zooming from microbe to galaxy |
+| 🎮 | [Controls](controls.md) | Mouse, keys, and zooming from the cosmic web to the quarks |
 | ⏱️ | [Time](time.md) | Pause, the five speeds, and milestone slow-downs |
 | 🗺️ | [Full Playthrough](playthrough.md) | Start to endgame, step by step |
 

@@ -59,7 +59,7 @@ And somewhere along the way, they start to wonder **who you are**.
 
 ## 📸 A look inside
 
-Straight from the game, drawn live by its own generators. It all joins up into one zoom, from a field of galaxies down to the microbes in the soil:
+Straight from the game, drawn live by its own generators. It all joins up into one zoom, from the cosmic web of galaxies down to the microbes in the soil, and on into the matter to the quarks:
 
 <table>
 <tr>
@@ -405,7 +405,7 @@ Powers cost **Souls**. Cost = the power's **tier (T1–T100) × area × strength
 | Key | |
 |--|--|
 | `W A S D` / `Q E` | Fly forward, back, left, right, down and up, at a speed scaled to the nearest thing (`Shift`: four times as fast) |
-| `Scroll wheel` | Zoom where the mouse points, from a universe of galaxies down to an atom's nucleus |
+| `Scroll wheel` | Zoom where the mouse points, from the cosmic web of galaxies and the supermassive black holes at their hearts down to the quarks |
 | `Ctrl` + `Scroll wheel` | Zoom eight times as fast |
 | `Left-drag` | Circle round what you picked, or look around |
 | `Left-click` | Use the selected power, or pick a galaxy, star, planet, spot, grain or atom to go to |
@@ -418,7 +418,7 @@ Powers cost **Souls**. Cost = the power's **tier (T1–T100) × area × strength
 
 Every key can be rebound. 👉 [Controls](docs/wiki/controls.md "Every control")
 
-🔭 **In the universe preview:** it opens on a landing page (type a seed or leave it blank, Begin or take the tour). Then the scroll wheel flies toward what the mouse points at, `Ctrl` makes it eight times as fast, `Left-drag` looks around, `H` turns the scale on screen on or off, `T` plays the five-minute tour, `F12` saves a screenshot and `F9` records a clip, and the **View** and **Help** menus hold the settings, the Guide and wiki, and Credits. The universe preview is also released on its own as **Universe** (its own project: https://git.unityailab.com/GFourteen/Universe).
+🔭 **In the universe preview:** it opens on a landing page (type a seed or leave it blank, Begin or take the tour). Then the scroll wheel flies toward what the mouse points at, `Ctrl` makes it eight times as fast, `Left-drag` looks around, `H` turns the scale on screen on or off, `T` plays the quarter-hour grand tour, `F12` saves a screenshot and `F9` records a clip (View > Clip size: auto, full, half or quarter of the screen), and the **View** and **Help** menus hold the settings, the Guide and wiki, and Credits. The universe preview is also released on its own as **Universe** (its own project: https://git.unityailab.com/GFourteen/Universe).
 
 ---
 

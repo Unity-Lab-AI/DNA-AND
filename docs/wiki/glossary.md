@@ -16,7 +16,7 @@ Every highlighted word in the wiki links here. **100 terms**, A to Z.
 | <a id="autosave"></a>💾 **Autosave** | The game saves itself every 10 minutes and at every headline milestone. |
 | <a id="bacteria"></a>🦠 **Bacteria** | Single cells without a nucleus. Among the first life, and still everywhere. |
 | <a id="biome"></a>🌳 **Biome** | A kind of environment, like desert, rainforest or tundra. |
-| <a id="black-hole"></a>⚫ **Black hole** | A collapsed star whose pull nothing escapes. |
+| <a id="black-hole"></a>⚫ **Black hole** | A place whose pull nothing escapes, not even light: the collapsed core of a heavy star, or the giant at a galaxy's heart. |
 | <a id="chemistry-ai"></a>🧪 **Chemistry AI** | The mini AI of brainless life: sense something, then respond. |
 | <a id="civilization"></a>🏛️ **Civilization** | Intelligent life living together with culture, politics, technology and war. |
 | <a id="colony"></a>🏘️ **Colony** | A group living together, from a microbe colony to a settlement on another world. |

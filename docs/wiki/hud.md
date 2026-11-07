@@ -109,4 +109,4 @@ Shape the world like a painter. Pick a tool, pick a brush, and paint.
 
 ## 🔗 See also
 
-[Controls](controls.md "Mouse, keys, and zooming from microbe to galaxy") · [Menus & Settings](menus-and-settings.md "Main menu, saving and settings") · [God Powers](god-powers.md "All 100 powers, pluses and minuses") · [Elements](elements.md "All 118 elements and what they do") · [Souls & Harvesting](souls-and-harvesting.md "The currency of a god") · [🏠 Wiki home](README.md)
+[Controls](controls.md "Mouse, keys, and zooming from the cosmic web to the quarks") · [Menus & Settings](menus-and-settings.md "Main menu, saving and settings") · [God Powers](god-powers.md "All 100 powers, pluses and minuses") · [Elements](elements.md "All 118 elements and what they do") · [Souls & Harvesting](souls-and-harvesting.md "The currency of a god") · [🏠 Wiki home](README.md)

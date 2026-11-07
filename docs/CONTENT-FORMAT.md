@@ -68,7 +68,7 @@ example: the Sun
 
 ## 🗃️ Files
 
-One file per subject, in `content/`, named `<subject>.dnat` (**DNA**-AND **t**ext).
+One file per subject, in `content/`, named `<subject>.dnat` (**DNA**-AND **t**ext). In the Universe project the same files are `.unt`, renamed by `universe-sync.cmd`. In the Universe project the same files are `.unt`, renamed by `universe-sync.cmd`.
 
 Life follows the full tree, one folder per kingdom and one file per phylum or class:
 
@@ -87,6 +87,7 @@ The sample subjects come first (round 15): planets, stars, gas giants, Dyson sph
 ### Current files
 
 - `content/black-holes.dnat`
+- `content/bodies.dnat` (`@place` entries: every kind of body made round you, black holes, neutron stars, rogue planets, asteroids, Kuiper bodies and comets, with their shares and where they live)
 - `content/cities.dnat`
 - `content/climate.dnat`
 - `content/elements.dnat` (each `@element` also carries `colour`, `covalent-a`, `atomic-a`)
@@ -110,6 +111,10 @@ The sample subjects come first (round 15): planets, stars, gas giants, Dyson sph
 - `content/resource-fields.dnat`
 - `content/small-bodies.dnat` (each kind with `mix`, `makeup`, `density`, `albedo`; asteroids with `belt-share`)
 - `content/terrain.dnat` (`@terrain`: each kind of world's size, ground, water, air, clouds, rock and base temperature)
+- `content/tours/grand-tour.dnat` (`@stop` entries: the grand tour's camera moves and captions)
+- `content/universe.dnat` (`@universe`: how far you see, how many galaxies, the cosmic web, how finely galaxies and real stars are made round you)
+- `content/tours/grand-tour.dnat` (`@stop` entries: the grand tour's camera moves and captions)
+- `content/universe.dnat` (`@universe`: how far you see, how many galaxies, the cosmic web, how finely galaxies and real stars are made round you)
 - `content/solar-systems.dnat`
 - `content/space-tech.dnat`
 - `content/stars.dnat` (each `@star` with `makeup`, by count of atoms, and `makeup-note`)

@@ -164,20 +164,20 @@ Which content file holds each category's real seeds. ✅ means seeded, 🟨 mean
 | 38 | Food chain roles (hunter, grazer, scavenger, decomposer) | 🟨 partly: `content/life/bacteria.dnat` |
 | 39 | Partnerships (helping, parasites, hitchhikers) | 🟨 partly: `content/life/fungi.dnat`, `content/life/bacteria.dnat` |
 | 40 | Environments and biomes | ✅ `content/planets.dnat` |
-| 41 | Ocean zones | ⬜ not seeded yet |
-| 42 | Landforms (mountains, valleys, canyons) | 🟨 partly: `content/physics.dnat` |
+| 41 | Ocean zones | 🟨 partly: `content/climate.dnat` (currents, upwelling, tides) |
+| 42 | Landforms (mountains, valleys, canyons) | 🟨 partly: `content/physics.dnat`, `content/geology.dnat` |
 | 43 | Rocks | ✅ `content/resource-fields.dnat` |
 | 44 | Minerals and ores | ✅ `content/resource-fields.dnat` |
 | 45 | Chemical elements | ✅ `content/elements.dnat` |
 | 46 | Chemicals and compounds life uses | 🟨 partly: `content/physics.dnat` |
-| 47 | Soil types | 🟨 partly: `content/resource-fields.dnat` |
+| 47 | Soil types | 🟨 partly: `content/resource-fields.dnat`, `content/geology.dnat` |
 | 48 | Water bodies (rivers, lakes, seas, ice) | 🟨 partly: `content/planets.dnat` |
-| 49 | Weather types | 🟨 partly: `content/physics.dnat` |
-| 50 | Climate types | 🟨 partly: `content/planets.dnat` |
+| 49 | Weather types | 🟨 partly: `content/physics.dnat`, `content/climate.dnat` |
+| 50 | Climate types | 🟨 partly: `content/planets.dnat`, `content/climate.dnat` (the Köppen zones) |
 | 51 | Natural disasters | 🟨 partly: `content/small-bodies.dnat`, `content/life/extinct.dnat` |
 | 52 | Gases in the air | 🟨 partly: `content/physics.dnat` |
-| 53 | Plate and volcano activity | 🟨 partly: `content/physics.dnat` |
-| 54 | Seasons and day/night effects | ⬜ not seeded yet |
+| 53 | Plate and volcano activity | 🟨 partly: `content/physics.dnat`, `content/geology.dnat` |
+| 54 | Seasons and day/night effects | 🟨 partly: `content/climate.dnat` |
 | 55 | Star types | ✅ `content/stars.dnat` |
 | 56 | Planet types | ✅ `content/planets.dnat`, `content/gas-giants.dnat` |
 | 57 | Moons | ✅ `content/moons.dnat` |

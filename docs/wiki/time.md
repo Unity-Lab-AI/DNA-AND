@@ -65,4 +65,4 @@ No. Your galaxy keeps going — until **you** restart and roll a new world and a
 
 ## 🔗 See also
 
-[Stages of Life](stages-of-life.md "100 stages, chemistry to the stars") · [Ages of Civilization](ages-of-civilization.md "100 ages, stone tools to intergalactic") · [Controls](controls.md "Mouse, keys, and zooming from microbe to galaxy") · [Full Playthrough](playthrough.md "One full game, dead rock to intergalactic war") · [🏠 Wiki home](README.md)
+[Stages of Life](stages-of-life.md "100 stages, chemistry to the stars") · [Ages of Civilization](ages-of-civilization.md "100 ages, stone tools to intergalactic") · [Controls](controls.md "Mouse, keys, and zooming from the cosmic web to the quarks") · [Full Playthrough](playthrough.md "One full game, dead rock to intergalactic war") · [🏠 Wiki home](README.md)

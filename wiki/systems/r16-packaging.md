@@ -1,8 +1,8 @@
 ---
 title: R16 · Packaging
-status: draft
-sources: [docs/DESIGN.md (rounds 1, 2, 4), docs/ROADMAP.md#R16]
-last-verified: none (plan only)
+status: partial
+sources: [docs/DESIGN.md (rounds 1, 2, 4), docs/ROADMAP.md#R16, installer/Setup.cs, release.cmd, universe-sync.cmd, linux/run.sh]
+last-verified: 700c705
 ---
 
 # 📦 R16 · Packaging
@@ -22,5 +22,12 @@ Every release goes up on **both**:
 - 🏠 <https://git.unityailab.com/GFourteen/DNA-AND/releases>
 - 🐙 <https://github.com/Unity-Lab-AI/DNA-AND/releases>
 
+## 🔨 Built so far
+
+- `installer/Setup.cs`: our own installer wizard, the payload inside itself (Programs folder, Start menu and desktop shortcuts, the Apps list entry, an uninstaller; over an earlier copy it offers to delete its clips, screenshots and settings, each on its own). `installer/MakeIcons.cs` draws the icons.
+- `release.cmd`: the preview build, `release/DNA-AND-Setup-0.1.0.exe` and `release/DNA-AND-0.1.0-windows.zip`; `universe-sync.cmd` and `Universe/release.cmd` make the Universe program's own installer and zip the same way.
+- Released: 0.1.0 of both on both release pages (git.unityailab.com and GitHub), the four assets replaced on every ship.
+- Linux today: through Wine, with `linux/run.sh` in the zip (`docs/release/UNIVERSE-LINUX.md`).
+
 ## 🔮 Later
-Mac and Linux builds, once [R1](r01-toolchain.md) and [R2](r02-windows-layer.md) support them.
+Native Mac and Linux builds (Vulkan, their own windowing, a C# runtime there), once [R2](r02-windows-layer.md) has their layers.
