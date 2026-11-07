@@ -803,12 +803,15 @@ namespace DnaAnd.Shell
         // how fast the tour may go now: never faster than the world round you is made (slower when the frames a second drop below
         // about 45, and while many pieces of ground are still waiting to be built), eased so it never jerks
         private double _tourPace = 1;
+        // out at the cosmic web's scale (beyond the galaxies made in full round you) while its light is still being made
+        private bool WebNotMade { get { return _glowAll == null && _farScale > _nearUnits * 0.5; } }
         private double TourPace
         {
             get
             {
                 double want = Math.Max(0.25, Math.Min(1, Window.Fps / 45.0));
                 if (_ground != null && _ground.Backlog > 40) want *= Math.Max(0.3, 40.0 / _ground.Backlog);
+                if (WebNotMade) want = 0.05;                                            // out among the web before its light is made: wait for it
                 _tourPace += (want - _tourPace) * 0.05; return _tourPace;
             }
         }
@@ -914,6 +917,7 @@ namespace DnaAnd.Shell
             }
             // the story is read, never rushed: a stop goes on only once its words have had time to be read (a moment to look, then a
             // quarter of a second a word); a zoom that has arrived holds still till then
+            if (done && WebNotMade) { done = false; input.Wheel = 0; }               // (never on past the web before it shows)
             if (done && st.Do != "pick" && _tourT < 1.5 + st.Caption.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length * 0.25)
             {
                 // arrived and waiting for the words to be read: never frozen, it looks around, a slow eased turn with a gentle rise
