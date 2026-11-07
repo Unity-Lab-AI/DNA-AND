@@ -12,10 +12,14 @@ using Microsoft.Win32;
 
 internal static class Setup
 {
+#if UNIVERSE
+    private const string Name = "Universe";                                // the Universe release
+#else
     private const string Name = "DNA-AND";
+#endif
     private const string Version = "0.1.0";
     private const string Publisher = "Unity AI Lab";
-    private const string UninstallKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\DNA-AND";
+    private const string UninstallKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\" + Name;
 
     private static string InstallDir { get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", Name); } }
     private static string StartMenuLink { get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), Name + ".lnk"); } }

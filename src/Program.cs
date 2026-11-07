@@ -104,7 +104,7 @@ namespace DnaAnd
             ContentLibrary content = ContentLibrary.Load("content");
             bool big = Array.IndexOf(args, "--big") >= 0;                      // a full-size check, for pictures at the size the player sees
             bool native = Array.IndexOf(args, "--native") >= 0;                // a check at the screen's own full resolution, in a normal window
-            var window = native ? new Window("DNA-AND", 0, 0, false, true) : new Window("DNA-AND", 1600, 900, smokeMs >= 0 && !big);   // timed checks open small and out of the way
+            var window = native ? new Window(DnaAnd.Shell.PreviewText.AppName, 0, 0, false, true) : new Window(DnaAnd.Shell.PreviewText.AppName, 1600, 900, smokeMs >= 0 && !big);   // timed checks open small and out of the way
             { int sci = Array.IndexOf(args, "--scale"); int pct; if (sci >= 0 && sci + 1 < args.Length && int.TryParse(args[sci + 1], out pct)) { window.RenderScale = pct / 100.0; window.Resized = false; } }   // --scale <percent>: render scale
             window.Input.IgnoreReal = smokeMs >= 0;          // timed checks never take the person's keyboard or mouse
             Gpu gpu;
@@ -164,6 +164,7 @@ namespace DnaAnd
             if (testPlanet >= 0) { planet = new PlanetView(gpu, meshes, pipeline, viewer.TerrainAt(testPlanet), viewer.FieldTerrainAt(testPlanet), viewer.Set == 5 || testFieldView); planet.TestEvolveYears = testEvolve; planet.TestGoToCiv = Array.IndexOf(args, "--tociv") >= 0; int sli = Array.IndexOf(args, "--savelife"); if (sli >= 0 && sli + 1 < args.Length) planet.TestSaveLife = args[sli + 1]; int lli = Array.IndexOf(args, "--loadlife"); if (lli >= 0 && lli + 1 < args.Length) planet.TestLoadLife = args[lli + 1]; int csi = Array.IndexOf(args, "--civstep"); if (csi >= 0 && csi + 1 < args.Length) int.TryParse(args[csi + 1], out planet.TestCivStep); for (int k = 0; k < testJumps; k++) planet.JumpToNextField(); if (testAlt > 0) planet.SetAltitude(testAlt); int si = Array.IndexOf(args, "--undersea"); if (si >= 0 && si + 1 < args.Length) planet.GoUnderSea(double.Parse(args[si + 1], System.Globalization.CultureInfo.InvariantCulture)); }
             UniverseView universe = journey ? new UniverseView(gpu, pipeline, content, Seed) : null;
             WorldView world = Array.IndexOf(args, "--world") >= 0 || PreviewBuild ? new WorldView(gpu, pipeline, meshes, content, Seed) { AutoPath = Array.IndexOf(args, "--autopath") >= 0, AutoNebula = Array.IndexOf(args, "--autonebula") >= 0 } : null;   // the one world: one camera through every scale
+            { int ti = Array.IndexOf(args, "--tour"); if (world != null && ti >= 0) world.StartTour(ti + 1 < args.Length && !args[ti + 1].StartsWith("--") ? args[ti + 1] : "grand-tour"); }   // a tour (content/tours/name.dnat)
             if (journey && Array.IndexOf(args, "--test-system") >= 0) { deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(0), viewer.NameOf(0), Seed); deep.TestJourney(gpu.Width, gpu.Height); }
             if (testDeep >= 0) deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(testDeep), viewer.NameOf(testDeep), Seed + (ulong)testDeep * 7919UL);
             while (window.Pump())

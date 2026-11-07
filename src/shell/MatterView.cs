@@ -1279,6 +1279,23 @@ namespace DnaAnd.Shell
         public void Move(double east, double north) { _fx += east; _fz += north; _tfx = _fx; _tfz = _fz; }
 
         /// <summary>Where the picked grain or atom is on screen (pixels) and how big, for its ring; false if nothing is picked.</summary>
+        /// <summary>Picks the nearest of a kind of thing to the point you dive into, as a click on it would (atom, electron,
+        /// nucleus, proton, quark): for the tour.</summary>
+        public void PickNearest(string what)
+        {
+            int kind = what == "atom" ? 1 : what == "electron" ? 3 : what == "nucleus" ? 7 : what == "proton" ? 5 : what == "quark" ? 4 : -1; if (kind < 0) return;
+            Body best = null; double bd = double.MaxValue;
+            foreach (var b in _bodies)
+            {
+                if (b.Kind != kind || (kind == 5 && b.J != 1) || b == _picked) continue;
+                double dx = b.X - _fx, dy = b.Y - _yOff - _fy, dz = b.Z - _fz, d = dx * dx + dy * dy + dz * dz;
+                if (kind == 3) d -= b.I * 1e-40;                                             // (the outer, valence, shell first, among equals)
+                if (d < bd) { bd = d; best = b; }
+            }
+            if (best == null) return;
+            _picked = best; _tfx = best.X; _tfz = best.Z; _tfy = best.Y;
+        }
+
         public bool PickedOnScreen(out double sx, out double sy, out double rpx)
         {
             sx = sy = rpx = 0; if (_picked == null || !_haveVp) return false; var m = _lastVp;

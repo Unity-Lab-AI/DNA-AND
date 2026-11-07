@@ -45,3 +45,6 @@ build/
 
 # release packages (made by release.cmd)
 release/
+
+# The Universe project: its own git repo (filled by universe-sync.cmd), never part of DNA-AND's history
+/Universe/

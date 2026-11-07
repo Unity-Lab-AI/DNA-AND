@@ -3,11 +3,17 @@ namespace DnaAnd.Shell
 {
     internal static class PreviewText
     {
+        /// <summary>The program's name: Universe for the universe release, DNA-AND for the whole game.</summary>
+#if PREVIEW
+        public const string AppName = "Universe";
+#else
+        public const string AppName = "DNA-AND";
+#endif
         public const string Version = "0.1 (universe preview)";
 
         public const string About =
-            "DNA-AND " + Version + "\n\n" +
-            "A preview of the universe of DNA-AND, a 3D god game of life: one continuous zoom from a sky full of galaxies, into a galaxy and its stars, into a star's solar system, down to a planet's ground and on into its matter, to atoms.\n\n" +
+            AppName + " " + Version + "\n\n" +
+            "The universe of DNA-AND (a 3D god game of life, in the making), on its own: one continuous zoom from a sky full of galaxies, into a galaxy and its stars, into a star's solar system, down to a planet's ground and on into its matter, to atoms.\n\n" +
             "This preview is the universe only: a dead universe, fully made, with no life, gameplay or interface yet.\n\n" +
             "Everything is made live from a seed by our own code: no outside code, no stored pictures. It is one camera with true infinite zoom, no separate views and no loading screens; detail comes from our own coefficient waveform engine (the CDF 9/7 wavelet) and endless self-similar detail (mode-E).\n\n" +
             "Help > How it works explains the waveform, the infinite zoom, how precision holds from galaxies to atoms, and the living planet.\n\n" +

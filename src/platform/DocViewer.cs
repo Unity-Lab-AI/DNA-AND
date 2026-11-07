@@ -75,7 +75,7 @@ namespace DnaAnd.Platform
                 Win32.RegisterClassEx(ref wc); _registered = true;
             }
             int sw = Win32.GetSystemMetrics(0), sh = Win32.GetSystemMetrics(1), w = (int)(sw * 0.62), h = (int)(sh * 0.78);
-            _wnd = Win32.CreateWindowEx(0, "DnaAndDocs", "DNA-AND · Documents", WS_OVERLAPPEDWINDOW, (sw - w) / 2, (sh - h) / 2, w, h, owner, IntPtr.Zero, inst, IntPtr.Zero);
+            _wnd = Win32.CreateWindowEx(0, "DnaAndDocs", DnaAnd.Shell.PreviewText.AppName + " · Documents", WS_OVERLAPPEDWINDOW, (sw - w) / 2, (sh - h) / 2, w, h, owner, IntPtr.Zero, inst, IntPtr.Zero);
             float s = Scale();
             _font = CreateFont(-(int)(15 * s), 0, 0, 0, 400, 0, 0, 0, 1, 0, 0, 5, 0, "Segoe UI");
             _list = Child(WS_EX_CLIENTEDGE, "LISTBOX", "", WS_VSCROLL | LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | WS_TABSTOP, IdList);
@@ -141,7 +141,7 @@ namespace DnaAnd.Platform
                 _doc = d;
                 SendMessageAnsi(_page, WM_SETTEXT, IntPtr.Zero, Encoding.ASCII.GetBytes(ToRtf(_docs[d].Text) + "\0"));
                 SendMessage(_page, EM_SETZOOM, (IntPtr)_zoom, (IntPtr)100);
-                Win32.SetWindowText(_wnd, "DNA-AND · " + _docs[d].Title);
+                Win32.SetWindowText(_wnd, DnaAnd.Shell.PreviewText.AppName + " · " + _docs[d].Title);
             }
             int pos = 0;
             if (heading >= 0 && heading < _heads[d].Count) { int found = Find(_heads[d][heading], 0, true); if (found >= 0) pos = found; }

@@ -88,23 +88,115 @@ namespace DnaAnd.Shell
             var types = new List<string>(); var names = new List<string>();
             foreach (var e in content.OfKind("galaxies.dnat", "galaxy")) { types.Add(e.Id); names.Add(e.Name); }
             if (types.Count == 0) { types.Add("spiral"); names.Add("Spiral galaxy"); }
-            var rng = new Rng(seed ^ 0x6A1AUL);
-            _kinds = GalaxyGen.StarKinds(content);
-            for (int i = 0; i < 36; i++)
+            _kinds = GalaxyGen.StarKinds(content); _types = types; _typeNames = names; _seed = seed;
+            foreach (var e in content.OfKind("universe.dnat", "universe"))
             {
-                int t = i == 0 ? Math.Max(0, types.IndexOf("spiral")) : rng.Below(types.Count);
-                var g = new Galaxy { Type = types[t], Name = names[t], Seed = seed + (ulong)i * 104729UL,
-                    X = i == 0 ? 0 : rng.Range(-1, 1) * Spread, Y = i == 0 ? 0 : rng.Range(-0.35f, 0.35f) * Spread, Z = i == 0 ? 0 : rng.Range(-1, 1) * Spread,
-                    Tilt = rng.Range(-1.2f, 1.2f), Turn = rng.Range(0, 6.28f), Scale = types[t].StartsWith("dwarf") ? 0.35f : types[t].StartsWith("giant") ? 1.6f : rng.Range(0.8f, 1.2f) };
-                // the far look: a few thousand stars in the galaxy's own frame (placed by its tilt, turn and size when drawn)
-                var fk = new int[FarStars];
-                var stars = GalaxyGen.Generate(g.Type, g.Seed, FarStars, _kinds, fk);
-                g.Far = new UploadBuffer(gpu.Device, (long)stars.Length * Stride); g.Far.Write(stars, stars.Length); g.FarCount = stars.Length; g.FarPts = stars; g.FarKinds = fk;
-                _galaxies.Add(g);
+                var ci = System.Globalization.CultureInfo.InvariantCulture; var fs = System.Globalization.NumberStyles.Float; double v;
+                if (double.TryParse(e.Get("across-ly", "1.34e10"), fs, ci, out v)) _uRadius = v * 0.5 / Units.LightYearsPerUnit;
+                if (double.TryParse(e.Get("galaxies", "1e11"), fs, ci, out v)) _uGalaxies = v;
+                if (double.TryParse(e.Get("web-ly", "2e8"), fs, ci, out v)) _webUnits = v / Units.LightYearsPerUnit;
+                if (double.TryParse(e.Get("web-contrast", "6"), fs, ci, out v)) _webContrast = v;
+                if (double.TryParse(e.Get("region-ly", "1e6"), fs, ci, out v)) _regionUnits = v / Units.LightYearsPerUnit;
+                if (double.TryParse(e.Get("near-ly", "2e7"), fs, ci, out v)) _nearUnits = v / Units.LightYearsPerUnit;
+                if (double.TryParse(e.Get("glow-points", "300000"), fs, ci, out v)) _glowPoints = (int)v;
             }
+            // home: a spiral at the middle, then every galaxy of the regions round you
+            AddGalaxy(Math.Max(0, types.IndexOf("spiral")), seed, 0, 0, 0, 0.5f, 0.3f, 1f);
+            SpawnRegions();
             // start out among the galaxies, looking at the first one
             _ox = 30; _oy = 14; _oz = 22;
             LookAt(0, 0, 0);
+        }
+
+        // ── the visible universe (content/universe.dnat): about 100 billion galaxies in a sphere 13.4 billion light-years
+        // across. They are made by regions round you (each region always holds the same ones, from its own place), at the real
+        // average density, more of them in the cosmic web's filaments and walls and fewer in its voids; beyond, the rest show
+        // as a glow of points along the same web; the edge cannot be passed ──
+        private List<string> _types, _typeNames; private ulong _seed;
+        private double _farScale;                                                         // how far out the wheel has zoomed (universe units): out grows it, in brings it back
+        private double _uRadius = 134000, _uGalaxies = 1e11, _webUnits = 4000, _webContrast = 6, _regionUnits = 20, _nearUnits = 400; private int _glowPoints = 300000;
+        private readonly HashSet<long> _regions = new HashSet<long>(); private long _lastRegionCell = long.MinValue;
+        private UploadBuffer _glowBuf; private int _glowCount; private StarVertex[] _glowAll; private double _glowAtX = double.NaN, _glowAtY, _glowAtZ;
+        private void AddGalaxy(int t, ulong gseed, double x, double y, double z, float tilt, float turn, float scale)
+        {
+            var g = new Galaxy { Type = _types[t], Name = _typeNames[t], Seed = gseed, X = x, Y = y, Z = z, Tilt = tilt, Turn = turn, Scale = scale };
+            var fk = new int[FarStars];
+            var stars = GalaxyGen.Generate(g.Type, g.Seed, FarStars, _kinds, fk);
+            g.Far = new UploadBuffer(_gpu.Device, (long)stars.Length * Stride); g.Far.Write(stars, stars.Length); g.FarCount = stars.Length; g.FarPts = stars; g.FarKinds = fk;
+            _galaxies.Add(g);
+        }
+        // how crowded the cosmic web is at a place: filaments and walls (ridges of a noise a web cell across) dense, voids empty
+        private double Web(double x, double y, double z)
+        {
+            float f = (float)(1.0 / _webUnits);
+            double n = Noise.Fractal((float)(x * f) + 11.3f, (float)(y * f) - 7.1f, (float)(z * f) + 3.7f, (uint)(_seed & 0xFFFFFFFF) ^ 0x3EBu, 3);
+            double ridge = 1 - Math.Abs(n * 2 - 1);                                         // highest along the walls between cells
+            return Math.Pow(ridge, 3) * _webContrast;                                      // (its average over space is about one)
+        }
+        private double MeanPerUnit3 { get { return _uGalaxies / (4.0 / 3.0 * Math.PI * _uRadius * _uRadius * _uRadius); } }
+        // the galaxies of every region within reach of you that has none yet (each region's own from its place); at most a few a frame
+        private void SpawnRegions()
+        {
+            double cx = _cx, cy = _cy, cz = _cz, R = _regionUnits; long ci = (long)Math.Floor(cx / R), cj = (long)Math.Floor(cy / R), ck = (long)Math.Floor(cz / R);
+            long here = ci * 73856093L ^ cj * 19349663L ^ ck * 83492791L; if (here == _lastRegionCell) return; _lastRegionCell = here;
+            int n = (int)Math.Ceiling(_nearUnits / R), made = 0;
+            for (long i = ci - n; i <= ci + n; i++)
+                for (long j = cj - n; j <= cj + n; j++)
+                    for (long k = ck - n; k <= ck + n; k++)
+                    {
+                        double mx = (i + 0.5) * R, my = (j + 0.5) * R, mz = (k + 0.5) * R;
+                        if ((mx - cx) * (mx - cx) + (my - cy) * (my - cy) + (mz - cz) * (mz - cz) > _nearUnits * _nearUnits) continue;
+                        if (mx * mx + my * my + mz * mz > _uRadius * _uRadius) continue;            // past the edge: nothing
+                        long key = i * 73856093L ^ j * 19349663L ^ k * 83492791L; if (!_regions.Add(key)) continue;
+                        // how many galaxies this region holds: the mean for its volume, crowded or thinned by the web, the rest by chance
+                        var rng = new Rng((ulong)key * 0x9E3779B97F4A7C15UL ^ _seed);
+                        double lambda = MeanPerUnit3 * R * R * R * Web(mx, my, mz);
+                        int count = (int)Math.Floor(lambda) + (rng.NextDouble() < lambda - Math.Floor(lambda) ? 1 : 0);
+                        for (int q = 0; q < count && q < 40; q++)
+                        {
+                            double gx = (i + rng.NextDouble()) * R, gy = (j + rng.NextDouble()) * R, gz = (k + rng.NextDouble()) * R;
+                            if (gx * gx + gy * gy + gz * gz < 4) continue;                   // the home galaxy's own space
+                            int t = rng.Below(_types.Count);
+                            float scale = _types[t].StartsWith("dwarf") ? 0.35f : _types[t].StartsWith("giant") ? 1.6f : rng.Range(0.8f, 1.2f);
+                            AddGalaxy(t, _seed + (ulong)key * 104729UL + (ulong)q, gx, gy, gz, rng.Range(-1.2f, 1.2f), rng.Range(0, 6.28f), scale);
+                            made++;
+                        }
+                    }
+            if (made > 0) _glowAtX = double.NaN;                                           // the glow is remade without the near ones
+        }
+        // the glow of the rest of the universe's galaxies: points drawn from the same web, each standing for many galaxies,
+        // left out round you where the galaxies are made in full
+        private void MakeGlow()
+        {
+            if (_glowAll == null)
+            {
+                // points spread through the whole sphere, more of them along the web (each kept with the chance the web gives it)
+                var rng = new Rng(_seed ^ 0x6107UL); var list = new List<StarVertex>(_glowPoints); int tries = 0;
+                while (list.Count < _glowPoints && tries++ < _glowPoints * 40)
+                {
+                    double x = (rng.NextDouble() * 2 - 1) * _uRadius, y = (rng.NextDouble() * 2 - 1) * _uRadius, z = (rng.NextDouble() * 2 - 1) * _uRadius;
+                    if (x * x + y * y + z * z > _uRadius * _uRadius) continue;
+                    if (rng.NextDouble() * _webContrast > Web(x, y, z)) continue;
+                    float warm = (float)rng.NextDouble();                                  // old red-gold ellipticals to young blue spirals
+                    list.Add(new StarVertex { X = (float)x, Y = (float)y, Z = (float)z, Size = (float)(1.2 + rng.NextDouble() * 2), R = 0.75f + 0.25f * warm, G = 0.72f + 0.1f * warm, B = 1f - 0.3f * warm, A = 1 });
+                }
+                _glowAll = list.ToArray();
+            }
+            // left out round you, where the galaxies are made in full
+            double cx = _cx, cy = _cy, cz = _cz, keep = _nearUnits * 1.05;
+            var shown = new List<StarVertex>(_glowAll.Length);
+            foreach (var v in _glowAll) { double dx = v.X - cx, dy = v.Y - cy, dz = v.Z - cz; if (dx * dx + dy * dy + dz * dz > keep * keep) shown.Add(v); }
+            _glowCount = shown.Count;
+            if (_glowBuf == null || _glowBuf.Bytes < (long)Math.Max(1, _glowCount) * Stride) { if (_glowBuf != null) _glowBuf.Dispose(); _glowBuf = new UploadBuffer(_gpu.Device, (long)(_glowAll.Length + 16) * Stride); }
+            if (_glowCount > 0) _glowBuf.Write(shown.ToArray(), _glowCount);
+            _glowAtX = cx; _glowAtY = cy; _glowAtZ = cz;
+        }
+        // the edge of the visible universe cannot be passed: you are held just inside it
+        private void HoldInside()
+        {
+            double x = _cx, y = _cy, z = _cz, l = Math.Sqrt(x * x + y * y + z * z), lim = _uRadius * 0.985;
+            if (l <= lim) return;
+            double k = lim / l; _ox = x * k - _ax; _oy = y * k - _ay; _oz = z * k - _az;
         }
 
         private void LookAt(double x, double y, double z)
@@ -485,6 +577,104 @@ namespace DnaAnd.Shell
 
         /// <summary>Test runs: the camera turns to the next thing on the way down (the galaxy, a star, a planet, its ground) each frame.</summary>
         public bool AutoPath, AutoNebula;
+
+        // ── a tour: a flight of stops read from content/tours/<name>.dnat, flown with the real controls (the wheel's zoom at one
+        // steady rate, the drag's circling and looking, the same picks a click makes) so it shows the one world as it is ──
+        private sealed class TourStop { public string Name, Do, Target, Caption; public double Rate, UntilKm, Turn, Tilt, Seconds; }
+        private List<TourStop> _tour; private int _tourAt; private double _tourClock, _tourStall, _tourLastD, _tourT, _tourDragX, _tourDragY, _tourRate;
+        /// <summary>Starts the tour of that name (content/tours/name.dnat); false if there is none.</summary>
+        public bool StartTour(string name)
+        {
+            var list = new List<TourStop>(); var ci = System.Globalization.CultureInfo.InvariantCulture; var fs = System.Globalization.NumberStyles.Float;
+            Func<string, double, double> num = (t, f) => { double v; return double.TryParse(t, fs, ci, out v) ? v : f; };
+            foreach (var e in _content.OfKind("tours/" + name + ".dnat", "stop"))
+                list.Add(new TourStop { Name = e.Id, Do = e.Get("do", "orbit"), Target = e.Get("target", "none"), Caption = e.Get("caption", ""), Rate = num(e.Get("rate", "0.3"), 0.3),
+                    UntilKm = num(e.Get("until-km", "0"), 0), Turn = num(e.Get("turn", "6"), 6), Tilt = num(e.Get("tilt", "0"), 0), Seconds = num(e.Get("seconds", "10"), 10) });
+            if (list.Count == 0) return false;
+            _tour = list; _tourAt = 0; _tourT = 0; _tourRate = 0; _tourClock = 0;
+            if (TimeStep == 0) SetTime(1);                                              // time runs on the tour (the planets turn, the electrons move)
+            return true;
+        }
+        public bool Touring { get { return _tour != null; } }
+        private string TourCaption { get { return _tour != null && _tourAt < _tour.Count ? _tour[_tourAt].Caption : ""; } }
+        // one frame of the tour: what the stop asks, given to the controls; on to the next when it is done
+        private void TourStep(Input input, double dt, int w, int h)
+        {
+            _tourClock += dt;
+            if (_tourClock > 2)
+            {
+                // you take the controls back: a click, or a key (not the mouse's own buttons); never in its first moments
+                if (input.LeftClicked || input.RightClicked) { _tour = null; _pressed = false; return; }
+                for (int k = 8; k < 256; k++) if (input.WasPressed(k)) { _tour = null; _pressed = false; return; }
+            }
+            if (_tourAt >= _tour.Count) { _tour = null; _pressed = false; return; }
+            var st = _tour[_tourAt]; _tourT += dt; bool done = false;
+            input.MouseX = w / 2; input.MouseY = h / 2;                                    // the controls act at the middle of the view
+            switch (st.Do)
+            {
+                case "zoom":
+                    {
+                        // one steady rate in scale (each tenfold the same time), eased in and out
+                        double d = ViewDistanceKm(), want = st.UntilKm, sign = st.Rate >= 0 ? 1 : -1;
+                        double left = Math.Abs(Math.Log10(Math.Max(1e-40, d) / Math.Max(1e-40, want)));
+                        double target = Math.Abs(st.Rate) * Math.Min(1, left / 0.6);               // easing out over the last few tenths of a tenfold
+                        _tourRate += (target - _tourRate) * (1 - Math.Exp(-dt * 1.5));            // and easing in
+                        double notches = _tourRate * Math.Log(10) / Math.Log(1 / 0.87) * dt;       // a wheel notch is 13% of the way
+                        input.Wheel = sign * notches;
+                        // going nowhere (nothing nearer to fly at) for six seconds: on to the next stop
+                        if (Math.Abs(Math.Log10(Math.Max(1e-40, d) / Math.Max(1e-40, _tourLastD))) > 0.05) { _tourLastD = d; _tourStall = 0; } else _tourStall += dt;
+                        if ((sign > 0 && d <= want * 1.02) || (sign < 0 && d >= want * 0.98) || _tourT > 240 || (_tourStall > 6 && _tourT > 6)) { done = true; _tourRate = 0; input.Wheel = 0; _tourStall = 0; _tourLastD = 0; }
+                    }
+                    break;
+                case "orbit":
+                case "look":
+                    {
+                        // a slow steady drag: round the pick (or round you, looking, with none); look also tilts by its degrees
+                        double px = h / (2 * Math.Tan(0.45)) * Math.PI / 180 / Math.Max(1, Window.DragSpeed);   // pixels of drag a degree
+                        double ease = Math.Min(1, _tourT / 1.5) * Math.Min(1, Math.Max(0, st.Seconds - _tourT) / 1.5);
+                        _tourDragX += st.Turn * px * dt * ease;
+                        if (st.Do == "look") _tourDragY -= st.Tilt / st.Seconds * px * dt * (Math.Abs(st.Tilt) > 0 ? 1 : 0);
+                        int ix = (int)_tourDragX, iy = (int)_tourDragY; _tourDragX -= ix; _tourDragY -= iy;
+                        input.LeftDown = true; input.MouseDX = ix; input.MouseDY = iy; _pressed = true; _dragged = true;
+                        if (_tourT >= st.Seconds) { done = true; input.LeftDown = false; input.MouseDX = input.MouseDY = 0; _pressed = false; }
+                    }
+                    break;
+                case "pick":
+                    TourPick(st.Target); done = true; break;
+                default: done = true; break;
+            }
+            if (done) { _tourAt++; _tourT = 0; _tourDragX = _tourDragY = 0; }
+        }
+        // what a stop picks, as a click would
+        private void TourPick(string what)
+        {
+            switch (what)
+            {
+                case "none": _tKind = -1; _tName = ""; _matter.Unpick(); break;
+                case "galaxy":
+                    {
+                        int bi = -1; double bd = double.MaxValue;
+                        for (int i = 0; i < _galaxies.Count; i++)
+                        { var g = _galaxies[i]; double dx = (g.X - _ax) - _ox, dy = (g.Y - _ay) - _oy, dz = (g.Z - _az) - _oz, d = dx * dx + dy * dy + dz * dz; if (d < bd) { bd = d; bi = i; } }
+                        if (bi >= 0) { _tKind = 0; _tIndex = bi; _tName = _galaxies[bi].Name; }
+                    }
+                    break;
+                case "star":
+                    {
+                        double d; int k = NearestStar(out d); if (k < 0) break;
+                        double ux, uy, uz; StarPos(k, out ux, out uy, out uz); _tKind = 1; _tx = ux; _ty = uy; _tz = uz; _tRadius = Units.Km(696000); _tName = "a star";
+                    }
+                    break;
+                case "planet":
+                    if (_system != null)
+                    {
+                        int pick = -1; for (int i = 0; i < _system.Bodies.Count; i++) if (_system.Bodies[i].Parent < 0 && (pick < 0 || _system.Bodies[i].Kind == "Temperate world")) pick = i;
+                        if (pick >= 0) { _tKind = 2; _tIndex = pick; _tName = _system.Bodies[pick].Kind; }
+                    }
+                    break;
+                default: _matter.PickNearest(what); break;                                     // atom, electron, nucleus, proton, quark
+            }
+        }
         /// <summary>True when a planet's ground is being drawn (what the GPU use tunes, so far).</summary>
         public bool AtGround { get { return _ground != null; } }
         /// <summary>How many ground pieces are waiting (0 when not at a planet).</summary>
@@ -702,6 +892,7 @@ namespace DnaAnd.Shell
         public bool Update(Input input, double dt, int w, int h)
         {
             Mark();
+            if (_tour != null) TourStep(input, dt, w, h);                                  // a tour gives the controls what each stop asks
             // a click (pressed and let go without dragging) picks what is under the mouse
             if (input.LeftClicked) { _pressed = true; _dragged = false; _pressX = input.MouseX; _pressY = input.MouseY; }
             if (_pressed && input.LeftDown && Math.Abs(input.MouseX - _pressX) + Math.Abs(input.MouseY - _pressY) > 6) _dragged = true;   // dragging circles round the pick (or looks around if nothing is picked)
@@ -818,6 +1009,7 @@ namespace DnaAnd.Shell
                 }
             }
             Jumped("dragging");
+            SpawnRegions(); HoldInside();                                                   // the galaxies round you, and the edge of the visible universe
             double reach = NearestDistance();
             if (_matterScale <= 0)
             {
@@ -828,7 +1020,7 @@ namespace DnaAnd.Shell
                 {
                     _tKind = -1;                                                       // flying yourself lets go of the pick
                     var f = Look; var rt = _haveAxes ? _viewRight : Vec3.Cross(f, ViewUp()).Normalized; var upv = _haveAxes ? _viewUp : Vec3.Cross(rt, f).Normalized;
-                    double sp = reach * 0.5 * dt * (input.IsDown(0x10) ? 4 : 1);
+                    double sp = Math.Max(reach, _farScale) * 0.5 * dt * (input.IsDown(0x10) ? 4 : 1);   // at the scale you are zoomed out to
                     _ox += (f.X * mf + rt.X * mr + upv.X * mu) * sp; _oy += (f.Y * mf + rt.Y * mr + upv.Y * mu) * sp; _oz += (f.Z * mf + rt.Z * mr + upv.Z * mu) * sp;
                     double fk = _ground != null ? Math.Max(5e-7, _ground.ReadyStep < 1e30 ? _ground.ReadyStep * 0.6 : 0) : 0;
                     if (_ground != null && AboveGround() < Units.Km(MatterView.OverlayKm)) fk = 5e-7;
@@ -943,7 +1135,14 @@ namespace DnaAnd.Shell
                 // a star close to the line you point along (within about 4 degrees) is flown at straight, not past
                 if (_tKind < 0) { double tdist; var tdir = AimStar(dir, out tdist); if (input.Wheel > 0 && tdist > 0) { dir = tdir; reach = Math.Min(reach, tdist); } }
                 double step = reach * (1 - Math.Pow(0.87, Math.Abs(input.Wheel))) * Math.Sign(input.Wheel);
-                if (input.Wheel < 0) step = -Math.Max(reach, Units.Km(1e-9)) * (Math.Pow(1 / 0.87, -input.Wheel) - 1);   // out from right at the ground: a tiny step, never light-years
+                // out: each notch a share of how far out you have already zoomed (not only of the nearest thing), so going on out
+                // grows without end, to the whole universe; in: that scale comes back down toward the nearest thing
+                if (input.Wheel < 0)
+                {
+                    double basis = Math.Max(Math.Max(reach, Units.Km(1e-9)), _farScale);
+                    step = -basis * (Math.Pow(1 / 0.87, -input.Wheel) - 1); _farScale = basis * Math.Pow(1 / 0.87, -input.Wheel);
+                }
+                else { _farScale *= Math.Pow(0.87, input.Wheel); if (_farScale < reach) _farScale = 0; }
                 double altBefore = _ground != null ? AboveGround() / Units.Km(1) : 0;
                 ZoomLog("wheel " + input.Wheel.ToString("0") + " step " + Units.Describe(Math.Abs(step)) + " reach " + Units.Describe(reach) + " pick " + _tKind + ":" + _tIndex + " planet " + _planet + " nearest-body " + _cpBest + " at " + _cpBd.ToString("0.##") + " radii follow " + _followBody + (_ground != null ? " ground-ready " + (_ground.ReadyStep < 1e30 ? ScaleHud.Words(_ground.ReadyStep) : "none") + " height " + ScaleHud.Words(AboveGround() / Units.Km(1)) + " [" + _ground.BuildStats + "]" : ""));
                 _ox += dir.X * step; _oy += dir.Y * step; _oz += dir.Z * step;
@@ -1197,12 +1396,18 @@ namespace DnaAnd.Shell
             var look = Look;
             Mat4 view = Mat4.LookAt(new Vec3(0, 0, 0), look, ViewUp());
             double reach = Math.Max(1e-12, NearestDistance());
-            Mat4 proj = Mat4.Perspective(0.9f, w / (float)Math.Max(1, h), (float)(reach * 1e-3), (float)(Spread * 6));
+            Mat4 proj = Mat4.Perspective(0.9f, w / (float)Math.Max(1, h), (float)(reach * 1e-3), (float)(_uRadius * 2.2));   // out to the far side of the visible universe
             Mat4 vp = view * proj;
             _lastVp = vp; _lastW = w; _lastH = h; _haveVp = true;
             var right = new Vec3(view.M11, view.M21, view.M31); var up = new Vec3(view.M12, view.M22, view.M32);
             _viewRight = right; _viewUp = up; _haveAxes = true;
             double share = NearShare();
+            {
+                // the rest of the universe's galaxies, a glow along the cosmic web (remade without the near ones as you move far)
+                if (double.IsNaN(_glowAtX) || Math.Abs(_cx - _glowAtX) + Math.Abs(_cy - _glowAtY) + Math.Abs(_cz - _glowAtZ) > _nearUnits * 0.25) MakeGlow();
+                var gm = Mat4.Identity; gm.M41 = (float)-_cx; gm.M42 = (float)-_cy; gm.M43 = (float)-_cz;
+                DrawPoints(_glowBuf, _glowCount, gm * vp, right, up, 0.006f, 0.0011f, w, h, time, 0.004f, 0.8f);
+            }
             for (int i = 0; i < _galaxies.Count; i++)
             {
                 // every galaxy is one field of its own stars: the near one shows more of them as it grows on screen, each point
@@ -1347,6 +1552,7 @@ namespace DnaAnd.Shell
             }
             _gpu.ClearDepth();                                                         // the scale, cards and rings always on top of everything
             DrawScale(w, h);
+            if (_tour != null && TourCaption.Length > 0) _hud.DrawCard(_meshes, new[] { TourCaption }, 24 * Math.Max(1, h / 1080.0), h - 90 * Math.Max(1, h / 1080.0), w, h);   // the tour's words, bottom left
             if (Settings.Get("show-fps", true))                                       // frames a second, top right (View > Show FPS)
                 _hud.DrawCard(_meshes, new[] { Window.Fps.ToString("0") + " FPS" }, w - 150 * Math.Max(1, h / 1080.0), 12 * Math.Max(1, h / 1080.0), w, h);
             double mdx, mdy, mdz, mrad, msx, msy;
@@ -1585,13 +1791,13 @@ namespace DnaAnd.Shell
                     : _system != null ? "in the system of a " + _system.StarName + " (" + _system.Bodies.Count + " planets and moons)"
                     : _near >= 0 ? (NearShare() > 0.5 ? "among the stars of " : "near ") + _galaxies[_near].Name : "among the galaxies";
                 double hr = LocalHour(); string when = " · time: " + TimeNames[TimeStep] + (hr >= 0 ? ", " + ((int)hr).ToString("00") + ":" + ((int)(hr % 1 * 60)).ToString("00") + " here" : "");
-                return "DNA-AND · one world · " + where + when + picked + " · " + (_spaceScale > 0 || _matterScale > 0 || _tKind == 5 ? "looking at " + ScaleHud.Words(ViewDistanceKm()) + " away" : "nearest thing " + Units.Describe(NearestDistance()) + " away") + " · wheel: fly in or out toward the mouse · drag: circle the pick or look around · right click: clear the pick · W A S D Q E: fly · H: scale on or off · Esc: close · card " + (int)Math.Round(Window.GpuBusy * 100) + "% busy (GPU use " + (int)Math.Round(Window.GpuUse * 100) + "%)";
+                return PreviewText.AppName + " · one world · " + where + when + picked + (_tour != null && _tourAt < _tour.Count ? " · tour: " + _tour[_tourAt].Name : "") + " · " + (_spaceScale > 0 || _matterScale > 0 || _tKind == 5 ? "looking at " + ScaleHud.Words(ViewDistanceKm()) + " away" : "nearest thing " + Units.Describe(NearestDistance()) + " away") + " · wheel: fly in or out toward the mouse · drag: circle the pick or look around · right click: clear the pick · W A S D Q E: fly · H: scale on or off · Esc: close · card " + (int)Math.Round(Window.GpuBusy * 100) + "% busy (GPU use " + (int)Math.Round(Window.GpuUse * 100) + "%)";
             }
         }
 
         public void Dispose()
         {
-            foreach (var g in _galaxies) g.Far.Dispose();
+            foreach (var g in _galaxies) if (g.Far != null) g.Far.Dispose(); if (_glowBuf != null) _glowBuf.Dispose();
             if (_nearBuf != null) _nearBuf.Dispose(); foreach (var g in _galaxies) if (g.Struct != null) g.Struct.Dispose();
             CloseSystem();
             DropPlanet();

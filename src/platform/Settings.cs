@@ -8,7 +8,7 @@ namespace DnaAnd.Platform
 {
     internal static class Settings
     {
-        private static readonly string FilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DNA-AND", "settings.txt");
+        private static readonly string FilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), DnaAnd.Shell.PreviewText.AppName, "settings.txt");
         private static Dictionary<string, string> _v;
 
         private static Dictionary<string, string> V

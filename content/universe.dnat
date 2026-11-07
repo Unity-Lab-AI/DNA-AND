@@ -1,0 +1,20 @@
+# DNA-AND content · the visible universe as a whole: how big, how many galaxies, how they gather
+# across-ly: the visible universe's width in light-years, as asked: 13.4 billion (the light-travel distance to the farthest
+#   galaxies seen, such as GN-z11; measured as it is today, after space has stretched while the light travelled, the
+#   visible universe is about 93 billion light-years across). The edge cannot be passed (for now).
+# galaxies: how many galaxies it holds, about 100 billion (estimates run from 100 billion to 2 trillion).
+# web-ly: the size of the cosmic web's cells (galaxies gather in walls and filaments round voids about 100 to 300 million
+#   light-years across); web-contrast: how much denser the filaments are than the voids.
+# region-ly: the regions galaxies are made in round you, a million light-years across; near-ly: how far round you galaxies are
+#   made in full; glow-points: how many points show the rest of the universe's galaxies as a glow along the web.
+# Spec: docs/CONTENT-FORMAT.md · content/galaxies.dnat
+
+@universe visible
+name: The visible universe
+across-ly: 13.4e9
+galaxies: 1e11
+web-ly: 2e8
+web-contrast: 6
+region-ly: 1e6
+near-ly: 8e6
+glow-points: 300000
