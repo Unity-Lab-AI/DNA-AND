@@ -245,28 +245,26 @@ namespace DnaAnd.Shell
         // an atom's electrons as what they are: each occupied orbital a cloud of where its electron may be found (its
         // probability), in its real shape about its shell's distance, shimmering as it is sampled afresh a few times a second
         // (the electron is a wave, not a dot on a ring); the outer (valence) orbitals in gold
+        // an atom's electrons as what they are, worked out on the card: one record for each occupied orbital (where the atom
+        // is, its shell's distance, its kind l and number m, its colour); the point shader places each orbital's cloud of points
+        // in its real shape (the processor no longer works out a single point of it)
+        private readonly List<StarVertex> _orbRecs = new List<StarVertex>(); private StarVertex[] _orbArr = new StarVertex[0]; private UploadBuffer _orbBuf;
+        private const int OrbitalPoints = 60;
         private void Orbitals(List<StarVertex> glow, Element e, double x, double y, double z, double s, double time, long key, float f)
         {
             if (f <= 0.05) return;
             double ar = AtomRadius(e); var subs = Subshells(e.Z); int top = 0; foreach (var o in subs) top = Math.Max(top, o[0]);
-            long tick = (long)Math.Floor(time * 6);
             foreach (var o in subs)
             {
                 int n = o[0], l = o[1], count = o[2], orbitals = 2 * l + 1; bool valence = n == top;
-                double rr = ar * n / top;
                 for (int m = 0; m < orbitals; m++)
                 {
                     if (count <= m) continue;                                              // filled one to each first (Hund), then paired
-                    int pts = 40 + 20 * l; long ok = key * 131 + n * 17 + l * 7 + m;
-                    for (int q = 0; q < pts; q++)
-                    {
-                        double u = Hash(ok, q, tick, _seed), v = Hash(ok, q, tick + 99991, _seed), w = Hash(ok, q, tick + 7777, _seed);
-                        double th = Math.Acos(1 - 2 * u), ph = v * Math.PI * 2, dx = Math.Sin(th) * Math.Cos(ph), dy = Math.Cos(th), dz = Math.Sin(th) * Math.Sin(ph);
-                        if (Hash(ok, q, tick + 31, _seed) * 3.2 > Lobe(l, m, dx, dy, dz)) continue;   // kept where its shape is strong
-                        double r = rr * (0.45 + 1.1 * Math.Pow(w, 0.7));
-                        float b = (valence ? 0.9f : 0.5f) * f * 0.35f;
-                        Add(glow, x + dx * r, y + dy * r, z + dz * r, s * 0.0028, valence ? b : b * 0.55f, valence ? b * 0.78f : b * 0.7f, valence ? b * 0.25f : b, s);
-                    }
+                    float b = (valence ? 0.9f : 0.5f) * f * 0.35f;
+                    double vx = (x - _fx) / s + _ex, vy = (y + _yOff - _fy) / s + _ey, vz = (z - _fz) / s + _ez;
+                    if (Math.Abs(vx - _ex) > 60 || Math.Abs(vz - _ez) > 60) continue;
+                    _orbRecs.Add(new StarVertex { X = (float)vx, Y = (float)vy, Z = (float)vz, Size = (float)(ar * n / top / s),
+                        R = valence ? b : b * 0.55f, G = valence ? b * 0.78f : b * 0.7f, B = valence ? b * 0.25f : b, A = (l * 8 + m + 0.25f) / 64f });
                 }
             }
         }
@@ -1094,7 +1092,7 @@ namespace DnaAnd.Shell
 
         private void Build(double s, double time, List<StarVertex> solid, List<StarVertex> glow, List<StarVertex> mesh, bool overlay)
         {
-            _yOff = 0; _patchMesh.Clear();                                                 // (the grain's face: made afresh each frame from its kept points)
+            _yOff = 0; _patchMesh.Clear(); _orbRecs.Clear();                                                 // (the grain's face: made afresh each frame from its kept points)
             if (!_space && !_noGrains)
             {
                 long fgi, fgj; double fgx, fgy, fgz, frad, top; FocusGrain(out fgi, out fgj, out fgx, out fgy, out fgz, out frad);
@@ -1380,6 +1378,13 @@ namespace DnaAnd.Shell
             c[24] = (float)time; c[25] = 1; c[28] = w; c[29] = h; c[30] = 0.0012f;
             // (solid things are drawn as lit shapes below, never as glowing dots, which add up to white)
             c[26] = 0; if (glow.Count > 0) _dots.Draw(_glowBuf, glow.Count, c, 0, 0, w, h);      // electrons, their shells and the nucleus's spark: glows
+            if (_orbRecs.Count > 0)
+            {
+                // the orbitals' clouds: each record drawn as its points, placed by the card
+                Put(_orbRecs, ref _orbArr, ref _orbBuf);
+                var oc = (float[])c.Clone(); oc[41] = 1; oc[42] = OrbitalPoints; oc[30] = 0.0028f;
+                _dots.Draw(_orbBuf, _orbRecs.Count * OrbitalPoints, oc, 0, 0, w, h);
+            }
             if (mesh != null && mesh.Count > 0)
             {
                 // the near grains as lit stones (flat facets), in the starlight of where you are

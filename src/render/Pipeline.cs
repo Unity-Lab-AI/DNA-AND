@@ -33,7 +33,7 @@ cbuffer C : register(b0)
     float4 screen;  // x width, y height (of this tile, in pixels), z minimum size per unit of distance, w maximum (0: none)
     float4 extra;   // x: how much dimmer (0 full bright, 1 gone), so things fade in and out, never switch
     float4 lensA;   // a black hole's light bending: xy where it is on screen (-1..1), z its Einstein ring (same units, up the screen), w its distance
-    float4 lensB;   // x: width over height of the screen
+    float4 lensB;   // x: width over height of the screen; y: 1 = orbital clouds (each record an orbital, its points placed here); z: points per orbital
 };
 struct Star { float3 pos; float size; float4 color; };
 StructuredBuffer<Star> stars : register(t0);
@@ -41,9 +41,42 @@ struct VO { float4 pos : SV_Position; float2 uv : TEXCOORD0; float4 col : COLOR0
 
 static const float2 corners[6] = { float2(-1,-1), float2(-1,1), float2(1,1), float2(-1,-1), float2(1,1), float2(1,-1) };
 
+uint ohash(uint a, uint b) { uint h = a * 747796405u + b * 2891336453u + 1u; h = ((h >> ((h >> 28u) + 4u)) ^ h) * 277803737u; return (h >> 22u) ^ h; }
+float oh01(uint a, uint b) { return (ohash(a, b) & 0xFFFFFF) / 16777216.0; }
+// how strongly an orbital (l, m) leans along a direction: its real |Y|^2 shape (s round, p dumbbells, d clovers, f more lobed)
+float olobe(int l, int m, float3 d)
+{
+    if (l == 0) return 1;
+    if (l == 1) return m == 0 ? d.x * d.x * 3 : m == 1 ? d.y * d.y * 3 : d.z * d.z * 3;
+    if (l == 2) return m == 0 ? 15 * d.x * d.x * d.y * d.y : m == 1 ? 15 * d.y * d.y * d.z * d.z : m == 2 ? 15 * d.x * d.x * d.z * d.z : m == 3 ? 3.75 * (d.x * d.x - d.z * d.z) * (d.x * d.x - d.z * d.z) : 1.25 * (3 * d.y * d.y - 1) * (3 * d.y * d.y - 1);
+    float c = cos(m * 1.3) * d.x + sin(m * 1.3) * d.z; return 7 * pow(abs(c * d.y), 1.5) + 0.2;
+}
 VO VS(uint vid : SV_VertexID, uint iid : SV_InstanceID)
 {
-    Star s = stars[iid];
+    uint rec = iid, sub = 0;
+    if (lensB.y > 0.5) { uint per = max(1u, (uint)lensB.z); rec = iid / per; sub = iid % per; }
+    Star s = stars[rec];
+    if (lensB.y > 0.5)
+    {
+        // an electron's orbital, worked out here on the card: one of its points, where the electron may be found, in the
+        // orbital's real shape about its shell's distance, sampled afresh a few times a second (it shimmers: a wave, not a dot)
+        uint code = (uint)(s.color.a * 64 + 0.5), l = code / 8u, m = code % 8u;
+        uint key = asuint(s.pos.x) ^ (asuint(s.pos.y) * 7919u) ^ (asuint(s.pos.z) * 104729u) ^ (code * 31u);
+        uint tick = (uint)floor(misc.x * 6);
+        float3 dir = float3(0, 1, 0); float best = -1;
+        for (uint t = 0; t < 6u; t++)
+        {
+            float u = oh01(key + sub * 13u, tick * 7u + t), v = oh01(key + sub * 13u + 5u, tick * 7u + t);
+            float th = acos(1 - 2 * u), ph = v * 6.2832; float3 d = float3(sin(th) * cos(ph), cos(th), sin(th) * sin(ph));
+            float sc = olobe((int)l, (int)m, d) - oh01(key + sub, tick + t * 3u) * 3.2;
+            if (sc > best) { best = sc; dir = d; }
+            if (sc > 0) break;
+        }
+        float w = oh01(key + sub * 3u + 1u, tick);
+        s.pos += dir * s.size * (0.45 + 1.1 * pow(w, 0.7));
+        s.size = 0;
+        s.color.a = 1;
+    }
     float2 c = corners[vid];
     float4 cc0 = mul(float4(s.pos, 1), viewProj);
     float size = max(s.size * misc.y, cc0.w * screen.z); // never smaller than screen.z of the view distance
