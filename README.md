@@ -396,7 +396,7 @@ Powers cost **Souls**. Cost = the power's **tier (T1–T100) × area × strength
 
 Every key can be rebound. 👉 [Controls](docs/wiki/controls.md "Every control")
 
-🔭 **In the universe preview:** the scroll wheel flies toward what the mouse points at, `Ctrl` makes it eight times as fast, `Left-drag` looks around, `H` turns the scale on screen on or off, and the **View** and **Help** menus hold the render scale, Readme, Credits and About.
+🔭 **In the universe preview:** it opens on a landing page (type a seed or leave it blank, Begin or take the tour). Then the scroll wheel flies toward what the mouse points at, `Ctrl` makes it eight times as fast, `Left-drag` looks around, `H` turns the scale on screen on or off, `T` plays the five-minute tour, `F12` saves a screenshot and `F9` records a clip, and the **View** and **Help** menus hold the settings, the Guide and wiki, and Credits. The universe preview is also released on its own as **Universe** (its own project: https://git.unityailab.com/GFourteen/Universe).
 
 ---
 
