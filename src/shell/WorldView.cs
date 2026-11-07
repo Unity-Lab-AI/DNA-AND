@@ -341,7 +341,7 @@ namespace DnaAnd.Shell
                         double u = Math.Abs(Math.Sin(x * 12.9898 + y * 78.233 + z * 37.719) * 43758.5453) % 1;
                         ex.Mass = Math.Exp(Math.Log(lo) + (Math.Log(hi) - Math.Log(lo)) * u);
                     }
-                    ex.Lines.Add("mass: " + (ex.Mass > 0 ? ex.Mass.ToString(ex.Mass >= 1e4 ? "0.##E+0" : "0.#") : e.Get("mass-sol", "")) + " Suns");
+                    ex.Lines.Add("mass: " + (ex.Mass > 0 ? ex.Mass.ToString(ex.Mass >= 1e4 ? "0.##E+0" : "0.#") : e.Get("mass-sol", "")) + " times the Sun's");
                 }
                 if (e.Kind == "star" && e.Id == "neutron-star" && ex.Mass > 0)
                 {
@@ -2233,8 +2233,8 @@ namespace DnaAnd.Shell
                 if (open)
                 {
                     var sy = _system;
-                    L.Add("surface: " + sy.TempK.ToString("N0") + " K"); L.Add("mass: " + sy.MassSol.ToString("0.##") + " suns, width " + sy.RadiusSol.ToString("0.##") + " suns");
-                    L.Add("brightness: " + sy.Luminosity.ToString(sy.Luminosity < 0.1 ? "0.###" : "0.##") + " suns");
+                    L.Add("surface: " + sy.TempK.ToString("N0") + " K"); L.Add("mass: " + sy.MassSol.ToString("0.##") + " times the Sun's, width " + sy.RadiusSol.ToString("0.##") + " times the Sun's");
+                    L.Add("brightness: " + sy.Luminosity.ToString(sy.Luminosity < 0.1 ? "0.###" : "0.##") + " times the Sun's");
                     L.Add("planets and moons: " + sy.Bodies.Count + " (" + sy.Planets + " planets)");
                     L.Add("habitable zone: " + (sy.HabitableAu * 0.75).ToString("0.##") + " to " + (sy.HabitableAu * 1.4).ToString("0.##") + " AU");
                     L.Add("frost line: " + sy.FrostLineAu.ToString("0.##") + " AU");

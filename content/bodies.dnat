@@ -14,7 +14,7 @@ where: galaxy-heart
 entry: blackhole supermassive
 size-km: 3e9
 colour: 1 0.7 0.35
-says: millions to billions of Suns' mass at the galaxy's heart, its disc of hot gas glowing as it falls in
+says: millions to billions of times the Sun's mass at the galaxy's heart, its disc of hot gas glowing as it falls in
 
 @place stellar-black-hole
 name: A stellar-mass black hole
@@ -23,7 +23,7 @@ per-cubic-ly: 4e-6
 entry: blackhole stellar
 size-km: 2e5
 colour: 0.9 0.55 0.3
-says: what is left of a star of more than about twenty Suns; it may still feed on a companion
+says: what is left of a star of more than about twenty times the Sun's mass; it may still feed on a companion
 
 @place neutron-star
 name: A neutron star
@@ -32,7 +32,7 @@ per-cubic-ly: 4e-6
 entry: star neutron-star
 size-km: 20
 colour: 0.75 0.85 1
-says: a star's collapsed core, a city across, as heavy as one and a half Suns
+says: a star's collapsed core, a city across, about one and a half times as heavy as the Sun
 
 @place rogue-planet
 name: A rogue planet

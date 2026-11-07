@@ -11,7 +11,7 @@ rate: -0.06
 until-km: 2e18
 turn: 2.5
 seconds: 10
-caption: We begin at home: our galaxy, a hundred billion suns turning in the dark
+caption: We begin at home: our galaxy, a hundred billion stars turning in the dark
 
 @stop leave
 do: zoom
@@ -48,7 +48,7 @@ caption: A hundred billion stars round a giant black hole
 do: zoom
 rate: 0.4
 until-km: 1e16
-caption: Into it: the glow breaks into stars, each a sun
+caption: Into it: the glow breaks into stars, each with worlds of its own
 
 @stop choose-star
 do: pick
