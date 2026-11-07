@@ -704,4 +704,5 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **A dive onto a small body landing on the drawn stone's own surface, its spin held while you are on it:** (built: DESIGN 637; waits on the test) "okay but u fixed the invisible astroid as zoom rihgt?" / "what the fuck do u mean its visible ther in not a fucking thing but stars at all the xzoom levels i screen shotted when the sasteroid was selecterd"
 - [~] **A spot on any small body picked by a click on its stone, the zoom flying down to it:** (built: DESIGN 638; waits on the test) "and should differnt spots on an astroid be selctabble just like all bodies" / "so maqke it so for all bodies"
 - [~] **Every small body drawn from its precise offset from its star, never from a billion-light-year double:** (built: DESIGN 639; waits on the test) "that same solar system shit aint fixed i screen shot"
+- [~] **The pick's aim at a small body its precise offset, the same place it is drawn at:** (built: DESIGN 640; waits on the test) "okay i took pics thios time it never found a astroid let alone zoomed in and it just kinada stalled and never made it to a comet either" / "i SAID I TOOK PICS"
 
