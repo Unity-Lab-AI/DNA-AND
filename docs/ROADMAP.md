@@ -243,10 +243,20 @@ The full set is written: the player wiki, the builder wiki, setup, the build gui
 
 ---
 
-### [ ] R18 — Every body landed on and zoomed into, with its real make-up
+### [~] R18 — Every body landed on and zoomed into, with its real make-up
 > "ie i should be able to find a gold astroid or nickle being most common ect ect and zoom infinated on any body or abject" / "stars shoiuld be mostly hydrogen till getting to it heavey m,etal cores ect ect"
 
-Every body a place to land and zoom into without end, as worlds already are, with its real make-up from a template: asteroids by class (stony, carbonaceous, metal of iron and nickel with gold and platinum in their real traces), comets' ice and dust, moons' regolith, stars mostly hydrogen and helium down through their layers to the heavier elements at the core, neutron stars, the gas of nebulas. DESIGN 486.
+Every body a place to land and zoom into without end, as worlds already are, with its real make-up from a template: asteroids by class (stony, carbonaceous, metal of iron and nickel with gold and platinum in their real traces), comets' ice and dust, moons' regolith, stars mostly hydrogen and helium down through their layers to the heavier elements at the core, neutron stars, the gas of nebulas. DESIGN 486. Status 2026-11-07: the small bodies (asteroids by class with their real traces, comets, Kuiper bodies, rogue planets), the stars' surface make-up and plasma, and the neutron star's crust are built (DESIGN 546); left: a star's layers down through to the heavier elements at its core.
+
+### [x] R19 — Black holes: the shadow by the law, the disc bent by the hole, the fall to the singularity down the gravity well
+> "black holes tho will be a special case to fall into event horzon in pitch black till u get to the singularity of near infinate quarks in one smallest space singularity" / "FUCK LOOK UP A BALCK HOLE GRAVITY WELL AND WHAT IT LOOKS LIKE"
+
+Every hole's shadow black at the size the law gives from where you stand; the disc a thin sheet, its far side arched over the shadow, its captured light bent round the shadow's edge, lopsided by its beaming; a supermassive feeder tearing several stars at once; the approach down to the horizon with the disc all round; the fall through it, black, the gravity well round you as a grid from the metric (Flamm's surface outside the throat, its inner surface to the point), in looking back at the horizon's ring, the view turning over on the way down; the escape speed, your own time left and the tide on the card; the singularity at the quarks' size. Built 2026-11-07 (DESIGN 547, 548, 553, 554, 555, 557, 558, 559, 560). Status note of R18 below: the make-up of the small bodies, the stars' surfaces and the neutron star's crust came with it (DESIGN 546); what is left of R18 is a star's layers down to its core.
+
+### [x] R20 — Supernovae: every galaxy's own, of every real kind, with what they leave
+> "and what about super novas and nurton star creation and black hole creations and shit should super novas be very bright seen far away like 100s of time brighter than stars, check the math do the research , make it happen" / "like solar systems should be wiped out if a super nova"
+
+Every galaxy's supernovae from its seed and the clock (content/physics.dnat, researched rates and light curves): six kinds in every stage, each as bright as physics says from where you stand, the fireball at its real size in the colour of its heat, the shells seen only from near in the real colours of their gas, the neutron star, black hole or magnetar born at the middle, the star that died gone with its worlds, its neighbours scorched; the tour's flyby. Built 2026-11-07 (DESIGN 550, 553, 557).
 
 ## TOMBSTONES
 
