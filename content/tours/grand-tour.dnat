@@ -7,10 +7,14 @@
 #   do: orbit   circle slowly round what is picked (or look round if nothing is): turn degrees a second, for seconds; the view
 #               is eased toward level first, so it never spins round straight up or down
 #   do: look    tilt your view up (+) or down (-) by tilt degrees over seconds, turning a little as it goes
+#   do: arc     the cinematic move: a slow dolly in (rate, until-km as zoom) while circling (turn) for seconds, eased
 #   do: fly     fly steadily forward past what is ahead for seconds: rate is the share of the distance to the nearest thing
 #               a second (no sudden speed-ups), turn degrees a second as it goes
 #   do: pick    choose what to go to: galaxy, next-galaxy, star, planet, next-planet, none, atom, electron, nucleus, proton, quark
 #   caption:    the words shown while the stop runs
+# It plays as a film: letterbox bars, captions fading in and out, the camera easing round to each new subject, holds.
+# Picks explore: a galaxy chosen afresh some way off, a star among those round you, one of the star's worlds, so every
+# seed and every run is its own journey.
 # Every caption is followed by how far the view reaches at that moment: the scale is what the tour shows.
 # For the eye: zoom no faster than about one tenfold in five seconds, turn no more than about four degrees a second, and
 # stop to look round at each new scale, so each size can be read against the last.
@@ -47,9 +51,11 @@ until-km: 1.5e18
 caption: Flying to it
 
 @stop round-galaxy
-do: orbit
+do: arc
+rate: 0.05
+until-km: 6e17
 turn: 3
-seconds: 22
+seconds: 26
 caption: A galaxy of a hundred billion stars: its arms or its smooth glow, its clusters and nebulae
 
 @stop choose-next
@@ -64,9 +70,11 @@ until-km: 1.5e18
 caption: Across the space between galaxies, millions of light-years
 
 @stop round-next
-do: orbit
+do: arc
+rate: 0.05
+until-km: 6e17
 turn: 3
-seconds: 18
+seconds: 22
 caption: Every galaxy is its own kind and shape
 
 @stop into-galaxy
@@ -145,9 +153,11 @@ until-km: 4e4
 caption: To the planet
 
 @stop round-planet
-do: orbit
+do: arc
+rate: 0.05
+until-km: 1.5e4
 turn: 3
-seconds: 26
+seconds: 30
 caption: The whole world: seas, land, clouds and air
 
 @stop to-ground
@@ -241,9 +251,11 @@ until-km: 6e-13
 caption: Into one atom
 
 @stop round-atom
-do: orbit
+do: arc
+rate: 0.04
+until-km: 2.5e-13
 turn: 3
-seconds: 24
+seconds: 28
 caption: An atom: its electrons in their shells round the nucleus, like a solar system; the outer (valence) shell in gold
 
 @stop choose-electron
@@ -269,9 +281,11 @@ until-km: 3e-17
 caption: Across the emptiness: the nucleus is a hundred thousand times smaller than the atom
 
 @stop round-nucleus
-do: orbit
+do: arc
+rate: 0.05
+until-km: 1e-17
 turn: 3
-seconds: 20
+seconds: 24
 caption: The nucleus: its protons and neutrons, held by the strong force against the protons' electric push
 
 @stop choose-proton

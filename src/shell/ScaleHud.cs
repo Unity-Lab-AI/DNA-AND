@@ -121,6 +121,19 @@ namespace DnaAnd.Shell
         }
         /// <summary>An information card on screen beside the thing you picked: just its lines of text, no box; the first line its name
         /// (brighter), then its facts. Placed at (x, y) in pixels, kept inside the screen.</summary>
+        /// <summary>Letterbox bars across the top and bottom of the screen (each <paramref name="frac"/> of its height).</summary>
+        public void DrawBars(MeshPipes pipes, int w, int h, float frac)
+        {
+            var l = new List<StarVertex>(); float bh = h * frac;
+            Quad(l, 0, 0, w, bh, 0, 0, 0); Quad(l, 0, h - bh, w, bh, 0, 0, 0);
+            var arr = l.ToArray(); var buf = Slot(arr, arr.Length);
+            var m = Mat4.Identity; m.M11 = 2f / w; m.M22 = -2f / h; m.M33 = 0; m.M41 = -1; m.M42 = 1; m.M43 = 0.0001f; m.M44 = 1;
+            var c2 = new float[BillboardPipeline.ConstantCount];
+            c2[0] = m.M11; c2[5] = m.M22; c2[10] = m.M33; c2[12] = m.M41; c2[13] = m.M42; c2[14] = m.M43; c2[15] = m.M44; c2[18] = 1; c2[22] = 1;
+            pipes.Solid.Draw(buf, arr.Length, c2, 0, 0, w, h);
+        }
+        public void DrawCard(MeshPipes pipes, IList<string> lines, double x, double y, int w, int h, float fade) { _fade = fade; try { DrawCard(pipes, lines, x, y, w, h); } finally { _fade = 1; } }
+        private float _fade = 1;
         public void DrawCard(MeshPipes pipes, IList<string> lines, double x, double y, int w, int h)
         {
             if (lines == null || lines.Count == 0) return;
@@ -131,7 +144,7 @@ namespace DnaAnd.Shell
             var list = new List<StarVertex>();
             for (int i = 0; i < lines.Count; i++)
             {
-                float cx = x0 + pad, cy = y0 + pad + i * lh, r = i == 0 ? 0.55f : 0.85f, g = i == 0 ? 0.95f : 0.88f, b = 1f;
+                float cx = x0 + pad, cy = y0 + pad + i * lh, r = (i == 0 ? 0.55f : 0.85f) * _fade, g = (i == 0 ? 0.95f : 0.88f) * _fade, b = 1f * _fade;
                 foreach (char c0 in lines[i].ToUpperInvariant())
                 {
                     if (c0 != ' ') foreach (var c in IconFont.Cells(c0)) Quad(list, cx + c[0] * cell, cy + c[1] * cell, cell * 0.9f, cell * 0.9f, r, g, b);

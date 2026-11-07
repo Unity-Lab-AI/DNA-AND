@@ -8,7 +8,7 @@ namespace DnaAnd.Render
 {
     internal sealed class BillboardPipeline : IDisposable
     {
-        public const int ConstantCount = 40; // root constants (32-bit values) per draw
+        public const int ConstantCount = 48; // root constants (32-bit values) per draw
         public IntPtr RootSignature, Pipeline;
 
         [DllImport("d3d12.dll")]
@@ -73,12 +73,12 @@ float4 PS(VO i) : SV_Target
 
         public BillboardPipeline(IntPtr device)
         {
-            // ── root signature: [0] root constants b0, [1] root SRV t0 ──
-            IntPtr parms = Marshal.AllocHGlobal(64);
+            // ── root signature: [0] root constants b0, [1] root SRV t0 (the vertex list), [2] root SRV t1 (the waveform) ──
+            IntPtr parms = Marshal.AllocHGlobal(96);
             IntPtr desc = Marshal.AllocHGlobal(40);
             try
             {
-                for (int i = 0; i < 64; i++) Marshal.WriteByte(parms, i, 0);
+                for (int i = 0; i < 96; i++) Marshal.WriteByte(parms, i, 0);
                 Marshal.WriteInt32(parms, 0, 1);                 // 32-bit constants
                 Marshal.WriteInt32(parms, 8, 0);                 // register b0
                 Marshal.WriteInt32(parms, 12, 0);                // space 0
@@ -88,8 +88,12 @@ float4 PS(VO i) : SV_Target
                 Marshal.WriteInt32(parms, 40, 0);                // register t0
                 Marshal.WriteInt32(parms, 44, 0);
                 Marshal.WriteInt32(parms, 56, 0);
+                Marshal.WriteInt32(parms, 64, 3);                // root SRV
+                Marshal.WriteInt32(parms, 72, 1);                // register t1: the waveform, for detail worked out on the card
+                Marshal.WriteInt32(parms, 76, 0);
+                Marshal.WriteInt32(parms, 88, 0);
                 for (int i = 0; i < 40; i++) Marshal.WriteByte(desc, i, 0);
-                Marshal.WriteInt32(desc, 0, 2);
+                Marshal.WriteInt32(desc, 0, 3);
                 Marshal.WriteIntPtr(desc, 8, parms);
 
                 IntPtr blob, err;

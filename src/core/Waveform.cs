@@ -20,6 +20,13 @@ namespace DnaAnd.Core
         /// <summary>Makes the stored waveforms: once, at start, on the main thread (never first on a worker, which could wait
         /// on the very workers the wavelet uses).</summary>
         public static void Init() { if (Tiles == null) Tiles = MakeTiles(); }
+        /// <summary>All the stored waveforms, one after another (6 of 128 x 128), to upload to the card once.</summary>
+        public static float[] All()
+        {
+            Init(); var a = new float[Tiles.Length * T * T];
+            for (int k = 0; k < Tiles.Length; k++) for (int i = 0; i < T * T; i++) a[k * T * T + i] = (float)Tiles[k][i];
+            return a;
+        }
 
         private static double[][] MakeTiles()
         {

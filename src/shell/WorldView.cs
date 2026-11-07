@@ -699,11 +699,27 @@ namespace DnaAnd.Shell
                         // a slow steady drag: round the pick (or round you, looking, with none); look also tilts by its degrees
                         double px = h / (2 * Math.Tan(0.45)) * Math.PI / 180 / Math.Max(1, Window.DragSpeed);   // pixels of drag a degree
                         double ease = Math.Min(1, _tourT / 1.5) * Math.Min(1, Math.Max(0, st.Seconds - _tourT) / 1.5);
-                        _tourDragX += st.Turn * px * dt * ease;
+                        _tourDragX += st.Turn * px * dt * ease * (1 + 0.35 * Math.Sin(_tourClock * 0.17));   // the turn itself breathing a little
+                        if (st.Do == "orbit") _tourDragY += Math.Sin(_tourClock * 0.23) * 1.2 * px * dt * ease;          // the gaze drifting up and down
                         if (st.Do == "look") _tourDragY -= st.Tilt / st.Seconds * px * dt * (Math.Abs(st.Tilt) > 0 ? 1 : 0);
                         int ix = (int)_tourDragX, iy = (int)_tourDragY; _tourDragX -= ix; _tourDragY -= iy;
                         input.LeftDown = true; input.MouseDX = ix; input.MouseDY = iy; _pressed = true; _dragged = true;
                         if (_tourT >= st.Seconds) { done = true; input.LeftDown = false; input.MouseDX = input.MouseDY = 0; _pressed = false; }
+                    }
+                    break;
+                case "arc":
+                    {
+                        // the cinematic move: a slow dolly in (or out) while circling the subject, both eased in and out
+                        double ease = Math.Min(1, _tourT / 3) * Math.Min(1, Math.Max(0, st.Seconds - _tourT) / 3); ease = ease * ease * (3 - 2 * ease);
+                        double sign = st.Rate >= 0 ? 1 : -1, d = ViewDistanceKm();
+                        bool there = st.UntilKm > 0 && ((sign > 0 && d <= st.UntilKm) || (sign < 0 && d >= st.UntilKm));
+                        if (!there) input.Wheel = sign * Math.Abs(st.Rate) * ease * Math.Log(10) / Math.Log(1 / 0.87) * dt;
+                        if (Math.Abs(_pitch) > 0.9) _pitch += (Math.Sign(_pitch) * 0.9 - _pitch) * (1 - Math.Exp(-dt * 0.8));
+                        double px = h / (2 * Math.Tan(0.45)) * Math.PI / 180 / Math.Max(1, Window.DragSpeed);
+                        _tourDragX += st.Turn * px * dt * ease; _tourDragY += Math.Sin(_tourClock * 0.23) * 1.2 * px * dt * ease;   // and the gaze drifting slowly up and down, looking round
+                        int ix = (int)_tourDragX, iy = (int)_tourDragY; _tourDragX -= ix; _tourDragY -= iy;
+                        input.LeftDown = true; input.MouseDX = ix; input.MouseDY = iy; _pressed = true; _dragged = true;
+                        if (_tourT >= st.Seconds) { done = true; input.LeftDown = false; input.MouseDX = 0; _pressed = false; }
                     }
                     break;
                 case "fly":
@@ -732,17 +748,30 @@ namespace DnaAnd.Shell
                 case "galaxy":
                 case "next-galaxy":
                     {
-                        // the nearest galaxy (next-galaxy: the nearest other than the one picked, for a galaxy-to-galaxy fly-by)
-                        int bi = -1; double bd = double.MaxValue; int skip = what == "next-galaxy" && _tKind == 0 ? _tIndex : -1;
+                        // exploring: a galaxy chosen afresh each time (any seed, any run), some way off rather than the nearest,
+                        // ahead of you where it can be, never the one just visited
+                        var rng = new Rng(_seed ^ (ulong)(_tourAt * 7919 + Environment.TickCount));
+                        int bi = -1; double bs = double.MinValue; int skip = _tKind == 0 ? _tIndex : -1; var lk = Look;
                         for (int i = 0; i < _galaxies.Count; i++)
-                        { if (i == skip) continue; var g = _galaxies[i]; double dx = (g.X - _ax) - _ox, dy = (g.Y - _ay) - _oy, dz = (g.Z - _az) - _oz, d = dx * dx + dy * dy + dz * dz; if (d < bd) { bd = d; bi = i; } }
+                        {
+                            if (i == skip) continue; var g = _galaxies[i]; double dx = g.X - _cx, dy = g.Y - _cy, dz = g.Z - _cz, d = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+                            if (d < 3 || d > _nearUnits * 1.4) continue;
+                            double ahead = (dx * lk.X + dy * lk.Y + dz * lk.Z) / d, score = ahead + rng.NextDouble() * 1.5 + Math.Min(1, d / 60);
+                            if (score > bs) { bs = score; bi = i; }
+                        }
                         if (bi >= 0) { _tKind = 0; _tIndex = bi; _tName = _galaxies[bi].Name; }
                     }
                     break;
                 case "star":
                     {
-                        double d; int k = NearestStar(out d); if (k < 0) break;
-                        double ux, uy, uz; StarPos(k, out ux, out uy, out uz); _tKind = 1; _tx = ux; _ty = uy; _tz = uz; _tRadius = Units.Km(696000); _tName = "a star";
+                        // exploring: one of the stars round you, chosen afresh, not simply the nearest
+                        var rng = new Rng(_seed ^ (ulong)(_tourAt * 104729 + Environment.TickCount));
+                        if (_localCount > 0)
+                        {
+                            int k = rng.Below(_localCount); double ux, uy, uz; StarPos(1000000 + k, out ux, out uy, out uz);
+                            _tKind = 1; _tx = ux; _ty = uy; _tz = uz; _tRadius = Units.Km(696000); _tName = "a star";
+                        }
+                        else { double d; int k = NearestStar(out d); if (k >= 0) { double ux, uy, uz; StarPos(k, out ux, out uy, out uz); _tKind = 1; _tx = ux; _ty = uy; _tz = uz; _tRadius = Units.Km(696000); _tName = "a star"; } }
                     }
                     break;
                 case "next-planet":
@@ -756,8 +785,11 @@ namespace DnaAnd.Shell
                 case "planet":
                     if (_system != null)
                     {
-                        int pick = -1; for (int i = 0; i < _system.Bodies.Count; i++) if (_system.Bodies[i].Parent < 0 && (pick < 0 || _system.Bodies[i].Kind == "Temperate world")) pick = i;
-                        if (pick >= 0) { _tKind = 2; _tIndex = pick; _tName = _system.Bodies[pick].Kind; }
+                        // exploring: one of the star's worlds, chosen afresh (a solid one where there is one, to go down to)
+                        var rng = new Rng(_seed ^ (ulong)(Environment.TickCount + 31)); var opts = new List<int>();
+                        for (int i = 0; i < _system.Bodies.Count; i++) if (_system.Bodies[i].Parent < 0 && !_system.Bodies[i].Kind.Contains("giant") && !_system.Bodies[i].Kind.Contains("Jupiter")) opts.Add(i);
+                        if (opts.Count == 0) for (int i = 0; i < _system.Bodies.Count; i++) if (_system.Bodies[i].Parent < 0) opts.Add(i);
+                        if (opts.Count > 0) { int pick = opts[rng.Below(opts.Count)]; _tKind = 2; _tIndex = pick; _tName = _system.Bodies[pick].Kind; }
                     }
                     break;
                 default: _matter.PickNearest(what); break;                                     // atom, electron, nucleus, proton, quark
@@ -1028,7 +1060,7 @@ namespace DnaAnd.Shell
                 if (l > 0)
                 {
                     double wantYaw = Math.Atan2(tdz, tdx), wantPitch = Math.Asin(Math.Max(-1, Math.Min(1, tdy / l)));
-                    double dyaw = Math.IEEERemainder(wantYaw - _yaw, 2 * Math.PI), k = 1 - Math.Exp(-dt * 5);
+                    double dyaw = Math.IEEERemainder(wantYaw - _yaw, 2 * Math.PI), k = 1 - Math.Exp(-dt * (_tour != null ? 0.6 : 5));   // (on the tour, a slow eased turn, as a camera operator would)
                     _yaw += dyaw * k; _pitch += (wantPitch - _pitch) * k;
                 }
             }
@@ -1525,7 +1557,7 @@ namespace DnaAnd.Shell
                 // so each is dimmed by how many share the galaxy's patch (its true glow and colour, at any distance)
                 double gdx = g.X - _cx, gdy = g.Y - _cy, gdz = g.Z - _cz, gd = Math.Max(1e-9, Math.Sqrt(gdx * gdx + gdy * gdy + gdz * gdz));
                 double gpx = g.Scale / gd * h / (2 * Math.Tan(0.45)), dotPx = Math.Max(1.5, 0.0016 * h);
-                float crowd = (float)Math.Max(0.03, Math.Min(1, Math.PI * gpx * gpx / (count * dotPx * dotPx) * 2.5)) * nearF;
+                float crowd = (float)Math.Max(0.004, Math.Min(1, Math.PI * gpx * gpx / (count * dotPx * dotPx) * 0.5)) * nearF;   // its points together never past a soft glow in their own colours
                 DrawPoints(buf, count, Placement(g) * vp, right, up, 0.006f * g.Scale * shrink * glow, 0.0016f, w, h, time, 0.012f, crowd);
             }
             double inside = InsideShare();
@@ -1660,7 +1692,14 @@ namespace DnaAnd.Shell
             }
             _gpu.ClearDepth();                                                         // the scale, cards and rings always on top of everything
             DrawScale(w, h);
-            if (_tour != null && TourCaption.Length > 0) _hud.DrawCard(_meshes, new[] { TourCaption }, 24 * Math.Max(1, h / 1080.0), h - 90 * Math.Max(1, h / 1080.0), w, h);   // the tour's words, bottom left
+            if (_tour != null)
+            {
+                // the tour is a film: letterbox bars, the caption in the lower one, faded in after a moment and out before the cut
+                _hud.DrawBars(_meshes, w, h, 0.1f);
+                var cs = _tourAt < _tour.Count ? _tour[_tourAt] : null;
+                float cap = cs == null ? 0 : (float)Math.Min(1, Math.Max(0, (_tourT - 0.8) / 1.5));
+                if (cs != null && cs.Do != "pick" && cap > 0.05 && TourCaption.Length > 0) _hud.DrawCard(_meshes, new[] { TourCaption }, w * 0.06, h * 0.915, w, h, cap);
+            }
             if (Settings.Get("show-fps", true))                                       // frames a second, top right (View > Show FPS)
                 _hud.DrawCard(_meshes, new[] { Window.Fps.ToString("0") + " FPS" }, w - 150 * Math.Max(1, h / 1080.0), 12 * Math.Max(1, h / 1080.0), w, h);
             double mdx, mdy, mdz, mrad, msx, msy;

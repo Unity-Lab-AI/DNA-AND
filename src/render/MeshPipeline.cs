@@ -31,8 +31,77 @@ cbuffer C : register(b0)
     float4 fog;
     float4 sunCol;      // the starlight's colour on this ground (the star's colour through the air); a = 0: plain white
     float4 nightCol;    // the night side's light: half bright, in the colour of the air's glow and the starlight
+    float4 detA;        // detail mode: grain-local position = view position * w + xyz (the grain's own frame, its radius 1)
+    float4 detB;        // x: the grain's key, y: its radius in view units, z: steps on, w: 1 = work its detail out here per pixel
 };
 struct V { float3 pos; float glow; float4 col; };
+StructuredBuffer<float> wave : register(t1);
+// ── the waveform on the card: stored CDF 9/7 octaves (made once on the CPU, uploaded), mode-E past them ──
+static const int WT = 128; static const int WSTORED = 12;
+uint whash(uint a, uint b) { uint h = a * 747796405u + b * 2891336453u + 1u; h = ((h >> ((h >> 28u) + 4u)) ^ h) * 277803737u; return (h >> 22u) ^ h; }
+float wh01(uint a, uint b) { return (whash(a, b) & 0xFFFFFF) / 16777216.0; }
+float wmirror(float p) { float m = fmod(p, 2.0 * (WT - 1)); if (m < 0) m += 2.0 * (WT - 1); return m > WT - 1 ? 2.0 * (WT - 1) - m : m; }
+float wtile(uint k, float u, float v)
+{
+    u = wmirror(u * WT); v = wmirror(v * WT);
+    int x0 = (int)u, y0 = (int)v, x1 = min(WT - 1, x0 + 1), y1 = min(WT - 1, y0 + 1); float fx = u - x0, fy = v - y0;
+    int b = (int)(k % 6) * WT * WT;
+    float a0 = lerp(wave[b + y0 * WT + x0], wave[b + y0 * WT + x1], fx), a1 = lerp(wave[b + y1 * WT + x0], wave[b + y1 * WT + x1], fx);
+    return lerp(a0, a1, fy);
+}
+// mode-E past the stored octaves: Newton on z^3 - K, then cellular octaves that subdivide as the zoom rises
+float wcell(float x, float y, float freq, float seed)
+{
+    float sx = x * freq, sy = y * freq, gx = floor(sx), gy = floor(sy), d1 = 9;
+    for (int oy = -1; oy <= 1; oy++) for (int ox = -1; ox <= 1; ox++)
+    {
+        float cx = gx + ox, cy = gy + oy;
+        float fx = frac(sin((cx + seed) * 127.1 + cy * 311.7) * 43758.5453), fy = frac(sin(cx * 127.1 + (cy + seed + 19.3) * 311.7) * 43758.5453);
+        float dx = cx + fx - sx, dy = cy + fy - sy; d1 = min(d1, dx * dx + dy * dy);
+    }
+    return min(1, sqrt(d1));
+}
+float wmodeE(float X0, float Y0, float zoom, float seed, float kb, float ang)
+{
+    float K = 3 + kb * 2.4, ca = cos(ang), sa = sin(ang), X = X0 * ca - Y0 * sa, Y = X0 * sa + Y0 * ca, wf = 1.3 + log2(max(1, zoom)) * 0.05, ph = seed * 6.2832;
+    float zr = X + 0.22 * sin(Y * wf + ph), zi = Y + 0.22 * cos(X * wf - ph); int it = 0;
+    for (; it < 12; it++)
+    {
+        float r2 = zr * zr - zi * zi, i2 = 2 * zr * zi, r3 = r2 * zr - i2 * zi, i3 = r2 * zi + i2 * zr;
+        float fr = r3 - K, fi = i3, dr = 3 * r2, di = 3 * i2, den = dr * dr + di * di + 1e-9;
+        float qr = (fr * dr + fi * di) / den, qi = (fi * dr - fr * di) / den; zr -= qr; zi -= qi;
+        if (qr * qr + qi * qi < 1e-6) break;
+    }
+    float bi = atan2(zi, zr) > 0 ? 1 : 0, c = 0, amp = 1, f = max(1, zoom) * 0.5, tot = 0;
+    for (int oc = 0; oc < 4; oc++) { c += amp * wcell(X0, Y0, f, bi); tot += amp; amp *= 0.5; f *= 3.16227766; }
+    return (0.4 + 0.6 * (it / 24.0)) * (0.45 + 0.9 * pow(c / tot, 0.55));
+}
+float woctave(float3 p, uint key, uint k)
+{
+    float sum = 0;
+    for (uint pl = 0; pl < 3; pl++)
+    {
+        float u = pl == 0 ? p.x : pl == 1 ? p.y : p.z, v = pl == 0 ? p.y : pl == 1 ? p.z : p.x;
+        float a = wh01(key + pl * 31u, k) * 6.2832, c = cos(a), s = sin(a);
+        float uu = u * c - v * s + wh01(key + pl * 31u, k + 97u) * 37, vv = u * s + v * c + wh01(key + pl * 31u, k + 191u) * 41;
+        if (k < (uint)WSTORED) sum += wtile(k + pl, uu * 0.02, vv * 0.02);
+        else sum += (wmodeE(fmod(uu * 0.02, 3) - 1.5, fmod(vv * 0.02, 3) - 1.5, exp2(k - WSTORED + 1), wh01(key, k + 5u), wh01(key, k + 7u), wh01(key, k + 9u) * 6.28) - 0.75) * 1.4;
+    }
+    return sum / 3;
+}
+// octaves from frequency f0, each twice as fine and gain as strong, as fine as maxF (the finest the pixel can show), the
+// finest fading in, never switching
+float woctaves(float3 p, uint key, float f0, float amp0, float gain, float maxF)
+{
+    float sum = 0, amp = amp0, f = f0;
+    for (uint k = 0; k < 40; k++)
+    {
+        float fine = maxF / f; if (fine < 0.5) break;
+        sum += min(1, fine - 0.5) * amp * woctave(p * f, key, k);
+        amp *= gain; f *= 2;
+    }
+    return sum;
+}
 StructuredBuffer<V> verts : register(t0);
 struct VO { float4 pos : SV_Position; float3 wp : TEXCOORD0; float4 col : COLOR0; float glow : TEXCOORD1; float4 sn : TEXCOORD2; };
 
@@ -82,6 +151,24 @@ float4 PS(VO i) : SV_Target
         float a = (pow(edge, 3) * 1.1 + 0.08) * day;
         return float4(i.col.rgb * a, 1);
     }
+    float3 stain = float3(1, 1, 1);
+    if (detB.w > 0.5)
+    {
+        // the grain's face, worked out here per pixel (never on the processor): its roughness from the waveform, as fine as
+        // this pixel can show, bending the light; its stains and cracks
+        float3 L = i.wp * detA.w + detA.xyz; uint key = asuint(detB.x);
+        float3 Ld = L / max(1e-9, length(L));
+        float fw = max(1e-12, length(fwidth(Ld))), maxF = 0.5 / fw;
+        float h = woctaves(Ld, key, 2.5, 0.16, 0.5, maxF) * detB.y;                  // in view units
+        float3 dpdx = ddx(i.wp), dpdy = ddy(i.wp); float dhx = ddx(h), dhy = ddy(h);
+        float3 r1 = cross(dpdy, n), r2 = cross(n, dpdx); float det = dot(dpdx, r1);
+        if (abs(det) > 1e-20) n = normalize(abs(det) * n - sign(det) * (dhx * r1 + dhy * r2));
+        float lim = min(maxF * 0.8, 5e5);
+        float iron = woctaves(Ld, key * 7u + 300u, 2.0, 1, 0.6, lim), clay = woctaves(Ld + float3(9, 0, -4), key * 7u + 400u, 2.0, 1, 0.6, lim);
+        float crk = woctaves(Ld * 1.7, key * 7u + 500u, 2.0, 1, 0.6, lim), dark = clamp(0.5 - abs(crk) * 3, 0, 0.6);
+        float ir = clamp(iron / 2.4 * 2.4 - 0.15, 0, 0.6), cl = clamp(clay / 2.4 * 2.4 - 0.2, 0, 0.5);
+        stain = float3(1 + ir * 0.25 + cl * 0.3, 1 - ir * 0.35 + cl * 0.3, 1 - ir * 0.55 + cl * 0.25) * (1 - dark);
+    }
     float sun = saturate(dot(n, light.xyz));
     float lit = 0.5 + 0.5 * sun;                                  // a god sees by night: the night side is about half as bright, never black
     float3 sc = sunCol.a > 0 ? sunCol.rgb : float3(1, 1, 1), nc = sunCol.a > 0 ? nightCol.rgb : float3(0.5, 0.5, 0.5);
@@ -93,6 +180,7 @@ float4 PS(VO i) : SV_Target
     }
     float gl = max(i.glow, 0);
     float3 c = misc.z > 1.5 && misc.z < 2.5 ? i.col.rgb * max(lit, gl) * sc : i.col.rgb * max(lit3, gl);
+    c *= stain;
     float alpha = misc.z > 1.5 ? i.col.a : 1;
     if (misc.z < 0.5 && i.col.a < 0.995)
     {
@@ -229,6 +317,8 @@ float4 PS(VO i) : SV_Target
         private readonly SetPsoFn _pso; private readonly SetRootSigFn _rs; private readonly SetConstantsFn _consts; private readonly SetRootSrvFn _srv;
         private readonly SetTopologyFn _topo; private readonly SetViewportsFn _vp; private readonly SetScissorsFn _sc; private readonly DrawInstancedFn _draw;
         private readonly IntPtr _list; private readonly MeshPipeline _pipe;
+        /// <summary>The stored waveforms on the card (Waveform.Upload), bound for every mesh draw.</summary>
+        public static ulong WaveAddress;
 
         public MeshDrawer(IntPtr commandList, MeshPipeline pipeline)
         {
@@ -247,6 +337,7 @@ float4 PS(VO i) : SV_Target
             _pso(_list, _pipe.Pipeline); _rs(_list, _pipe.RootSignature);
             _consts(_list, 0, BillboardPipeline.ConstantCount, constants, 0);
             _srv(_list, 1, buffer.GpuAddress);
+            if (WaveAddress != 0) _srv(_list, 2, WaveAddress);                          // the waveform, for detail worked out per pixel
             _topo(_list, 4);
             _vp(_list, 1, ref vp); _sc(_list, 1, ref r);
             _draw(_list, (uint)vertexCount, 1, 0, 0);

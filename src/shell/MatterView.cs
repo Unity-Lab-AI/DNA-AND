@@ -742,9 +742,11 @@ namespace DnaAnd.Shell
 
         // the patch of the grain's surface under you, as a fine lit mesh
         private readonly Dictionary<long, double[]> _patchCache = new Dictionary<long, double[]>(); private long _patchGrain = long.MinValue; private int _patchBudget;
-                private void GrainPatch(List<StarVertex> mesh, double s)
+                private readonly List<StarVertex> _patchMesh = new List<StarVertex>(); private long _patchKey; private double _patchGX, _patchGY, _patchGZ, _patchRad;
+        private void GrainPatch(List<StarVertex> mesh, double s)
         {
             long gi, gj; double gx, gy, gz, rad; FocusGrain(out gi, out gj, out gx, out gy, out gz, out rad);
+            _patchKey = gi; _patchGX = gx; _patchGY = gy; _patchGZ = gz; _patchRad = rad;
             var m = GrainMineral(gi, gj); if (m == null) return;
             if (_patchGrain != gi || _patchCache.Count > 600000) { _patchCache.Clear(); _patchGrain = gi; }
             // the grain's face as rings of detail round you: the finest grid under you, then rings each four times coarser out
@@ -776,9 +778,8 @@ namespace DnaAnd.Shell
                     if (!_patchCache.TryGetValue(key, out c))
                     {
                         if (_patchBudget-- <= 0) { hy[a, b] = 0; ok[a, b] = false; continue; }      // not worked out yet: next frame
-                        double y; bool o = GrainTop(gi, gj, gx, gy, gz, rad, _fx + atA(a), _fz + atB(b), step * 1.5, out y);
-                        float sr = 1, sg = 1, sb2 = 1;
-                        if (o) { double ex = atA(a) + _fx - gx, ey = y - gy, ez = atB(b) + _fz - gz, el = Math.Sqrt(ex * ex + ey * ey + ez * ez) + 1e-30; DnaAnd.Gen.GrainField.Stain(gi, ex / el, ey / el, ez / el, rad, step * 1.5, out sr, out sg, out sb2); }
+                        double y; bool o = GrainTop(gi, gj, gx, gy, gz, rad, _fx + atA(a), _fz + atB(b), Math.Max(step * 1.5, rad * 0.004), out y);   // the coarse shape here; the fine detail is the card's
+                        float sr = 1, sg = 1, sb2 = 1;                                     // (its stains too: worked out per pixel on the card)
                         c = new[] { y, o ? 1 : 0, sr, sg, sb2 }; _patchCache[key] = c;
                     }
                     hy[a, b] = c[0]; ok[a, b] = c[1] > 0; st[a, b, 0] = (float)c[2]; st[a, b, 1] = (float)c[3]; st[a, b, 2] = (float)c[4];
@@ -799,6 +800,7 @@ namespace DnaAnd.Shell
             float sh = FocusShade;
             double sink = Structured(m) ? AtomSpacing * 3 * Fade(s, AtomSpacing * 40, AtomSpacing * 22) : 0;   // under the atoms once they show
             var nrm = new float[N + 1, N + 1]; var occ = new float[N + 1, N + 1];
+            mesh = _patchMesh;                                                           // drawn on its own, with the card working out its detail
             for (int a = 0; a <= N; a++)
                 for (int b = 0; b <= N; b++)
                 {
@@ -1092,7 +1094,7 @@ namespace DnaAnd.Shell
 
         private void Build(double s, double time, List<StarVertex> solid, List<StarVertex> glow, List<StarVertex> mesh, bool overlay)
         {
-            _yOff = 0;
+            _yOff = 0; _patchMesh.Clear();                                                 // (the grain's face: made afresh each frame from its kept points)
             if (!_space && !_noGrains)
             {
                 long fgi, fgj; double fgx, fgy, fgz, frad, top; FocusGrain(out fgi, out fgj, out fgx, out fgy, out fgz, out frad);
@@ -1385,9 +1387,23 @@ namespace DnaAnd.Shell
                 mc[16] = Light[0]; mc[17] = Light[1]; mc[18] = Light[2]; mc[20] = 0; mc[21] = 0; mc[22] = 0; mc[25] = 0; mc[26] = 0;
                 pipes.Solid.Draw(_meshBuf, mesh.Count, mc, 0, 0, w, h);
             }
+            if (pipes != null && _patchMesh.Count > 0)
+            {
+                // the grain's face: its shape from the processor's coarse points, its detail and stains worked out per pixel on the
+                // card from where each pixel is on the grain (its own frame, radius 1)
+                var pc = new float[BillboardPipeline.ConstantCount];
+                for (int q = 0; q < 16; q++) pc[q] = c[q];
+                pc[16] = Light[0]; pc[17] = Light[1]; pc[18] = Light[2];
+                double sr = _scale / Math.Max(1e-30, _patchRad);
+                pc[40] = (float)((_fx - _patchGX) / _patchRad - _ex * sr); pc[41] = (float)((_fy - _yOff - _patchGY) / _patchRad - _ey * sr); pc[42] = (float)((_fz - _patchGZ) / _patchRad - _ez * sr); pc[43] = (float)sr;
+                pc[44] = BitConverter.ToSingle(BitConverter.GetBytes((uint)(_patchKey & 0xFFFFFFFF)), 0); pc[45] = (float)(_patchRad / Math.Max(1e-30, _scale)); pc[46] = 1; pc[47] = 1;
+                Put(_patchMesh, ref _patchArr, ref _patchBuf);
+                pipes.Solid.Draw(_patchBuf, _patchMesh.Count, pc, 0, 0, w, h);
+            }
         }
 
         private double _scale = TopKm; private Mat4 _lastView;
+        private StarVertex[] _patchArr = new StarVertex[0]; private UploadBuffer _patchBuf;
 
         /// <summary>Picks the grain or atom under the mouse (within about 24 pixels): the point you dive into eases to it.
         /// False if nothing is there.</summary>

@@ -11,7 +11,8 @@ namespace DnaAnd
     {
         static long _lastFrameT; static double _tuneMs;        // the GPU use: the last frame's time, and time since the detail was last nudged
 
-        private static ulong Seed;                 // this launch's universe (new each launch; --seed N plays one again)
+        private static ulong Seed;
+        private static UploadBuffer _waveBuf;                // the stored waveforms on the card (kept for the whole run)                 // this launch's universe (new each launch; --seed N plays one again)
         [STAThread]
         private static int Main(string[] args)
         {
@@ -133,6 +134,17 @@ namespace DnaAnd
                 pipeline = new BillboardPipeline(gpu.Device);
                 meshes = new MeshPipes(gpu, pipeline.RootSignature);
                 DnaAnd.Gen.PlanetTerrain.LoadFields(content);
+                {
+                    // the stored waveforms onto the card, once: the detail worked out per pixel reads them there
+                    var wd = DnaAnd.Core.Waveform.All(); var packed = new StarVertex[(wd.Length + 7) / 8];
+                    for (int q = 0; q < packed.Length; q++)
+                    {
+                        Func<int, float> at = k => q * 8 + k < wd.Length ? wd[q * 8 + k] : 0f;
+                        packed[q] = new StarVertex { X = at(0), Y = at(1), Z = at(2), Size = at(3), R = at(4), G = at(5), B = at(6), A = at(7) };
+                    }
+                    _waveBuf = new UploadBuffer(gpu.Device, (long)packed.Length * System.Runtime.InteropServices.Marshal.SizeOf(typeof(StarVertex)));
+                    _waveBuf.Write(packed, packed.Length); MeshDrawer.WaveAddress = _waveBuf.GpuAddress;
+                }
                 viewer = new SampleViewer(gpu, pipeline, meshes, content, Seed);
             }
             catch (Exception ex) { WriteLog("setup error · " + ex.Message); gpu.Dispose(); window.Close(); return 2; }
