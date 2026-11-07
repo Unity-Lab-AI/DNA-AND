@@ -53,3 +53,4 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 - Maths: `src/core/MathCore.cs` has vectors, matrices, our own random numbers (SplitMix64 and xoshiro256**) and value noise.
 - Content: `Content.cs` loads the `.dnat` files.
 - Precision: positions are kept relative to whatever the camera is centred on, in double precision. The camera is built from its direction and then moved out, so it stays exact from galaxy size down to a micrometre.
+- Decay before your eyes (DESIGN 583): `content/elements.dnat` half-life and decays; MatterView.SetClock (the universe's clock each frame), Daughter/DaughterOf (each atom's own moment by its hash and half-life), DecayFlash (the particle flying out), the cards' half-life lines.

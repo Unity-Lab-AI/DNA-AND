@@ -57,7 +57,7 @@ Everything here starts from real science and real life. The game builds every on
 
 | | What it is |
 |---|---|
-| **Mercury** | Smallest planet, closest to the Sun, almost no air, has a magnetic field |
+| **Mercury** | Smallest planet, closest to our own star, almost no air, has a magnetic field |
 | **Venus** | About 96% carbon dioxide air, about 460 °C at the surface, no magnetic field |
 | **Earth** | Plate tectonics, a magnetic field, oceans and life |
 | **Mars** | Thin carbon dioxide air, polar ice caps, no global magnetic field |
@@ -128,7 +128,7 @@ Everything here starts from real science and real life. The game builds every on
 | **Jupiter** | The biggest planet, the Great Red Spot, dozens of moons |
 | **Saturn** | The great ring system, helium rain, dozens of moons |
 | **Uranus** | Spins on its side |
-| **Neptune** | The farthest planet from the Sun, with the fastest winds |
+| **Neptune** | The farthest planet from our own star, with the fastest winds |
 
 **How it works in the game:**
 

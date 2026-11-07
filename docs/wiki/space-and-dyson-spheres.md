@@ -77,7 +77,7 @@ Your galaxy is full of more than stars and planets. Every one of these is genera
 | 41 | **Emission nebula** | Glowing gas lit by young stars |
 | 42 | **Reflection nebula** | Dust reflecting starlight |
 | 43 | **Dark nebula** | Dust so thick it blocks the stars behind |
-| 44 | **Planetary nebula** | The shell a dying Sun-like star throws off |
+| 44 | **Planetary nebula** | The shell a dying one-solar-mass star throws off |
 | 45 | **Supernova remnant** | The expanding wreck of an exploded star |
 | 46 | **Star-forming cloud** | Cold gas collapsing into new stars |
 | 47 | **Molecular cloud** | Cold cloud rich in molecules |
@@ -127,7 +127,7 @@ Your galaxy is full of more than stars and planets. Every one of these is genera
 | 76 | **Neutron star** | A city-sized crushed star |
 | 77 | **Pulsar** | A spinning neutron star with beams |
 | 78 | **Magnetar** | A neutron star with a huge magnetic field |
-| 79 | **White dwarf** | The leftover core of a Sun-like star |
+| 79 | **White dwarf** | The leftover core of a one-solar-mass star |
 | 80 | **Wormhole** | A shortcut through space, opened by a god's power |
 
 ### 💥 Events (81–90)

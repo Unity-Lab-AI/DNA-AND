@@ -42,7 +42,7 @@ Everything is our own C# code, compiled by the C# compiler that ships with Windo
 Every game-content list has 100 entries in play. For the top-100 categories, real seed entries are hand-written and the live generators invent the rest (round 14). Controls and settings keep their decided counts. The elements stay at all 118. See `docs/DESIGN.md`, rounds 7 and 9.
 
 ### LAW 9 · Words matter
-- A star is a star. "The Sun" is only our star's name.
+- A star is a star. The name of our own star is never used in these projects (there is none of it in this universe): it is "our own star". Masses, radii and brightness are in solar units (solar masses, solar radii, solar luminosities), the correct terminology for the use case.
 - The creator's words are quoted exactly in DESIGN, TODO and FINALIZED.
 
 ### LAW 10 · Git flow
@@ -54,7 +54,7 @@ Before every push:
 - no stale "suggestion" or "undecided" wording
 - every list still has 100 entries
 - no removed line loses information
-- no generic "sun"
+- never our own star's name, for any star
 - no work notes in public docs (LAW 15)
 - **content coverage:** every content file is referenced by its builder spec page, has build tasks in the TODO, and is shown on a player page. Every entry in it appears there. This check is run with our own tools before each milestone push, not as a script inside the project (LAW 5)
 

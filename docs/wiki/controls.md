@@ -29,13 +29,10 @@
 | **I** or **C** | Go inside a Dyson sphere, or back out |
 | **M** | Inside a Dyson sphere: the view from the middle, beside its star |
 | **Space** | Pause / unpause |
-| **, .** | Time slower and faster: real time, a minute, an hour, a day, a week or a month a second, a year in 20 seconds, a year or ten years a second (also the Time menu) |
+| **, .** | Time slower and faster: real time, a minute, an hour, a day, a week or a month a second, a year in 20 seconds, a year or ten years a second (also the Time menu, which has the Gravity switch too) |
 | **1 – 5** | Time speeds (1×, 10×, 100×, 1,000×, max) |
 | **H** | The scale bar and the information cards, on or off |
-| **T** / **R** | The grand tour, from the cosmic web to a quark: start or carry on / start again |
-| **B** | Among atoms: glide across the bond to the next atom |
-| **F12** / **F9** | A screenshot / start or stop a clip (View > Clip size) |
-| **T** / **R** | The grand tour, from the cosmic web to a quark: start or carry on / start again |
+| **T** / **R** | The grand tour, from the cosmic web to a quark, ending with how much of the universe it reached: start or carry on / start again |
 | **B** | Among atoms: glide across the bond to the next atom |
 | **F12** / **F9** | A screenshot / start or stop a clip (View > Clip size) |
 | **Esc** | Menu |

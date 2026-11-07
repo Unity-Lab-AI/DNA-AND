@@ -791,3 +791,8 @@ Every finished item of `docs/TODO.md`, moved here word for word with the section
 
 - [x] **The Universe's own .claude and workflow files, the ledgers proper to each project:** (DESIGN 575) "yeas the Universe need its own .claude and its own files in it file directory within the danand project" / "so pull the ual repo templet and buuild it all out correctly while kiiping its docs intact" / "not over write existing shit" / "and propelry finalize all the nuniverse todo work weve done in finalizxed makeing sure the todo is only certified still open items" / "proper to each project". Files: `Universe/.claude/`, `Universe/.gitignore`, `Universe/docs/{DESIGN,ROADMAP,TODO,FINALIZED,DECOMPOSED,WORK-LAWS}.md`, `Universe/wiki/`, `universe-sync.cmd`, `docs/ROADMAP.md`, `docs/HOW-TO-BUILD.md`, `docs/TODO.md`, `docs/FINALIZED.md`, `wiki/log.md`.
 
+## 2026-11-07 — The word swept out, the ledgers and the code checked
+
+- [x] **Our own star's name swept out everywhere, the units kept as solar units:** (DESIGN 578) "suns its in stellar units.. how many times do i have to tell you we do not use the fucking word"Sun" in these projects!" / "common solar mass mass teminology thats correct" / "for the use case" / "make sure ALL the docs are correct too"
+- [x] **Superseded items checked, duplicated code from reran scripts cut back:** (DESIGN 586) "remenbr some of those todo work have been super ceded like stick boinds and shit" / "make sure no other script as duplicated code too once all ive said already is complete first"
+
