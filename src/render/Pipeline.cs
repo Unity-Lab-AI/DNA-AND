@@ -32,6 +32,8 @@ cbuffer C : register(b0)
     float4 misc;    // x time, y size scale, z style (0 glow, otherwise faceted)
     float4 screen;  // x width, y height (of this tile, in pixels), z minimum size per unit of distance, w maximum (0: none)
     float4 extra;   // x: how much dimmer (0 full bright, 1 gone), so things fade in and out, never switch
+    float4 lensA;   // a black hole's light bending: xy where it is on screen (-1..1), z its Einstein ring (same units, up the screen), w its distance
+    float4 lensB;   // x: width over height of the screen
 };
 struct Star { float3 pos; float size; float4 color; };
 StructuredBuffer<Star> stars : register(t0);
@@ -49,6 +51,19 @@ VO VS(uint vid : SV_VertexID, uint iid : SV_InstanceID)
     float3 world = s.pos + (right.xyz * c.x + up.xyz * c.y) * size;
     VO o;
     o.pos = mul(float4(world, 1), viewProj);
+    if (lensA.z > 0 && cc0.w > lensA.w)
+    {
+        // light passing a black hole is bent toward it by its mass (general relativity): what is behind it shows moved outward,
+        // by the lens equation theta' = (theta + sqrt(theta^2 + 4 thetaE^2)) / 2, its Einstein ring thetaE from the mass and distance
+        float2 ndc = cc0.xy / cc0.w, d = ndc - lensA.xy; d.x *= lensB.x;
+        float r = length(d);
+        if (r > 1e-6)
+        {
+            float r2 = (r + sqrt(r * r + 4 * lensA.z * lensA.z)) * 0.5;
+            float2 nd = d / r * r2; nd.x /= lensB.x;
+            o.pos.xy += (lensA.xy + nd - ndc) * o.pos.w;
+        }
+    }
     o.uv = c;
     o.col = s.color * (1 - extra.x);
     return o;

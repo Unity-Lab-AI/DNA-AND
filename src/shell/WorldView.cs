@@ -263,9 +263,9 @@ namespace DnaAnd.Shell
         // each galaxy's heart; stellar black holes, neutron stars and rogue planets among a galaxy's stars; stars and rogue
         // planets between the galaxies; asteroids, Kuiper-belt bodies and Oort-cloud comets round a star ──
         private sealed class Place { public string Id, Name, Where, Entry, Says; public double PerLy3, SizeKm; public int Shown; public float R, G, B; }
-        private sealed class Extra { public double X, Y, Z, R; public string Name; public List<string> Lines; public float Cr, Cg, Cb; }
+        private sealed class Extra { public double X, Y, Z, R, Mass; public string Name; public List<string> Lines; public float Cr, Cg, Cb; public bool Hole; }
         private List<Place> _places; private readonly List<Extra> _extras = new List<Extra>(); private string _extraKey = "";
-        private UploadBuffer _extraBuf; private StarVertex[] _extraV = new StarVertex[0];
+        private UploadBuffer _extraBuf; private StarVertex[] _extraV = new StarVertex[0]; private readonly float[] _lens = new float[4];
         private void LoadPlaces()
         {
             _places = new List<Place>(); var ci = System.Globalization.CultureInfo.InvariantCulture; var fs = System.Globalization.NumberStyles.Float;
@@ -285,7 +285,26 @@ namespace DnaAnd.Shell
             var en = pl.Entry.Split(' ');
             if (en.Length == 2) foreach (var e in _content.Entries) if (e.Kind == en[0] && e.Id == en[1])
             {
-                if (e.Props.ContainsKey("mass-sol")) ex.Lines.Add("mass: " + e.Get("mass-sol", "") + " Suns");
+                if (e.Props.ContainsKey("mass-sol"))
+                {
+                    // its own mass, from the range its kind has (spread evenly in scale), from its place
+                    var rr = e.Get("mass-sol", "").Split(new[] { ".." }, StringSplitOptions.None); double lo, hi; var ci2 = System.Globalization.CultureInfo.InvariantCulture;
+                    if (rr.Length >= 1 && double.TryParse(rr[0], System.Globalization.NumberStyles.Float, ci2, out lo))
+                    {
+                        if (rr.Length < 2 || !double.TryParse(rr[1], System.Globalization.NumberStyles.Float, ci2, out hi)) hi = lo * 10;
+                        double u = Math.Abs(Math.Sin(x * 12.9898 + y * 78.233 + z * 37.719) * 43758.5453) % 1;
+                        ex.Mass = Math.Exp(Math.Log(lo) + (Math.Log(hi) - Math.Log(lo)) * u);
+                    }
+                    ex.Lines.Add("mass: " + (ex.Mass > 0 ? ex.Mass.ToString(ex.Mass >= 1e4 ? "0.##E+0" : "0.#") : e.Get("mass-sol", "")) + " Suns");
+                }
+                if (e.Kind == "blackhole" && ex.Mass > 0)
+                {
+                    // a black hole is its mass: its event horizon the Schwarzschild radius 2GM/c^2 (2.95 km a Sun), the shadow round it
+                    // about 2.6 times that, the photon ring where light circles it
+                    ex.Hole = true; double rs = 2.953 * ex.Mass; ex.R = Units.Km(rs * 2.6);
+                    ex.Lines.Add("event horizon (Schwarzschild radius): " + ScaleHud.Words(rs) + " across " + ScaleHud.Words(rs * 2));
+                    ex.Lines.Add("its shadow: about " + ScaleHud.Words(rs * 5.2) + " across; light circles it at 1.5 times the horizon");
+                }
                 if (e.Props.ContainsKey("made-by")) ex.Lines.Add("made by: " + e.Get("made-by", ""));
                 if (e.Props.ContainsKey("example")) ex.Lines.Add("for example: " + e.Get("example", ""));
                 break;
@@ -1644,7 +1663,7 @@ namespace DnaAnd.Shell
                 // the rest of the universe's galaxies, a glow along the cosmic web (remade without the near ones as you move far)
                 if (double.IsNaN(_glowAtX) || (_glowAll == null && _glowReady != null) || Math.Abs(_cx - _glowAtX) + Math.Abs(_cy - _glowAtY) + Math.Abs(_cz - _glowAtZ) > _nearUnits * 0.25) MakeGlow();
                 var gm = Mat4.Identity; gm.M41 = (float)-_cx; gm.M42 = (float)-_cy; gm.M43 = (float)-_cz;
-                DrawPoints(_glowBuf, _glowCount, gm * vp, right, up, 1f, 0.0012f, w, h, time, 0.004f, 3.2f);   // each a galaxy at its true size (a pinpoint from afar), faint, so the web shows where they crowd
+                DrawPoints(_glowBuf, _glowCount, gm * vp, right, up, 1f, 0.0012f, w, h, time, 0.004f, 3.2f, 0f);   // each a galaxy at its true size (a pinpoint from afar), faint, so the web shows where they crowd
             }
             for (int i = 0; i < _galaxies.Count; i++)
             {
@@ -1666,7 +1685,7 @@ namespace DnaAnd.Shell
                 double gdx = g.X - _cx, gdy = g.Y - _cy, gdz = g.Z - _cz, gd = Math.Max(1e-9, Math.Sqrt(gdx * gdx + gdy * gdy + gdz * gdz));
                 double gpx = g.Scale / gd * h / (2 * Math.Tan(0.45)), dotPx = Math.Max(1.5, 0.0016 * h);
                 float crowd = (float)Math.Max(0.06, Math.Min(1, Math.PI * gpx * gpx / (count * dotPx * dotPx) * 1.2)) * nearF;   // a visible soft smudge in its own colours from afar: never a white blot, never gone
-                DrawPoints(buf, count, Placement(g) * vp, right, up, 0.006f * g.Scale * shrink * glow, 0.0016f, w, h, time, 0.012f, crowd);
+                DrawPoints(buf, count, Placement(g) * vp, right, up, 0.006f * g.Scale * shrink * glow, 0.0016f, w, h, time, 0.012f, crowd, InsideShare() > 0.5 && i == _near ? 2f : 0f);   // a galaxy's stars from afar are soft glows that add up to its light (hard discs would merge into a white outline); among them, points
             }
             double inside = InsideShare();
             {
@@ -1683,10 +1702,25 @@ namespace DnaAnd.Shell
                 }
             }
             UpdateExtras();
+            {
+                // the black hole that bends the most light on screen: its Einstein ring, sqrt(2 Rs / distance) radians (light from far
+                // behind it), set for every point drawn
+                _lens[2] = 0; double bestE = 0;
+                foreach (var ex in _extras)
+                {
+                    if (!ex.Hole) continue; double dx = (ex.X - _ax) - _ox, dy = (ex.Y - _ay) - _oy, dz = (ex.Z - _az) - _oz, d = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+                    double rs = Units.Km(2.953 * ex.Mass), thE = Math.Sqrt(2 * rs / Math.Max(d, rs)); if (thE < bestE) continue;
+                    var cl = new float[4]; float px0 = (float)dx, py0 = (float)dy, pz0 = (float)dz;
+                    float cx0 = px0 * vp.M11 + py0 * vp.M21 + pz0 * vp.M31 + vp.M41, cy0 = px0 * vp.M12 + py0 * vp.M22 + pz0 * vp.M32 + vp.M42, cw0 = px0 * vp.M14 + py0 * vp.M24 + pz0 * vp.M34 + vp.M44;
+                    if (cw0 <= 0) continue;
+                    bestE = thE; _lens[0] = cx0 / cw0; _lens[1] = cy0 / cw0; _lens[2] = (float)(thE / Math.Tan(0.45)); _lens[3] = cw0;
+                }
+            }
             if (_extras.Count > 0)
             {
                 if (_extraV.Length < _extras.Count) _extraV = new StarVertex[_extras.Count + 256];
-                for (int q = 0; q < _extras.Count; q++) { var ex = _extras[q]; _extraV[q] = new StarVertex { X = (float)((ex.X - _ax) - _ox), Y = (float)((ex.Y - _ay) - _oy), Z = (float)((ex.Z - _az) - _oz), Size = (float)ex.R, R = ex.Cr, G = ex.Cg, B = ex.Cb, A = 1 }; }
+                for (int q = 0; q < _extras.Count; q++) { var ex = _extras[q]; if (ex.Hole) { _extraV[q] = new StarVertex { X = (float)((ex.X - _ax) - _ox), Y = (float)((ex.Y - _ay) - _oy), Z = (float)((ex.Z - _az) - _oz), Size = (float)(ex.R * 3), R = ex.Cr * 0.7f, G = ex.Cg * 0.7f, B = ex.Cb * 0.7f, A = 1 }; continue; }   // its glowing disc and photon ring; the middle stays dark (bent light)
+                    _extraV[q] = new StarVertex { X = (float)((ex.X - _ax) - _ox), Y = (float)((ex.Y - _ay) - _oy), Z = (float)((ex.Z - _az) - _oz), Size = (float)ex.R, R = ex.Cr, G = ex.Cg, B = ex.Cb, A = 1 }; }
                 if (_extraBuf == null || _extraBuf.Bytes < (long)_extras.Count * Stride) { if (_extraBuf != null) _extraBuf.Dispose(); _extraBuf = new UploadBuffer(_gpu.Device, (long)(_extras.Count + 256) * Stride); }
                 _extraBuf.Write(_extraV, _extras.Count);
                 DrawPoints(_extraBuf, _extras.Count, vp, right, up, 1f, 0.0024f, w, h, time);
@@ -1850,7 +1884,7 @@ namespace DnaAnd.Shell
         }
 
         private float _sky = 1;                                                           // how much of space shows behind (fades away at the very small)
-        private void DrawPoints(UploadBuffer buf, int count, Mat4 vp, Vec3 right, Vec3 up, float sizeScale, float minSize, int w, int h, double time, float maxSize = 0, float bright = 1)
+        private void DrawPoints(UploadBuffer buf, int count, Mat4 vp, Vec3 right, Vec3 up, float sizeScale, float minSize, int w, int h, double time, float maxSize = 0, float bright = 1, float style = 2)
         {
             if (buf == null || count <= 0) return;
             float b = bright * _sky; if (b <= 0.003f) return;
@@ -1858,7 +1892,8 @@ namespace DnaAnd.Shell
             c[0] = vp.M11; c[1] = vp.M12; c[2] = vp.M13; c[3] = vp.M14; c[4] = vp.M21; c[5] = vp.M22; c[6] = vp.M23; c[7] = vp.M24;
             c[8] = vp.M31; c[9] = vp.M32; c[10] = vp.M33; c[11] = vp.M34; c[12] = vp.M41; c[13] = vp.M42; c[14] = vp.M43; c[15] = vp.M44;
             c[16] = right.X; c[17] = right.Y; c[18] = right.Z; c[20] = up.X; c[21] = up.Y; c[22] = up.Z;
-            c[24] = (float)time; c[25] = sizeScale; c[26] = 2; c[27] = 4; c[28] = w; c[29] = h; c[30] = minSize; c[31] = maxSize; c[32] = 1 - Math.Min(1, b);
+            c[24] = (float)time; c[25] = sizeScale; c[26] = style; c[27] = 4; c[28] = w; c[29] = h; c[30] = minSize; c[31] = maxSize; c[32] = 1 - Math.Min(1, b);
+            c[36] = _lens[0]; c[37] = _lens[1]; c[38] = _lens[2]; c[39] = _lens[3]; c[40] = w / (float)Math.Max(1, h);
             _dots.Draw(buf, count, c, 0, 0, w, h);
         }
 
@@ -2023,8 +2058,16 @@ namespace DnaAnd.Shell
             }
             else if (_tKind == 6 && _tIndex >= 0 && _tIndex < _extras.Count)
             {
-                foreach (var ln in _extras[_tIndex].Lines) L.Add(ln);
+                var exk = _extras[_tIndex]; foreach (var ln in exk.Lines) L.Add(ln);
                 L.Add("distance: " + Units.Describe(dist));
+                if (exk.Mass > 0)
+                {
+                    // its pull where you are, falling with the square of the distance; the speed you would need to get away
+                    double rM = Math.Max(1, (dist + exk.R) / Units.Km(1) * 1000), gm = 1.32712e20 * exk.Mass;   // metres; G times its mass
+                    double g = gm / (rM * rM), vesc = Math.Sqrt(2 * gm / rM);
+                    L.Add("its pull here: " + (g >= 0.01 ? g.ToString("0.###") : g.ToString("0.##E+0")) + " m/s2 (" + (g / 9.81).ToString(g / 9.81 >= 0.01 ? "0.###" : "0.##E+0") + " of Earth's)");
+                    L.Add("escape speed here: " + (vesc >= 2.998e8 ? "faster than light: inside, nothing gets out" : (vesc / 1000).ToString("N0") + " km/s (" + (vesc / 2.998e8 * 100).ToString("0.###") + "% of light)"));
+                }
             }
             else if (_tKind == 4 && _system != null)
             {
