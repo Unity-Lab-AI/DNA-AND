@@ -19,7 +19,7 @@ caption: A galaxy
 
 @stop to-galaxy
 do: zoom
-rate: 0.3
+rate: 0.4
 until-km: 1.5e18
 caption: We fall toward one galaxy among a hundred billion
 
@@ -27,14 +27,14 @@ caption: We fall toward one galaxy among a hundred billion
 do: arc
 rate: 0.03
 until-km: 8e17
-turn: 2.5
-seconds: 12
+turn: 3
+seconds: 10
 caption: A hundred billion stars round a giant black hole
 
 @stop into-galaxy
 do: zoom
 rate: 0.3
-until-km: 3e16
+until-km: 1e16
 caption: Into it: the glow breaks into stars, each a sun
 
 @stop choose-star
@@ -44,15 +44,49 @@ caption: A star
 
 @stop into-system
 do: zoom
-rate: 0.45
+rate: 0.6
 until-km: 3e9
 caption: One star, and the worlds born round it
 
 @stop round-system
 do: orbit
-turn: 2.5
-seconds: 10
+turn: 3
+seconds: 8
 caption: Each world on its own tilted orbit
+
+@stop planet-1
+do: pick
+target: next-planet
+caption: One of its worlds
+
+@stop to-planet-1
+do: zoom
+rate: 0.5
+until-km: 1e5
+caption: Across to one of its worlds
+
+@stop round-planet-1
+do: orbit
+turn: 3
+seconds: 8
+caption: Round it: a world of its own make
+
+@stop star-2
+do: pick
+target: star
+caption: Another star
+
+@stop to-star-2
+do: zoom
+rate: 0.6
+until-km: 3e9
+caption: Across light-years to another star and its worlds
+
+@stop round-star-2
+do: orbit
+turn: 3
+seconds: 8
+caption: Another system, its worlds on their own orbits
 
 @stop choose-planet
 do: pick
@@ -69,13 +103,13 @@ caption: Down to one of its worlds
 do: arc
 rate: 0.03
 until-km: 1.5e4
-turn: 2.5
-seconds: 10
+turn: 3
+seconds: 8
 caption: Seas, land, clouds and a thin shell of air
 
 @stop to-land
 do: zoom
-rate: 0.35
+rate: 0.45
 until-km: 1.5
 caption: Down through the air to the land
 
@@ -106,8 +140,8 @@ caption: Look up
 
 @stop sky
 do: orbit
-turn: 2.5
-seconds: 8
+turn: 3
+seconds: 7
 caption: Our star, the other worlds, the galaxy's stars beyond
 
 @stop look-down
@@ -119,32 +153,32 @@ caption: And down: there is as much below us as above
 
 @stop to-grains
 do: zoom
-rate: 0.25
+rate: 0.3
 until-km: 2e-6
 caption: The ground breaks into stones, then grains of sand
 
 @stop to-face
 do: zoom
-rate: 0.25
+rate: 0.3
 until-km: 2e-9
 caption: Onto one grain, a crystal of one mineral
 
 @stop round-face
 do: orbit
 turn: 2.5
-seconds: 8
+seconds: 6
 caption: Its face: steps, cracks, clay plates, a film of water
 
 @stop to-crystal
 do: zoom
-rate: 0.25
+rate: 0.3
 until-km: 6e-12
 caption: Down to its atoms
 
 @stop round-crystal
 do: orbit
 turn: 2.5
-seconds: 8
+seconds: 6
 caption: Atoms in a pattern repeated billions of times
 
 @stop choose-atom
@@ -163,7 +197,7 @@ do: arc
 rate: 0.03
 until-km: 2.5e-13
 turn: 2.5
-seconds: 10
+seconds: 8
 caption: A tiny nucleus, its electrons round it on tilted paths
 
 @stop to-neighbour
@@ -249,5 +283,5 @@ caption: One quark
 @stop end
 do: orbit
 turn: 1.5
-seconds: 10
+seconds: 8
 caption: The smallest thing we know. The same universe at every scale

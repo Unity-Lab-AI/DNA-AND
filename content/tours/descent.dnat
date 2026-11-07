@@ -56,6 +56,28 @@ rate: 0.25
 until-km: 5e-13
 caption: atoms
 
+@stop atom
+do: pick
+target: atom
+caption: atom
+
+@stop to-atom
+do: zoom
+rate: 0.3
+until-km: 3e-13
+caption: to-atom
+
+@stop el
+do: pick
+target: electron
+caption: el
+
+@stop round-el
+do: orbit
+turn: 3
+seconds: 12
+caption: round-el
+
 @stop end
 do: orbit
 turn: 2
