@@ -15,6 +15,8 @@ namespace DnaAnd
         [STAThread]
         private static int Main(string[] args)
         {
+            // any crash, on any thread, is written to the log with where it happened, before the program goes
+            AppDomain.CurrentDomain.UnhandledException += (o, ev) => { try { System.IO.Directory.CreateDirectory("build"); System.IO.File.AppendAllText(System.IO.Path.Combine("build", "last-run.log"), "crash · " + ev.ExceptionObject + Environment.NewLine); } catch { } };
             // --smoke <ms>: a timed test run that closes itself after <ms> milliseconds.
             int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int openSet = 0; int openLook = 0; double testEvolve = 0; int testPlanet = -1; double clickAt = -1, clickX = 0.5, clickY = 0.5; double wheelFrom = -1, wheelFor = 0, backFrom = -1, backFor = 0; int pressKey = -1; double pressAt = -1; int testDyson = -1; bool testInside = false; int testJumps = 0; bool testFieldView = false; double testAlt = -1; double[] tour = null; int tourStep = 0; string tourName = "tour"; double shotAt = -1; string shotPath = null; int testSpeed = -1; double tryEvery = -1; int wheelEvery = 1; bool aimCentre = false; double journeyAt = -1, deepSince = -1; double clipAt = -1, clipFor = 10; string clipPath = null; DnaAnd.Render.GifWriter clip = null; int clipFrame = 0;
             for (int i = 0; i < args.Length; i++)
