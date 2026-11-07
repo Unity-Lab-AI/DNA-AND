@@ -917,3 +917,4 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **The sky caption says what is really up:** (built: DESIGN 465; waits on the test) "the look up to thew sky at human ground level inproprly says its star and other worlds when worlds are viewable and  no star is in the sky at the moment"
 - [~] **No circling at the gravel; frames at 5 mm:** (built: DESIGN 466; waits on the test) "at its hitting 5fps at 5mm pan and it should not pan at those zoom levels only when at atom level and there is shit to see besides gravel"
 - [~] **A click brings the window to the front:** (built: DESIGN 467; waits on the test) "when i click on the app it doesnt propelry bring it to top focus it starys behind other windows till i close them"
+- [~] **Stirred systems, worlds out of the plane:** (built: DESIGN 468; waits on the test) "are obits suppsoe to be in a flat plane thats not normal is it" / "no fix it dont leav e it"
