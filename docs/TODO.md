@@ -987,4 +987,5 @@ Order: galactic scale down, the same order as the sample sets.
 - [ ] **The Linux path run on a Linux desktop:** (waits on a Linux machine or a Linux user's report) "okay well make sure that path is real"
 - [x] **Clips at thirty frames a second and a clip's bit rate, half the size:** (DESIGN 536) "and wtf fuck are u using to make these clips 500 mb for minutes,, wtf are u using f2000 instead of f16 or something"
 - [x] **One clip per recording, packed by quality, never massive:** (DESIGN 537) "it should only make one clip as long as its recording and not a a gig file so use something appropriate that doesnt fuck our c/9 waveform into hevey picxel style files that are fucking massive"
+- [x] **A REC notice while recording, off the tape:** (DESIGN 538) "and ther should be a REC notice if recording liek carasvideos tapes have"
 
