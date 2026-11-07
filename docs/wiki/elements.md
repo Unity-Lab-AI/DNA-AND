@@ -6,12 +6,12 @@
 
 ---
 
-From your very first moment you can **add any element** to your world. What each one does in-game follows real chemistry.
+You can't add elements at the start. Each element **unlocks once the living things on your world first use it**: the chemistry of life first (carbon, hydrogen, nitrogen, oxygen, phosphorus, sulfur), metals as life and then civilization find uses for them, and lab-made elements once a civilization makes them. After that you can add it anywhere. What each one does in-game follows real chemistry.
 
 <!-- IMG: docs/img/periodic-table.png | The in-game periodic table panel: 118 glowing tiles colored by group, one tile lifted and glowing -->
 > 🖼️ *The in-game periodic table* — rendered by the game's own 3D generator
 
-> 💡 **Tip:** The big six of life are **C, H, N, O, P, S**. Start there.
+> 💡 **Tip:** The big six of life, **C, H, N, O, P, S**, are the first to unlock.
 
 🌡️ **Heat and pressure change them.** Every element melts and boils at its real temperature, and pressure moves its boiling point. In the periodic table you can turn the heat and pressure up and down and watch each one turn solid, liquid or gas.
 

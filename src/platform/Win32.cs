@@ -14,7 +14,7 @@ namespace DnaAnd.Platform
         public const uint WM_CLOSE = 0x0010;
         public const uint WM_QUIT = 0x0012;
         public const uint PM_REMOVE = 0x0001;
-        public const int SW_SHOW = 5, SW_SHOWNOACTIVATE = 4;
+        public const int SW_SHOW = 5, SW_SHOWNOACTIVATE = 4, SW_SHOWMAXIMIZED = 3;
         public const uint WS_EX_NOACTIVATE = 0x08000000;
         [DllImport("user32.dll")] public static extern int GetSystemMetrics(int index);
         public const int IDC_ARROW = 32512;

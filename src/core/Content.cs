@@ -9,6 +9,9 @@ namespace DnaAnd.Core
     {
         public string Kind, Id, File, Section;
         public readonly Dictionary<string, string> Props = new Dictionary<string, string>();
+        // every value of a key written more than once (a crystal's sites, one line each), in order
+        public readonly Dictionary<string, List<string>> Lists = new Dictionary<string, List<string>>();
+        public List<string> All(string key) { List<string> l; return Lists.TryGetValue(key, out l) ? l : new List<string>(); }
         public string Get(string key, string fallback) { string v; return Props.TryGetValue(key, out v) ? v : fallback; }
         public string Name { get { return Get("name", Id); } }
 
@@ -69,7 +72,11 @@ namespace DnaAnd.Core
                     continue;
                 }
                 int colon = line.IndexOf(':');
-                if (cur != null && colon > 0) cur.Props[line.Substring(0, colon).Trim()] = line.Substring(colon + 1).Trim();
+                if (cur != null && colon > 0)
+                {
+                    string k = line.Substring(0, colon).Trim(), v = line.Substring(colon + 1).Trim();
+                    cur.Props[k] = v; List<string> l; if (!cur.Lists.TryGetValue(k, out l)) cur.Lists[k] = l = new List<string>(); l.Add(v);
+                }
             }
         }
     }

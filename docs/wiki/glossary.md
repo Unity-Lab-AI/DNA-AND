@@ -92,7 +92,7 @@ Every highlighted word in the wiki links here. **100 terms**, A to Z.
 | <a id="stage"></a>🦠 **Stage** | One step in the story of life, like First Cells or Life on Land. There are 100. See [Stages of Life](stages-of-life.md). |
 | <a id="star"></a>⭐ **Star** | A burning ball of gas at the heart of a solar system. Ours is called the Sun. |
 | <a id="starlight"></a>✨ **Starlight** | Light from a star. Plants turn it into food. |
-| <a id="starter-toolkit"></a>🧰 **Starter toolkit** | What you have on day one: Fire, Cold, Water, Lightning, Spark of Life, adding genes and adding elements. |
+| <a id="starter-toolkit"></a>🧰 **Starter toolkit** | What you have on day one: Fire, Cold, Water and Lightning. Everything else is unlocked by life. |
 | <a id="stellar-flare"></a>🌞 **Stellar flare** | A burst from a star that fries technology. |
 | <a id="supernova"></a>💥 **Supernova** | An exploding star. |
 | <a id="swarm"></a>🦗 **Swarm** | A huge moving mass of small creatures. Step 18 on the grouping ladder. |

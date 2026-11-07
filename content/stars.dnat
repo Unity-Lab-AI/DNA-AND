@@ -1,5 +1,5 @@
 # DNA-AND content · stars
-# researched: Wikipedia "Stellar classification" (Morgan–Keenan system, luminosity classes, extended classes C, S, L, T, Y, D)
+# researched: Wikipedia "Stellar classification", plus each kind's own article for surface temperatures (Morgan–Keenan system, luminosity classes, extended classes C, S, L, T, Y, D)
 # Real seeds for the star generator, plus its rules.
 # Values are typical ranges from real astronomy. Spec: docs/CONTENT-FORMAT.md
 
@@ -8,8 +8,12 @@
 # radius-sol: real radius ranges in Sun radii (standard astronomy references, rounded); a red supergiant can be
 #   over 100,000 times wider than a neutron star, billions of times by volume.
 
+# surface-kind: how its face is drawn: giant (a few huge convection cells, as in Betelgeuse), brown-dwarf (banded clouds),
+#   white-dwarf (small, smooth), neutron-star (tiny), normal. spots: dark starspots (stars with deep convective layers: G, K, M
+#   and young T Tauri stars). remnant: what is left when a star dies (white dwarfs, neutron stars, pulsars, magnetars).
 @star o-type
 name: O-type blue star
+surface-kind: normal
 real: yes
 color: blue
 temp-k: 30000..50000
@@ -22,6 +26,7 @@ radius-sol: 6.6..15
 
 @star b-type
 name: B-type blue-white star
+surface-kind: normal
 real: yes
 color: blue-white
 temp-k: 10000..30000
@@ -34,6 +39,7 @@ radius-sol: 1.8..6.6
 
 @star a-type
 name: A-type white star
+surface-kind: normal
 real: yes
 color: white
 temp-k: 7500..10000
@@ -47,6 +53,7 @@ radius-sol: 1.4..1.8
 
 @star f-type
 name: F-type yellow-white star
+surface-kind: normal
 real: yes
 color: yellow-white
 temp-k: 6000..7500
@@ -59,6 +66,8 @@ radius-sol: 1.15..1.4
 
 @star g-type
 name: G-type yellow star
+surface-kind: normal
+spots: yes
 real: yes
 color: yellow
 temp-k: 5200..6000
@@ -72,6 +81,8 @@ radius-sol: 0.96..1.15
 
 @star k-type
 name: K-type orange star
+surface-kind: normal
+spots: yes
 real: yes
 color: orange
 temp-k: 3700..5200
@@ -84,6 +95,8 @@ radius-sol: 0.7..0.96
 
 @star m-type
 name: M-type red dwarf
+surface-kind: normal
+spots: yes
 real: yes
 color: red
 temp-k: 2400..3700
@@ -99,14 +112,18 @@ radius-sol: 0.1..0.7
 
 @star red-giant
 name: Red giant
+surface-kind: giant
 real: yes
 color: red-orange
 stage: late life of a Sun-like star
 tags: swollen, cool surface
 radius-sol: 10..100
+temp-k: 3300..5000
+share-of-stars: uncommon
 
 @star red-supergiant
 name: Red supergiant
+surface-kind: giant
 real: yes
 color: red
 stage: late life of a heavy star
@@ -114,82 +131,118 @@ example: Betelgeuse
 death: supernova
 tags: huge, cool surface
 radius-sol: 200..1500
+temp-k: 3400..4100
+share-of-stars: rarest
 
 @star blue-supergiant
 name: Blue supergiant
+surface-kind: giant
 real: yes
 color: blue
 example: Rigel
 death: supernova
 tags: huge, very bright
 radius-sol: 20..100
+temp-k: 10000..50000
+share-of-stars: rarest
 
 @star wolf-rayet
 name: Wolf-Rayet star
+surface-kind: normal
 real: yes
 color: blue
 stage: heavy star blowing off its outer layers
 tags: very hot, strong winds
 radius-sol: 1..20
+temp-k: 30000..200000
+share-of-stars: rarest
 
 # ── Young and failed stars ──
 
 @star protostar
 name: Protostar
+surface-kind: normal
 real: yes
 stage: a star still forming inside a gas cloud
 tags: young, hidden in dust
 radius-sol: 2..10
+temp-k: 2000..4000
+share-of-stars: rare
 
 @star t-tauri
 name: T Tauri star
+surface-kind: normal
+spots: yes
 real: yes
 stage: a young Sun-like star, not yet steady
 tags: young, flaring, variable
 radius-sol: 1.5..3
+temp-k: 3000..5000
+share-of-stars: rare
 
 @star brown-dwarf
 name: Brown dwarf
+surface-kind: brown-dwarf
 real: yes
 mass-jupiter: 13..80
 stage: too light to burn like a true star
 color: magenta-red
 tags: dim, failed star
 radius-sol: 0.08..0.12
+temp-k: 250..2800
+share-of-stars: common
 
 # ── Dead and strange stars ──
 
 @star white-dwarf
 name: White dwarf
+surface-kind: white-dwarf
+remnant: yes
 real: yes
 color: white
 stage: the leftover core of a Sun-like star
 tags: small, dense, cooling
 radius-sol: 0.008..0.02
+temp-k: 4000..40000
+share-of-stars: common
 
 @star neutron-star
 name: Neutron star
+surface-kind: neutron-star
+remnant: yes
 real: yes
 stage: the crushed core left by a supernova
 tags: tiny, extremely dense
 radius-sol: 0.000014..0.000017
+mass-sol: 1.17..2.35
+temp-k: 600000..1000000
+share-of-stars: rare
 
 @star pulsar
 name: Pulsar
+surface-kind: neutron-star
+remnant: yes
 real: yes
 stage: a spinning neutron star sweeping beams through space
 tags: spinning, beams, radiation
 radius-sol: 0.000014..0.000017
+temp-k: 600000..1000000
+share-of-stars: rarest
 
 @star magnetar
 name: Magnetar
+surface-kind: neutron-star
+remnant: yes
 real: yes
 stage: a neutron star with an enormous magnetic field
 tags: magnetic, star-quakes
 radius-sol: 0.000014..0.000017
+temp-k: 600000..1000000
+share-of-stars: rarest
 
 @star black-hole
 name: Stellar black hole
+surface-kind: normal
 real: yes
 stage: the collapsed core of a very heavy star
 tags: no light, swallows matter
@@ -197,10 +250,13 @@ radius-sol: 0.000004..0.00004
 
 @star cepheid
 name: Cepheid variable
+surface-kind: giant
 real: yes
 stage: a giant that swells and shrinks on a steady beat
 tags: pulsing, variable
 radius-sol: 20..200
+temp-k: 5500..6600
+share-of-stars: rarest
 
 # ── Luminosity classes (how bright for its type) ──
 
@@ -244,46 +300,67 @@ says: dimmer than a main-sequence star of the same color
 
 @star carbon-star
 name: Carbon star (class C)
+surface-kind: giant
 real: yes
 color: deep red
 says: a cool giant whose air is rich in carbon
 radius-sol: 100..400
+temp-k: 2500..3200
+share-of-stars: rarest
 
 @star s-type
 name: S-type star
+surface-kind: giant
 real: yes
 says: a cool giant between ordinary red giants and carbon stars
 radius-sol: 100..300
+temp-k: 2400..3500
+share-of-stars: rarest
 
 @star l-dwarf
 name: L-type brown dwarf
+surface-kind: brown-dwarf
 real: yes
 says: the warmest brown dwarfs, with metal-hydride clouds
 radius-sol: 0.08..0.12
+temp-k: 1300..2200
+share-of-stars: uncommon
 
 @star t-dwarf
 name: T-type brown dwarf
+surface-kind: brown-dwarf
 real: yes
 says: cooler brown dwarfs with methane in their air
 radius-sol: 0.08..0.12
+temp-k: 500..1300
+share-of-stars: uncommon
 
 @star y-dwarf
 name: Y-type brown dwarf
+surface-kind: brown-dwarf
 real: yes
 says: the coldest brown dwarfs, barely warmer than a planet
 radius-sol: 0.08..0.12
+temp-k: 250..500
+share-of-stars: rare
 
 @star rr-lyrae
 name: RR Lyrae variable
+surface-kind: normal
 real: yes
 says: an old pulsing star that brightens and dims in less than a day
 radius-sol: 4..6
+temp-k: 6100..7400
+share-of-stars: rare
 
 @star mira
 name: Mira variable
+surface-kind: giant
 real: yes
 says: a pulsing red giant that brightens and dims over months
 radius-sol: 200..400
+temp-k: 2500..3500
+share-of-stars: rare
 
 # ── Generator rules ──
 

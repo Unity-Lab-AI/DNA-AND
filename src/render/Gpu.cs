@@ -24,6 +24,8 @@ namespace DnaAnd.Render
 
         /// <summary>Set to a file path to save the next finished frame as a picture (.bmp). Only the game's own picture is saved.</summary>
         public string CaptureNext;
+        /// <summary>Set to copy the next finished frame into <see cref="Grabbed"/> (RGB bytes, top row first), for clips.</summary>
+        public bool GrabNext; public byte[] Grabbed;
 
         // per-frame calls, looked up once
         private D3D12.PresentFn _present; private D3D12.GetCurrentBackBufferIndexFn _getIndex;
@@ -42,7 +44,12 @@ namespace DnaAnd.Render
             Guid iid = D3D12.IID_IDXGIFactory2;
             Com.Check(D3D12.CreateDXGIFactory2(0, ref iid, out _factory), "CreateDXGIFactory2");
             iid = D3D12.IID_ID3D12Device;
-            Com.Check(D3D12.D3D12CreateDevice(IntPtr.Zero, D3D12.D3D_FEATURE_LEVEL_11_0, ref iid, out _device), "D3D12CreateDevice");
+            // the strongest graphics card in this computer: the one with the most video memory of its own (software ones skipped),
+            // so a laptop with two GPUs uses its real one; if none will do, Windows's own choice
+            IntPtr best = PickAdapter();
+            if (best == IntPtr.Zero || D3D12.D3D12CreateDevice(best, D3D12.D3D_FEATURE_LEVEL_11_0, ref iid, out _device) < 0)
+                Com.Check(D3D12.D3D12CreateDevice(IntPtr.Zero, D3D12.D3D_FEATURE_LEVEL_11_0, ref iid, out _device), "D3D12CreateDevice");
+            if (best != IntPtr.Zero) Com.Release(ref best);
 
             var qd = new D3D12.CommandQueueDesc { Type = D3D12.COMMAND_LIST_TYPE_DIRECT };
             iid = D3D12.IID_ID3D12CommandQueue;
@@ -121,12 +128,41 @@ namespace DnaAnd.Render
             {
                 for (int i = 0; i < 20; i++) Marshal.WriteByte(clear, i, 0);
                 Marshal.WriteInt32(clear, 0, (int)D3D12.DXGI_FORMAT_D32_FLOAT);
-                Marshal.WriteInt32(clear, 4, BitConverter.ToInt32(BitConverter.GetBytes(1f), 0));
+                Marshal.WriteInt32(clear, 4, BitConverter.ToInt32(BitConverter.GetBytes(0f), 0));   // reversed depth: far is 0
                 Guid iid = D3D12.IID_ID3D12Resource;
                 Com.Check(Com.Method<CreateCommittedResourceFn>(_device, 27)(_device, ref heap, 0, ref desc, D3D12.RESOURCE_STATE_DEPTH_WRITE, clear, ref iid, out _depth), "CreateCommittedResource(depth)");
             }
             finally { Marshal.FreeHGlobal(clear); }
             Com.Method<D3D12.CreateDepthStencilViewFn>(_device, 21)(_device, _depth, IntPtr.Zero, _dsv);
+        }
+
+        /// <summary>The graphics card in use, and its own video memory (MB), for the run log.</summary>
+        public string AdapterName = "Windows's choice"; public long AdapterMemoryMB;
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)] private delegate int EnumAdapters1Fn(IntPtr self, uint index, out IntPtr adapter);   // IDXGIFactory1, 12
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)] private delegate int GetDesc1Fn(IntPtr self, IntPtr desc);                         // IDXGIAdapter1, 10
+
+        private IntPtr PickAdapter()
+        {
+            IntPtr best = IntPtr.Zero; long bestMem = -1;
+            IntPtr desc = Marshal.AllocHGlobal(320);
+            try
+            {
+                for (uint i = 0; i < 16; i++)
+                {
+                    IntPtr ad;
+                    if (Com.Method<EnumAdapters1Fn>(_factory, 12)(_factory, i, out ad) < 0) break;
+                    if (Com.Method<GetDesc1Fn>(ad, 10)(ad, desc) < 0) { Com.Release(ref ad); continue; }
+                    long mem = Marshal.ReadInt64(desc, 272); int flags = Marshal.ReadInt32(desc, 304);
+                    string name = Marshal.PtrToStringUni(desc, 128).TrimEnd((char)0);
+                    if ((flags & 2) != 0 || mem <= bestMem) { Com.Release(ref ad); continue; }   // software, or weaker than one already found
+                    if (best != IntPtr.Zero) Com.Release(ref best);
+                    best = ad; bestMem = mem; AdapterName = name; AdapterMemoryMB = mem / (1024 * 1024);
+                }
+            }
+            catch { }
+            finally { Marshal.FreeHGlobal(desc); }
+            return best;
         }
 
         private IntPtr Rtv(uint i) { return new IntPtr(_rtvStart.ToInt64() + i * _rtvStep); }
@@ -155,25 +191,29 @@ namespace DnaAnd.Render
             IntPtr dsv = _dsv;
             _setRT(_list, 1, ref rtv, 0, ref dsv);
             _clear(_list, rtv, new[] { r, g, b, 1f }, 0, IntPtr.Zero);
-            _clearDepth(_list, _dsv, 1, 1f, 0, 0, IntPtr.Zero);
+            _clearDepth(_list, _dsv, 1, 0f, 0, 0, IntPtr.Zero);
+            if (!_timedStart) { _timedStart = true; StartTiming(); }
+            if (_timing) Com.Method<EndQueryFn>(_list, 53)(_list, _queryHeap, 2, 0);          // the card starts this frame's work
         }
+        private bool _timedStart;
 
         /// <summary>Clears the picture (and depth) again partway through a frame, to a new colour.</summary>
         public void ClearNow(float r, float g, float b)
         {
             _clear(_list, Rtv(_frameIndex), new[] { r, g, b, 1f }, 0, IntPtr.Zero);
-            _clearDepth(_list, _dsv, 1, 1f, 0, 0, IntPtr.Zero);
+            _clearDepth(_list, _dsv, 1, 0f, 0, 0, IntPtr.Zero);
         }
 
         /// <summary>Clears only the depth, so what is drawn next shows on top of everything drawn so far.</summary>
-        public void ClearDepth() { _clearDepth(_list, _dsv, 1, 1f, 0, 0, IntPtr.Zero); }
+        public void ClearDepth() { _clearDepth(_list, _dsv, 1, 0f, 0, 0, IntPtr.Zero); }
 
         /// <summary>Finishes the frame and shows it, synced to the monitor (vsync).</summary>
         public void EndFrame()
         {
-            string capture = CaptureNext; CaptureNext = null;
+            UploadBuffer.Collect();
+            string capture = CaptureNext; CaptureNext = null; bool grab = GrabNext; GrabNext = false;
             IntPtr readback = IntPtr.Zero; uint pitch = 0;
-            if (capture != null)
+            if (capture != null || grab)
             {
                 pitch = (uint)((Width * 4 + 255) & ~255);
                 readback = MakeReadback((long)pitch * Height);
@@ -191,12 +231,27 @@ namespace DnaAnd.Render
             var toPresent = new D3D12.TransitionBarrier { Resource = _backBuffers[_frameIndex], Subresource = 0xFFFFFFFF,
                 StateBefore = D3D12.RESOURCE_STATE_RENDER_TARGET, StateAfter = D3D12.RESOURCE_STATE_PRESENT };
             _barrier(_list, 1, ref toPresent);
+            if (_timing)
+            {
+                Com.Method<EndQueryFn>(_list, 53)(_list, _queryHeap, 2, 1);                   // ...and ends it
+                Com.Method<ResolveQueryDataFn>(_list, 54)(_list, _queryHeap, 2, 0, 2, _queryRead, 0);
+            }
             Com.Check(_close(_list), "CommandList.Close");
             _execute(_queue, 1, new[] { _list });
             Com.Check(_present(_swapChain, 1, 0), "Present");
             WaitForGpu();
+            if (_timing)
+            {
+                IntPtr data;
+                if (Com.Method<MapFn>(_queryRead, 8)(_queryRead, 0, IntPtr.Zero, out data) >= 0)
+                {
+                    long t0 = Marshal.ReadInt64(data, 0), t1 = Marshal.ReadInt64(data, 8);
+                    Com.Method<UnmapFn2>(_queryRead, 9)(_queryRead, 0, IntPtr.Zero);
+                    if (t1 > t0) GpuMs = (t1 - t0) * 1000.0 / _tsFreq;
+                }
+            }
             _frameIndex = _getIndex(_swapChain);
-            if (readback != IntPtr.Zero) { try { SaveBmp(readback, pitch, capture); } finally { Com.Release(ref readback); } }
+            if (readback != IntPtr.Zero) { try { if (capture != null) SaveBmp(readback, pitch, capture); if (grab) Grabbed = Rgb(readback, pitch); } finally { Com.Release(ref readback); } }
         }
 
         [StructLayout(LayoutKind.Sequential)] private struct HeapProps { public int Type, CpuPage, Pool; public uint CreateMask, VisibleMask; }
@@ -219,6 +274,18 @@ namespace DnaAnd.Render
             Guid iid = D3D12.IID_ID3D12Resource; IntPtr res;
             Com.Check(Com.Method<CreateCommittedResourceFn>(_device, 27)(_device, ref heap, 0, ref desc, D3D12.RESOURCE_STATE_COPY_DEST, IntPtr.Zero, ref iid, out res), "CreateCommittedResource(readback)");
             return res;
+        }
+
+        private byte[] Rgb(IntPtr readback, uint pitch)
+        {
+            IntPtr data;
+            Com.Check(Com.Method<MapFn>(readback, 8)(readback, 0, IntPtr.Zero, out data), "Map(readback)");
+            var px = new byte[pitch * Height];
+            Marshal.Copy(data, px, 0, px.Length);
+            var rgb = new byte[Width * Height * 3];
+            for (int y = 0; y < Height; y++)
+                for (int x = 0; x < Width; x++) { int sp = (int)pitch * y + x * 4, dp = (y * Width + x) * 3; rgb[dp] = px[sp]; rgb[dp + 1] = px[sp + 1]; rgb[dp + 2] = px[sp + 2]; }
+            return rgb;
         }
 
         private void SaveBmp(IntPtr readback, uint pitch, string path)
@@ -244,6 +311,30 @@ namespace DnaAnd.Render
             System.IO.File.WriteAllBytes(path, bmp);
         }
 
+        // ── how long the card works on each frame: two timestamps, at the start and end of its work ──
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)] private delegate int CreateQueryHeapFn(IntPtr self, ref QueryHeapDesc desc, ref Guid iid, out IntPtr heap); // device 39
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)] private delegate void EndQueryFn(IntPtr self, IntPtr heap, int type, uint index);                     // list 53
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)] private delegate void ResolveQueryDataFn(IntPtr self, IntPtr heap, int type, uint start, uint count, IntPtr dest, ulong offset); // list 54
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)] private delegate int GetTimestampFrequencyFn(IntPtr self, out ulong freq);                          // queue 16
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)] private delegate void UnmapFn2(IntPtr self, uint sub, IntPtr range);                                // resource 9
+        [StructLayout(LayoutKind.Sequential)] private struct QueryHeapDesc { public int Type; public uint Count, NodeMask; }
+        private IntPtr _queryHeap, _queryRead; private ulong _tsFreq; private bool _timing;
+        /// <summary>How long the card worked on the last frame, in milliseconds (0 until it is known).</summary>
+        public double GpuMs { get; private set; }
+
+        private void StartTiming()
+        {
+            try
+            {
+                var d = new QueryHeapDesc { Type = 1, Count = 2, NodeMask = 0 };           // a timestamp heap of two
+                var iid = new Guid("0d9658ae-ed45-469e-a61d-970ec583cab4");               // ID3D12QueryHeap
+                if (Com.Method<CreateQueryHeapFn>(_device, 39)(_device, ref d, ref iid, out _queryHeap) < 0) return;
+                if (Com.Method<GetTimestampFrequencyFn>(_queue, 16)(_queue, out _tsFreq) < 0 || _tsFreq == 0) return;
+                _queryRead = MakeReadback(16); _timing = true;
+            }
+            catch { _timing = false; }
+        }
+
         private void WaitForGpu()
         {
             ulong value = ++_fenceValue;
@@ -258,6 +349,7 @@ namespace DnaAnd.Render
         public void Dispose()
         {
             if (_queue != IntPtr.Zero && _fence != IntPtr.Zero) WaitForGpu();
+            Com.Release(ref _queryRead); Com.Release(ref _queryHeap);
             for (int i = 0; i < FrameCount; i++) Com.Release(ref _backBuffers[i]);
             Com.Release(ref _depth); Com.Release(ref _dsvHeap);
             Com.Release(ref _fence); Com.Release(ref _list); Com.Release(ref _allocator); Com.Release(ref _rtvHeap);

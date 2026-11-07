@@ -69,7 +69,7 @@ Each group still breeds, mutates, gets sick and evolves. Groups also climb the 1
 
 You're a god, not a lab tech. You **nudge**:
 
-- 🧬 **Add Genes** to slip new genes into life — from the very start
+- 🧬 **Add Genes** to slip new genes into life, once life has unlocked it
 - ☢️ Later **gene powers** push evolution — with good *and* bad results
 
 👉 See the gene powers in [God Powers](god-powers.md).

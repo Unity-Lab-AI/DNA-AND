@@ -24,8 +24,9 @@ namespace DnaAnd.Gen
                 Vec3 q = Normals[i];
                 float facing = Vec3.Dot(q, toEye);
                 if (facing < -0.05f) continue;                  // back side: hidden, and would wash the colour out
-                float cells = Noise.Fractal(q.X * Cell + t, q.Y * Cell - t * 0.7f, q.Z * Cell + 5, Seed, 3);
-                float fine = Noise.Fractal(q.X * Cell * 4 - t * 2, q.Y * Cell * 4, q.Z * Cell * 4 + t, Seed + 77, 2);
+                // its boiling surface from the waveform (stored CDF 9/7 octaves, mode-E past them): the granulation cells and finer
+                float cells = (float)(0.5 + 0.5 * Waveform.Octaves(q.X * Cell + t, q.Y * Cell - t * 0.7f, q.Z * Cell + 5, Seed, 1, 1, 0.5, 4));
+                float fine = (float)(0.5 + 0.5 * Waveform.Octaves(q.X * Cell * 4 - t * 2, q.Y * Cell * 4, q.Z * Cell * 4 + t, Seed + 77, 1, 1, 0.5, 2));
                 float heat;
                 if (Brown)
                 {
@@ -50,18 +51,14 @@ namespace DnaAnd.Gen
         /// <summary>Points for one star, radius about 1, centred on the origin.</summary>
         public static StarVertex[] Build(ContentLibrary content, string id, ulong seed, out string name, out StarSurface surfaceOut)
         {
-            name = id; string color = "white";
+            name = id; float r = 1, g = 1, b = 1; string sk = "normal"; bool spotty = false;
             foreach (var e in content.OfKind("stars.dnat", "star"))
-                if (e.Id == id) { name = e.Name; color = e.Get("color", "white"); }
-            float r, g, b; GalaxyGen.ColorOf(color, out r, out g, out b);
+                if (e.Id == id) { name = e.Name; GalaxyGen.ColorFor(e, out r, out g, out b); sk = e.Get("surface-kind", "normal"); spotty = e.Get("spots", "no") == "yes"; }   // its colour from its surface temperature; its kind of face from the data
             var rng = new Rng(seed);
             var list = new List<StarVertex>();
             uint nseed = (uint)(seed & 0xFFFFFFFF);
 
-            bool giant = id.Contains("giant") || id.Contains("supergiant") || id == "hypergiant";
-            bool brown = id == "brown-dwarf", white = id == "white-dwarf";
-            bool compact = id == "neutron-star" || id == "pulsar" || id == "magnetar";
-            bool spotty = id == "m-type" || id == "k-type" || id == "g-type";
+            bool giant = sk == "giant", brown = sk == "brown-dwarf", white = sk == "white-dwarf", compact = sk == "neutron-star";
             float radius = compact ? 0.28f : white ? 0.45f : 1f;
             int surface = compact ? 1200 : white ? 2000 : 6000;
             float cell = giant ? 1.6f : brown ? 1f : 5f;       // noise frequency: giants have huge convection cells

@@ -33,13 +33,15 @@ That's it. Nothing to download or install.
 
 🧰 **Separate copies:** `build.cmd NAME` builds `build\NAME\DNA-AND.exe`, so a game that is already open is never closed by a rebuild.
 
+🌌 **The universe preview:** `build.cmd NAME preview` builds a copy that always opens straight into the universe, from the galaxies down to atoms.
+
 🔭 **Sample sets:** run the exe with `--set2` to `--set6` to open one sample set on its own (`--set5` resource fields, `--set6` the Dyson sphere: I or C goes in and out, M is the view from the middle, inside W A S D flies and dragging looks around).
 
 ⏱️ **Quick check:** `test.cmd 3000` runs for 3 seconds and closes. Quick checks open small in the bottom-right corner and don't take the keyboard.
 
 ▶️ **Normal play:** run `play.cmd`, or double-click `build\DNA-AND.exe`. There's no timer at all.
 
-The game always runs in a window and never changes your display settings, so closing it is always a full revert.
+The game always runs in a window and never changes your display settings, so closing it is always a full revert. It opens maximized, so it draws at your screen's full resolution.
 
 `build.cmd` runs the C# compiler from Windows' own .NET Framework folder over everything in `src/`. Nothing outside the repo and Windows is used.
 

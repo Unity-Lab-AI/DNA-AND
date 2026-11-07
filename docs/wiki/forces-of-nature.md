@@ -160,6 +160,30 @@ See the [Tech Tree](tech-tree.md "100 branches").
 
 ---
 
+## 🌍 A living planet
+
+A planet is alive even before anything lives on it. From the moment it forms, its own processes run on the game clock, and every one of them shapes the life that comes later.
+
+| | Process | What happens |
+|:-:|---|---|
+| 🔥 | **Heat inside** | Left over from forming, made by radioactive rock and by tides. It slowly runs out over billions of years |
+| 🌀 | **Churning mantle** | Hot rock rises and cool rock sinks, driving everything above it |
+| 🧩 | **Moving plates** | Continents drift, split and crash together. Ridges open, trenches swallow crust, mountains rise |
+| 💥 | **Earthquakes** | Plates catch and slip along their edges and faults. Undersea quakes send tsunamis |
+| 🌋 | **Eruptions** | Volcanoes at plate edges and hot spots build new land and island chains. Big ones fill the air with ash and cool the world |
+| ♨️ | **Vents and springs** | Hot water rich in chemicals, where life can start |
+| 🧲 | **The magnetic shield** | A churning molten core makes a field that guards the air from the star's wind. It wanders, and now and then flips |
+| 💧 | **The water cycle** | Seas evaporate, clouds rain and snow, rivers run back to the sea |
+| 🌪️ | **Weather** | Winds from heat and spin bring storms, hurricanes, monsoons and droughts |
+| 🌊 | **Currents and tides** | Ocean currents carry heat around the world; moons pull the tides |
+| 🧊 | **Ice ages** | Ice caps grow and shrink, and sea levels fall and rise with them |
+| 🍂 | **Seasons** | The planet's tilt makes seasons; its spin makes day and night |
+| 🏔️ | **Erosion** | Rain, rivers, wind and ice wear mountains down and carry them to the sea |
+| ♻️ | **The rock cycle** | Rock melts, cools, wears to sand, is buried into stone and lifted up again |
+| ☄️ | **Impacts** | Meteorites, asteroids and comets strike, leaving craters and changing the climate |
+
+> ⚠️ **When a planet dies inside:** as the heat runs out, the plates stop, the core freezes and the magnetic shield fails. The star's wind then strips the air away, the way it did on Mars.
+
 ## 🔗 See also
 
 [Elements](elements.md "All 118 elements and what they do") · [Planets & Templates](planets-and-templates.md "Earth, and the worlds you unlock") · [Space & Dyson Spheres](space-and-dyson-spheres.md "Leaving home, Dyson spheres, galactic war") · [Tech Tree](tech-tree.md "How every discovery connects") · [🏠 Wiki home](README.md)

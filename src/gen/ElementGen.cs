@@ -50,28 +50,7 @@ namespace DnaAnd.Gen
             col = i - 13; row = prow; return;                             // hafnium (or rutherfordium) onward: columns 4 to 18
         }
 
-        // real looks: (name of the element, red, green, blue, shiny metal?)
-        private static readonly Dictionary<string, float[]> Looks = new Dictionary<string, float[]>
-        {
-            { "Au", new[] { 1f, 0.78f, 0.25f, 1 } }, { "Cu", new[] { 0.85f, 0.45f, 0.3f, 1 } }, { "Cs", new[] { 0.95f, 0.85f, 0.55f, 1 } },
-            { "Os", new[] { 0.6f, 0.68f, 0.78f, 1 } }, { "Bi", new[] { 0.8f, 0.6f, 0.85f, 1 } }, { "Fe", new[] { 0.55f, 0.55f, 0.57f, 1 } },
-            { "C", new[] { 0.12f, 0.12f, 0.13f, 0 } }, { "S", new[] { 0.95f, 0.85f, 0.2f, 0 } }, { "P", new[] { 0.75f, 0.2f, 0.15f, 0 } },
-            { "I", new[] { 0.3f, 0.2f, 0.35f, 1 } }, { "Se", new[] { 0.45f, 0.45f, 0.47f, 1 } }, { "B", new[] { 0.35f, 0.25f, 0.2f, 0 } },
-            { "Si", new[] { 0.45f, 0.5f, 0.6f, 1 } }, { "Ge", new[] { 0.6f, 0.6f, 0.62f, 1 } }, { "As", new[] { 0.5f, 0.5f, 0.52f, 1 } },
-            { "Te", new[] { 0.62f, 0.62f, 0.64f, 1 } }, { "Sb", new[] { 0.68f, 0.68f, 0.7f, 1 } }, { "Br", new[] { 0.55f, 0.12f, 0.05f, 0 } },
-            { "Hg", new[] { 0.82f, 0.82f, 0.85f, 1 } }, { "Pb", new[] { 0.45f, 0.46f, 0.52f, 1 } }, { "Zn", new[] { 0.68f, 0.7f, 0.75f, 1 } },
-            { "Ti", new[] { 0.6f, 0.6f, 0.62f, 1 } }, { "Cr", new[] { 0.78f, 0.8f, 0.85f, 1 } }, { "Co", new[] { 0.55f, 0.55f, 0.6f, 1 } },
-            { "Ni", new[] { 0.7f, 0.68f, 0.62f, 1 } }, { "Ag", new[] { 0.9f, 0.9f, 0.92f, 1 } }, { "Pt", new[] { 0.85f, 0.85f, 0.83f, 1 } },
-            { "U", new[] { 0.45f, 0.47f, 0.45f, 1 } }, { "Pu", new[] { 0.5f, 0.45f, 0.42f, 1 } }, { "Ra", new[] { 0.85f, 0.88f, 0.85f, 1 } },
-        };
-        // the colour each gas glows when lit by electricity (its emission colour)
-        private static readonly Dictionary<string, float[]> Glows = new Dictionary<string, float[]>
-        {
-            { "H", new[] { 0.9f, 0.4f, 0.7f } }, { "He", new[] { 1f, 0.75f, 0.55f } }, { "Ne", new[] { 1f, 0.35f, 0.1f } }, { "Ar", new[] { 0.65f, 0.4f, 1f } },
-            { "Kr", new[] { 0.85f, 0.9f, 1f } }, { "Xe", new[] { 0.45f, 0.6f, 1f } }, { "Rn", new[] { 0.95f, 0.25f, 0.2f } }, { "N", new[] { 0.85f, 0.45f, 0.95f } },
-            { "O", new[] { 0.55f, 0.75f, 1f } }, { "F", new[] { 0.95f, 0.95f, 0.55f } }, { "Cl", new[] { 0.7f, 0.95f, 0.3f } },
-        };
-
+        private static float[] Rgb(string t) { var w = t.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries); float r, g, b; var ci = System.Globalization.CultureInfo.InvariantCulture; return w.Length == 3 && float.TryParse(w[0], System.Globalization.NumberStyles.Float, ci, out r) && float.TryParse(w[1], System.Globalization.NumberStyles.Float, ci, out g) && float.TryParse(w[2], System.Globalization.NumberStyles.Float, ci, out b) ? new[] { r, g, b } : null; }
         public static List<ElementSample> Load(ContentLibrary content)
         {
             var list = new List<ElementSample>();
@@ -87,10 +66,10 @@ namespace DnaAnd.Gen
                 bool metal = s.Group.Contains("metal") || s.Group == "Transition" || s.Group == "Post-transition" || s.Group == "Lanthanide" || s.Group == "Actinide";
                 s.R = 0.72f; s.G = 0.73f; s.B = 0.76f; s.Shiny = metal;
                 float[] look;
-                if (Looks.TryGetValue(s.Symbol, out look)) { s.R = look[0]; s.G = look[1]; s.B = look[2]; s.Shiny = look[3] > 0.5f; }
+                look = Rgb(e.Get("look", "")); if (look != null) { s.R = look[0]; s.G = look[1]; s.B = look[2]; s.Shiny = e.Get("shiny", "no") == "yes"; }   // elements.dnat
                 else if (!metal && s.State == "solid") { s.R = 0.6f; s.G = 0.58f; s.B = 0.55f; }
                 float[] glow;
-                if (s.State == "gas" && Glows.TryGetValue(s.Symbol, out glow)) { s.R = glow[0]; s.G = glow[1]; s.B = glow[2]; }
+                glow = Rgb(e.Get("glow-colour", "")); if (s.State == "gas" && glow != null) { s.R = glow[0]; s.G = glow[1]; s.B = glow[2]; }
                 s.Radioactive = s.Group == "Actinide" || z == 43 || z == 61 || z >= 84;
                 list.Add(s);
             }

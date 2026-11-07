@@ -88,9 +88,11 @@ The sample subjects come first (round 15): planets, stars, gas giants, Dyson sph
 
 - `content/black-holes.dnat`
 - `content/cities.dnat`
-- `content/elements.dnat`
+- `content/climate.dnat`
+- `content/elements.dnat` (each `@element` also carries `colour`, `covalent-a`, `atomic-a`)
 - `content/galaxies.dnat`
 - `content/gas-giants.dnat`
+- `content/minerals.dnat` (`@mineral` with `lustre` and `clarity`, `@mix`, `@surface`)
 - `content/life/animals.dnat`
 - `content/life/archaea.dnat`
 - `content/life/bacteria.dnat`
@@ -100,12 +102,14 @@ The sample subjects come first (round 15): planets, stars, gas giants, Dyson sph
 - `content/life/plants.dnat`
 - `content/life/protists.dnat`
 - `content/life/viruses.dnat`
+- `content/geology.dnat`
 - `content/moons.dnat`
 - `content/nebulas.dnat`
 - `content/physics.dnat`
 - `content/planets.dnat`
 - `content/resource-fields.dnat`
 - `content/small-bodies.dnat`
+- `content/terrain.dnat` (`@terrain`: each kind of world's size, ground, water, air, clouds, rock and base temperature)
 - `content/solar-systems.dnat`
 - `content/space-tech.dnat`
 - `content/stars.dnat`

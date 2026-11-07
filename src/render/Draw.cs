@@ -54,7 +54,17 @@ namespace DnaAnd.Render
 
         [DllImport("kernel32.dll", EntryPoint = "RtlMoveMemory")] private static extern void CopyMemory(IntPtr dst, IntPtr src, UIntPtr size);
 
-        public void Dispose() { Com.Release(ref _resource); _mapped = IntPtr.Zero; }
+        // a buffer let go is never freed at once: frames still on the card may read it, and freeing it under them removes the
+        // device; it is freed some frames later (Collect, once a frame), for every buffer in the game
+        private static readonly System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<IntPtr, long>> Retired = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<IntPtr, long>>();
+        private static long _frame;
+        public void Dispose() { if (_resource != IntPtr.Zero) lock (Retired) Retired.Add(new System.Collections.Generic.KeyValuePair<IntPtr, long>(_resource, _frame)); _resource = IntPtr.Zero; _mapped = IntPtr.Zero; }
+        /// <summary>Once a frame: frees the buffers let go more than eight frames ago.</summary>
+        public static void Collect()
+        {
+            _frame++;
+            lock (Retired) for (int k = Retired.Count - 1; k >= 0; k--) if (_frame - Retired[k].Value > 8) { var r = Retired[k].Key; Com.Release(ref r); Retired.RemoveAt(k); }
+        }
     }
 
     /// <summary>Records billboard draws into the frame's command list.</summary>

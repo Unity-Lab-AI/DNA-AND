@@ -10,19 +10,26 @@ namespace DnaAnd.Gen
     internal sealed class StarKind
     {
         public string Id, Name; public float R, G, B; public double Weight;
+        public bool Remnant;     // a dead star (white dwarf, neutron star, pulsar, magnetar): found among old stars, not young ones
     }
 
     internal static class GalaxyGen
     {
         /// <summary>Main-sequence star types and how common each is, read from content/stars.dnat.</summary>
+        // each kind of galaxy's shape (content/galaxies.dnat layout:), read once
+        private static readonly Dictionary<string, string> Shapes = new Dictionary<string, string>();
+        public static void LoadShapes(ContentLibrary content) { if (Shapes.Count == 0) foreach (var e in content.OfKind("galaxies.dnat", "galaxy")) Shapes[e.Id] = e.Get("layout", "spiral"); }
+        private static string ShapeOf(string type) { string v; return Shapes.TryGetValue(type ?? "", out v) ? v : type; }
         public static List<StarKind> StarKinds(ContentLibrary content)
         {
+            LoadShapes(content);
             var list = new List<StarKind>();
             foreach (var e in content.OfKind("stars.dnat", "star"))
             {
-                if (!e.Props.ContainsKey("share-of-stars") || !e.Props.ContainsKey("color")) continue;
-                float r, g, b; ColorOf(e.Get("color", "white"), out r, out g, out b);
-                list.Add(new StarKind { Id = e.Id, Name = e.Name, R = r, G = g, B = b, Weight = ShareWeight(e.Get("share-of-stars", "common")) });
+                if (!e.Props.ContainsKey("share-of-stars") || (!e.Props.ContainsKey("color") && !e.Props.ContainsKey("temp-k"))) continue;
+                float r, g, b; ColorFor(e, out r, out g, out b);
+                bool remnant = e.Get("remnant", "no") == "yes";                        // from the data (stars.dnat)
+                list.Add(new StarKind { Id = e.Id, Name = e.Name, R = r, G = g, B = b, Weight = ShareWeight(e.Get("share-of-stars", "common")), Remnant = remnant });
             }
             if (list.Count == 0) list.Add(new StarKind { Id = "g-type", Name = "G", R = 1, G = 0.95f, B = 0.8f, Weight = 1 });
             return list;
@@ -36,6 +43,25 @@ namespace DnaAnd.Gen
                 case "rare": return 0.4; case "rarest": return 0.05; default: return 1;
             }
         }
+
+        /// <summary>A star's colour from its surface temperature, the way a glowing hot body shines (red when cool, blue when hot);
+        /// the named colour is used only for a kind with no temperature.</summary>
+        public static void ColorFor(ContentEntry e, out float r, out float g, out float b)
+        {
+            double lo, hi;
+            if (e.TryRange("temp-k", out lo, out hi)) { Glow(Math.Sqrt(lo * hi), out r, out g, out b); return; }
+            ColorOf(e.Get("color", "white"), out r, out g, out b);
+        }
+
+        /// <summary>Colour of a body glowing at <paramref name="kelvin"/>: its light at red, green and blue wavelengths
+        /// (Planck's law), brightest channel set to 1, softened a little the way the eye sees a bright star.</summary>
+        public static void Glow(double kelvin, out float r, out float g, out float b)
+        {
+            double pr = Planck(611, kelvin), pg = Planck(549, kelvin), pb = Planck(464, kelvin), top = Math.Max(pr, Math.Max(pg, pb));
+            r = (float)Math.Pow(pr / top, 0.75); g = (float)Math.Pow(pg / top, 0.75); b = (float)Math.Pow(pb / top, 0.75);
+        }
+
+        private static double Planck(double nm, double kelvin) { return Math.Pow(nm, -5) / (Math.Exp(1.4388e7 / (nm * kelvin)) - 1); }
 
         public static void ColorOf(string c, out float r, out float g, out float b)
         {
@@ -65,6 +91,8 @@ namespace DnaAnd.Gen
 
         private static double Biased(StarKind k, double hotBias)
         {
+            // dead stars glow blue-white but are old: the young arms (hotBias > 1) have fewer of them, the old core more
+            if (k.Remnant) return k.Weight * Math.Min(4, 1 / Math.Max(0.25, hotBias));
             double hot = k.B - k.R + 0.6; // bluer = hotter
             return k.Weight * Math.Pow(Math.Max(0.05, hot), Math.Log(hotBias + 1e-9) * 2.0 + 0.0001);
         }
@@ -81,11 +109,9 @@ namespace DnaAnd.Gen
             {
                 float x, y, z, size = 1f; double hotBias = 1;
                 double part = rng.NextDouble();
-                switch (type)
+                switch (ShapeOf(type))
                 {
                     case "elliptical":
-                    case "giant-elliptical":
-                    case "dwarf-elliptical":
                     {
                         float r = Math.Abs(rng.Gaussian()) * 0.45f;
                         Vec3 d = RandomDir(rng);
@@ -93,8 +119,6 @@ namespace DnaAnd.Gen
                         hotBias = 0.25; break;
                     }
                     case "irregular":
-                    case "magellanic-spiral":
-                    case "dwarf-irregular":
                     {
                         float a = rng.Range(0, (float)Math.PI * 2), r = (float)Math.Sqrt(rng.NextDouble()) * 0.8f;
                         x = (float)Math.Cos(a) * r; z = (float)Math.Sin(a) * r;

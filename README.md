@@ -31,9 +31,15 @@ And somewhere along the way, they start to wonder **who you are**.
 
 ## 🧭 The journey
 
+![One zoom from a sky full of galaxies down to a planet's ground](docs/img/journey.gif)
+
+*One zoom from a sky full of galaxies, into a galaxy, past its stars, to a planet and down to its ground. Recorded in the game.*
+
+🔭 **One camera, every scale.** There are no separate views to switch between. The same camera flies from among the galaxies into one, through its hundred billion stars (made around you as you go), into a star's solar system, down to a planet's ground and on into its matter: grains, the crystal of its mineral, then its atoms. Point the mouse and roll the wheel; it flies toward what you point at, at any angle, and slows by itself as things come close. A scale on screen shows how big things are, from light-years down to picometres.
+
 | | Era | What happens |
 |:-:|---|---|
-| 🌑 | **The dead world** | You shape a lifeless planet: heat, cold, water, lightning, and any of the 118 elements |
+| 🌑 | **The dead world** | You shape a lifeless planet with heat, cold, water and lightning. Everything else is unlocked by the life that evolves |
 | ✨ | **The spark** | Your first action starts life. It never starts without you |
 | 🦠 | **The microbes** | Cells, viruses and the first wars, fought with chemistry |
 | 🐟 | **The seas** | Shells, spines, eyes and jaws. Schools and reefs |
@@ -168,7 +174,7 @@ Every creature, plant, microbe and virus carries a **real-style genome**: string
 | 🌱 **New species** | When a group's genes drift far enough apart, it splits in two. Nobody scripts it |
 | ✋ **Hands off** | You can't edit DNA directly. You can only push: radiation, pressure, plagues, gene powers with good and bad outcomes |
 
-👉 [Genes & DNA](docs/wiki/genes-and-dna.md "How real-style genomes build life") · [100 Stages of Life](docs/wiki/stages-of-life.md "From chemistry to spacefarers")
+👉 [Genes & DNA](docs/wiki/genes-and-dna.md "How real-style genomes build life") · [100 Stages of Life](docs/wiki/stages-of-life.md "From chemistry to spacefarers") · [Ecology](docs/wiki/ecology.md "Who eats whom, and how a living world works")
 
 ---
 
@@ -243,7 +249,8 @@ Every species that ever lived, on one **circular tree**: your first cell at the 
 
 | | |
 |--|--|
-| 🌑 **Day one** | Lightning, heat, cold, water, spark of life, add genes, and add any element from the periodic table |
+| 🌑 **Day one** | Lightning, heat, cold and water. Nothing else until life unlocks it |
+| ⚗️ **Elements** | Each element unlocks once living things on your world first use it: the chemistry of life first, metals later, lab-made elements when a civilization makes them |
 | 🔓 **100 unlock points** | Each of the 100 stages of life unlocks its own power. Nothing is missing, nothing doubled |
 | 🌋 **Examples** | Fire, flood, drought, volcano, plague, cure, miracle, prophet, stellar flare, supernova, wormhole |
 | 🧬 **Gene powers** | Radiation bursts, viral gene carry, spark of mind. Good outcomes and bad |
@@ -375,17 +382,21 @@ Powers cost **Souls**. Cost = the power's **tier (T1–T100) × area × strength
 
 | Key | |
 |--|--|
-| `W A S D` / screen edges | Pan |
-| `Scroll wheel` | Zoom where the mouse points, from a universe of galaxies to one microbe |
+| `W A S D` / `Q E` | Fly forward, back, left, right, down and up, at a speed scaled to the nearest thing (`Shift`: four times as fast) |
+| `Scroll wheel` | Zoom where the mouse points, from a universe of galaxies down to an atom's nucleus |
 | `Ctrl` + `Scroll wheel` | Zoom eight times as fast |
-| `Right-drag` | Rotate |
-| `Left-click` | Use the selected power, or pick a galaxy, star or planet to go to |
+| `Left-drag` | Circle round what you picked, or look around |
+| `Left-click` | Use the selected power, or pick a galaxy, star, planet, spot, grain or atom to go to |
+| `Right-click` | Let go of what you picked |
 | `Space` | Pause |
-| `1 – 5` | Time speeds |
+| `,` `.` / `1 – 5` | Time slower and faster / time speeds |
+| `H` | Scale bar and information cards |
 | `F1` | In-game wiki |
 | `Esc` | Menu: save, load, settings, quit |
 
 Every key can be rebound. 👉 [Controls](docs/wiki/controls.md "Every control")
+
+🔭 **In the universe preview:** it opens on a landing page (type a seed or leave it blank, Begin or take the tour). Then the scroll wheel flies toward what the mouse points at, `Ctrl` makes it eight times as fast, `Left-drag` looks around, `H` turns the scale on screen on or off, `T` plays the five-minute tour, `F12` saves a screenshot and `F9` records a clip, and the **View** and **Help** menus hold the settings, the Guide and wiki, and Credits. The universe preview is also released on its own as **Universe** (its own project: https://git.unityailab.com/GFourteen/Universe).
 
 ---
 

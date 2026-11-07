@@ -42,3 +42,9 @@ build/
 
 # Build output (made by build.cmd)
 /build/
+
+# release packages (made by release.cmd), at the top only: docs/release holds the release documents and is kept
+/release/
+
+# The Universe project: its own git repo (filled by universe-sync.cmd), never part of DNA-AND's history
+/Universe/

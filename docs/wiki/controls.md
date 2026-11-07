@@ -10,9 +10,9 @@
 
 | Action | What it does |
 |---|---|
-| 🖱️ **Left-click** | Use the selected [power](god-powers.md "Your god abilities: fire, water, plague, meteor and 96 more"), or pick a galaxy, star, planet or moon to go to |
-| 🖱️ **Left-drag** | Rotate the camera in space; move across the ground on a world |
-| 🖱️ **Right-drag** | Turn the view |
+| 🖱️ **Left-click** | Use the selected [power](god-powers.md "Your god abilities: fire, water, plague, meteor and 96 more"), or pick a galaxy, star, planet, moon, a spot on the ground, a grain or an atom to go to; it lands exactly where you click, at every scale |
+| 🖱️ **Left-drag** | With something picked, circle round it at the distance you are at (see a solar system from above, a galaxy edge-on); with nothing picked, look around (on a planet, round its own up) |
+| 🖱️ **Right-click** | Let go of what you picked |
 | 🖱️ **Scroll wheel** | Zoom where the mouse points, from a whole universe of galaxies down to a single microbe |
 | ⌨️🖱️ **Ctrl + scroll** | Zoom eight times as fast |
 | 🖱️ **Move to screen edge** | Pan the camera |
@@ -21,17 +21,20 @@
 
 | Key | What it does |
 |---|---|
-| **W A S D** | Pan the camera; on a world, move across the ground; inside a Dyson sphere, fly |
-| **Q E** | Turn left and right |
+| **W A S D** | Fly forward, back, left and right, like a first-person game, at a speed scaled to the nearest thing (the same feel between galaxies as a metre above the ground); hold **Shift** for four times as fast |
+| **Q E** | Fly down and up |
 | **Tab** | Step through the planets and moons of a solar system |
 | **R** | Resource view: every resource field lights up in its own colour |
 | **N** | Fly to the next kind of resource field |
 | **I** or **C** | Go inside a Dyson sphere, or back out |
 | **M** | Inside a Dyson sphere: the view from the middle, beside its star |
 | **Space** | Pause / unpause |
+| **, .** | Time slower and faster: real time, a minute, an hour, a day, a week or a month a second, a year in 20 seconds, a year or ten years a second (also the Time menu) |
 | **1 – 5** | Time speeds (1×, 10×, 100×, 1,000×, max) |
+| **H** | The scale bar and the information cards, on or off |
 | **Esc** | Menu |
 | **F1** | Open the in-game wiki |
+| **Ctrl+F**, **F3** | In the document viewer: search all the documents, next match |
 
 🎛️ **Every key can be rebound** in Settings → Controls.
 
@@ -47,10 +50,10 @@
 One scroll wheel takes you through every scale of the game, in and out, with no loading screens:
 
 ```
-🌌 Universe → 🌀 Galaxy → ⭐ Star → ☀️ Solar system → 🌍 Planet → 🗺️ Continent → 🌳 Forest → 🐜 Creature → 🦠 Microbe
+🌌 Universe → 🌀 Galaxy → ⭐ Star → ☀️ Solar system → 🌍 Planet → 🗺️ Continent → 🌳 Forest → 🐜 Creature → 🦠 Microbe → 🪨 Grain → 💎 Crystal or molecule → ⚛️ Atom → 🌀 Electron shells → 🔴 Nucleus → 🟢 Quarks
 ```
 
-Everything keeps its true size. A red supergiant can be over a thousand times wider than our star, and a planet stays a speck until you are close. In the sea, life shows at the size you are looking at, from great sharks down to amoebas. On land, the view fades into the dark of the soil before the microbes appear.
+Everything keeps its true size. A red supergiant can be over a thousand times wider than our star, and a planet stays a speck until you are close. In the sea, life shows at the size you are looking at, from great sharks down to amoebas. On land, the view fades into the dark of the soil before the microbes appear. Below the smallest grains of the ground you go on into its matter, all at real sizes: each grain is one mineral from its ground's own mix; its atoms sit in their real crystal (rock salt, the silica network) or in real molecules (water bent at 104.5°, straight carbon dioxide, methane's tetrahedron); one atom's electrons move in their real shells round its nucleus, a spark in mostly empty space, and the nucleus holds that element's real protons and neutrons; inside the one at its middle are its three quarks. Grains are their ground's real sizes, electrons are points, and each layer grows out of the one before. Every grain, atom, electron, proton, neutron and quark can be picked, with its own card. It is all one camera: it flies toward what you point at, at any angle, and slows by itself as things come close.
 
 > 💡 **Tip:** Powers work at the scale you're looking at. Zoom in to touch one tide pool. Zoom out to touch a whole continent.
 
