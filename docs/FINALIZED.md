@@ -352,3 +352,22 @@ Built and shipped in the 0.1.0 releases on all four remotes; each item below kee
 - [x] **The comparison as check tables, concise, with the others' ticks explained:** (DESIGN 552) "thhis is not a proper compasions if this is suppose to be it" / "like u need check marks where whe have all the checks and other have none but with explinations" / "concise like"
 - [x] **The picked thing's card on the tour again, at the left edge:** (DESIGN 556) "major problem im not seeing the write up for focus bodies"
 - [x] **The quark view shows one trio:** (answered: at 200 attometres a nucleon is four screens wide and the next nucleon eight screens off; at the proton stop before it every trio of the nucleus is in view) "and the qwerk view only shows one grouping of qwerks where are all the others? too far wayaway at that scale?"
+
+## 2026-11-07 — The docs audit, every document top to bottom
+
+Verbatim: "make sure all docs are not stale, and when i say "all" i mean it all fucking documents, top to bottom look for single words that are wrong too" / "and we did the comparisons correct for other similar apps and games right? with the chekmarks and write up and stuff all proper and truthfull at how kick ass this application is beeing so samll and doing so much". DESIGN 573.
+
+TODO items whose markers were flipped to done in this audit, because the code had overtaken them (their words kept in place):
+- "Start R1 code toward the sample viewer, after the sample-subject content, following `docs/WORK-LAWS.md`"
+- "Content loader (R1): read `.dnat` text at start-up"
+- "Zoom range from one microbe to a whole galaxy (64-bit positions, moving origin)"
+- "Smooth zoom from microbe to planet to solar system to galaxy"
+- "Set 2: Solar system layouts, with moons, asteroid belts, the Kuiper belt and Oort clouds" / "Set 3: Stars" / "Set 4: Planets and gas giants" / "Set 5: Resource fields" / "Set 6: Dyson spheres" / "Set 17: Elements (all 118)"
+- "Our own shader-code generator for Direct3D 12 (no outside shader compiler)" (changed: Windows' own `d3dcompiler_47.dll`)
+- "Galaxy generation from a seed" / "Solar systems: stars and planets" / "Multiple galaxies"
+- "Windows exe" / "Our own `DNA-AND-Setup.exe` installer" / "Post each release on both release pages (git.unityailab.com and GitHub)"
+- "One camera that flies through it at any angle and direction; zooming moves the camera toward what the mouse points at, never switches views"
+- "The preview build: `build.cmd NAME preview` makes a copy that always opens in the one-world universe" / "Our own installer, not NSIS" / "A base readme about the universe and how it works" / "The .exe carries all of the public docs for it" / "The program's Credits and About link the Universe repo" / "About, Readme and Credits built into the program's menu bar, and its header tools such as the scale HUD for the zoom"
+
+Files touched: `README.md`, `docs/release/UNIVERSE-README.md`, `UNIVERSE-HOW-TO-BUILD.md`, `UNIVERSE-COMPARED.md`, `UNIVERSE-GUIDE.md`, `IN-GAME-HOW-IT-WORKS.md`, `IN-GAME-README.md`, `README.txt`, `universe/README.txt`, `universe/CREDITS.md`, `docs/HOW-TO-BUILD.md`, `docs/SETUP.md`, `docs/CONTENT-FORMAT.md`, `docs/LISTS.md`, `docs/ROADMAP.md`, `docs/TODO.md`, `docs/wiki/controls.md`, `faq.md`, `glossary.md` and every player page's footer, `wiki/CLAUDE.md`, `wiki/index.md`, `wiki/systems/r02`, `r04`, `r05`, `r16`, `wiki/log.md`.
+

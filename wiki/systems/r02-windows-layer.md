@@ -30,7 +30,8 @@ Mac and Linux each get their own version of this layer. Everything above it stay
 
 - The window and its message pump: `src/platform/Window.cs`.
 - The keyboard and mouse: `Input.cs`. Ctrl + wheel counts each notch eight times.
-- The menu bar: Exit, Keep going or revert, Keepers, Legend.
+- The menu bar of the sample viewer: Exit, Keep going or revert, Keepers, Legend. The universe's own: Exit, Start page, View (GPU use, Time, FPS and stats, the tour, the periodic table, screenshot, record a clip, clip size, drag speed, invert drags, render scale) and Help (Documents, Readme, How it works, Against the field, Credits, About) (`Window.SetWorldMenu`).
+- The landing page (`Launcher.cs`), the settings file (`Settings.cs`), the document viewer (`DocViewer.cs`), the stats (`Stats.cs`).
 - Windows pop-up boxes (`MessageBoxTimeoutW`).
 - The safety watchdog: `Watchdog.cs`.
 - Per-monitor DPI awareness, windowed only.

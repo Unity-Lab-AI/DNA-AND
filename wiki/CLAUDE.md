@@ -21,7 +21,7 @@ last-verified: <git commit hash, or "none (plan only)">
 | 🟢 `verified` | Checked line by line against the code at `last-verified` |
 | 🔴 `stale` | Code changed since `last-verified`. Don't trust the page until it's re-checked |
 
-Right now **every page is `draft`** and `last-verified: none (plan only)`. No game code exists yet.
+A page is `draft` until it has been checked against the code. The universe's systems have code now (the toolchain, the Windows layer, the engine core, the renderer, the generators, the universe, the planet, the life sim in part): each of those pages says what is built, with its `last-verified` commit; the game's own systems (genome, civilization, god mode, time, the shell, multiplayer, the leaderboard) are still plans.
 
 ## ✍️ Writing rules
 

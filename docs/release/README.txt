@@ -2,7 +2,7 @@ DNA-AND 0.1.0 (universe preview)
 Made by the Unity AI Lab team - https://unityailab.com
 
 A preview of the universe of DNA-AND, a 3D god game of life: one continuous zoom from a sky full of galaxies, into a galaxy
-and its stars, into a star's solar system, down to a planet's ground and on into its matter, to atoms.
+and its stars, into a star's solar system, down to a planet's ground and on into its matter, to the atoms and the quarks inside them.
 
 This preview is the universe only: a dead universe, fully made, with no life, gameplay or interface yet.
 It opens on a landing page: type a seed (or leave it blank for a new one), Begin or Take the tour (T in the game).
@@ -23,8 +23,9 @@ Controls
   T                       the tour on or off; carries a paused tour on
   R                       starts a paused tour again
   F12 / F9                a screenshot (PNG) / start or stop a clip (MP4), in the captures folder
-  View menu               the scale, and the render scale (lower is faster, higher is sharper)
-  Help menu               Readme, Credits, About
+  View menu               drag speed, FPS with the GPU and CPU stats, render scale (lower is faster, higher is sharper), GPU use,
+                          the clip's size (auto, full, half, quarter), the periodic table, the tour, screenshot and clip
+  Help menu               Documents (what's here), Readme, How it works, Against the field, Credits, About
   Esc or Exit             close
 
 Needs: Windows 10 or 11, 64-bit, and a graphics card that runs Direct3D 12.
@@ -43,4 +44,4 @@ How it works
   and the face of its crystals.
   A galaxy fills in with its real stars, at its true density, as you fly through it.
   A living planet, even dead: plates, volcanoes, quakes, weather, ice ages and impacts on the planet's own clock.
-  Still to come: the waveform carrying every field from galaxies to microbes, life, gameplay and the interface.
+  Still to come: the waveform carrying every field from the cosmic web to the microbes, life, gameplay and the interface.

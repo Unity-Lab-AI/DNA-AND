@@ -22,7 +22,7 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 
 ### R17 — Docs
 - [~] Write all wikis, docs and readmes as if the game were complete: "okay we need to write all the wikis and docs and readmes for the entire project in full to complete final endgame and play through completely in full no text wealls easy and fun to read beautifully written and well designed and formated with tool tips and everything like a AAA game using all the icons and images of the game in the docs with links and relseas link at top of readme and everything as if the game was full and complete wee will make everything but the geam itself yet"
-  - ✅ Written: README, player wiki (`docs/wiki/`, 26 pages), builder wiki (`wiki/`), `docs/SETUP.md`, `docs/HOW-TO-BUILD.md`, `docs/img/README.md`, `docs/WORK-LAWS.md`.
+  - ✅ Written: README, player wiki (`docs/wiki/`, 35 pages), builder wiki (`wiki/`), `docs/SETUP.md`, `docs/HOW-TO-BUILD.md`, `docs/img/README.md`, `docs/WORK-LAWS.md`.
   - ✅ All 47 open questions decided and applied (`docs/DESIGN.md` round 5).
   - ⏳ Left: fill the 55 image slots once R4's 3D generator and capture tool exist.
 
@@ -40,7 +40,7 @@ LAW #0 reminder: every task description preserves the user's verbatim words.
 - [x] `/unity` check: nothing the creator said is left out, word for word
   - All 30 recent messages are checked and recorded verbatim in `docs/DESIGN.md`. One gap was fixed: the milestone answer is now quoted in its task. **Gate passed.**
 - [ ] Write the real seed entries for the top-100 lists (below). Moved after the samples: "Samples path now, lists later (Suggested)"
-- [ ] Start R1 code toward the sample viewer, after the sample-subject content, following `docs/WORK-LAWS.md`: "okay now we need to do everything we need to do so you can get me those 9 none headless samples of everything from the planets to the microbes to the animals insects cities spaces stations stars and dyson spheres"
+- [x] (built: the sample viewer and its sets, then the one-world universe) Start R1 code toward the sample viewer, after the sample-subject content, following `docs/WORK-LAWS.md`: "okay now we need to do everything we need to do so you can get me those 9 none headless samples of everything from the planets to the microbes to the animals insects cities spaces stations stars and dyson spheres"
 
 ### 📦 Content (first, before code)
 **Spec:** `docs/CONTENT-FORMAT.md`, `docs/LISTS.md`, `wiki/systems/r04b-generators.md`
@@ -78,7 +78,7 @@ Order: galactic scale down, the same order as the sample sets.
 - [ ] Then: seeds and rules for the rest of the 100 categories: 31 not seeded and 42 partly seeded (see "Seeded in" in `docs/LISTS.md`)
 - [x] Content: Extinct life, dinosaurs and mass extinctions in `content/life/extinct.dnat`: "dont forget extinct animals" / "dinosars...ectectect"
 - [x] Content: Physics, black holes, moons, small bodies, nebulas, resource fields, space tech, cities and elements (all researched)
-- [ ] Content loader (R1): read `.dnat` text at start-up. Binary packing, if ever needed, is done by our own C# code
+- [x] (built: `src/core/Content.cs`) Content loader (R1): read `.dnat` text at start-up. Binary packing, if ever needed, is done by our own C# code
 
 ### Lists
 **Spec:** `docs/LISTS.md`
@@ -140,7 +140,7 @@ Order: galactic scale down, the same order as the sample sets.
 - [ ] Full resolution scaling and range: "its got to have full resolution scaling and range"
   - [x] Any window size, rebuilt on resize; per-monitor DPI aware (sharp on high-DPI screens, display settings untouched)
   - [x] Render-scale setting (draw at 50–200% of the window, then scale to fit): the Render scale menu, and `--scale <percent>`
-  - [ ] Zoom range from one microbe to a whole galaxy (64-bit positions, moving origin)
+  - [x] (built: one camera from the cosmic web to the quarks, DESIGN 478) Zoom range from one microbe to a whole galaxy (64-bit positions, moving origin)
 **Spec:** `wiki/systems/r04-renderer.md`, `docs/img/README.md`, `wiki/systems/r17-docs-and-capture.md`
 
 - [ ] Our own 3D image generator for all game icons and art: "we will need to design the #D genrator and botting of them"
@@ -149,9 +149,9 @@ Order: galactic scale down, the same order as the sample sets.
 - [x] Talk to the graphics card: Direct3D 12 device, swap chain, frames (`src/render/Gpu.cs`), windowed, vsync, Alt+Enter blocked
 - [x] Billboard pipeline: shaders compiled by Windows' own d3dcompiler_47.dll (`src/render/Pipeline.cs`, `src/render/Draw.cs`)
   - Direct3D 12 (part of Windows).
-- [ ] Terrain, water, sky, weather, lighting, shadows
-- [ ] Drawing creatures built from their genes
-- [ ] Smooth zoom from microbe to planet to solar system to galaxy
+- [~] (built: the ground, the seas, the air and clouds, weather near the ground, the star's light by day and night; shadows still to come) Terrain, water, sky, weather, lighting, shadows
+- [~] (built in part: `GeneBody`, `LandLife`, `SeaBodies`) Drawing creatures built from their genes
+- [x] (built: the one camera, no switches, DESIGN 478) Smooth zoom from microbe to planet to solar system to galaxy
 - [ ] Top-down god camera
 - [ ] Visual gene map for every trait and skill
 
@@ -160,23 +160,23 @@ Order: galactic scale down, the same order as the sample sets.
 
 - [ ] No pre-built assets: every asset built live from data arrays as life evolves: "and what about haveing a "crature" city" space tech" generator for everything full on like array dynamic content generation on the fly in the game so we dont pre build and assets but the games program builds them as they get living"
 - [ ] Shared generator core: data arrays in, shapes, surfaces, motion and sound out, cached and rebuilt when the data changes
-- [ ] Microbe & virus generator
-- [ ] Plant & fungus generator
-- [ ] Creature generator
-- [ ] Intelligent creature generator
-- [ ] City generator
+- [~] Microbe & virus generator (built in part: `src/sim/MicrobeWorld.cs`)
+- [~] Plant & fungus generator (built in part: `src/shell/LandLife.cs` from the genes)
+- [~] Creature generator (built in part: `src/gen/GeneBody.cs`, `BodyGen.cs`)
+- [~] Intelligent creature generator (built in part: `GeneBody`, `CivGen`)
+- [~] City generator (built in part: `src/gen/CivGen.cs`)
 - [ ] Tech & machine generator
-- [ ] Space tech generator
-- [ ] Planet & moon generator
-- [ ] Star generator
-- [~] Galaxy & system generator: galaxies done (`src/gen/GalaxyGen.cs`, from the galaxy and star content)
-- [ ] Resource field generator
-- [ ] Element generator
+- [~] Space tech generator (built in part: ships, stations and colonies in `CivGen`; the Dyson builds from `content/space-tech.dnat`)
+- [~] Planet & moon generator (built: `src/gen/PlanetTerrain.cs` from `content/terrain.dnat`, moons as worlds)
+- [~] Star generator (built: `src/gen/StarGen.cs`, every kind from `content/stars.dnat`, its plasma dived into)
+- [~] Galaxy & system generator: galaxies and star systems done (`src/gen/GalaxyGen.cs`, `src/gen/SpaceGen.cs`, from the galaxy, star and system content)
+- [~] Resource field generator (built: fields placed by real geology in `PlanetTerrain`)
+- [~] Element generator (built: `src/gen/ElementGen.cs`, all 118 as they really are)
 - [ ] Weather & effect generator
 - [ ] Sound generator
-- [ ] Black hole & active core generator
-- [ ] Nebula generator
-- [ ] Small body generator
+- [~] Black hole & active core generator (built: feeding and quiet holes from `content/bodies.dnat`, the disc, jets, lensing, the fall)
+- [~] Nebula generator (built: every kind of nebula and cluster from `SpaceGen.Structures`, their gas dived into)
+- [~] Small body generator (built: asteroids by class, Kuiper bodies, comets with coma and tails, rogue planets, from `content/small-bodies.dnat` and `bodies.dnat`)
 - [ ] Fossil & ruin generator
 
 ### R4.5 — Art style samples
@@ -185,11 +185,11 @@ Order: galactic scale down, the same order as the sample sets.
   - Life sets follow the full tree (`docs/wiki/tree-of-life.md`): "and what the fuck we are still doing docs u ments as this:" ... Animals / Insects / Microbes and viruses ..." IS NOT ALL LIVING THINGS IN THE FULL KINDOM PHILUM CLASS GENIUS SPECIES and the full kindom thing in full"
   - [x] Set 1: Galaxy layouts. **LOCKED: Populous-like for all galaxy types**: "center column is all 100% go for all theri variations of galaxies". Barred spiral rebuilt after "middle row is 100% trash, center column are best". Pick corrected: center column, Populous-like: "they jsut timed out i could NOT look at them all and clicking brout it up and no way back but the center column on the first test looked the best"
   - [x] Deep zoom built (`src/shell/DeepView.cs`, `src/gen/SpaceGen.cs`): galaxy (150,000 stars, clusters, nebulas) → core supermassive black hole (shadow, photon ring, accretion disk, jets) → any star's full system (planets, moons, belt, Kuiper belt, Oort cloud), with a moving origin. Deep zoom: "now the first set looked best but they have to be zoomable to the star sytems and i suppose this is just asa sammple and not the true game but i dont know how zoom and all of that works but how and where do i see the supermassive black holses at the centrter and all the space systems and environment of objects and systems and clusters and things" / "Yes, build deep zoom now (Suggested)"
-  - [~] Set 2: Solar system layouts, with moons, asteroid belts, the Kuiper belt and Oort clouds
-  - [ ] Set 3: Stars
-  - [ ] Set 4: Planets and gas giants
-  - [ ] Set 5: Resource fields
-  - [ ] Set 6: Dyson spheres
+  - [x] (approved, see FINALIZED) Set 2: Solar system layouts, with moons, asteroid belts, the Kuiper belt and Oort clouds
+  - [x] (approved) Set 3: Stars
+  - [x] (approved) Set 4: Planets and gas giants
+  - [x] (approved) Set 5: Resource fields
+  - [x] (approved) Set 6: Dyson spheres
   - [ ] Set 7: Space stations, colonies (mining outposts, prison colonies and the rest), spaceships and hyperdrive ships
   - [ ] Set 8: Cities
   - [ ] Set 9: Intelligent creatures (any kingdom)
@@ -198,14 +198,14 @@ Order: galactic scale down, the same order as the sample sets.
   - [ ] Set 12: Fungi: every phylum down to species
   - [ ] Set 13: Protists: every group down to species
   - [ ] Set 14: Archaea: every phylum down to species
-  - [ ] Set 15: Bacteria: every phylum down to species
-  - [ ] Set 16: Viruses: every group down to type
-  - [ ] Set 17: Elements (all 118)
+  - [~] (the live microbe ecosystem approved; the full tree still to come) Set 15: Bacteria: every phylum down to species
+  - [~] (viruses in the live microbe ecosystem; the full tree still to come) Set 16: Viruses: every group down to type
+  - [x] (approved) Set 17: Elements (all 118)
 
 - [ ] Every sample generated procedurally from a seed: "and remember thses things are get dynamic procedural generations"
 - [x] Samples rendered with Direct3D 12: "Straight to Direct3D 12"
-- [ ] Our own shader-code generator for Direct3D 12 (no outside shader compiler)
-  - Changed: shaders are compiled by `d3dcompiler_47.dll`, which ships with Windows (same reasoning as round 20)
+- [x] Our own shader-code generator for Direct3D 12 (no outside shader compiler)
+  - Changed: shaders are compiled by `d3dcompiler_47.dll`, which ships with Windows (same reasoning as round 20); our own HLSL, compiled as the program starts
 - [ ] The asset builder and its examples come before any play-testing of planet life: "yeah we are in no way ready to test it we havent even build the asset builder and done those examples for all the creatures life villages tiebes towns cities space stuff ect ect"
   - [x] Style sample first, three body looks: "all of the above but we need to find a set style first". **Smooth chosen**: "those will work the smooth and remmebr what i said about them probecedurally generated and dynamic to the life in the geame"
   - [x] Bodies built from the genes of the species in the running game, changing as they evolve: body-plan genes, the gene body builder, and the planet's own land life drawn from its evolved species (`src/shell/LandLife.cs`), and its sea animals swimming from their genes (`src/shell/SeaBodies.cs`)
@@ -233,14 +233,14 @@ Order: galactic scale down, the same order as the sample sets.
 
 - [x] Port the CDF 9/7 engine into the core: forward and inverse lifting, energy-target term selection, Int16 values, dv1 positions (LEB128 deltas), save and load, a strongest-share rebuild dial (`src/core/Wavelet97.cs`). Checked against the reference engine: coefficients match to 3e-17; dv1 round-trips exactly
 - [x] Mode-E: the endless self-similar detail stage (Newton on z³ − K, the 3D cubic continuation, decimal-lattice cellular texture, basin colouring), ported from Uni Vs Matics / Deviant 3D, for detail that never runs out as you zoom (`src/core/ModeE.cs`; per-point `At` and grid `Solve`; checked against Deviant 3D's fractalize.ts: all 12,288 colour values of a 64×64 picture identical)
-- [ ] Re-map the zoom features onto wavelet levels for infinite zoom: each zoom band reads its own level of terms, and mode-E carries on past the finest stored level
-- [ ] Planet ground: the height and colour fields of each planet as wavelet equations per cube face; the living planet's changes (drift, erosion, craters, sea level) written as term edits; ground pieces rebuilt from the level that fits their size (fixes the coarse, blocky ground seen from orbit at native resolution)
+- [~] (built: `Waveform` drives every surface's detail, stored CDF 9/7 octaves then mode-E; the zoom has no floor) Re-map the zoom features onto wavelet levels for infinite zoom: each zoom band reads its own level of terms, and mode-E carries on past the finest stored level
+- [~] (built in part: the living planet's changes as wavelet terms over the six faces, `PlanetTerrain.BakeChanges`) Planet ground: the height and colour fields of each planet as wavelet equations per cube face; the living planet's changes (drift, erosion, craters, sea level) written as term edits; ground pieces rebuilt from the level that fits their size (fixes the coarse, blocky ground seen from orbit at native resolution)
 - [ ] Planet saves: the changed ground saved as its wavelet terms
 - [ ] Clouds, weather and air: cloud cover, rain and temperature fields as wavelet fields
 - [ ] Resource fields and the element map as wavelet fields
 - [ ] Galaxies: star density and gas as wavelet fields; zooming from the universe to a galaxy to a star system reads deeper levels
 - [ ] Nebulas and the deep sky as wavelet fields
-- [ ] Stars up close: surface plasma as a wavelet field with mode-E detail
+- [~] (built in part: the star's surface and its plasma dived into) Stars up close: surface plasma as a wavelet field with mode-E detail
 - [ ] Gas giants: cloud bands and storms as wavelet fields
 - [ ] Life on the ground: where each species lives (population density) as wavelet fields per planet
 - [ ] Microbes and the micro world: the soil and water seen at microbe size from mode-E detail
@@ -305,10 +305,10 @@ Order: galactic scale down, the same order as the sample sets.
   - [ ] galaxy-satellites: big galaxies are circled by dwarf and satellite galaxies
   - [ ] galaxy-name: only our own galaxy is the Milky Way and only our own star is the Sun; generated ones get generated names
 
-- [ ] Galaxy generation from a seed
+- [x] (built: every galaxy from its seed and kind, `GalaxyGen`; the game's own galaxy-size choice still to come) Galaxy generation from a seed
   - Sizes: Small 100, Medium 500, Large 2,000, Massive 10,000 star systems, every one fully simulated: "Fewer, every one detailed".
-- [ ] Solar systems: stars and planets
-- [ ] Multiple galaxies
+- [x] (built: `SpaceGen`, every star's system from the templates) Solar systems: stars and planets
+- [x] (built: about 100 billion on the cosmic web) Multiple galaxies
 
 ### R6 — Planet
 **Spec:** `wiki/systems/r06-planet.md`, `docs/wiki/planets-and-templates.md`, `docs/wiki/elements.md`
@@ -346,11 +346,11 @@ Order: galactic scale down, the same order as the sample sets.
   - Surface split into equal-size cells on a sphere.
 - [ ] Unlockable other planet templates and what unlocks them
   - 100 templates. The first to unlock are Ocean, Desert, Ice, Jungle, Volcanic, Tidally locked and Gas-giant moon. Stages and ages can come in their own order on these.
-- [ ] Ground, plates, mountains, oceans, rivers, ice
-- [ ] Planet interiors: core, mantle, crust, magma, convection, plate tectonics or stagnant lid, volcanoes, geodynamo and magnetic field, magnetosphere and auroras
-- [ ] Atmospheres: layers, pressure, makeup, greenhouse and runaway greenhouse, and air escaping (thermal, hydrodynamic, non-thermal)
-- [ ] Air, weather, climate, seasons, day and night
-- [ ] Chemistry and minerals that life can use
+- [~] (built in part: see R6b) Ground, plates, mountains, oceans, rivers, ice
+- [~] (built in part: `PlanetCore`, `PlanetPlates`; see R6b) Planet interiors: core, mantle, crust, magma, convection, plate tectonics or stagnant lid, volcanoes, geodynamo and magnetic field, magnetosphere and auroras
+- [~] (built in part: `PlanetAir`; see R6b) Atmospheres: layers, pressure, makeup, greenhouse and runaway greenhouse, and air escaping (thermal, hydrodynamic, non-thermal)
+- [~] (built in part: `PlanetWeather`; true day and night with Always day, DESIGN 420) Air, weather, climate, seasons, day and night
+- [~] (built in part: every mineral's real crystal and traces, every natural element placed, `content/minerals.dnat`) Chemistry and minerals that life can use
   - All 118 elements. Lab-made ones (93+) unlock once a civilization creates them.
 
 ### R6b — The living planet (it runs even with no life on it)
@@ -385,8 +385,8 @@ Order: galactic scale down, the same order as the sample sets.
   - [~] Tides from moons and the star (built: a tide range per world that stirs nutrients on coasts; worked out from the real moons and star still to come)
   - [x] Ice: glaciers and ice caps that grow and shrink, ice ages, snowball worlds, sea levels rising and falling with them (ice per region from its temperature; ice ages from the orbit's 100,000, 41,000 and 23,000 year wobbles; seas up to 130 m lower; snowball from the air; ice is hard on land life, sea life lives on under it)
 - **Climate and seasons**
-  - [~] Climate zones from heat, water and spin; they shift as continents move and the air changes (built: each region's temperature from the world's air, its latitude and height, and its rain belt; shifting with the air; continents do not move yet)
-  - [~] Seasons from the planet's tilt, day and night from its spin, years from its orbit (built: seasons from a 23.4 degree tilt, opposite in each half, shown at slow game speeds; day and night still to come)
+  - [~] Climate zones from heat, water and spin; they shift as continents move and the air changes (built: each region's temperature from the world's air, its latitude and height, and its rain belt; shifting with the air; continents drift with their plates now, the climate following the true latitude)
+  - [~] Seasons from the planet's tilt, day and night from its spin, years from its orbit (built: seasons from a 23.4 degree tilt, opposite in each half, shown at slow game speeds; day and night built: every world turns on its own day, its star rising and setting, with Time > Always day to keep daylight, DESIGN 420)
   - [~] Long climate swings: orbit wobbles, the star brightening over billions of years (built: the orbit wobbles; the star brightening still to come)
 - **The surface changes**
   - [x] Erosion: rain, rivers, wind and ice wear mountains down and carry the pieces to the sea (per region, faster the higher, wetter and icier; mountains pushed up where plates crash; rivers carry the worn rock to the seas next door, `src/sim/PlanetSurface.cs`; wind still to come)
@@ -691,12 +691,12 @@ Order: galactic scale down, the same order as the sample sets.
 ### R16 — Shipping
 **Spec:** `wiki/systems/r16-packaging.md`, `docs/SETUP.md`
 
-- [ ] Windows exe
-- [ ] Our own `DNA-AND-Setup.exe` installer
+- [x] (built: the 0.1.0 universe preview) Windows exe
+- [x] (built: `installer/Setup.cs`, our own) Our own `DNA-AND-Setup.exe` installer
   - Uninstall keeps saves and asks whether to delete them.
-- [ ] Post each release on both release pages (git.unityailab.com and GitHub)
+- [x] (0.1.0 on both) Post each release on both release pages (git.unityailab.com and GitHub)
 - [ ] (Later) Mac program
-- [ ] (Later) Linux program
+- [ ] (Later) Linux program (today: through Wine, with `linux/run.sh` in the zip)
 
 ### R17 — Docs (upkeep)
 **Spec:** `wiki/systems/r17-docs-and-capture.md`, `wiki/CLAUDE.md`, `docs/WORK-LAWS.md`
@@ -767,29 +767,29 @@ Order: galactic scale down, the same order as the sample sets.
 - [x] **Stop at the solar system, then on to a planet:** "you keep zooming althe way to the star instead of pausing on solar system view and zooming into a planet". (`DeepView`: floor at the whole system; `PickNearestBody`.) Interim, until the one-world zoom replaces it.
 - [x] **One world, one camera, no handoffs (true infinite zoom at any angle):** "tha angular reelation is not correct when zooming into a galaxy as when approaching a galaxies its just instantly pans flat instread of appearoaching at the angle u are currently in relation to the galaxy, stop it from panning flat when zooming into a galaxy and make it real infinate zoom at any angulare relation and vector" / "no handoffs, that is the shit zoom staging i was talking about"
   - [x] One world holding every scale: the universe of galaxies, each galaxy's stars, each star's system, each planet's ground, its life and its microbes, all placed in one shared space (64-bit positions, a moving origin)
-  - [~] One camera that flies through it at any angle and direction; zooming moves the camera toward what the mouse points at, never switches views (built for the universe and galaxies: `src/shell/UniverseView.cs`, `--world`; the wheel flies along the mouse's line by a share of the distance to the nearest thing, so it slows by itself and never ends; a galaxy fades from its far glow into its own 150,000 stars at whatever angle you come in)
+  - [x] One camera that flies through it at any angle and direction; zooming moves the camera toward what the mouse points at, never switches views (built the whole way, from the cosmic web to the quarks; it began with the universe and galaxies: `src/shell/UniverseView.cs`, `--world`; the wheel flies along the mouse's line by a share of the distance to the nearest thing, so it slows by itself and never ends; a galaxy fades from its far glow into its own 150,000 stars at whatever angle you come in)
   - [x] What is drawn is chosen by how big it looks from the camera, so things grow smoothly into view (a galaxy into its stars, a star into its system, a planet into its ground) with no pop
   - [x] Detail at every scale from the wavelet levels and mode-E (R4.6), so nothing loads in steps
   - [x] Below the ground's finest piece, the ground's own matter, all the way down: "i love the scale when u go down to um u should start to see atoms and shit not to mention microbes bacteria and viruses, but like i said life isnt built yet". Grains of sand and dust (mode-E), then the crystals of the real minerals that make the ground there (from its resource field and `content/elements.dnat`), then their molecules, then atoms of their real elements; microbes, bacteria and viruses join once life is built
   - [ ] Remove the separate views and their handoffs (GalaxiesView, DeepView, PlanetView switching) once the one world draws everything they do
 - [x] **Real stars of the space you are in:** "the stars u are flying by are just place holders". Built: around the camera the galaxy fills in with its real stars at the galaxy's true density (about 100 billion in all), in 25-light-year cubes made from their own position (`UniverseView.LocalStars`); the nearest star is now light-years away, not hundreds. Built too: the wheel flies straight at a star (or, in a system, a planet or moon) within about 4 degrees of where you point; stars are drawn at their real size (a dot from afar); the star of the system you are in shows its real body (plasma surface and corona) at true size. Built too: within 40 of its radii a planet or moon gets its real ground (`PlanetTerrain`, with its wavelet change fields), drawn in the same camera from its own centre in km, lit by its star; the zoom measures to the ground and never goes below it. Still to do: the full path checked at native resolution; carrying on below the ground's finest piece with mode-E.
-- [~] **The engine must use the GPU properly:** "and is our engine beffy enough? i see im only using like 2G of GPU and the game is running kinda slow". Today the CPU and GPU take turns every frame (EndFrame waits for the GPU to finish), the ground is built vertex by vertex on the CPU, and points are re-sent each frame. To do: overlap frames (two or three in flight), build the ground and rebuild the wavelet fields on the GPU, keep point sets on the GPU and move them with constants. Built: the ground is built in the background by one worker per core and each frame takes in finished pieces (never waits); 37 to 49 fps at 3818x2074 on a 2 km view. Still to do: frames in flight, the ground and wavelet rebuild on the GPU, points kept on the GPU.
+- [~] **The engine must use the GPU properly:** "and is our engine beffy enough? i see im only using like 2G of GPU and the game is running kinda slow". Today the CPU and GPU take turns every frame (EndFrame waits for the GPU to finish), the ground is built vertex by vertex on the CPU, and points are re-sent each frame. To do: overlap frames (two or three in flight), build the ground and rebuild the wavelet fields on the GPU, keep point sets on the GPU and move them with constants. Built: the ground is built in the background by one worker per core and each frame takes in finished pieces (never waits); 37 to 49 fps at 3818x2074 on a 2 km view. Built since: a frame in flight (`Gpu.BeginFrame`, DESIGN 459), the grain's face and the sand per pixel on the card, the web's light sifted on the card. Still to do: the ground and wavelet rebuild on the GPU, points kept on the GPU.
 - [x] **The universe preview release:** "then once i test it and give the okay. go ahead and buidl a exe. of the \"game\" (what we have as far as the universe thats just a dead universe but fully made with all the probelms ive said in totality fixed , then build and deploy the project with the binary iinstall of the .exe like the Agent Gen program and Gladiator folders on desktop do in buidling a binary in all the ways it works. so that wee have a sample universe .exe that runs and is just a preview of the universe fully working c/9 waveform fully and fuull infinate zoom fully tested by you them me befoer building the .exe completely and deploy of releases(noting this is just the univerese without game play or ui or features yet"
   - [x] The one-world universe complete, every problem raised fixed, the 9/7 waveform and infinite zoom throughout
   - [x] Tested fully by me at native resolution, then tested by the creator, who gives the okay
-  - [~] The preview build: `build.cmd NAME preview` makes a copy that always opens in the one-world universe
-  - [~] Our own installer, not NSIS: "Our own installer (Recommended)". Prepared, not yet built or released: `installer/Setup.cs` (installs to the user's Programs folder, Start menu and desktop shortcuts, Apps list entry, uninstaller) and `release.cmd` (preview build, zip, installer). Run only after the creator has tested and given the okay: "i havent tested yet, so dont build the exe yet"
+  - [x] The preview build: `build.cmd NAME preview` makes a copy that always opens in the one-world universe
+  - [x] Our own installer, not NSIS: "Our own installer (Recommended)". Built and released (0.1.0 on both release pages): `installer/Setup.cs` (installs to the user's Programs folder, Start menu and desktop shortcuts, Apps list entry, uninstaller) and `release.cmd` (preview build, zip, installer). Run only after the creator has tested and given the okay: "i havent tested yet, so dont build the exe yet"
   - [x] Only then: build the .exe and its binary installer the way the Agent Gen and Gladiator projects do, and publish the release
   - [x] **Its own Universe project (after the good test):** "and when we deploy the exe after i have a good test we need to make the program into its own repo with everything needed to build the universe only so its one two remotes on git and github need to make the github one with only supposrt documents for this universe program and everything any one would need to build inthis universe and change it and deploy their own exe in everything needed that we have made so far just not the DNA AND project for these repo remotes only a universe project with none of the life and project stuff so this is its own project made from DNA AND as a dmeo but not a dmeo the full universe we have sdo anyone can use it and build with it and all readme and instructions  for the technicals but a base good readme about the universe and how it works non technical and laymans like and fun to read and the exe has all of the public docs for it : https://git.unityailab.com/GFourteen/Universe.git"
     - [x] A separate repo with only what builds the universe (no life or DNA-AND project files), two remotes: https://git.unityailab.com/GFourteen/Universe.git and a GitHub repo (to make)
     - [x] Technical readme and instructions: how to build, change and deploy your own .exe
-    - [~] A base readme about the universe and how it works, non-technical, layman-like and fun to read. Drafted: `docs/release/UNIVERSE-README.md`
-    - [~] The .exe carries all of the public docs for it. Prepared: `release.cmd` puts the plain readme and the build guide in the package's `docs` folder, with `README.txt`; the Help menu carries About, Readme, How it works and Credits
+    - [x] A base readme about the universe and how it works, non-technical, layman-like and fun to read. Written: `docs/release/UNIVERSE-README.md`
+    - [x] The .exe carries all of the public docs for it. Built: `release.cmd` puts the plain readme and the build guide in the package's `docs` folder, with `README.txt`; the Help menu carries About, Readme, How it works and Credits
     - [x] **Credits, readmes and repo links, pushed and released:** "and make sure the apps cedits redadmes technical readmes and documentations and links to the repose for Universe project are made and correctly pushed and deployed a release of the .exe for the full universe and all needed files and documentations of them for public release, but i stell need to test all the fixes weve talked about"
-      - [~] The program's Credits and About link the Universe repo (git.unityailab.com/GFourteen/Universe); the GitHub link once that repo is made
+      - [x] The program's Credits and About link the Universe repo (git.unityailab.com/GFourteen/Universe); the GitHub repo made (github.com/Unity-Lab-AI/Universe)
       - [x] Technical readme (build, change, deploy your own .exe) and the public docs, in the repo and inside the .exe
       - [x] Pushed to both remotes and the .exe released, only after the creator has tested all the fixes
-  - [~] About, Readme and Credits built into the program's menu bar, and its header tools such as the scale HUD for the zoom: "make sure the e.xe has a proper about and readme and credits built into the program header tools like the sclae hud for zoom relation" Built: the one world's menu bar has Exit, View (scale on screen, render scale) and Help (Readme, Credits, About) (`Window.SetWorldMenu`, `src/shell/PreviewText.cs`); the release build still to come.
+  - [x] About, Readme and Credits built into the program's menu bar, and its header tools such as the scale HUD for the zoom: "make sure the e.xe has a proper about and readme and credits built into the program header tools like the sclae hud for zoom relation" Built: the one world's menu bar has Exit, View (scale on screen, render scale) and Help (Readme, Credits, About) (`Window.SetWorldMenu`, `src/shell/PreviewText.cs`); released: Help carries Documents, Readme, How it works, Against the field, Credits and About.
   - [x] Windows and Linux installs: "need linix and windows install" / "for the .exe". The engine talks to Windows directly (Direct3D 12, Win32), so Linux needs its own port: Vulkan graphics and Linux windowing, our own code, no outside libraries
 - [x] **No tearing at full zoom:** "at full zoom it like screen tears do u see that". The camera stays above the finest ground made under it.
 - [x] **No shimmering ghosts on the planet:** "and planet has static ghost like marages on surface at planet zoom". A tight depth range for the ground.
@@ -938,7 +938,7 @@ Order: galactic scale down, the same order as the sample sets.
 - [x] **The tour's crossing of billions of light-years to a far galaxy:** (built: DESIGN 483; waits on the test) "and it like zooms in and out of the same galazxy when it should fly like 1-5 billion light years to a whole nother galaxy on web galaxy view zoom out" / "its like it keeps selecting the closest"
 - [x] **The dive under the sea to the bed; the tour comes down on land:** (built: DESIGN 484; waits on the test) "and dont zoom in to water worlds as it not propelry done yet as the fall to planet is under water or at least it looks like it is a 500mm level" / "need to fix water worlds and water zommming in to go to bed rock" / "i took a scrren shot of that issue" / "if we can get all the worlds working correctly i dont care what it zooms into" / "and qwerks never loaded and it says a spot in the seas on 200 attometers" / "and just beforee atom view its a weird grid like checkbaord of differnt colors so the elctron microscope vioew neever happend on the water world"
 - [x] **No atom wobble:** (built: DESIGN 485; waits on the test) "and eatoms are all wobbel;y looks nosiating the atom is wobbleing even when focused on"
-- [ ] **Every body landed on and zoomed into, with its real make-up:** (roadmap: DESIGN 486) "ie i should be able to find a gold astroid or nickle being most common ect ect and zoom infinated on any body or abject" / "stars shoiuld be mostly hydrogen till getting to it heavey m,etal cores ect ect"
+- [~] **Every body landed on and zoomed into, with its real make-up:** (roadmap R18: DESIGN 486; the small bodies, the stars' surfaces and the neutron star's crust built, DESIGN 546; a star's layers to its core left) "ie i should be able to find a gold astroid or nickle being most common ect ect and zoom infinated on any body or abject" / "stars shoiuld be mostly hydrogen till getting to it heavey m,etal cores ect ect"
 - [x] **The code's density, said plainly in the docs:** (built: DESIGN 487; waits on the read) "make notes in document this prokject code is mostly not human readible, right? thats correct right?"
 - [x] **Who can change what, said in the docs:** (built: DESIGN 488; waits on the read) "what i mean is without AI only advance coders can manually edit it"
 - [x] **The code note is a suggestion, not a rule:** (built: DESIGN 489; waits on the read) "its not who can do what its a suggestion"
@@ -1018,4 +1018,6 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **The well a long funnel to the point (the radius on a log scale down the throat); one card, short cards:** (built: DESIGN 566; waits on the test) "okay i see the grid but its not a long pointing grid that u fall into for along weays it looks more like just a opening it should narow down to a nothing" / "and another scrreen shot of fucked up text" / "the cards info for obects is weay too world ist a fucking text wall" / "like comets and shit are just massive run on gibber"
 - [~] **Cards below the tour's bar, one at a time; the fall's grid over the matter's floor; the asteroid's dive from your real height:** (built: DESIGN 567; waits on the test) "okay i have a bunch of scren shoots of grid issues when fgalling into black hole looking up its not a long spike opf a cone to infinity samlll and the text is still fucked scheck all the screen shots" / "the text keeps getting fucked at dfifferent times" / "annd it zoomes in to micro scale on an astroid in error it think and way to fast"
 - [~] **The world's flicker at the shot's start; the face at nanometres (height on the drawn shape, the sheet under it, spikes out); one picture a level; cards between the bars; clicks in the lattice; the clip's size:** (built: DESIGN 568-571; waits on the test) "and there was some bad clipping on the world dive from space to planet like jsut after it get to the planet the planet was clcipping in and out of existance, idk maybe wait for the clip to finish and u take alot at that point, clipping can be two things trying to acupy same space maybe but idk for sure check that out, and i took more shreen shots of shit that happens right about 2 microns and shit" / "and ther is a matix of atoms that looks good but its like its trying to show the attoms as orbs and electons paths at the same time, i dont mind the mix as its kinda old school undertanding of visuals mixed with actuality, but weould be nice to have more concret desingatores between zoom levels not levels that share two didffent zoom level environments" / "and make usre u fix that text display cropping issue or what ever it is" / "okay maybe check the shereen shots and the clip if they dont help but we have major problems in the screenshots" / "and u looked at those zoom level shots taken right where shit is teraing and not displaying correctly, can u prorply fiz those zoom level before getting to the atoom like the pitch black and the white balck screen tearing and artifacts and spikesd shit" / "idk maybe its not having focus is the only problem but i daubt it. the white and black zoom levels are all fucked where shit isnt drawing in and only partially at times makeing weridl structures and seeing through the planet to the stars and shit" / "makebe check the clip of the planet zoom in to atoms and look at what i saw" / "and ther is nothing to click on in the crtystal lattuces white and black zooms" / "its just looks like a blank and white hynotize type shit in gemotric shapes all fucky like whavlf drawmn and faded out and missing gaps to see stars behind" / "and the tour is like 15  min its okay but the file size of the clip is manageble right?" / "like how big is a 15 min clip" / "is that full resolution ? maybe we can have options for smaller reslutions native ones so its doesnt need to make such massive files for pizel designed players"
+- [~] **The sand on the card above the ground itself; the activating click a click; room for every atom in the pick list:** (built: DESIGN 572; waits on the test) "and fix those still open items"
+- [~] **Every document checked top to bottom, every single wrong word:** (done: DESIGN 573; the docs audit's fixes shipped) "make sure all docs are not stale, and when i say "all" i mean it all fucking documents, top to bottom look for single words that are wrong too" / "and we did the comparisons correct for other similar apps and games right? with the chekmarks and write up and stuff all proper and truthfull at how kick ass this application is beeing so samll and doing so much"
 
