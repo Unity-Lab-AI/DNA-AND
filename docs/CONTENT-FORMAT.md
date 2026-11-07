@@ -40,7 +40,7 @@ tags: hot, bright, short-lived
 @star g-type
 name: G-type yellow star
 real: yes
-example: the Sun
+example: our own star
 ...
 ```
 
@@ -62,7 +62,7 @@ example: the Sun
 - **Research first** (LAW 16): every topic is researched before its file is written, so no kind, part, event or example is left out.
 - Units go in the key name (`temp-k`, `mass-sol`, `radius-km`).
 - Facts marked `real: yes` must be real. If a fact isn't certain, it's left out (LAW 7).
-- Our star is always "the Sun". Every other star is a star (LAW 9).
+- Our own star is "our own star", never its name: the word is not used in these projects. Every other star is a star (LAW 9). Masses, radii and brightness are in solar units (solar masses, solar radii, solar luminosities), the correct terminology.
 
 ---
 
@@ -90,7 +90,7 @@ The sample subjects come first (round 15): planets, stars, gas giants, Dyson sph
 - `content/bodies.dnat` (`@place` entries: every kind of body made round you, black holes, neutron stars, rogue planets, asteroids, Kuiper bodies and comets, with their shares and where they live)
 - `content/cities.dnat`
 - `content/climate.dnat`
-- `content/elements.dnat` (each `@element` also carries `colour`, `covalent-a`, `atomic-a`)
+- `content/elements.dnat` (each `@element` also carries `colour`, `covalent-a`, `atomic-a`; the unstable ones `half-life` and `decays`)
 - `content/galaxies.dnat`
 - `content/gas-giants.dnat`
 - `content/minerals.dnat` (`@mineral` with `lustre`, `clarity` and `trace` lines, `@mix`, `@surface`)
@@ -106,18 +106,16 @@ The sample subjects come first (round 15): planets, stars, gas giants, Dyson sph
 - `content/geology.dnat`
 - `content/moons.dnat`
 - `content/nebulas.dnat`
-- `content/physics.dnat` (`@law` entries; `@law supernova` and the `@supernova` kinds)
+- `content/physics.dnat` (`@law` entries, among them `gravity` with `g-m3-kg-s2`, `frame-dragging` with `spin-range`, `gravity-off` with `swell-over-freefall`; `@law supernova` and the `@supernova` kinds)
 - `content/planets.dnat`
 - `content/resource-fields.dnat`
 - `content/small-bodies.dnat` (each kind with `mix`, `makeup`, `density`, `albedo`; asteroids with `belt-share`)
-- `content/terrain.dnat` (`@terrain`: each kind of world's size, ground, water, air, clouds, rock and base temperature)
-- `content/tours/grand-tour.dnat` (`@stop` entries: the grand tour's camera moves and captions)
-- `content/universe.dnat` (`@universe`: how far you see, how many galaxies, the cosmic web, how finely galaxies and real stars are made round you)
-- `content/tours/grand-tour.dnat` (`@stop` entries: the grand tour's camera moves and captions)
+- `content/terrain.dnat` (`@terrain`: each kind of world's size, `density-g-cc` (its mass follows), ground, water, air, clouds, rock and base temperature)
+- `content/tours/grand-tour.dnat` (`@stop` entries: the grand tour's camera moves and captions; `{seen}` in a caption is how much of the universe the tour reached)
 - `content/universe.dnat` (`@universe`: how far you see, how many galaxies, the cosmic web, how finely galaxies and real stars are made round you)
 - `content/solar-systems.dnat`
 - `content/space-tech.dnat`
-- `content/stars.dnat` (each `@star` with `makeup`, by count of atoms, and `makeup-note`)
+- `content/stars.dnat` (each `@star` with `makeup`, by count of atoms, and `makeup-note`; the `@layer` entries, a star's layers from its surface to its core, each with `from-r`, `to-r`, `temp-k`, `density-g-cc`, `makeup` and `in`)
 
 `real:` values in use: `yes`, `hypothetical`, `game` (for example hyperdrives and world grinders), and `rule`.
 

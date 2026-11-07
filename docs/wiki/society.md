@@ -105,7 +105,7 @@ Every thinking species builds a **society**, and it changes as they climb the [1
 | 63 | **Shamanism** | Healers who talk to spirits |
 | 64 | **Polytheism** | Many gods |
 | 65 | **Monotheism** | One god |
-| 66 | **Sun-star worship** | Their own star is a god |
+| 66 | **Star worship** | Their own star is a god |
 | 67 | **Nature worship** | Earth and life are holy |
 | 68 | **Prophet faith** | A prophet's word is law |
 | 69 | **Mystery cults** | Secret rites |

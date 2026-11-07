@@ -54,7 +54,7 @@ Everything here starts from real science and real life. The game builds every on
 
 | | What it is |
 |---|---|
-| **The Milky Way** | Our home galaxy, the Sun is in one of its arms |
+| **The Milky Way** | Our home galaxy, our own star is in one of its arms |
 | **Andromeda Galaxy** | The nearest big galaxy, heading toward the Milky Way |
 | **Large Magellanic Cloud** | A satellite galaxy of the Milky Way |
 | **Messier 87** | Home of the first black hole ever photographed |
@@ -97,7 +97,7 @@ Everything here starts from real science and real life. The game builds every on
 - A world can hold more than one galaxy; extra galaxies sit in pairs, groups or clusters along filaments, with voids between
 - Galaxies that pass close pull out tidal tails, may trigger a starburst, and can merge into one
 - Big galaxies are circled by dwarf and satellite galaxies
-- Only our own galaxy is the Milky Way and only our own star is the Sun; generated ones get generated names
+- Only our own galaxy is the Milky Way and our own star is never named here; generated ones get generated names
 
 ---
 
@@ -107,7 +107,7 @@ Everything here starts from real science and real life. The game builds every on
 
 | | What it is |
 |---|---|
-| **Sun-like system** | Small rocky planets close in, gas and ice giants further out, belts and an icy outer shell. Example: the Solar System |
+| **Usual system** | Small rocky planets close in, gas and ice giants further out, belts and an icy outer shell. Example: the Solar System |
 | **Compact system** | Many rocky planets packed tightly close to a dim star. Example: TRAPPIST-1 |
 | **Hot-Jupiter system** | A gas giant orbiting very close to its star, usually with few close neighbors. Example: 51 Pegasi |
 | **Crowded system** | Many planets of every size. Example: Kepler-90 |
@@ -118,7 +118,7 @@ Everything here starts from real science and real life. The game builds every on
 | **Giant-free system** | Only small rocky planets |
 | **Young system** | A star still wrapped in its dust and gas disk, planets still forming |
 | **Debris-disk system** | A grown star with a wide belt of dust and rock left over |
-| **White-dwarf system** | The survivors of a dead Sun-like star, often with rubble falling in |
+| **White-dwarf system** | The survivors of a dead one-solar-mass star, often with rubble falling in |
 | **Pulsar system** | Planets circling a spinning dead star. Example: PSR B1257+12, home of the first planets ever found outside the Solar System |
 | **Starless planet** | A rogue planet with no star, sometimes with moons |
 
@@ -162,7 +162,7 @@ Everything here starts from real science and real life. The game builds every on
 - In two- and three-star systems, planets orbit one star or circle the whole group, never in between
 - Life is most likely in the habitable zone, but ice-shell moons and other strange worlds can hold life too
 - Young systems still have dust disks and forming planets; old systems have settled orbits
-- Only our own system is the Solar System and only our own star is the Sun; generated ones get generated names
+- Only our own system is the Solar System and our own star is never named here; generated ones get generated names
 
 ---
 
@@ -176,7 +176,7 @@ Everything here starts from real science and real life. The game builds every on
 | **B-type blue-white star** |  |
 | **A-type white star** | Example: Sirius A |
 | **F-type yellow-white star** |  |
-| **G-type yellow star** | Example: the Sun |
+| **G-type yellow star** | Example: our own star |
 | **K-type orange star** |  |
 | **M-type red dwarf** | Example: Proxima Centauri |
 
@@ -184,7 +184,7 @@ Everything here starts from real science and real life. The game builds every on
 
 | | What it is |
 |---|---|
-| **Red giant** | Late life of a Sun-like star |
+| **Red giant** | Late life of a one-solar-mass star |
 | **Red supergiant** | Late life of a heavy star. Example: Betelgeuse |
 | **Blue supergiant** | Example: Rigel |
 | **Wolf-Rayet star** | Heavy star blowing off its outer layers |
@@ -194,14 +194,14 @@ Everything here starts from real science and real life. The game builds every on
 | | What it is |
 |---|---|
 | **Protostar** | A star still forming inside a gas cloud |
-| **T Tauri star** | A young Sun-like star, not yet steady |
+| **T Tauri star** | A young one-solar-mass star, not yet steady |
 | **Brown dwarf** | Too light to burn like a true star |
 
 ### Dead and strange stars
 
 | | What it is |
 |---|---|
-| **White dwarf** | The leftover core of a Sun-like star |
+| **White dwarf** | The leftover core of a one-solar-mass star |
 | **Neutron star** | The crushed core left by a supernova |
 | **Pulsar** | A spinning neutron star sweeping beams through space |
 | **Magnetar** | A neutron star with an enormous magnetic field |
@@ -217,7 +217,7 @@ Everything here starts from real science and real life. The game builds every on
 | **Bright giant (class II)** | Between giants and supergiants |
 | **Giant (class III)** | Example: Arcturus |
 | **Subgiant (class IV)** | A star just starting to swell into a giant |
-| **Main-sequence star (class V)** | A star steadily burning hydrogen, like the Sun |
+| **Main-sequence star (class V)** | A star steadily burning hydrogen, like our own |
 | **Subdwarf (class VI)** | Dimmer than a main-sequence star of the same color |
 
 ### Extra star types
@@ -238,7 +238,7 @@ Everything here starts from real science and real life. The game builds every on
 - Heavier stars burn hotter and die sooner, lighter stars burn cooler and live longer
 - When a galaxy is generated, red dwarfs are by far the most common and blue stars the rarest
 - Every generated star picks its values from inside its type's ranges, from the world seed
-- Only our own star is called the Sun; every other star is a star
+- Our own star is never named here; every star is a star
 
 ---
 
@@ -249,8 +249,8 @@ Everything here starts from real science and real life. The game builds every on
 | | What it is |
 |---|---|
 | **Stellar-mass black hole** | The most common kind, often found feeding on a companion star. Example: V404 Cygni |
-| **Intermediate-mass black hole** | Rare and hard to find; candidates are still debated. Example: the remnant of the merger GW190521, about 142 Sun masses |
-| **Supermassive black hole** | Example: Sagittarius A*, about 4 million Sun masses |
+| **Intermediate-mass black hole** | Rare and hard to find; candidates are still debated. Example: the remnant of the merger GW190521, about 142 solar masses |
+| **Supermassive black hole** | Example: Sagittarius A*, about 4 million solar masses |
 | **Ultramassive black hole** |  |
 | **Primordial black hole** *(predicted by science)* | Never confirmed; could come in any size |
 | **Spinning black hole** | A black hole that rotates, dragging space around with it; it has an ergosphere |
@@ -299,9 +299,9 @@ Everything here starts from real science and real life. The game builds every on
 
 | | What it is |
 |---|---|
-| **Sagittarius A*** | About 4 million Sun masses, no detected jet |
+| **Sagittarius A*** | About 4 million solar masses, no detected jet |
 | **M87*** | The first black hole ever photographed (2019), with a jet about 5,000 light-years long |
-| **V404 Cygni** | Feeding on a Sun-like companion star |
+| **V404 Cygni** | Feeding on a one-solar-mass companion star |
 | **NGC 1068** | Where astronomers found the hidden fast-moving gas behind the dust |
 
 **How it works in the game:**
@@ -325,7 +325,7 @@ Everything here starts from real science and real life. The game builds every on
 | **Emission nebula (H II region)** | Gas lit up from inside by hot young stars; where new stars are being born. Example: the Orion Nebula |
 | **Reflection nebula** | Dust that only reflects the light of nearby stars. Example: NGC 1999 |
 | **Dark nebula** | Dust so thick it blocks the light behind it. Example: the Horsehead Nebula, the Coalsack |
-| **Planetary nebula** | The glowing shell a dying Sun-like star throws off; nothing to do with planets. Example: the Helix Nebula |
+| **Planetary nebula** | The glowing shell a dying one-solar-mass star throws off; nothing to do with planets. Example: the Helix Nebula |
 | **Supernova remnant** | The wreck of an exploded star, a shock wave sweeping up gas as it spreads. Example: the Crab Nebula, from a star seen exploding in 1054 |
 
 ### Star-forming structures
@@ -345,7 +345,7 @@ Everything here starts from real science and real life. The game builds every on
 - Every nebula is generated live from the world seed; nothing is pre-built
 - A cloud glows red if hot stars light it from inside, blue if it reflects starlight, and black if there's no light behind it
 - Molecular clouds and their globules and pillars collapse into new stars and solar systems over time
-- Dying Sun-like stars leave planetary nebulas; exploding heavy stars leave supernova remnants that seed new clouds with heavy elements
+- Dying one-solar-mass stars leave planetary nebulas; exploding heavy stars leave supernova remnants that seed new clouds with heavy elements
 - Star-forming nebulas sit mostly in a galaxy's spiral arms
 - Thick nebulas block sight and slow travel; they are also rich in gas resources
 
