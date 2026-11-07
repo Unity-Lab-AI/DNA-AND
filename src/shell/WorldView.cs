@@ -1084,7 +1084,7 @@ namespace DnaAnd.Shell
                 ChooseNear(); LocalStars(); ChooseSystem(); FollowBody(); ChoosePlanet();
                 return true;
             }
-            if (_ground != null && input.Wheel > 0 && AboveGround() < Units.Km(1.5e-6))
+            if (_ground != null && input.Wheel > 0 && AboveGround() < Units.Km(3e-8))   // (the ground itself carries its grains down to about 30 micrometres)
             {
                 // at the finest ground: on down into what it is made of
                 double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z);
@@ -1491,7 +1491,7 @@ namespace DnaAnd.Shell
                     DrawPoints(_coronaBuf, _starCorona.Length, m * vp, right, up, 1f, 0f, w, h, time);
                 }
             }
-            if (_ground != null && !(_matterScale > 0 && _matterScale < 1e-7))   // (below a tenth of a millimetre the grain itself fills all round you: the planet's ground mesh is not drawn)
+            if (_ground != null && !(_matterScale > 0 && _matterScale < 2e-8))   // (below a tenth of a millimetre the grain itself fills all round you: the planet's ground mesh is not drawn)
             {
                 // the planet's real ground, in km around its centre, with the same view turn; near and far follow the height
                 _gpu.ClearDepth();

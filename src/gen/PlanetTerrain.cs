@@ -197,7 +197,7 @@ namespace DnaAnd.Gen
             {
                 double width = Radius / f;                           // km across one bump at this layer
                 if (_grainKm > 0 && width < _grainKm * 0.25) break;  // finer than a quarter of a sand grain: the grains themselves take over (the stones lie on it all the way)
-                sum += (Value(x * f + i * 3.1, y * f - i * 5.3, z * f + i * 2.9, seed + (uint)i * 13u) * 2 - 1) * Math.Min(width * 0.18, 3.0);
+                sum += Waveform.Layer(x * f + i * 3.1, y * f - i * 5.3, z * f + i * 2.9, seed, i, 26) * 2.2 * Math.Min(width * 0.18, 3.0);   // each layer one octave of the waveform (stored CDF 9/7 levels, mode-E past them)
                 f *= 2;
             }
             return sum;
@@ -609,6 +609,7 @@ namespace DnaAnd.Gen
         {
             if (Kinds.Count == 0) LoadKinds(content);
             GrainField.Load(content);
+            Waveform.Init();                                                             // the stored waveforms, made once here
             if (Fields.Count > 0) return;
             foreach (var e in content.Entries) if ((e.Kind == "planet" || e.Kind == "giant") && e.Props.ContainsKey("air")) Air[e.Id] = e.Get("air", "");
             for (int i = 0; i < FieldIds.Length; i++)

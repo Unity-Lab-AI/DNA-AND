@@ -146,14 +146,8 @@ namespace DnaAnd.Gen
             double sx = 0.8 + 0.4 * Hash(key, 16, 0, seed), sy = 0.6 + 0.35 * Hash(key, 17, 0, seed), sz = 0.8 + 0.4 * Hash(key, 18, 0, seed), turn = Hash(key, 19, 0, seed) * Math.PI * 2;
             double ct = Math.Cos(turn), st = Math.Sin(turn), ux = dx * ct + dz * st, uz = -dx * st + dz * ct;
             double r = rad / Math.Sqrt(ux * ux / (sx * sx) + dy * dy / (sy * sy) + uz * uz / (sz * sz));
-            double rough = 0, amp = 0.16, f = 2.5;
-            for (int k = 0; k < 48; k++)
-            {
-                double fine = rad / f / cell; if (fine < 0.5) break;
-                double w = Math.Min(1, fine - 0.5);
-                rough += w * amp * (VNoise(ux * f, dy * f, uz * f, key + k) - 0.5) * 2;
-                amp *= 0.5; f *= 2;
-            }
+            // its roughness at every size: the waveform (stored CDF 9/7 levels, then mode-E finer), to the finest that can show
+            double rough = Waveform.Octaves(ux, dy, uz, key, 2.5, 0.16, 0.5, rad / cell * 2);
             // its face is broken and grown in steps at every size (cleavage and growth terraces, curved fracture ripples):
             // each size of step a quarter the one above, coming in as the detail reaches it, so there is always more to see
             double steps = 0, sh = 0.03, sf = 3;
@@ -179,16 +173,10 @@ namespace DnaAnd.Gen
         /// patches at every size (iron oxide orange-red, pale clay), darker in its cracks; fixed on the grain, never moving.</summary>
         public static void Stain(long key, double dx, double dy, double dz, double rad, double cell, out float r, out float g, out float b)
         {
-            double iron = 0, clay = 0, dark = 0, f = 2.0, amp = 1, norm = 0;
-            for (int k = 0; k < 24; k++)
-            {
-                double size = rad / f; if (size / cell < 0.8) break;
-                double w = Math.Min(1, size / cell - 0.8);
-                iron += w * amp * (VNoise(dx * f, dy * f, dz * f, key * 7 + k + 300) - 0.5);
-                clay += w * amp * (VNoise(dx * f + 9, dy * f, dz * f - 4, key * 7 + k + 400) - 0.5);
-                dark += w * amp * Math.Max(0, 0.5 - Math.Abs(VNoise(dx * f * 1.7, dy * f * 1.7, dz * f * 1.7, key * 7 + k + 500) - 0.5) * 6);   // thin dark cracks
-                norm += amp; amp *= 0.6; f *= 2.3;
-            }
+            // its stains and cracks at every size: the waveform too
+            double lim = rad / cell * 1.6; if (lim < 2) { r = g = b = 1; return; }
+            double iron = Waveform.Octaves(dx, dy, dz, key * 7 + 300, 2.0, 1, 0.6, lim), clay = Waveform.Octaves(dx + 9, dy, dz - 4, key * 7 + 400, 2.0, 1, 0.6, lim);
+            double crackv = Waveform.Octaves(dx * 1.7, dy * 1.7, dz * 1.7, key * 7 + 500, 2.0, 1, 0.6, lim), dark = Math.Max(0, 0.5 - Math.Abs(crackv) * 3), norm = 2.4;
             if (norm <= 0) { r = g = b = 1; return; }
             iron = Math.Max(0, iron / norm * 2.4 - 0.15); clay = Math.Max(0, clay / norm * 2.4 - 0.2); dark = Math.Min(0.6, dark / norm * 1.5);
             double ir = Math.Min(0.6, iron), cl = Math.Min(0.5, clay);

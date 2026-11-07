@@ -22,7 +22,7 @@ namespace DnaAnd.Shell
     {
         private readonly Gpu _gpu; private readonly BillboardDrawer _dots;
         private UploadBuffer _solidBuf, _glowBuf, _meshBuf; private StarVertex[] _sv = new StarVertex[0], _gv = new StarVertex[0], _mv = new StarVertex[0];
-        public const double TopKm = 2.6e-6;         // where the matter alone is drawn, about 1.5 mm up (above it the grains lie over the ground)
+        public const double TopKm = 5e-8;           // where the matter alone is drawn, about 1.5 mm up (above it the grains lie over the ground)
         public const double OverlayKm = 1e-5;       // 1 cm up: the grains begin to show over the ground, as specks that grow as you come down
         public const double BottomKm = 1e-20;       // 0.01 femtometres: inside a proton or neutron, among its quarks
         private double Grain = 2e-7;                // a grain's size across (km): from its ground's mix (content: grain-mm)
