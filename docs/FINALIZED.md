@@ -192,3 +192,4 @@ LAW 11 now includes a content-coverage check.
 - [x] "and it jsut rotates around the planet it zooms into for loike 20 rotations making me dizzy as fuck with gimle losk happening stilkl": no circling on the way down to a world (DESIGN 404).
 - [x] "dnd  5 fps so u arnt proply not doing other shit and only the view window": only the grain face in view worked out and drawn (DESIGN 405).
 - [x] "add its speengin too much time at thew 100-2 nano meter scale and never made it to atoms": full pace in the matter, faster zooms to the atoms (DESIGN 406).
+- [x] "oioaky i dont like the zoom out to webb ciew its like side scrolling for a 100 million light years and shit is just flying by that close and u cant see far away so its like a black screen with galxies flying by super fast.. not cneematic at all": straight pull out, slow web turn, the far web brighter and deeper (DESIGN 407).
