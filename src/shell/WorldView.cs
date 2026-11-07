@@ -603,7 +603,7 @@ namespace DnaAnd.Shell
             return true;
         }
         public bool Touring { get { return _tour != null; } }
-        private string TourCaption { get { return _tour != null && _tourAt < _tour.Count ? _tour[_tourAt].Caption : ""; } }
+        private string TourCaption { get { return _tour != null && _tourAt < _tour.Count ? _tour[_tourAt].Caption + "   (the view: " + ScaleHud.Words(ViewDistanceKm()) + ")" : ""; } }   // the scale is what the tour shows
         // one frame of the tour: what the stop asks, given to the controls; on to the next when it is done
         private void TourStep(Input input, double dt, int w, int h)
         {
@@ -647,6 +647,17 @@ namespace DnaAnd.Shell
                         int ix = (int)_tourDragX, iy = (int)_tourDragY; _tourDragX -= ix; _tourDragY -= iy;
                         input.LeftDown = true; input.MouseDX = ix; input.MouseDY = iy; _pressed = true; _dragged = true;
                         if (_tourT >= st.Seconds) { done = true; input.LeftDown = false; input.MouseDX = input.MouseDY = 0; _pressed = false; }
+                    }
+                    break;
+                case "fly":
+                    {
+                        // a steady flight forward, past what is ahead (a star, a world): the same share of the distance to the
+                        // nearest thing each second, eased in and out, never a sudden speed-up; turning slowly as it goes
+                        double ease = Math.Min(1, _tourT / 2) * Math.Min(1, Math.Max(0, st.Seconds - _tourT) / 2);
+                        double sp = Math.Max(NearestDistance(), _farScale) * st.Rate * dt * ease; var f = Look;
+                        _ox += f.X * sp; _oy += f.Y * sp; _oz += f.Z * sp;
+                        _yaw += st.Turn * Math.PI / 180 * dt * ease;
+                        if (_tourT >= st.Seconds) done = true;
                     }
                     break;
                 case "pick":

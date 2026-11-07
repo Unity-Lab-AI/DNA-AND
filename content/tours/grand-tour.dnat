@@ -7,8 +7,11 @@
 #   do: orbit   circle slowly round what is picked (or look round if nothing is): turn degrees a second, for seconds; the view
 #               is eased toward level first, so it never spins round straight up or down
 #   do: look    tilt your view up (+) or down (-) by tilt degrees over seconds, turning a little as it goes
+#   do: fly     fly steadily forward past what is ahead for seconds: rate is the share of the distance to the nearest thing
+#               a second (no sudden speed-ups), turn degrees a second as it goes
 #   do: pick    choose what to go to: galaxy, next-galaxy, star, planet, next-planet, none, atom, electron, nucleus, proton, quark
 #   caption:    the words shown while the stop runs
+# Every caption is followed by how far the view reaches at that moment: the scale is what the tour shows.
 # For the eye: zoom no faster than about one tenfold in five seconds, turn no more than about four degrees a second, and
 # stop to look round at each new scale, so each size can be read against the last.
 # Sizes for scale: the visible universe 1.3e23 km, a web filament 1e21 km, a galaxy 1e18 km, a star system 1e10 km, Earth
@@ -89,6 +92,13 @@ turn: 3
 seconds: 26
 caption: Its solar system: the star, its planets, their moons, its belts
 
+@stop past-star
+do: fly
+rate: 0.25
+turn: 2
+seconds: 20
+caption: Flying past the star, steady, its planets going by
+
 @stop planet-1
 do: pick
 target: next-planet
@@ -160,9 +170,9 @@ caption: Looking up into the sky and space
 
 @stop sky
 do: orbit
-turn: 3
-seconds: 16
-caption: The sky, the star, the other worlds
+turn: 2
+seconds: 24
+caption: The sky from the ground: the star, the other worlds, the stars of the galaxy beyond
 
 @stop look-down
 do: look
