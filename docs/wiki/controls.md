@@ -34,7 +34,7 @@
 | **H** | The scale bar and the information cards, on or off |
 | **T** / **R** | The grand tour, from the cosmic web to a quark, ending with how much of the universe it reached: start or carry on / start again |
 | **B** | Among atoms: glide across the bond to the next atom |
-| **F12** / **F9** | A screenshot / start or stop a clip (View > Clip size) |
+| **F12** / **F9** | A screenshot / start or stop a clip (Clip size on the landing page or under View; a smaller clip's text is drawn larger, so it reads) |
 | **Esc** | Menu |
 | **F1** | Open the in-game wiki |
 | **Ctrl+F**, **F3** | In the document viewer: search all the documents, next match |
