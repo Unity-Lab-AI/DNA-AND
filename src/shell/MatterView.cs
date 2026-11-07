@@ -257,7 +257,11 @@ namespace DnaAnd.Shell
         private void AtomSystem(List<StarVertex> glow, Element e, double x, double y, double z, double s, double time, long key, float f)
         {
             if (e == null || f <= 0.02) return;
-            Orbitals(glow, e, x, y, z, s, time, key, f);
+            // its orbitals' clouds only for the atoms close to where you look (within about three atoms): drawn for every atom
+            // of a crystal at once, their lobes would hang everywhere as pairs of glowing blobs; farther ones show their nucleus
+            // and their electrons on their paths
+            double fdx = x - _fx, fdy = y + _yOff - _fy, fdz = z - _fz;
+            if (fdx * fdx + fdy * fdy + fdz * fdz < Math.Pow(Math.Max(AtomSpacing * 3, s * 0.6), 2)) Orbitals(glow, e, x, y, z, s, time, key, f);
             // its electrons, each going round on its own path tilted its own way in three dimensions (never all in one plane),
             // the inner shells faster, the valence shell (the one it bonds with) in gold
             double ar = AtomRadius(e), dot = s * 0.0035; int shells = e.Shells.Length;

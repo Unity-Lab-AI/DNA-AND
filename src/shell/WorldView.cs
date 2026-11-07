@@ -1970,7 +1970,7 @@ namespace DnaAnd.Shell
                 if (_hud.Visible && _tour == null) _hud.DrawCard(_meshes, _matter.Card(), 24 * Math.Max(1, h / 1080.0), 24 * Math.Max(1, h / 1080.0), w, h);   // what you are in, and what you picked
             }
             _gpu.ClearDepth();                                                         // the scale, cards and rings always on top of everything
-            if (_tour == null) DrawScale(w, h);                                       // (on the tour the caption says the scale)
+            DrawScale(w, h);
             if (_tour != null)
             {
                 // the tour is a film: letterbox bars, the caption in the lower one, faded in after a moment and out before the cut
@@ -1985,7 +1985,7 @@ namespace DnaAnd.Shell
                     var lines = new List<string> { TourCaption };
                     var now = _matterScale > 0 || _spaceScale > 0 ? _matter.Card() : (_tKind >= 0 ? Card() : null);
                     if (now != null && now.Count > 0) lines.Add("now: " + now[0] + (now.Count > 1 ? ", " + now[1] : ""));
-                    _hud.DrawCard(_meshes, lines, w * 0.06, h * 0.9, w, h, cap);
+                    _hud.DrawCard(_meshes, lines, w * 0.3, h * 0.9, w, h, cap);   // to the right of the scale
                 }
                 _gpu.ClearDepth();                                                     // the cards and the frames a second on top of the bars
                 // what is in view and in focus, written as you go, just below the top bar
