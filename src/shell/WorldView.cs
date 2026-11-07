@@ -1828,6 +1828,14 @@ namespace DnaAnd.Shell
                 // every galaxy is one field of its own stars: the near one shows more of them as it grows on screen, each point
                 // a little smaller so the galaxy's glow stays the same; the first stars are always the same ones, so nothing swaps
                 var g = _galaxies[i]; int count = StarsShown(i);
+                if (i != _near)
+                {
+                    // a galaxy only a few pixels across needs only a few of its stars (the first ones are always the same, so nothing
+                    // swaps): as many as its size on screen can show, from about a hundred to all of them; its glow stays its own
+                    double qx = g.X - _cx, qy = g.Y - _cy, qz = g.Z - _cz, qd = Math.Max(1e-9, Math.Sqrt(qx * qx + qy * qy + qz * qz));
+                    double qpx = g.Scale / qd * h / (2 * Math.Tan(0.45));
+                    count = (int)Math.Max(Math.Min(count, 100), Math.Min(count, qpx * qpx * 1.5));
+                }
                 // made in full only near you: past that the web's glow shows them (it stands for the same galaxies); fading out
                 // between the near reach and half again, so nothing pops
                 double ndx = g.X - _cx, ndy = g.Y - _cy, ndz = g.Z - _cz, nd = Math.Sqrt(ndx * ndx + ndy * ndy + ndz * ndz);
