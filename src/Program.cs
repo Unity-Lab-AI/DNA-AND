@@ -19,7 +19,7 @@ namespace DnaAnd
             // any crash, on any thread, is written to the log with where it happened, before the program goes
             AppDomain.CurrentDomain.UnhandledException += (o, ev) => { try { System.IO.Directory.CreateDirectory("build"); System.IO.File.AppendAllText(System.IO.Path.Combine("build", "last-run.log"), "crash · " + ev.ExceptionObject + Environment.NewLine); } catch { } };
             // --smoke <ms>: a timed test run that closes itself after <ms> milliseconds.
-            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int openSet = 0; int openLook = 0; double testEvolve = 0; int testPlanet = -1; double clickAt = -1, clickX = 0.5, clickY = 0.5; double wheelFrom = -1, wheelFor = 0, backFrom = -1, backFor = 0; int pressKey = -1; double pressAt = -1; int testDyson = -1; bool testInside = false; int testJumps = 0; bool testFieldView = false; double testAlt = -1; double[] tour = null; int tourStep = 0; string tourName = "tour"; double shotAt = -1; string shotPath = null; int testSpeed = -1; double tryEvery = -1; int wheelEvery = 1; bool aimCentre = false; double journeyAt = -1, deepSince = -1; double clipAt = -1, clipFor = 10; string clipPath = null; DnaAnd.Render.GifWriter clip = null; int clipFrame = 0; bool wantShot = false, wantRecord = false, wantTour = false; DnaAnd.Render.Mp4Writer rec = null; string recordTour = null; bool recForTour = false;
+            int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int openSet = 0; int openLook = 0; double testEvolve = 0; int testPlanet = -1; double clickAt = -1, clickX = 0.5, clickY = 0.5; double wheelFrom = -1, wheelFor = 0, backFrom = -1, backFor = 0; int pressKey = -1; double pressAt = -1; int testDyson = -1; bool testInside = false; int testJumps = 0; bool testFieldView = false; double testAlt = -1; double[] tour = null; int tourStep = 0; string tourName = "tour"; double shotAt = -1; string shotPath = null; int testSpeed = -1; double tryEvery = -1; int wheelEvery = 1; bool aimCentre = false; double journeyAt = -1, deepSince = -1; double clipAt = -1, clipFor = 10; string clipPath = null; DnaAnd.Render.GifWriter clip = null; int clipFrame = 0; bool wantShot = false, wantRecord = false, wantTour = false; DnaAnd.Render.Mp4Writer rec = null; double shotsEvery = -1, shotsNext = 0; int shotsN = 0; string shotName = null; string recordTour = null; bool recForTour = false;
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i] == "--smoke" && i + 1 < args.Length) int.TryParse(args[i + 1], out smokeMs);
@@ -56,6 +56,7 @@ namespace DnaAnd
                 if (args[i] == "--wheelevery" && i + 1 < args.Length) { int.TryParse(args[i + 1], out wheelEvery); wheelEvery = Math.Max(1, wheelEvery); }   // with --wheel: one notch every N frames, for a gentler zoom
                 if (args[i] == "--aimcentre") aimCentre = true;   // test runs: the mouse rests in the middle of the picture, so the wheel zooms straight in
                 if (args[i] == "--journeyat" && i + 1 < args.Length) double.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out journeyAt);   // seconds after entering a galaxy: fly to a star and pick its temperate world
+                if (args[i] == "--shots" && i + 1 < args.Length) double.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out shotsEvery);   // --shots <seconds>: a PNG of the game every so often (captures/shot_N.png), for test runs
                 if (args[i] == "--record" && i + 1 < args.Length) recordTour = args[i + 1];   // --record <file.mp4>: with --tour, film the whole tour as an MP4 clip
                 if (args[i] == "--clip" && i + 3 < args.Length)   // --clip <start s> <seconds> <file.gif>: save a looping clip of the game
                 {
@@ -316,6 +317,7 @@ namespace DnaAnd
                 {
                     var inp = window.Input; string caps = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "captures"), stamp = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss");
                     if (inp.WasPressed(0x7B)) wantShot = true;
+                    if (shotsEvery > 0 && clock.Total >= shotsNext) { shotsNext = clock.Total + shotsEvery; wantShot = true; shotName = "shot_" + (shotsN++).ToString("00"); }
                     if (inp.WasPressed(0x78)) wantRecord = true;
                     if (inp.WasPressed('T') && world != null && !world.Touring) wantTour = true;
                     if (wantTour && world != null) { if (world.Touring) world.StopTour(); else world.StartTour("grand-tour"); wantTour = false; menuDirty = true; }
@@ -329,7 +331,7 @@ namespace DnaAnd
                     }
                     if (gpu.Grabbed != null && clipPath == null)
                     {
-                        if (wantShot) { try { DnaAnd.Render.PngWriter.Save(System.IO.Path.Combine(caps, "Universe " + stamp + ".png"), gpu.Grabbed, gpu.Width, gpu.Height); } catch (Exception ex) { WriteLog("screenshot error · " + ex.Message); } wantShot = false; }
+                        if (wantShot) { try { DnaAnd.Render.PngWriter.Save(System.IO.Path.Combine(caps, (shotName ?? "Universe " + stamp) + ".png"), gpu.Grabbed, gpu.Width, gpu.Height); } catch (Exception ex) { WriteLog("screenshot error · " + ex.Message); } wantShot = false; shotName = null; }
                         if (rec != null) { try { rec.Add(gpu.Grabbed, gpu.Width, gpu.Height); } catch (Exception ex) { WriteLog("record error · " + ex.Message); rec.Dispose(); rec = null; } }
                         gpu.Grabbed = null;
                     }
