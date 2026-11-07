@@ -195,3 +195,4 @@ LAW 11 now includes a content-coverage check.
 - [x] "oioaky i dont like the zoom out to webb ciew its like side scrolling for a 100 million light years and shit is just flying by that close and u cant see far away so its like a black screen with galxies flying by super fast.. not cneematic at all": straight pull out, slow web turn, the far web brighter and deeper (DESIGN 407).
 - [x] "put on ur movieaehat and make it proper dynamically and prcedural like": a director, each shot afresh each viewing (DESIGN 408).
 - [x] "and how do i bring the landing page back up is it a drop down from the menu toolbars?": Start page on the menu bar (DESIGN 409).
+- [x] "tour is still jsut side panning for 50 million miles as galaxies fly by in darkness": circles only what is close; far off it pans in place (DESIGN 410).
