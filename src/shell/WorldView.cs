@@ -781,6 +781,7 @@ namespace DnaAnd.Shell
             return true;
         }
         public bool Touring { get { return _tour != null; } }
+        private double _tourH0;
         private string TourCaption { get { return _tour != null && _tourAt < _tour.Count ? _tour[_tourAt].Caption + "   (the view: " + ScaleHud.Words(ViewDistanceKm()) + ")" : ""; } }   // the scale is what the tour shows
         // one frame of the tour: what the stop asks, given to the controls; on to the next when it is done
         private void TourStep(Input input, double dt, int w, int h)
@@ -845,6 +846,27 @@ namespace DnaAnd.Shell
                         _ox += f.X * sp; _oy += f.Y * sp; _oz += f.Z * sp;
                         _yaw += st.Turn * Math.PI / 180 * dt * ease;
                         if (_tourT >= st.Seconds) done = true;
+                    }
+                    break;
+                case "glide":
+                    {
+                        // a flight low over the land: level, at the height it began at, rising and falling with the ground, rate
+                        // heights a second (a walk at head height, a glide over hills from higher), looking a little ahead and
+                        // down, turning slowly; eased in and out
+                        if (_ground == null) { done = true; break; }
+                        double ease = Math.Min(1, _tourT / 3) * Math.Min(1, Math.Max(0, st.Seconds - _tourT) / 3); ease = ease * ease * (3 - 2 * ease);
+                        double hNow = AboveGround(); if (_tourT <= dt * 1.5 || _tourH0 <= 0) _tourH0 = hNow;
+                        double cx, cy, cz; CamFromPlanet(out cx, out cy, out cz); double cl = Math.Sqrt(cx * cx + cy * cy + cz * cz); if (cl <= 0) { done = true; break; }
+                        double ux = cx / cl, uy = cy / cl, uz = cz / cl; var f = Look; double fu = f.X * ux + f.Y * uy + f.Z * uz;
+                        double tx = f.X - ux * fu, ty = f.Y - uy * fu, tz = f.Z - uz * fu, tl = Math.Sqrt(tx * tx + ty * ty + tz * tz);
+                        if (tl > 1e-6)
+                        {
+                            double sp = _tourH0 * st.Rate * dt * ease; _ox += tx / tl * sp; _oy += ty / tl * sp; _oz += tz / tl * sp;
+                        }
+                        double dh = (_tourH0 - AboveGround()) * Math.Min(1, dt * 3); _ox += ux * dh; _oy += uy * dh; _oz += uz * dh;   // the same height over the ground
+                        _pitch += (-0.22 - _pitch) * (1 - Math.Exp(-dt * 0.6));                // looking a little ahead and down
+                        TourTurn(st.Turn * Math.PI / 180 * dt * ease, 0);
+                        if (_tourT >= st.Seconds) { done = true; _tourH0 = 0; }
                     }
                     break;
                 case "pick":
