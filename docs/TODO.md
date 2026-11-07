@@ -959,4 +959,9 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **Electrons and quarks slower:** (built: DESIGN 508; waits on the test) "need to slow down electrons and querks"
 - [~] **The face's bands, tiles and saw gone (the three sheets tilted):** (built: DESIGN 509; waits on the test) "and just beforee atom view its a weird grid like checkbaord of differnt colors"
 - [x] **No runs by me, ever again; the user installs and tests:** (DESIGN 510) "i SAID: next time ill install and test!"
+- [~] **The tour's picks: skipped when nothing is found, and logged:** (built: DESIGN 511; waits on the next tour's log) "something is up ist just zooms in and out of the same galzxy a bunch and never does the astropid and comet zoomin and neverr sayw the black hole aven thos it said it was looking at them" / "and its narrating shit thats not on screen"
+- [~] **The tour never waits on the ground below a centimetre:** (built: DESIGN 512; waits on the test) "at 10 nano meter the planet went invisible and all i see is stars" / "or blackness i dont know"
+- [~] **Every electron seen moving:** (built: DESIGN 513; waits on the test) "and on atom scale some electrons are frozen while others are moving"
+- [ ] **The quark seen at the end of the tour:** (logged: DESIGN 514; waits on the next tour's log) "i never saw qwerks it mazxed out and said smallest thing we know and i never saw qwerks"
+- [x] **Why the card's memory stays small:** (DESIGN 515) "and why is GPU using 40% at times but only using 124MD of the 16G of vram"
 
