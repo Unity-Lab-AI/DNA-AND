@@ -186,3 +186,4 @@ LAW 11 now includes a content-coverage check.
 - [x] "and ther is no home galaxy u fuck stop making shit up": no galaxy called home; the tour begins inside a galaxy (DESIGN 398).
 - [x] "same thing only the right half of the screen is propigating the galaxies unless they are really close" / "and its 6fps and only like 1 or two glaaxiers are ever in view": filming no longer slows the game (DESIGN 399).
 - [x] "okay i took like 4 screne shots of the universe not proprerly displaying": voids never empty; caption says beside a galaxy (DESIGN 400).
+- [x] "it zooms out ant i cant see shit its just black no glaxies nothing are you aout running the loading i dontt wee the galaxy webbing" / "and glazxies are just appearing and disappearing like its side scrolling to infinitey and only close in glaaxies are rendering" "in darkness": the web's light made fast, wider, never dropped, overlapping the near galaxies (DESIGN 401).
