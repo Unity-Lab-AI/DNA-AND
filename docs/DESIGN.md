@@ -1160,3 +1160,5 @@ Everything the creator has said about this project, in order. Short process repl
 351. "and ther is nothing select able at the 20 un meter scale and above layers". Found in the code: over the ground (from a centimetre down to where the matter takes over) a click did pick the grain, but its ring and card were drawn only inside the matter, so nothing seemed picked. A grain picked over the ground is now ringed, with its card, as anything picked anywhere.
 
 352. "and when i select an elcetron is zooms paasst it instead of to it". Found in the code: a picked electron moves on its path faster than the view glides after it, so zooming in went on past it. Once you are almost at it the view now rides with it, so the zoom goes to it.
+
+353. The land seen from orbit as flat patches with jagged stepped edges: found in the code, every change of ground (gravel, soil, clay; beach, soil, rock, snow; the ice caps; each kind of world's own colour bands in terrain.dnat) was a hard line, and a hard line lands on the ground's corners as a staircase. Each now shades into the next across a band, so the land's colours run into each other as real ground does.

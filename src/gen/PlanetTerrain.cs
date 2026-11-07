@@ -509,10 +509,16 @@ namespace DnaAnd.Gen
             }
             if (_tk.Ground != null && !(_tk.Locked) && !(HasWater && h < 0))
             {
-                r = g = b = 0.5f;
-                foreach (var band in _tk.Ground)
-                    if (h < band[0] || band == _tk.Ground[_tk.Ground.Length - 1])
-                    { float k = band[4] > 0 ? tv : 1; r = (float)band[1] * k; g = (float)band[2] * k; b = (float)band[3] * k; break; }
+                // its ground's colours by height (terrain.dnat), each band shading into the next across a fifth of a km, never a
+                // hard line (a hard line lands on the ground's corners and shows as jagged patches)
+                r = g = b = 0.5f; var gb = _tk.Ground;
+                for (int q = 0; q < gb.Length; q++)
+                    if (h < gb[q][0] || q == gb.Length - 1)
+                    {
+                        float k = gb[q][4] > 0 ? tv : 1; r = (float)gb[q][1] * k; g = (float)gb[q][2] * k; b = (float)gb[q][3] * k;
+                        if (q > 0) { float w = (float)Smooth(-0.1, 0.1, h - gb[q - 1][0]); float k0 = gb[q - 1][4] > 0 ? tv : 1; r = (float)gb[q - 1][1] * k0 * (1 - w) + r * w; g = (float)gb[q - 1][2] * k0 * (1 - w) + g * w; b = (float)gb[q - 1][3] * k0 * (1 - w) + b * w; }
+                        break;
+                    }
                 return h;
             }
             if (h < 0)
@@ -531,17 +537,18 @@ namespace DnaAnd.Gen
                 else { r = 0.22f * tv; g = 0.22f * tv; b = 0.23f * tv; }
                 return h;
             }
-            if (h < 0.04) { r = 0.78f * tv; g = 0.72f * tv; b = 0.52f * tv; }                         // beaches
-            else if (h < 2.4)
-            {
-                // bare ground in patches: brown soil, pale clay, dark gravel
-                if (soil < 0.42) { r = 0.30f * tv; g = 0.28f * tv; b = 0.26f * tv; }
-                else if (soil > 0.6) { r = 0.62f * tv; g = 0.55f * tv; b = 0.45f * tv; }
-                else { r = 0.46f * tv; g = 0.38f * tv; b = 0.29f * tv; }
-            }
-            else if (h < 4.2) { r = 0.48f * tv; g = 0.47f * tv; b = 0.46f * tv; }                    // grey rock
-            else { r = 0.94f; g = 0.95f; b = 0.97f; }                                                // snow on the peaks
-            if (lat > 0.86 + 0.05 * tint) { r = 0.93f; g = 0.95f; b = 0.99f; }                       // ice caps
+            // the land's colours, each shading into the next (never a hard line, which lands on the ground's corners as jagged
+            // patches): bare ground in patches (dark gravel, brown soil, pale clay), beaches at the shore, grey rock higher up,
+            // snow on the peaks, ice caps toward the poles
+            double wg = Smooth(0.34, 0.46, soil), wc = Smooth(0.54, 0.66, soil);
+            double sr = 0.30 + (0.46 - 0.30) * wg + (0.62 - 0.46) * wc, sg = 0.28 + (0.38 - 0.28) * wg + (0.55 - 0.38) * wc, sb = 0.26 + (0.29 - 0.26) * wg + (0.45 - 0.29) * wc;
+            double wb = Smooth(0.02, 0.08, h), wr = Smooth(2.2, 2.7, h), ws = Smooth(4.0, 4.5, h);
+            double cr = 0.78 + (sr - 0.78) * wb, cg = 0.72 + (sg - 0.72) * wb, cb = 0.52 + (sb - 0.52) * wb;
+            cr += (0.48 - cr) * wr; cg += (0.47 - cg) * wr; cb += (0.46 - cb) * wr;
+            r = (float)(cr * tv); g = (float)(cg * tv); b = (float)(cb * tv);
+            r += (0.94f - r) * (float)ws; g += (0.95f - g) * (float)ws; b += (0.97f - b) * (float)ws;
+            float wi = (float)Smooth(0.84 + 0.05 * tint, 0.9 + 0.05 * tint, lat);
+            r += (0.93f - r) * wi; g += (0.95f - g) * wi; b += (0.99f - b) * wi;
             return h;
         }
 
