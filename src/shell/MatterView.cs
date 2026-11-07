@@ -154,6 +154,63 @@ namespace DnaAnd.Shell
         }
 
         // electrons per shell (1, 2, 3, ...) for atomic number z, filled in the usual order (Madelung's rule)
+        // an atom's subshells, filled in the Madelung order (1s 2s 2p 3s 3p 4s 3d ...): (n, l, electrons) for each
+        private static List<int[]> Subshells(int z)
+        {
+            int[][] order = { new[] { 1, 0 }, new[] { 2, 0 }, new[] { 2, 1 }, new[] { 3, 0 }, new[] { 3, 1 }, new[] { 4, 0 }, new[] { 3, 2 }, new[] { 4, 1 }, new[] { 5, 0 }, new[] { 4, 2 }, new[] { 5, 1 },
+                new[] { 6, 0 }, new[] { 4, 3 }, new[] { 5, 2 }, new[] { 6, 1 }, new[] { 7, 0 }, new[] { 5, 3 }, new[] { 6, 2 }, new[] { 7, 1 } };
+            var l = new List<int[]>(); int left = z;
+            foreach (var o in order) { if (left <= 0) break; int take = Math.Min(left, 2 * (2 * o[1] + 1)); l.Add(new[] { o[0], o[1], take }); left -= take; }
+            return l;
+        }
+
+        // how strongly an orbital of angular kind l and number m (0 .. 2l) leans along a direction (its real |Y|^2 shape):
+        // s round, p three dumbbells on the axes, d four-leaf clovers and the ring-and-dumbbell, f the more lobed beyond
+        private static double Lobe(int l, int m, double x, double y, double z)
+        {
+            switch (l)
+            {
+                case 0: return 1;
+                case 1: return m == 0 ? x * x * 3 : m == 1 ? y * y * 3 : z * z * 3;
+                case 2:
+                    switch (m)
+                    {
+                        case 0: return 15 * x * x * y * y; case 1: return 15 * y * y * z * z; case 2: return 15 * x * x * z * z;
+                        case 3: return 3.75 * (x * x - z * z) * (x * x - z * z); default: return 1.25 * (3 * y * y - 1) * (3 * y * y - 1);
+                    }
+                default: { double c = Math.Cos(m * 1.3) * x + Math.Sin(m * 1.3) * z; return 7 * Math.Pow(Math.Abs(c * y), 1.5) + 0.2; }
+            }
+        }
+
+        // an atom's electrons as what they are: each occupied orbital a cloud of where its electron may be found (its
+        // probability), in its real shape about its shell's distance, shimmering as it is sampled afresh a few times a second
+        // (the electron is a wave, not a dot on a ring); the outer (valence) orbitals in gold
+        private void Orbitals(List<StarVertex> glow, Element e, double x, double y, double z, double s, double time, long key, float f)
+        {
+            if (f <= 0.05) return;
+            double ar = AtomRadius(e); var subs = Subshells(e.Z); int top = 0; foreach (var o in subs) top = Math.Max(top, o[0]);
+            long tick = (long)Math.Floor(time * 6);
+            foreach (var o in subs)
+            {
+                int n = o[0], l = o[1], count = o[2], orbitals = 2 * l + 1; bool valence = n == top;
+                double rr = ar * n / top;
+                for (int m = 0; m < orbitals; m++)
+                {
+                    if (count <= m) continue;                                              // filled one to each first (Hund), then paired
+                    int pts = 40 + 20 * l; long ok = key * 131 + n * 17 + l * 7 + m;
+                    for (int q = 0; q < pts; q++)
+                    {
+                        double u = Hash(ok, q, tick, _seed), v = Hash(ok, q, tick + 99991, _seed), w = Hash(ok, q, tick + 7777, _seed);
+                        double th = Math.Acos(1 - 2 * u), ph = v * Math.PI * 2, dx = Math.Sin(th) * Math.Cos(ph), dy = Math.Cos(th), dz = Math.Sin(th) * Math.Sin(ph);
+                        if (Hash(ok, q, tick + 31, _seed) * 3.2 > Lobe(l, m, dx, dy, dz)) continue;   // kept where its shape is strong
+                        double r = rr * (0.45 + 1.1 * Math.Pow(w, 0.7));
+                        float b = (valence ? 0.9f : 0.5f) * f * 0.35f;
+                        Add(glow, x + dx * r, y + dy * r, z + dz * r, s * 0.0028, valence ? b : b * 0.55f, valence ? b * 0.78f : b * 0.7f, valence ? b * 0.25f : b, s);
+                    }
+                }
+            }
+        }
+
         private static int[] Shells(int z)
         {
             int[][] order = { new[] { 1, 0 }, new[] { 2, 0 }, new[] { 2, 1 }, new[] { 3, 0 }, new[] { 3, 1 }, new[] { 4, 0 }, new[] { 3, 2 }, new[] { 4, 1 }, new[] { 5, 0 }, new[] { 4, 2 }, new[] { 5, 1 },
@@ -1126,6 +1183,28 @@ namespace DnaAnd.Shell
                         if (nball > 0.03) Add(solid, nx, ny, nz, Nucleon / 0.75 * nball, proton ? 0.9f : 0.6f, proton ? 0.22f : 0.65f, proton ? 0.2f : 0.75f, s);
                         Add(glow, nx, ny, nz, Nucleon, 0.25f * gf, 0.12f * gf, 0.05f * gf, s);
                         string q = proton ? "uud" : "udd"; float[][] colour = { new[] { 1f, 0.2f, 0.2f }, new[] { 0.2f, 1f, 0.2f }, new[] { 0.3f, 0.4f, 1f } };   // their three colour charges
+                        // the strong field between them: flux tubes of gluon field joining the three quarks (it does not spread out
+                        // like the electric field, it pulls into strings), and quark-antiquark pairs of the sea popping in and out
+                        double[][] qp = new double[3][];
+                        for (int qi = 0; qi < 3; qi++)
+                        {
+                            double a1 = time * (1.3 + qi * 0.4) + qi * 2.1 + k * 0.77, a2 = time * (0.9 + qi * 0.3) + qi + k * 1.3, qr = Nucleon * (0.35 + 0.2 * Math.Sin(time * 0.7 + qi + k));
+                            qp[qi] = new[] { nx + qr * Math.Sin(a2) * Math.Cos(a1), ny + qr * Math.Cos(a2), nz + qr * Math.Sin(a2) * Math.Sin(a1) };
+                        }
+                        double ycx = (qp[0][0] + qp[1][0] + qp[2][0]) / 3, ycy = (qp[0][1] + qp[1][1] + qp[2][1]) / 3, ycz = (qp[0][2] + qp[1][2] + qp[2][2]) / 3;
+                        for (int qi = 0; qi < 3; qi++)
+                            for (int t2 = 1; t2 < 10; t2++)
+                            {
+                                double tt = t2 / 10.0; float fl = gf * (float)(0.35 + 0.25 * Math.Sin(time * 9 + t2 + qi * 2)) * 0.5f;
+                                Add(glow, qp[qi][0] + (ycx - qp[qi][0]) * tt, qp[qi][1] + (ycy - qp[qi][1]) * tt, qp[qi][2] + (ycz - qp[qi][2]) * tt, Nucleon * 0.12, colour[qi][0] * fl, colour[qi][1] * fl, colour[qi][2] * fl, s);
+                            }
+                        long qt = (long)Math.Floor(time * 4);
+                        for (int sp = 0; sp < 6; sp++)
+                        {
+                            if (Hash(k, sp, qt, _seed) > 0.5) continue;                       // a virtual pair, there for a moment
+                            double ox = (Hash(k, sp, qt + 1, _seed) - 0.5) * Nucleon * 1.4, oy = (Hash(k, sp, qt + 2, _seed) - 0.5) * Nucleon * 1.4, oz = (Hash(k, sp, qt + 3, _seed) - 0.5) * Nucleon * 1.4, sep = Nucleon * 0.12;
+                            Add(glow, nx + ox + sep, ny + oy, nz + oz, s * 0.002, 0.7f * gf, 0.7f * gf, 0.9f * gf, s); Add(glow, nx + ox - sep, ny + oy, nz + oz, s * 0.002, 0.9f * gf, 0.6f * gf, 0.6f * gf, s);
+                        }
                         for (int qi = 0; qi < 3; qi++)
                         {
                             double a1 = time * (1.3 + qi * 0.4) + qi * 2.1 + k * 0.77, a2 = time * (0.9 + qi * 0.3) + qi + k * 1.3, qr = Nucleon * (0.35 + 0.2 * Math.Sin(time * 0.7 + qi + k));
@@ -1172,6 +1251,7 @@ namespace DnaAnd.Shell
                     { _tfx = exx; _tfy = eyy + _yOff; _tfz = ezz; _picked.X = exx; _picked.Y = eyy + _yOff; _picked.Z = ezz; }
                 }
             }
+            Orbitals(glow, e, x, y, z, s, time, key, f);                                     // and where its electrons may be: their orbitals, as clouds
             Add(glow, x, y, z, Math.Max(NucleusRadius(e) * 3, dot * 1.2), 1f * f, 0.75f * f, 0.5f * f, s);   // its nucleus, a spark at the middle
             { int nb = _bodies.Count; AddBody(7, 0, 0, x, y, z, ar * 0.08, s); if (_bodies.Count > nb) _bodies[nb].Sym = e.Symbol; }   // and its nucleus can be picked
         }
