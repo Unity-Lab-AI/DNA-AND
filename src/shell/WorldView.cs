@@ -1676,6 +1676,7 @@ namespace DnaAnd.Shell
         // how far (radians) the view is from facing what is picked; 0 with nothing picked
         private double OffTarget()
         {
+            if (_tKind == 2 && _ground != null && _tIndex == _planet) return 0;          // (coming down to the picked world the view looks ahead to its horizon, not at its middle: that is on course)
             double dx, dy, dz, r; if (_tKind < 0 || !TargetFromCamera(out dx, out dy, out dz, out r)) return 0;
             double l = Math.Sqrt(dx * dx + dy * dy + dz * dz); if (l <= 0) return 0; var lk = Look;
             return Math.Acos(Math.Max(-1, Math.Min(1, (dx * lk.X + dy * lk.Y + dz * lk.Z) / l)));
