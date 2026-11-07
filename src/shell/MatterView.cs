@@ -154,6 +154,8 @@ namespace DnaAnd.Shell
         private readonly List<Body> _bodies = new List<Body>();
         private Mat4 _lastVp; private int _lastW = 1, _lastH = 1; private bool _haveVp;
         private Body _picked;
+        /// <summary>Counts the picks made (the tour knows a pick it asked for has been made).</summary>
+        public int PickCount;
 
 
         public MatterView(Gpu gpu, BillboardPipeline pipe, ContentLibrary content)
@@ -1552,7 +1554,7 @@ namespace DnaAnd.Shell
                 }
                 if (nb == null) return;
                 if (_picked != null) { _lastLeftX = _picked.X; _lastLeftZ = _picked.Z; }
-                _picked = nb; _tfx = nb.X; _tfz = nb.Z; _tfy = nb.Y; return;
+                _picked = nb; _tfx = nb.X; _tfz = nb.Z; _tfy = nb.Y; PickCount++; return;
             }
             int kind = what == "atom" ? 1 : what == "electron" ? 3 : what == "nucleus" ? 7 : what == "proton" ? 5 : what == "quark" ? 4 : -1; if (kind < 0) return;
             Body best = null; double bd = double.MaxValue;
@@ -1564,7 +1566,7 @@ namespace DnaAnd.Shell
                 if (d < bd) { bd = d; best = b; }
             }
             if (best == null) return;
-            _picked = best; _tfx = best.X; _tfz = best.Z; _tfy = best.Y;
+            _picked = best; _tfx = best.X; _tfz = best.Z; _tfy = best.Y; PickCount++;
         }
 
         public bool PickedOnScreen(out double sx, out double sy, out double rpx)

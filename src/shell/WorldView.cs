@@ -811,7 +811,7 @@ namespace DnaAnd.Shell
                         input.Wheel = OffTarget() < 0.07 ? sign * notches : 0;                     // never moving one way while looking another
                         // going nowhere (nothing nearer to fly at) for six seconds: on to the next stop
                         if (Math.Abs(Math.Log10(Math.Max(1e-40, d) / Math.Max(1e-40, _tourLastD))) > 0.05) { _tourLastD = d; _tourStall = 0; } else _tourStall += dt;
-                        if ((sign > 0 && d <= want * 1.02) || (sign < 0 && d >= want * 0.98) || _tourT > 240 || (_tourStall > 6 && _tourT > 6)) { done = true; _tourRate = 0; input.Wheel = 0; _tourStall = 0; _tourLastD = 0; }
+                        if ((sign > 0 && d <= want * 1.02) || (sign < 0 && d >= want * 0.98) || _tourT > 240 || (_tourStall > 20 && _tourT > 20)) { done = true; _tourRate = 0; input.Wheel = 0; _tourStall = 0; _tourLastD = 0; }
                     }
                     break;
                 case "orbit":
@@ -872,7 +872,14 @@ namespace DnaAnd.Shell
                     }
                     break;
                 case "pick":
-                    TourPick(st.Target); done = true; break;
+                    {
+                        // a pick that finds nothing yet (the stars round you, the star's worlds still being made) tries again each
+                        // frame for up to twenty seconds, never going on with nothing chosen (every later stop would be lost)
+                        int k0 = _tKind, i0 = _tIndex, p0 = _matter.PickCount; double x0 = _tx; TourPick(st.Target);
+                        bool got = st.Target == "none" || (st.Target == "planet" && _tKind == 2 && _system != null) || (_tKind >= 0 && (_tKind != k0 || _tIndex != i0 || _tx != x0)) || _matter.PickCount != p0;
+                        if (got || _tourT > 20) done = true;
+                    }
+                    break;
                 default: done = true; break;
             }
             // the story is read, never rushed: a stop goes on only once its words have had time to be read (a moment to look, then a
