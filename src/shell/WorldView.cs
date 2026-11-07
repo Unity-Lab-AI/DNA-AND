@@ -2036,7 +2036,7 @@ namespace DnaAnd.Shell
             if (_matterScale > 0) return _matterScale * 0.6;
             double qx, qy, qz, qr;
             if (_tKind == 5 && TargetFromCamera(out qx, out qy, out qz, out qr)) return Math.Max(1e-30, Math.Sqrt(qx * qx + qy * qy + qz * qz) / Units.Km(1));
-            return Math.Max(1e-30, NearestDistance()) / Units.Km(1);
+            return Math.Max(1e-30, Math.Max(NearestDistance(), _farScale)) / Units.Km(1);   // zoomed out, the view is as wide as how far out you have pulled (out among the web a galaxy is always near)
         }
 
         private void DrawScale(int w, int h)
