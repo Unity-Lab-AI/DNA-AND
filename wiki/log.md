@@ -182,3 +182,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (the face and the ride, from the creator's shots): the spots on the face's coarse shape, the ridden electron drawn from the pick, the face matte and grey at the nanometres, spikes a step off (DESIGN 589).
 - 2026-11-07 (no balls, no sticks): the lattice's level the quantum picture, electron clouds and shared electrons; the stick routine gone (DESIGN 590).
 - 2026-11-07 (the well an inward spike, from the creator's shots): DESIGN 591.
+- 2026-11-07 (looking round the well as you fall): DESIGN 592.
