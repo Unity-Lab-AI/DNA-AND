@@ -90,7 +90,7 @@ Every highlighted word in the wiki links here. **100 terms**, A to Z.
 | <a id="souls"></a>👻 **Souls** | The energy you spend on god powers. Life gives them off; deaths and harvesting give more. |
 | <a id="species"></a>🐾 **Species** | One kind of living thing. |
 | <a id="stage"></a>🦠 **Stage** | One step in the story of life, like First Cells or Life on Land. There are 100. See [Stages of Life](stages-of-life.md). |
-| <a id="star"></a>⭐ **Star** | A burning ball of gas at the heart of a solar system. Ours is called the Sun. |
+| <a id="star"></a>⭐ **Star** | A burning ball of gas at the heart of a solar system. Ours is only ever our own star. |
 | <a id="starlight"></a>✨ **Starlight** | Light from a star. Plants turn it into food. |
 | <a id="starter-toolkit"></a>🧰 **Starter toolkit** | What you have on day one: Fire, Cold, Water and Lightning. Everything else is unlocked by life. |
 | <a id="stellar-flare"></a>🌞 **Stellar flare** | A burst from a star that fries technology. |
