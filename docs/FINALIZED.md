@@ -199,3 +199,5 @@ LAW 11 now includes a content-coverage check.
 - [x] "i told you to put on your movie making hat" / "stop it with these shit edits and do the full fucking thing correctly": real framed shots for the tour in space (DESIGN 411).
 - [x] "it zoomed out to 105 million light years and it was just all black i neever saw the webbing of galaxies and couldfnt see them as dots of light" "it was just all black": the web's light made in seconds; galaxies taken faster (DESIGN 412).
 - [x] "yeah shit is fucked im not seeing any other galaxies unles it piced one on the edge of the universe" / "i should see galaxies in the sky": other galaxies and the web show from inside a galaxy; clips finished on close (DESIGN 413).
+- [x] "at 50 microns i started seeing through the palnet and weird teering ... at that scal of electrons zoom flys right by whats foccuesd on": a floor under the face; flies in only once over the pick (DESIGN 414).
+- [x] "and the thing need a proper zoom back out and fly around ending on web galaxy view": the flight back out to the web, ending over it (DESIGN 415).
