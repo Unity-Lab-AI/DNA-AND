@@ -30,7 +30,7 @@ namespace DnaAnd.Shell
         private const double AtomSpacing = 2.5e-13; // about 0.25 nm between atoms in a crystal
         private const double Nucleon = 0.85e-18;    // a proton's or neutron's radius, about 0.85 femtometres
 
-        private sealed class Mineral { public string Id, Name, Formula; public string[] Atoms; public float R, G, B, Lustre = 1; public Lattice Lat; public KeyValuePair<string, double[]>[] Molecule; public string Structure = ""; }
+        private sealed class Mineral { public string Id, Name, Formula; public string[] Atoms; public float R, G, B, Lustre = 1; public Lattice Lat; public KeyValuePair<string, double[]>[] Molecule; public string Structure = ""; public bool Liquid; public double Spacing; }
         private sealed class Element { public string Symbol, Name; public int Z, A; public float R, G, B; public double Radius, Cov, Chi; public int[] Shells; }
         private readonly Dictionary<string, Mineral> _minerals = new Dictionary<string, Mineral>();
         private readonly Dictionary<string, List<KeyValuePair<Mineral, double>>> _mixes = new Dictionary<string, List<KeyValuePair<Mineral, double>>>();
@@ -94,7 +94,7 @@ namespace DnaAnd.Shell
                 var m = new Mineral { Id = e.Id, Name = e.Name, Formula = e.Get("formula", ""), Atoms = e.Get("atoms", "Si O O").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries) };
                 float r, g, b; float.TryParse(col[0], out r); float.TryParse(col.Length > 1 ? col[1] : col[0], out g); float.TryParse(col.Length > 2 ? col[2] : col[0], out b);
                 m.R = r; m.G = g; m.B = b; m.Lustre = LustreCode(e.Get("lustre", "earthy"), e.Get("clarity", "opaque"));
-                m.Lat = Lattice.From(e); m.Structure = e.Get("structure", ""); m.Molecule = MoleculeFrom(e.Get("molecule", ""));
+                m.Lat = Lattice.From(e); m.Structure = e.Get("structure", ""); m.Liquid = e.Get("state", "") == "liquid"; m.Spacing = TryD(e.Get("spacing-nm", "0"), 0) * 1e-12; m.Molecule = MoleculeFrom(e.Get("molecule", ""));
                 _minerals[m.Id] = m;
             }
             foreach (var e in content.OfKind("minerals.dnat", "surface"))
@@ -260,7 +260,7 @@ namespace DnaAnd.Shell
                         if ((tx - x) * (tx - x) + (tz - z) * (tz - z) < size * size * 0.25) { var om = ThingMat(st, i, j); if (om != null) return om; }
                     }
             }
-            var fg = FocusRec; return fg != null ? fg.M : null;                     // the grain that is the ground's top here
+            var fg = FocusRec; return fg != null ? fg.M : MixPick(0, 0);             // the grain that is the ground's top here (no grains, as in the sea: what it is made of)
         }
         // a thing on the grain picked (a clay platelet, a coating, a nanoparticle, the water film): its own mineral is what you go into
         // a mineral's lustre and clarity as one number the mesh shader reads (see MeshPipeline): tenths the lustre, hundredths the clarity
@@ -274,8 +274,19 @@ namespace DnaAnd.Shell
             if (l >= 1) return 1;
             return (float)(l + (clarity == "clear" ? 0.02 : clarity == "translucent" ? 0.01 : 0) + 0.002);
         }
-        private long FocusAI { get { return (long)Math.Round(_fx / AtomSpacing); } }
-        private long FocusAJ { get { return (long)Math.Round(_fz / AtomSpacing); } }
+        // where a molecule of matter with no crystal is: on its site for a solid; loosely packed for a liquid, each site shaken
+        // off its place (no two layers alike) and jostling all the time (its thermal motion; paused when time is)
+        private double SiteA(Mineral m) { return m != null && m.Spacing > 0 ? m.Spacing : AtomSpacing; }
+        private void SitePos(Mineral m, long i, long j, long k, out double x, out double y, out double z)
+        {
+            double a = SiteA(m); x = i * a; y = k * a; z = j * a;
+            if (m == null || !m.Liquid) return;
+            x += (Hash(i, j, k + 80, _seed) - 0.5) * a * 0.7 + Math.Sin(_clock * 5.1 + Hash(i, j, k + 83, _seed) * 6.28) * a * 0.07;
+            y += (Hash(i, j, k + 81, _seed) - 0.5) * a * 0.5 + Math.Sin(_clock * 4.3 + Hash(i, j, k + 84, _seed) * 6.28) * a * 0.07;
+            z += (Hash(i, j, k + 82, _seed) - 0.5) * a * 0.7 + Math.Sin(_clock * 4.7 + Hash(i, j, k + 85, _seed) * 6.28) * a * 0.07;
+        }
+        private long FocusAI { get { return (long)Math.Round(_fx / SiteA(FocusMineral)); } }
+        private long FocusAJ { get { return (long)Math.Round(_fz / SiteA(FocusMineral)); } }
         private Element SiteAtom(Mineral m, long i, long j, long k)
         {
             if (m == null) return null;
@@ -303,8 +314,9 @@ namespace DnaAnd.Shell
                 }
                 if (best != null) return best;
             }
-            long fk = (long)Math.Max(-7, Math.Min(0, Math.Round(_fy / AtomSpacing)));            // the layer you are at
-            var e = SiteAtom(m, FocusAI, FocusAJ, fk); y = fk * AtomSpacing - AtomRadius(e) - _yOff; return e;
+            long fk = (long)Math.Max(-7, Math.Min(0, Math.Round(_fy / SiteA(m))));               // the layer you are at
+            var e = SiteAtom(m, FocusAI, FocusAJ, fk); double sx, sy, sz; SitePos(m, FocusAI, FocusAJ, fk, out sx, out sy, out sz);
+            x = sx; z = sz; y = sy - AtomRadius(e) - _yOff; return e;
         }
 
         // ── real crystal structures, where they are in: rock salt (halite) and the silica network (quartz) ──
@@ -1002,7 +1014,7 @@ namespace DnaAnd.Shell
             }
             else if (fm != null && s < AtomSpacing * 40)
             {
-                double a = AtomSpacing; long n = (long)Math.Min(60, Math.Ceiling(2.4 * s / a) + 1), ai0 = FocusAI, aj0 = FocusAJ;
+                double a = SiteA(fm); long n = (long)Math.Min(60, Math.Ceiling(2.4 * s / a) + 1), ai0 = FocusAI, aj0 = FocusAJ;
                 float f = (float)Fade(s, AtomSpacing * 40, AtomSpacing * 20);
                 for (long i = ai0 - n; i <= ai0 + n; i++)
                     for (long j = aj0 - n; j <= aj0 + n; j++)
@@ -1014,6 +1026,7 @@ namespace DnaAnd.Shell
                             bool inFocus = i == ai0 && j == aj0 && k == 0 && s < ar * 4;
                             if (inFocus) continue;                                          // you are going into this one: drawn from inside below
                             float sh = (float)(1 - 0.25 * -k);
+                            double sx, sy, sz; SitePos(fm, i, j, k, out sx, out sy, out sz);                // its place (a liquid's: loose and moving)
                             var mol = fm.Molecule;
                             if (mol != null)
                             {
@@ -1022,18 +1035,18 @@ namespace DnaAnd.Shell
                                 {
                                     var me = El(mol[q].Key); if (me == null) continue; double ox, oy, oz; Orient(i, j, k, mol[q].Value, out ox, out oy, out oz);
                                     double mr = AtomRadius(me) * 0.55;                       // bonded atoms overlap: drawn at their bonded size
-                                    Add(solid, i * a + ox, k * a - ar + oy - _yOff, j * a + oz, mr, me.R * sh * f, me.G * sh * f, me.B * sh * f, s);
+                                    Add(solid, sx + ox, sy - ar + oy - _yOff, sz + oz, mr, me.R * sh * f, me.G * sh * f, me.B * sh * f, s);
                                 }
-                                Add(solid, i * a, k * a - ar - _yOff, j * a, ar * 0.55, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
-                                { int nb = _bodies.Count; AddBody(6, i, j, i * a, k * a - ar - _yOff, j * a, ar * 1.6, s); if (_bodies.Count > nb) _bodies[nb].Sym = fm.Id; }   // the whole molecule
+                                Add(solid, sx, sy - ar - _yOff, sz, ar * 0.55, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
+                                { int nb = _bodies.Count; AddBody(6, i, j, sx, sy - ar - _yOff, sz, ar * 1.6, s); if (_bodies.Count > nb) _bodies[nb].Sym = fm.Id; }   // the whole molecule
                             }
                             else
                             {
                                 double ball = 1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2);
-                                if (ball > 0.03) Add(solid, i * a, k * a - ar - _yOff, j * a, ar * 0.9 * ball, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
-                                if (s < AtomSpacing * 4) Cloud(glow, el, i * a, k * a - ar - _yOff, j * a, s, time, i * 7919 ^ j * 104729 ^ k, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
+                                if (ball > 0.03) Add(solid, sx, sy - ar - _yOff, sz, ar * 0.9 * ball, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
+                                if (s < AtomSpacing * 4) Cloud(glow, el, sx, sy - ar - _yOff, sz, s, time, i * 7919 ^ j * 104729 ^ k, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
                             }
-                            { int nb = _bodies.Count; AddBody(1, i, j, i * a, k * a - ar - _yOff, j * a, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = el.Symbol; }   // every layer's atoms
+                            { int nb = _bodies.Count; AddBody(1, i, j, sx, sy - ar - _yOff, sz, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = el.Symbol; }   // every layer's atoms
                         }
             }
             // the atom under you, from inside: its electrons in their shells, moving round it, and its nucleus at the middle

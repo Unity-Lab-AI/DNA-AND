@@ -17,6 +17,8 @@
 #   structure: its kind; structure-source: the published structure (Crystallography Open Database entry). molecule: the
 #   atoms round each first atom (nm), for molecules that turn freely (methane) or for matter with no crystal (sea water:
 #   water molecules, O-H 0.0957 nm at 104.5 degrees; methane C-H 0.109 nm, a tetrahedron).
+# state: liquid for matter with no crystal, its molecules packed loosely, no two layers alike, always jostling; spacing-nm:
+#   how far apart its molecules are (liquid water 0.31 nm: 1 g per cubic centimetre, 18 g a mole).
 # lustre: how its surface takes light (mineral reference tables: vitreous like glass, metallic, pearly, resinous, waxy,
 #   earthy (dull), wet); clarity: clear, translucent or opaque. Every grain, stone and thing is drawn by these, never by name.
 # Spec: docs/CONTENT-FORMAT.md · content/elements.dnat · content/geology.dnat
@@ -1058,6 +1060,8 @@ atoms: O H H O H H O H H O H H O H H O H H O H H O H H O H H Na Cl
 colour: 0.2 0.4 0.6
 lustre: wet
 clarity: clear
+state: liquid
+spacing-nm: 0.31
 molecule: O 0 0 0, H 0.0757 0.0586 0, H -0.0757 0.0586 0
 
 @mineral dry-ice
