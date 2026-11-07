@@ -545,6 +545,7 @@ namespace DnaAnd.Shell
                 if (double.IsNaN(he) || Math.Abs(he) > 20) he = 0; if (double.IsNaN(hn) || Math.Abs(hn) > 20) hn = 0;
                 var gm = _ground.GrainMix(uy);
                 _matter.SetGround(R, ux, uy, uz, sea || molten ? null : gm != null ? gm.Id : null, _ground.GrainSeed, he, hn);
+                string airHere; _matter.SetAirAbove(_system.Bodies[_planet].Kind == "Moon" || !PlanetTerrain.Air.TryGetValue(_ground.Kind, out airHere) ? null : airHere);   // its own air (a moon: none)
             }
         }
 
@@ -1123,6 +1124,14 @@ namespace DnaAnd.Shell
                 SetMatter();
                 _matterScale = Math.Max(MatterView.BottomKm, AboveGround() / Units.Km(1) / 0.6);   // the same picture carries on: you are 0.6 of the scale above it
                 _matterTop = Math.Max(MatterView.TopKm, _matterScale * 1.1);
+                return true;
+            }
+            if (_system != null && _ground == null && input.Wheel > 0 && _spaceScale <= 0 && Math.Sqrt(_ox * _ox + _oy * _oy + _oz * _oz) < _system.StarRadius * 1.002 && Math.Abs(_ax) + Math.Abs(_ay) + Math.Abs(_az) >= 0)
+            {
+                // into the star's surface: its plasma, the same zoom carrying on
+                ulong sspot = (ulong)(long)(_ox / Units.Km(1e3)) * 73856093UL ^ (ulong)(long)(_oy / Units.Km(1e3)) * 19349663UL ^ (ulong)(long)(_oz / Units.Km(1e3)) * 83492791UL;
+                _matter.SetPlasma(sspot);
+                _spaceScale = 1.0 / 0.6; _spaceTop = _spaceScale * 1.1;                   // from a kilometre: a fog of plasma, down to its nuclei
                 return true;
             }
             if (_tKind == 5 && input.Wheel > 0)

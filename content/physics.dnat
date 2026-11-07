@@ -352,6 +352,12 @@ says: civilizations climb the forces in order: fire and chemistry (electromagnet
 # ── the gases of airs, each molecule's atoms (so an air's make-up gives the atoms you meet going in) ──
 # number-density: molecules per cubic centimetre at the ground or cloud tops (Earth's air at sea level about 2.5e19, by
 # the ideal gas law at 1 bar and 15 C); used for every air at about one bar.
+@law star-plasma
+name: A star's surface (its photosphere): plasma
+makeup: hydrogen 91.2%, helium 8.7%, oxygen 0.05%, carbon 0.03%, neon 0.01%, nitrogen 0.007%, iron 0.003%
+per-cc: 1e17
+says: so hot (thousands of degrees) that the atoms have lost their electrons: bare nuclei and free electrons, about 0.2 micrometres apart (the Sun's photosphere: about 2e-7 grams a cubic centimetre)
+
 @law air-density
 name: Molecules in a cubic centimetre of air at about one bar
 number-density: 2.5e19

@@ -48,7 +48,7 @@ namespace DnaAnd.Shell
         public void SetSpace(int kind, ulong spot, double fromCentre, SpaceGen.Part[] parts)
         {
             _gasParts = parts;
-            _space = true; _spaceKind = kind; _seed = spot; _mix = null; _mixId = "space"; _noGrains = true;
+            _space = true; _spaceKind = kind; _seed = spot; _mix = null; _mixId = "space"; _noGrains = true; _plasma = false;
             // denser at the middle: an emission nebula about 9,000 atoms a cubic centimetre at its centre down to about 100 at its edge,
             // a reflection nebula about 3,000 to 30; between a cluster's stars about 1 (fromCentre: 0 the middle, 1 the edge)
             double core = 0.33 + 30 * Math.Exp(-Math.Pow(fromCentre / 0.25, 2));
@@ -61,6 +61,62 @@ namespace DnaAnd.Shell
         /// <summary>Into an air (its make-up as the content gives it, e.g. "hydrogen 90%, helium 10%, methane 0.3%"): each
         /// molecule's atoms in their shares, at about one bar.</summary>
         private string _airText = "";
+        // the air over the ground: its molecules (from the world's own air make-up), about 3.4 nm apart at one bar, jostling
+        private List<KeyValuePair<string[], double>> _airMols; private double _airAbove;
+        /// <summary>The air over this ground (the world's air make-up, as content gives it; none for a world without air).</summary>
+        public void SetAirAbove(string air)
+        {
+            _airMols = null; if (string.IsNullOrEmpty(air)) return;
+            var l = new List<KeyValuePair<string[], double>>(); double total = 0;
+            foreach (var bit in air.Split(','))
+            {
+                string t = bit.Trim(); int pc = t.IndexOf('%'), sp = pc > 0 ? t.LastIndexOf(' ', pc) : -1; if (sp < 0) continue;
+                double share; if (!double.TryParse(t.Substring(sp + 1, pc - sp - 1), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out share)) continue;
+                string name = t.Substring(0, sp).Trim().ToLowerInvariant(); if (name.EndsWith(" vapour")) name = name.Substring(0, name.Length - 7);
+                string[] atoms; if (_gasAtoms.TryGetValue(name, out atoms)) { l.Add(new KeyValuePair<string[], double>(atoms, share)); total += share; }
+            }
+            if (total <= 0) return;
+            for (int i = 0; i < l.Count; i++) l[i] = new KeyValuePair<string[], double>(l[i].Key, l[i].Value / total);
+            _airMols = l; _airAbove = 1e-5 / Math.Pow(_airPerCc, 1 / 3.0);
+        }
+        private void AirAbove(List<StarVertex> glow, double s)
+        {
+            if (_airMols == null || _space || s > _airAbove * 14) return;
+            double a = _airAbove; long n = (long)Math.Min(14, Math.Ceiling(2.2 * s / a)), i0 = (long)Math.Round(_fx / a), j0 = (long)Math.Round(_fz / a);
+            float f = (float)Fade(s, a * 14, a * 6);
+            for (long i = i0 - n; i <= i0 + n; i++)
+                for (long j = j0 - n; j <= j0 + n; j++)
+                    for (long k = 0; k <= n; k++)
+                    {
+                        double u = Hash(i, j, k + 300, _seed), acc = 0; string[] mol = _airMols[0].Key;
+                        foreach (var kv in _airMols) { acc += kv.Value; if (u < acc) { mol = kv.Key; break; } }
+                        double x = (i + Hash(i, j, k + 301, _seed)) * a + Math.Sin(_clock * 3.7 + i) * a * 0.1, z = (j + Hash(i, j, k + 302, _seed)) * a + Math.Cos(_clock * 3.1 + j) * a * 0.1;
+                        double y = (k + Hash(i, j, k + 303, _seed)) * a + a * 0.3 - _yOff;     // over the ground, not in it
+                        for (int q = 0; q < mol.Length; q++)
+                        {
+                            var el = El(mol[q]); if (el == null) continue; double off = (q - (mol.Length - 1) * 0.5) * 1.1e-13;
+                            Add(glow, x + off, y, z, s * 0.0024, el.R * 0.7f * f, el.G * 0.7f * f, el.B * 0.7f * f, s);
+                        }
+                    }
+        }
+        private bool _plasma; private string _plasmaMake = "hydrogen 91.2%, helium 8.7%"; private double _plasmaPerCc = 1e17;
+        /// <summary>Into a star's surface: its plasma (content/physics.dnat star-plasma): bare nuclei of its elements in their
+        /// shares, at its density, with free electrons darting between them (too hot for any atom to keep its electrons).</summary>
+        public void SetPlasma(ulong spot)
+        {
+            var parts = new List<SpaceGen.Part>(); double total = 0;
+            foreach (var bit in _plasmaMake.Split(','))
+            {
+                string t = bit.Trim(); int pc = t.IndexOf('%'), sp = pc > 0 ? t.LastIndexOf(' ', pc) : -1; if (sp < 0) continue;
+                double share; if (!double.TryParse(t.Substring(sp + 1, pc - sp - 1), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out share)) continue;
+                string name = t.Substring(0, sp).Trim();
+                foreach (var el in _elements.Values) if (string.Equals(el.Name, name, StringComparison.OrdinalIgnoreCase)) { parts.Add(new SpaceGen.Part(name, el.Symbol, share, 1, 1, 1)); total += share; break; }
+            }
+            if (total <= 0) { parts.Add(new SpaceGen.Part("hydrogen", "H", 1, 1, 1, 1)); total = 1; }
+            foreach (var q in parts) q.Share /= total;
+            SetSpace(11, spot, 0, parts.ToArray()); _plasma = true;
+            _gasSpacing = 1e-5 / Math.Pow(_plasmaPerCc, 1 / 3.0);
+        }
         public void SetAir(string air, ulong spot)
         {
             _airText = air ?? "";
@@ -135,6 +191,7 @@ namespace DnaAnd.Shell
             foreach (var e in content.OfKind("physics.dnat", "law"))
             {
                 if (e.Id == "air-density") _airPerCc = TryD(e.Get("number-density", "2.5e19"), 2.5e19);
+                if (e.Id == "star-plasma") { _plasmaMake = e.Get("makeup", _plasmaMake); _plasmaPerCc = TryD(e.Get("per-cc", "1e17"), 1e17); }
                 if (e.Id == "nuclear-force") { _coreFm = TryD(e.Get("core-fm", "1.7"), 1.7); _spacingFm = TryD(e.Get("spacing-fm", "1.8"), 1.8); _rangeFm = TryD(e.Get("range-fm", "2.6"), 2.6); }
                 if (e.Id == "coulomb") _kCoulomb = TryD(e.Get("k-mev-fm", "1.44"), 1.44);
                 if (e.Id == "mass-formula") { _aV = TryD(e.Get("volume-mev", "15.75"), 15.75); _aS = TryD(e.Get("surface-mev", "17.8"), 17.8); _aC = TryD(e.Get("coulomb-mev", "0.711"), 0.711); _aA = TryD(e.Get("asymmetry-mev", "23.7"), 23.7); _aP = TryD(e.Get("pairing-mev", "11.18"), 11.18); }
@@ -588,7 +645,7 @@ namespace DnaAnd.Shell
             if (_space && e != null && s > AtomRadius(e) * 3)
             {
                 string[] kinds = { "a globular cluster", "an open cluster", "an emission nebula", "a reflection nebula", "a planetary nebula", "a supernova remnant", "a dark nebula" };
-                string where = _spaceKind == 10 ? "the air (the world's own gases, at about one bar)" : _spaceKind >= 0 && _spaceKind < kinds.Length ? kinds[_spaceKind] : "the space between the stars";
+                string where = _spaceKind == 11 ? "a star's plasma (bare nuclei and free electrons, thousands of degrees)" : _spaceKind == 10 ? "the air (the world's own gases, at about one bar)" : _spaceKind >= 0 && _spaceKind < kinds.Length ? kinds[_spaceKind] : "the space between the stars";
                 return "the gas of " + where + ": one atom about every " + ScaleHud.Words(_gasSpacing) + ", mostly hydrogen; the one ahead " + e.Name.ToLowerInvariant();
             }
             string mn = m != null ? m.Name.ToLowerInvariant() + " (" + m.Formula + ")" : "rock";
@@ -1063,6 +1120,7 @@ namespace DnaAnd.Shell
             }
             if (!_noGrains && !_space && mesh != null && s < FocusRad * 1.5) GrainPatch(mesh, s);   // (down among the atoms too: its rings carry the grain on out round them)
             if (!_noGrains && !_space && s < FocusRad * 1.5) SurfaceThings(solid, glow, mesh, s);
+            AirAbove(glow, s);                                                               // the world's air over the ground, molecule by molecule
             if (overlay) return;                                                        // over the ground: only its grains so far
             // the focus grain's surface: detail at every size, fixed in place (cells of powers of ten, two at a time, blended),
             // in the grain's colour; its finest cells take on the colours of its atoms
@@ -1224,6 +1282,19 @@ namespace DnaAnd.Shell
         private void Cloud(List<StarVertex> glow, Element e, double x, double y, double z, double s, double time, long key, float f)
         {
             if (f <= 0.01) return;
+            if (_plasma)
+            {
+                // too hot to keep its electrons: the bare nucleus, and free electrons racing past on their own
+                double ar0 = AtomRadius(e), dt0 = s * 0.0035;
+                for (int k = 0; k < 4; k++)
+                {
+                    double ph = _clock * (3 + k) + k * 1.7, rr0 = ar0 * (1.5 + 3 * Hash(k, 1, 7, _seed));
+                    Add(glow, x + Math.Cos(ph) * rr0, y + Math.Sin(ph * 0.7) * rr0 * 0.6, z + Math.Sin(ph) * rr0, dt0, 1f * f, 0.8f * f, 0.25f * f, s);
+                }
+                Add(glow, x, y, z, Math.Max(NucleusRadius(e) * 3, dt0 * 1.2), 1f * f, 0.75f * f, 0.5f * f, s);
+                { int nb = _bodies.Count; AddBody(7, 0, 0, x, y, z, ar0 * 0.08, s); if (_bodies.Count > nb) _bodies[nb].Sym = e.Symbol; }
+                return;
+            }
             key = (long)Math.Round(x / 1e-16) * 73856093L ^ (long)Math.Round(y / 1e-16) * 19349663L ^ (long)Math.Round(z / 1e-16) * 83492791L;   // from where the atom is: the same atom, the same electrons, however it is drawn
             double ar = AtomRadius(e); int shells = e.Shells.Length;
             double dot = s * 0.0035;                                                     // electrons: points, shown as a clear dot a few pixels wide
@@ -1495,7 +1566,7 @@ namespace DnaAnd.Shell
             L.Add("shells: " + string.Join(", ", Array.ConvertAll(e.Shells, x => x.ToString())));
             L.Add("width: about " + ScaleHud.Words(AtomRadius(e) * 2) + ", nucleus " + ScaleHud.Words(NucleusRadius(e) * 2));
             if (_space && _gasParts != null) { var top = (SpaceGen.Part[])_gasParts.Clone(); Array.Sort(top, (a, b) => b.Share.CompareTo(a.Share)); L.Add("made of: " + top[0].Name + ", " + top[1].Name + (top.Length > 2 ? ", " + top[2].Name : "")); }
-            if (_space) { L.Add("in the gas of " + (_spaceKind == 2 ? "an emission nebula (most of its hydrogen ionized by hot stars)" : _spaceKind == 3 ? "a reflection nebula" : _spaceKind == 4 ? "a planetary nebula (its gas glowing from the white dwarf at its middle)" : _spaceKind == 5 ? "a supernova remnant (hot, racing outward)" : _spaceKind == 6 ? "a dark nebula (cold, mostly molecules of hydrogen)" : _spaceKind == 9 ? "the space between the stars" : _spaceKind == 10 ? "the air: " + _airText : "space between a cluster's stars")); double inView = Math.Pow(_scale * 1.2 / _gasSpacing, 3), perCc = Math.Pow(1e-5 / _gasSpacing, 3);
+            if (_space) { L.Add("in the gas of " + (_spaceKind == 2 ? "an emission nebula (most of its hydrogen ionized by hot stars)" : _spaceKind == 3 ? "a reflection nebula" : _spaceKind == 4 ? "a planetary nebula (its gas glowing from the white dwarf at its middle)" : _spaceKind == 5 ? "a supernova remnant (hot, racing outward)" : _spaceKind == 6 ? "a dark nebula (cold, mostly molecules of hydrogen)" : _spaceKind == 9 ? "the space between the stars" : _spaceKind == 11 ? "a star's surface: plasma, bare nuclei and free electrons" : _spaceKind == 10 ? "the air: " + _airText : "space between a cluster's stars")); double inView = Math.Pow(_scale * 1.2 / _gasSpacing, 3), perCc = Math.Pow(1e-5 / _gasSpacing, 3);
                 L.Add("about " + perCc.ToString(perCc < 10 ? "0.#" : "N0") + " atoms a cubic centimetre (air has 25 billion billion)");
                 L.Add(inView >= 2 ? "in view: about " + Big(inView) + " atoms, far too thin to see" : "in view: the one atom ahead of you");
                 L.Add("each about " + ScaleHud.Words(_gasSpacing) + " from the next"); }
