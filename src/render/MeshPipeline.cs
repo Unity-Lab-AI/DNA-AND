@@ -91,6 +91,10 @@ float woctave(float3 p, uint key, uint k)
 }
 // octaves from frequency f0, each twice as fine and gain as strong, as fine as maxF (the finest the pixel can show), the
 // finest fading in, never switching
+// the ground's grains on the card: the same 32-bit hash and cells as the processor's grain field, so the very same grains
+static const int GPALB = 6 * WT * WT, GPALM = 16, GPALS = 2 + 16 + 48;
+uint ghash(uint i, uint j, uint seedW) { uint h = i * 0x9E3779B1u ^ j * 0x85EBCA77u ^ seedW; h ^= h >> 16; h *= 0x7FEB352Du; h ^= h >> 15; h *= 0x846CA68Bu; h ^= h >> 16; return h; }
+float g01(uint key, uint j, uint seedW) { return (ghash(key, j, seedW) & 0xFFFFFF) / 16777216.0; }
 float woctaves(float3 p, uint key, float f0, float amp0, float gain, float maxF)
 {
     float sum = 0, amp = amp0, f = f0;
@@ -152,7 +156,7 @@ float4 PS(VO i) : SV_Target
         return float4(i.col.rgb * a, 1);
     }
     float3 stain = float3(1, 1, 1);
-    if (detB.w > 0.5)
+    if (nightCol.a < 0.5 && detB.w > 0.5)
     {
         // the grain's face, worked out here per pixel (never on the processor): its roughness from the waveform, as fine as
         // this pixel can show, bending the light; its stains and cracks
@@ -169,6 +173,45 @@ float4 PS(VO i) : SV_Target
         float ir = clamp(iron / 2.4 * 2.4 - 0.15, 0, 0.6), cl = clamp(clay / 2.4 * 2.4 - 0.2, 0, 0.5);
         stain = float3(1 + ir * 0.25 + cl * 0.3, 1 - ir * 0.35 + cl * 0.3, 1 - ir * 0.55 + cl * 0.25) * (1 - dark);
     }
+    float3 baseCol = i.col.rgb;
+    if (nightCol.a > 0.5 && misc.z < 0.5 && misc.w < 0.5)
+    {
+        // the ground's sand, grain by grain, worked out here per pixel (finer than the ground's corners can carry): which grain
+        // tops the bed under this pixel, by the same hash and cells as the processor's grain field; its mineral, its shade, its
+        // rounded top bending the light; a gap between grains in shadow. Coming in as the grains grow big enough to see.
+        float invG = detA.w, pix = length(fwidth(i.wp)) * invG;
+        float gw = saturate((0.25 - pix) / 0.15);
+        if (gw > 0)
+        {
+            float3 up = float3(light.w, cam.w, fog.w); uint seedW = asuint(detB.w); uint3 base = uint3(asuint(detB.x), asuint(detB.y), asuint(detB.z));
+            float3 q = i.wp * invG + detA.xyz; int3 c0 = (int3)floor(q);
+            int pb = GPALB + ((int)(nightCol.a + 0.5) - 1) * GPALS; int nm = (int)wave[pb];
+            float best = -1e9; bool any = false; float3 bc = 0, bn = up;
+            for (int dz = -1; dz <= 1; dz++) for (int dy = -1; dy <= 1; dy++) for (int dx = -1; dx <= 1; dx++)
+            for (uint layer = 0; layer < 2; layer++)
+            {
+                int3 cc = c0 + int3(dx, dy, dz); uint3 u = base + (uint3)cc;
+                uint key = (u.x * 73856093u ^ u.y * 19349663u ^ u.z * 83492791u) * 16u + layer;
+                float3 p = float3(cc) + 0.2 + 0.6 * float3(g01(key, 1, seedW), g01(key, 2, seedW), g01(key, 3, seedW));
+                if (abs(dot(p, up) + misc.x) > 0.5) continue;
+                float rad = 0.3 + 0.2 * g01(key, 4, seedW), depth = layer == 0 ? rad * (0.55 + 0.3 * g01(key, 5, seedW)) : 0.75 + rad * 0.6;
+                float3 o = q - p, ot = o - up * dot(o, up); float d2 = dot(ot, ot);
+                if (d2 >= rad * rad) continue;
+                float hz = sqrt(rad * rad - d2), ty = hz - depth;
+                if (ty > best)
+                {
+                    best = ty; any = true;
+                    float t = g01(key, 6, seedW); int mi = max(0, nm - 1);
+                    for (int m = 0; m < GPALM; m++) if (m < nm && t <= wave[pb + 2 + m]) { mi = m; break; }
+                    float shd = 0.75 + 0.35 * g01(key, 7, seedW);
+                    bc = float3(wave[pb + 2 + GPALM + mi * 3], wave[pb + 3 + GPALM + mi * 3], wave[pb + 4 + GPALM + mi * 3]) * shd;
+                    bn = normalize(ot + up * hz);
+                }
+            }
+            baseCol = lerp(i.col.rgb, any ? bc : i.col.rgb * 0.25, gw);
+            if (any) n = normalize(lerp(n, bn, gw));
+        }
+    }
     float sun = saturate(dot(n, light.xyz));
     float lit = 0.5 + 0.5 * sun;                                  // a god sees by night: the night side is about half as bright, never black
     float3 sc = sunCol.a > 0 ? sunCol.rgb : float3(1, 1, 1), nc = sunCol.a > 0 ? nightCol.rgb : float3(0.5, 0.5, 0.5);
@@ -179,7 +222,7 @@ float4 PS(VO i) : SV_Target
         lit = 0.45 + 0.55 * saturate(abs(dot(n, light.xyz)));
     }
     float gl = max(i.glow, 0);
-    float3 c = misc.z > 1.5 && misc.z < 2.5 ? i.col.rgb * max(lit, gl) * sc : i.col.rgb * max(lit3, gl);
+    float3 c = misc.z > 1.5 && misc.z < 2.5 ? i.col.rgb * max(lit, gl) * sc : baseCol * max(lit3, gl);
     c *= stain;
     float alpha = misc.z > 1.5 ? i.col.a : 1;
     if (misc.z < 0.5 && i.col.a < 0.995)

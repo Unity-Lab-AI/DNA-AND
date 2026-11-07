@@ -131,7 +131,7 @@ namespace DnaAnd.Shell
         private double _farScale;                                                         // how far out the wheel has zoomed (universe units): out grows it, in brings it back
         private double _uRadius = 134000, _uGalaxies = 1e11, _webUnits = 4000, _webContrast = 6, _regionUnits = 20, _nearUnits = 400; private int _glowPoints = 300000;
         private readonly HashSet<long> _regions = new HashSet<long>(); private long _lastRegionCell = long.MinValue;
-        private UploadBuffer _glowBuf; private int _glowCount; private StarVertex[] _glowAll; private double _glowAtX = double.NaN, _glowAtY, _glowAtZ;
+        private UploadBuffer _glowBuf; private int _glowCount; private StarVertex[] _glowAll, _glowShown = new StarVertex[0]; private double _glowAtX = double.NaN, _glowAtY, _glowAtZ;
         private void AddGalaxy(int t, ulong gseed, double x, double y, double z, float tilt, float turn, float scale)
         {
             var g = new Galaxy { Type = _types[t], Name = _typeNames[t], Seed = gseed, X = x, Y = y, Z = z, Tilt = tilt, Turn = turn, Scale = scale };
@@ -246,7 +246,7 @@ namespace DnaAnd.Shell
                 double dx = v0.X - cx, dy = v0.Y - cy, dz = v0.Z - cz, d2 = dx * dx + dy * dy + dz * dz; if (d2 < keep * keep || d2 > cut * cut) continue;
                 var v = v0; float k = (float)Math.Exp(-Math.Sqrt(d2) / fadeU); v.R *= k; v.G *= k; v.B *= k; shown.Add(v);
             }
-            _glowCount = shown.Count;
+            _glowCount = shown.Count; _glowShown = shown.ToArray();
             if (_glowBuf == null || _glowBuf.Bytes < (long)Math.Max(1, _glowCount) * Stride) { if (_glowBuf != null) _glowBuf.Dispose(); _glowBuf = new UploadBuffer(_gpu.Device, (long)(_glowAll.Length + 16) * Stride); }
             if (_glowCount > 0) _glowBuf.Write(shown.ToArray(), _glowCount);
             _glowAtX = cx; _glowAtY = cy; _glowAtZ = cz;
@@ -950,8 +950,15 @@ namespace DnaAnd.Shell
         private bool TargetFromCamera(out double dx, out double dy, out double dz, out double radius)
         {
             dx = dy = dz = 0; radius = 0;
+            if (_tKind == 8)
+                for (int i = 0; i < _galaxies.Count; i++)
+                {
+                    // the far galaxy you picked, now made in full near where its light was: the pick goes on to it
+                    var g8 = _galaxies[i]; double ex = g8.X - _tx, ey = g8.Y - _ty, ez = g8.Z - _tz;
+                    if (ex * ex + ey * ey + ez * ez < Math.Pow(3e6 / Units.LightYearsPerUnit, 2)) { _tKind = 0; _tIndex = i; _tName = g8.Name; break; }
+                }
             if (_tKind == 0) { var g = _galaxies[_tIndex]; dx = (g.X - _ax) - _ox; dy = (g.Y - _ay) - _oy; dz = (g.Z - _az) - _oz; radius = g.Scale * 0.3; return true; }
-            if (_tKind == 1 || _tKind == 4 || _tKind == 5 || _tKind == 6 || _tKind == 7) { dx = (_tx - _ax) - _ox; dy = (_ty - _ay) - _oy; dz = (_tz - _az) - _oz; radius = _tRadius; return true; }   // a star, or a spot in a belt
+            if (_tKind == 1 || _tKind == 4 || _tKind == 5 || _tKind == 6 || _tKind == 7 || _tKind == 8) { dx = (_tx - _ax) - _ox; dy = (_ty - _ay) - _oy; dz = (_tz - _az) - _oz; radius = _tRadius; return true; }   // a star, or a spot in a belt
             if (_tKind == 2 && _system != null && _tIndex < _system.Bodies.Count)
             { double x, y, z; BodyPos(_tIndex, out x, out y, out z); dx = x - _ox; dy = y - _oy; dz = z - _oz; radius = _system.Bodies[_tIndex].RadiusUnits; return true; }
             if (_tKind == 3 && _ground != null)
@@ -1111,6 +1118,19 @@ namespace DnaAnd.Shell
                     double d2 = near(dx, dy, dz), allow = Math.Max(reachPx, sizePx);
                     if (d2 < allow * allow && (kind < 0 || d2 < best)) { best = d2; kind = 0; idx = i; name = g.Name; }
                 }
+            if (kind < 0 && _glowShown.Length > 0)
+            {
+                // every point of the web's light far off is a galaxy: a click on one picks it, to fly to; there its galaxies are
+                // made in full and the pick goes on to the one at that spot
+                double gb = reachPx * reachPx; int gq = -1;
+                for (int q = 0; q < _glowShown.Length; q++) { var v = _glowShown[q]; double d2 = near((v.X - _ax) - _ox, (v.Y - _ay) - _oy, (v.Z - _az) - _oz); if (d2 < gb) { gb = d2; gq = q; } }
+                if (gq >= 0)
+                {
+                    var v = _glowShown[gq]; double ly = Math.Sqrt(Math.Pow(v.X - _ax - _ox, 2) + Math.Pow(v.Y - _ay - _oy, 2) + Math.Pow(v.Z - _az - _oz, 2)) * Units.LightYearsPerUnit;
+                    kind = 8; idx = gq; tx = v.X; ty = v.Y; tz = v.Z; trad = 50000 / Units.LightYearsPerUnit;
+                    name = "a galaxy, seen by its light from " + (ly >= 1e9 ? (ly / 1e9).ToString("0.#") + " billion" : (ly / 1e6).ToString("N0") + " million") + " light-years away";
+                }
+            }
             if (_cstars.Count > 0)
             {
                 // a star of the cluster round you: it takes the click ahead of the cluster itself

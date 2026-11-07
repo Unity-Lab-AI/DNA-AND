@@ -136,7 +136,8 @@ namespace DnaAnd
                 DnaAnd.Gen.PlanetTerrain.LoadFields(content);
                 {
                     // the stored waveforms onto the card, once: the detail worked out per pixel reads them there
-                    var wd = DnaAnd.Core.Waveform.All(); var packed = new StarVertex[(wd.Length + 7) / 8];
+                    var wd0 = DnaAnd.Core.Waveform.All(); var pal = DnaAnd.Gen.GrainField.Palette(); var wd = new float[wd0.Length + pal.Length]; Array.Copy(wd0, wd, wd0.Length); Array.Copy(pal, 0, wd, wd0.Length, pal.Length);   // and after them every ground mix's minerals, for the grains worked out on the card
+                    var packed = new StarVertex[(wd.Length + 7) / 8];
                     for (int q = 0; q < packed.Length; q++)
                     {
                         Func<int, float> at = k => q * 8 + k < wd.Length ? wd[q * 8 + k] : 0f;

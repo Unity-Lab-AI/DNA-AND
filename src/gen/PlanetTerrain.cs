@@ -1242,6 +1242,19 @@ namespace DnaAnd.Gen
                 }
                 if (!Habitable || !_camInside && Cutaway == null) { StartBuilding(); Trim(); return; }
             }
+            // the ground's sand worked out on the card: where you are, in grains (wrapped to 32 bits as the grain field's keys are)
+            _gg = false;
+            {
+                double cl = Math.Sqrt(camX * camX + camY * camY + camZ * camZ); var gm = Solid && !Shell && cl > 0 ? GrainMix(camY / cl) : null;
+                if (gm != null && gm.Size > 0 && cl - Radius < gm.Size * 4000)
+                {
+                    double gs = gm.Size, ux = camX / cl, uy = camY / cl, uz = camZ / cl;
+                    long bi = (long)Math.Floor(ux * Radius / gs), bj = (long)Math.Floor(uy * Radius / gs), bk = (long)Math.Floor(uz * Radius / gs);
+                    double bx = bi * gs, by = bj * gs, bz = bk * gs;
+                    _gg = true; _ggG = gs; _ggI = bi; _ggJ = bj; _ggK = bk; _ggUx = ux; _ggUy = uy; _ggUz = uz; _ggMix = gm.Index; _ggSeed = GrainField.SeedWord(GrainSeed);
+                    _ggH = (Math.Sqrt(bx * bx + by * by + bz * bz) - Radius) / gs;
+                }
+            }
             // the ground (and the sea floor)
             Collect(Ground, camX, camY, camZ, splitFactor);
             DrawList(pipes.Solid, 0, camX, camY, camZ, Mat4.Identity, viewRot, proj, lx, ly, lz, fogDist, fr, fg, fb, x, y, w, h);
@@ -1266,6 +1279,7 @@ namespace DnaAnd.Gen
         }
 
         private int _camF; private double _camS, _camT;
+        private bool _gg; private double _ggG, _ggUx, _ggUy, _ggUz, _ggH; private long _ggI, _ggJ, _ggK; private int _ggMix; private uint _ggSeed;
 
         private void Collect(int layer, double camX, double camY, double camZ, double splitFactor)
         {
@@ -1315,6 +1329,14 @@ namespace DnaAnd.Gen
                     c[19] = rx; c[23] = ry; c[31] = rz;
                     c[27] = _drawingHull ? 2 : 1;
                 }
+                else if (_gg && surface == 0)
+                {
+                    // the sand on the card: this piece's place in grains from the cell under you, that cell (wrapped as the keys
+                    // are), the seed, which way is up, how high that cell lies against the ground, and the mix
+                    c[40] = (float)(p.Cx / _ggG - _ggI); c[41] = (float)(p.Cy / _ggG - _ggJ); c[42] = (float)(p.Cz / _ggG - _ggK); c[43] = (float)(1 / _ggG);
+                    c[44] = Bits((uint)_ggI); c[45] = Bits((uint)_ggJ); c[46] = Bits((uint)_ggK); c[47] = Bits(_ggSeed);
+                    c[19] = (float)_ggUx; c[23] = (float)_ggUy; c[31] = (float)_ggUz; c[24] = (float)_ggH; c[39] = _ggMix + 1;
+                }
                 drawer.Draw(p.Buffer, p.Count, c, x, y, w, h);
             }
         }
@@ -1326,6 +1348,7 @@ namespace DnaAnd.Gen
             c[36] = NightColour[0]; c[37] = NightColour[1]; c[38] = NightColour[2];
         }
 
+        private static float Bits(uint u) { return BitConverter.ToSingle(BitConverter.GetBytes(u), 0); }
         private static float[] Pack(Mat4 vp)
         {
             var c = new float[BillboardPipeline.ConstantCount];

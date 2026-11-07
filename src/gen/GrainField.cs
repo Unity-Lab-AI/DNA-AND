@@ -12,11 +12,29 @@ namespace DnaAnd.Gen
 {
     internal static class GrainField
     {
-        public sealed class Mix { public string Id; public string[] Minerals; public double[] Share; public float[][] Colour; public double Size; public double[] ClassSize = new double[0], ClassCover = new double[0]; }
+        public sealed class Mix { public string Id; public string[] Minerals; public double[] Share; public float[][] Colour; public double Size; public double[] ClassSize = new double[0], ClassCover = new double[0]; public int Index; }
         // size class c: 0 the sand itself, 1 and on its clasts (granules, pebbles, cobbles, boulders), biggest last
         public static double SizeOf(Mix m, int c) { return c == 0 ? m.Size : m.ClassSize[c - 1]; }
         public static int Classes(Mix m) { return 1 + m.ClassSize.Length; }
         private static readonly Dictionary<string, Mix> Mixes = new Dictionary<string, Mix>();
+        private static readonly List<Mix> Order = new List<Mix>();
+        /// <summary>The most minerals of a mix the card is given, and each mix's length in the palette.</summary>
+        public const int PalMinerals = 16, PalStride = 2 + PalMinerals + PalMinerals * 3;
+        /// <summary>Every mix for the card, one after another: its mineral count, then each mineral's share added up (as a
+        /// share of the whole), then each mineral's colour; so the card picks a grain's mineral and colour as the processor does.</summary>
+        public static float[] Palette()
+        {
+            var p = new float[Order.Count * PalStride];
+            foreach (var m in Order)
+            {
+                int b = m.Index * PalStride, n = Math.Min(PalMinerals, m.Share.Length); double total = 0, run = 0; foreach (var v in m.Share) total += v;
+                p[b] = n;
+                for (int q = 0; q < n; q++) { run += m.Share[q]; p[b + 2 + q] = q == n - 1 ? 1f : (float)(run / total); var c = m.Colour[q]; p[b + 2 + PalMinerals + q * 3] = c[0]; p[b + 3 + PalMinerals + q * 3] = c[1]; p[b + 4 + PalMinerals + q * 3] = c[2]; }
+            }
+            return p;
+        }
+        /// <summary>The planet's grain seed folded to the one 32-bit word the hash takes (the card's shaders take it so).</summary>
+        public static uint SeedWord(ulong seed) { return (uint)seed ^ (uint)(seed >> 32) * 0x27D4EB2Fu; }
 
         /// <summary>Reads every ground's mix: its minerals, their shares and colours, and its grains' size (km).</summary>
         public static void Load(ContentLibrary content)
@@ -47,7 +65,7 @@ namespace DnaAnd.Gen
                     if (rg.Length == 2 && double.TryParse(rg[0], fs, ci, out a) && double.TryParse(rg[1], fs, ci, out b2) && double.TryParse(w[2], fs, ci, out cv)) { csz.Add(Math.Sqrt(a * b2) * 1e-6); ccv.Add(cv); }
                 }
                 mx.ClassSize = csz.ToArray(); mx.ClassCover = ccv.ToArray();
-                Mixes[e.Id] = mx;
+                mx.Index = Order.Count; Order.Add(mx); Mixes[e.Id] = mx;
             }
         }
 
@@ -57,7 +75,7 @@ namespace DnaAnd.Gen
         {
             // 32-bit wrapped words and a 32-bit mix, so the card's shaders work out exactly the same grains (HLSL has no 64-bit
             // multiply to rely on): the same bits on the processor and the card, never two grain beds
-            uint h = (uint)i * 0x9E3779B1u ^ (uint)j * 0x85EBCA77u ^ (uint)k * 0xC2B2AE3Du ^ (uint)seed ^ (uint)(seed >> 32) * 0x27D4EB2Fu;
+            uint h = (uint)i * 0x9E3779B1u ^ (uint)j * 0x85EBCA77u ^ (uint)k * 0xC2B2AE3Du ^ SeedWord(seed);
             h ^= h >> 16; h *= 0x7FEB352Du; h ^= h >> 15; h *= 0x846CA68Bu; h ^= h >> 16;
             return (h & 0xFFFFFF) / (double)0x1000000;
         }
