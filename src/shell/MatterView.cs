@@ -277,7 +277,9 @@ namespace DnaAnd.Shell
                         Add(glow, x + ox * Math.Cos(turn) - oz * Math.Sin(turn), y + oy, z + ox * Math.Sin(turn) + oz * Math.Cos(turn), dot, (valence ? 1f : 0.45f) * f, (valence ? 0.8f : 0.75f) * f, (valence ? 0.25f : 1f) * f, s);
                     }
                 }
-            Add(glow, x, y, z, Math.Max(NucleusRadius(e), s * 0.0014), 1f * f, 0.95f * f, 0.9f * f, s);   // its nucleus: a sharp point of light (its true size once close enough), never a glow
+            // its nucleus: a clear sharp point of light in its element's own colour, so the crystal's pattern reads at a glance
+            // (each kind of atom in its own place); its true size once close enough to show it
+            Add(glow, x, y, z, Math.Max(NucleusRadius(e), s * 0.003), (0.5f + 0.5f * e.R) * f, (0.5f + 0.5f * e.G) * f, (0.5f + 0.5f * e.B) * f, s);
         }
         private void Orbitals(List<StarVertex> glow, Element e, double x, double y, double z, double s, double time, long key, float f)
         {
