@@ -884,3 +884,4 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **Inside a giant:** (built: DESIGN 435; waits on the test) "look what happens on zoom in to a ice giant im sduure this is nt the only problem one"
 - [~] **The web the same from the start:** (built: DESIGN 436; waits on the test) "it does a weird thing were glaxies webbing isnt viewable until zoom out then it persists on zoom in which is fine i suppsoe i just needs to be uniform"
 - [~] **A loading screen at the start:** (built: DESIGN 437; waits on the test) "lets put a loading bar or somehting on start till everything is properly ready or what? its a free wheel loading problem"
+- [~] **Calmer time at the start:** (built: DESIGN 438; waits on the test) "and planets spped is way to fast or time scale is way to fast the star is rising like every second"
