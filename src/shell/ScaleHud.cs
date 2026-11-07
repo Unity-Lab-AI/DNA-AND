@@ -76,7 +76,7 @@ namespace DnaAnd.Shell
             pipes.Solid.Draw(_buf, n, c2, 0, 0, w, h);
         }
 
-        private UploadBuffer _ringBuf; private StarVertex[] _ringV = new StarVertex[0];
+        private StarVertex[] _ringV = new StarVertex[0];
         /// <summary>A ring of small marks round a point on screen (the thing you picked), in pixels.</summary>
         public void DrawRing(MeshPipes pipes, double x, double y, double radius, int w, int h)
         {
@@ -91,16 +91,34 @@ namespace DnaAnd.Shell
             int cnt = list.Count;
             if (_ringV.Length < cnt) _ringV = new StarVertex[cnt + 64];
             list.CopyTo(_ringV);
-            if (_ringBuf == null || _ringBuf.Bytes < (long)cnt * Marshal.SizeOf(typeof(StarVertex))) { if (_ringBuf != null) _ringBuf.Dispose(); _ringBuf = new UploadBuffer(_device, (long)(cnt + 64) * Marshal.SizeOf(typeof(StarVertex))); }
-            _ringBuf.Write(_ringV, cnt);
+            var ringBuf = Slot(_ringV, cnt);
             var m = Mat4.Identity; m.M11 = 2f / w; m.M22 = -2f / h; m.M33 = 0; m.M41 = -1; m.M42 = 1; m.M43 = 0.0001f; m.M44 = 1;
             var c2 = new float[BillboardPipeline.ConstantCount];
             c2[0] = m.M11; c2[5] = m.M22; c2[10] = m.M33; c2[12] = m.M41; c2[13] = m.M42; c2[14] = m.M43; c2[15] = m.M44;
             c2[18] = 1; c2[22] = 1;
-            pipes.Solid.Draw(_ringBuf, cnt, c2, 0, 0, w, h);
+            pipes.Solid.Draw(ringBuf, cnt, c2, 0, 0, w, h);
         }
 
-        private UploadBuffer _cardBuf; private StarVertex[] _cardV = new StarVertex[0];
+        private StarVertex[] _cardV = new StarVertex[0];
+        // the GPU draws a frame after it is recorded, and two or three frames are in flight: so each card or ring drawn gets its
+        // own buffer from a ring of them (never one another card wrote over before the GPU read it), and a buffer outgrown is
+        // freed only after the ring has gone round many times (never while the GPU may still read it)
+        private const int Slots = 24;
+        private readonly UploadBuffer[] _slot = new UploadBuffer[Slots]; private int _slotNext;
+        private readonly List<KeyValuePair<UploadBuffer, int>> _retired = new List<KeyValuePair<UploadBuffer, int>>(); private int _uses;
+        private UploadBuffer Slot(StarVertex[] v, int cnt)
+        {
+            int i = _slotNext; _slotNext = (_slotNext + 1) % Slots; _uses++;
+            long need = (long)Math.Max(1, cnt) * Marshal.SizeOf(typeof(StarVertex));
+            if (_slot[i] == null || _slot[i].Bytes < need)
+            {
+                if (_slot[i] != null) _retired.Add(new KeyValuePair<UploadBuffer, int>(_slot[i], _uses));
+                _slot[i] = new UploadBuffer(_device, (long)(cnt + 1200) * Marshal.SizeOf(typeof(StarVertex)));
+            }
+            for (int k = _retired.Count - 1; k >= 0; k--) if (_uses - _retired[k].Value > Slots * 8) { _retired[k].Key.Dispose(); _retired.RemoveAt(k); }
+            _slot[i].Write(v, cnt);
+            return _slot[i];
+        }
         /// <summary>An information card on screen beside the thing you picked: just its lines of text, no box; the first line its name
         /// (brighter), then its facts. Placed at (x, y) in pixels, kept inside the screen.</summary>
         public void DrawCard(MeshPipes pipes, IList<string> lines, double x, double y, int w, int h)
@@ -123,13 +141,12 @@ namespace DnaAnd.Shell
             int cnt = list.Count;
             if (_cardV.Length < cnt) _cardV = new StarVertex[cnt + 1200];
             list.CopyTo(_cardV);
-            if (_cardBuf == null || _cardBuf.Bytes < (long)cnt * Marshal.SizeOf(typeof(StarVertex))) { if (_cardBuf != null) _cardBuf.Dispose(); _cardBuf = new UploadBuffer(_device, (long)(cnt + 1200) * Marshal.SizeOf(typeof(StarVertex))); }
-            _cardBuf.Write(_cardV, cnt);
+            var cardBuf = Slot(_cardV, cnt);
             var m = Mat4.Identity; m.M11 = 2f / w; m.M22 = -2f / h; m.M33 = 0; m.M41 = -1; m.M42 = 1; m.M43 = 0.0001f; m.M44 = 1;
             var c2 = new float[BillboardPipeline.ConstantCount];
             c2[0] = m.M11; c2[5] = m.M22; c2[10] = m.M33; c2[12] = m.M41; c2[13] = m.M42; c2[14] = m.M43; c2[15] = m.M44;
             c2[18] = 1; c2[22] = 1;
-            pipes.Solid.Draw(_cardBuf, cnt, c2, 0, 0, w, h);
+            pipes.Solid.Draw(cardBuf, cnt, c2, 0, 0, w, h);
         }
 
         private static void Quad(List<StarVertex> l, float x, float y, float sw, float sh, float r, float g, float b)
@@ -139,6 +156,6 @@ namespace DnaAnd.Shell
             l.Add(a); l.Add(bq); l.Add(c); l.Add(a); l.Add(c); l.Add(d);
         }
 
-        public void Dispose() { if (_buf != null) _buf.Dispose(); if (_ringBuf != null) _ringBuf.Dispose(); if (_cardBuf != null) _cardBuf.Dispose(); }
+        public void Dispose() { if (_buf != null) _buf.Dispose(); foreach (var b in _slot) if (b != null) b.Dispose(); foreach (var r in _retired) r.Key.Dispose(); }
     }
 }
