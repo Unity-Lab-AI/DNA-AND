@@ -175,3 +175,4 @@ LAW 11 now includes a content-coverage check.
 - [x] "okay something is wrong with the tour its been staring at one galaxy for minutes now": arcs never held past twice their seconds (DESIGN 387).
 - [x] "and the lading page should have a rec option for the tour with option to open recordings and play them or open the folder location": Film the tour, Clips with Play and Open folder (DESIGN 388).
 - [x] "and it zoomed into a astroid and nothing was there" / "csmae with the comet no trail not gas clud nevbula around the comet": the bodies' sizes no longer scaled twice (DESIGN 389).
+- [x] "comets and astorida can be near plaent small size only once things get big enough do they globe like, and the tour is just spining sround and around the planet like hitintg gimble lock again": small bodies lumpy, big ones round; no circling the world or rolling in place (DESIGN 390).
