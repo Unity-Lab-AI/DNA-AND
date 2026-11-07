@@ -202,3 +202,5 @@ LAW 11 now includes a content-coverage check.
 - [x] "at 50 microns i started seeing through the palnet and weird teering ... at that scal of electrons zoom flys right by whats foccuesd on": a floor under the face; flies in only once over the pick (DESIGN 414).
 - [x] "and the thing need a proper zoom back out and fly around ending on web galaxy view": the flight back out to the web, ending over it (DESIGN 415).
 - [x] "probnelm: after it zooms out to galaxy web view it inprorply still shows the web once zoomed into another galaxy when ist should show gaslaxies in the sky noit just dots of the webbing": no web dots inside a galaxy; the galaxies themselves in its sky (DESIGN 417).
+- [x] "astroid it zoomed into was a ghost like apporition and not properly stone or rock or other elements": solid stone asteroids and nuclei (DESIGN 418).
+- [x] "on planet drop in its hit lows of 7fps": background workers never starve the frame (DESIGN 419).
