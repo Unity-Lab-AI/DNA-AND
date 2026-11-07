@@ -16,9 +16,25 @@ LAW #0 reminder: every milestone description preserves the user's verbatim words
 
 ---
 
+## The two projects
+
+One codebase, two projects, each its own name, repos and releases ("make sure each project is properly named and there is no over lap"). Every stage below is DNA-AND's; the Universe program is what the universe stages (R3 to R6, R16 to R20) ship on their own.
+
+| | DNA-AND | Universe |
+|---|---|---|
+| **What it is** | "a full 3-d world game where u start on a random procedurally generated full massive wolrd with everything(when i say everything i fucking mean everything) that a wrold has on it like earth ... a game where u build life and we have a fully dynamic ggenology with microbes and viruses and plants and animals and insects and intelliegents life and civilizastion and space expansion to dysonsphere all with dynmaic play and genology and genome of all creatures liveing and even viruses ... like a simulation but with god mode" | "the program into its own repo with everything needed to build the universe only ... the full universe we have sdo anyone can use it and build with it" / "this is a tool menat to be stolen and used for any number of projects of any types wehere a universe is needed" |
+| **What it entails** | Everything in this file: the engine (R1 to R4), the universe and the planet (R5, R6), genomes and life (R7, R8), civilization (R9), space (R10), god mode and souls (R11), time (R12), the shell (R13), multiplayer (R14), the leaderboard and Genebank (R15), shipping (R16), the docs (R17) | The universe alone: "noting this is just the univerese without game play or ui or features yet". One camera from the cosmic web and the supermassive black holes down to the quarks, every body and its make-up, the four forces, the living planet without life, the tour, the templates, the toolkit docs (R3 to R6, R16 to R20 as built; R21 below for what is still its own to come) |
+| **Where it lives** | git.unityailab.com/GFourteen/DNA-AND and github.com/Unity-Lab-AI/DNA-AND; 0.1.0 is "the universe preview" of the game | git.unityailab.com/GFourteen/Universe and github.com/Unity-Lab-AI/Universe; 0.1.0; made from here by `universe-sync.cmd` ("none of the life and project stuff") |
+| **Its docs** | Everything here (DESIGN, this roadmap, TODO, FINALIZED, the laws, the builder wiki) and the player wiki | Only its public pages: the readme, the guide, the technical guide, the comparison, the Linux page, the credits and the in-game pages (`docs/release/`); no work notes, no DNA-AND |
+| **Life** | Grows here, on the universe, from the first spark (R7 to R15) | None, ever: "then life on the worlds, and the larger game the lab builds on this universe" is DNA-AND's |
+
+---
+
 ## In progress
 
 - **R17 — Docs**: the full docs set is written. What's left is keeping it current as the game gets built (see `docs/TODO.md`).
+- **R18 — Every body with its real make-up**: a star's layers down to its core left (below).
+- **R21 — The Universe program's own road**: what is still to come for the program on its own (below).
 
 ---
 
@@ -257,6 +273,21 @@ Every hole's shadow black at the size the law gives from where you stand; the di
 > "and what about super novas and nurton star creation and black hole creations and shit should super novas be very bright seen far away like 100s of time brighter than stars, check the math do the research , make it happen" / "like solar systems should be wiped out if a super nova"
 
 Every galaxy's supernovae from its seed and the clock (content/physics.dnat, researched rates and light curves): six kinds in every stage, each as bright as physics says from where you stand, the fireball at its real size in the colour of its heat, the shells seen only from near in the real colours of their gas, the neutron star, black hole or magnetar born at the middle, the star that died gone with its worlds, its neighbours scorched; the tour's flyby. Built 2026-11-07 (DESIGN 550, 553, 557).
+
+### [~] R21 — The Universe program's own road: what is still to come for the program on its own
+> "noting this is just the univerese without game play or ui or features yet" / "this is a tool menat to be stolen and used for any number of projects of any types wehere a universe is needed"
+
+Everything the Universe program still owes on its own, apart from the game. Each item keeps the creator's words from its TODO line; the public side of this list is "Still to come" in `docs/release/UNIVERSE-README.md`.
+
+- A star's layers down through to the heavier elements at its core (R18's remainder): "stars shoiuld be mostly hydrogen till getting to it heavey m,etal cores ect ect"
+- Gravity as a live force: orbits shaped moment by moment (today Kepler's law exactly), and the gravity switch: "as i dont thinkg galxies are acutally being held togetther buy the laws of nature. like if i has a setting to turn off all gravity.. would stars explode pressures of all bodies zero and every body move to straight line travel... right?" (DESIGN 519)
+- The rest of relativity: length contraction, redshift, frame dragging
+- Decay happening before your eyes (today each nucleus says how it would decay), and the fields particles are waves in
+- Light rendered truly below its wavelength: "later when ther is color properly do it"
+- The waveform carrying every field, from the cosmic web to the microbes (gas and star fields, the ground itself, clouds, stars' surfaces): R4.6
+- Native Linux and Mac builds (Vulkan, their own windowing, a C# runtime there); today Linux runs it through Wine with the script in the zip, and that path still waits on a Linux desktop's report: "okay well make sure that path is real"
+- Screens of the landing page, the installer and the document viewer in the readmes: "and we will need screen shots of like the docs viewer and install requirments and installer posints but not alot of screen shots just the main things" / "and landing page"
+- The readme's clip from a take the creator approves, and the social images from it
 
 ## TOMBSTONES
 
