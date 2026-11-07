@@ -36,5 +36,5 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 
 - `content/space-tech.dnat`: 44 entries (How big a civilization's power is (Kardashev scale), Megastructures, Space habitats and stations, Ships by job, Drives) and 7 rules
 - `content/resource-fields.dnat`: 26 entries (Made by magma, Made by hot fluids, Made by water and time, Made by weather, Fields in space) and 6 rules
-- `content/small-bodies.dnat`: 39 entries (Asteroids by makeup, Asteroids by orbit, Comets, Dwarf planets and far bodies, Meteors and meteorites) and 7 rules
+- `content/small-bodies.dnat`: 40 entries (Asteroids by makeup, each with its mix, makeup, density, albedo and belt-share; Asteroids by orbit; Comets, with their mix and makeup; Dwarf planets and far bodies, the far ones with theirs; Meteors and meteorites) and 8 rules
 - `content/black-holes.dnat`: 35 entries (Kinds of black hole, Parts, Active galaxy cores (a feeding supermassive black hole), Events, Real examples) and 7 rules

@@ -94,7 +94,7 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 - `content/physics.dnat`: 49 entries (The four forces of nature, Particles and atoms, Inside a planet, What moves inside a planet, Atmospheres) and 8 rules
 - `content/planets.dnat`: 27 entries (By size, By makeup, By heat and orbit, Earth-family examples) and 6 rules
 - `content/resource-fields.dnat`: 26 entries (Made by magma, Made by hot fluids, Made by water and time, Made by weather, Fields in space) and 6 rules
-- `content/small-bodies.dnat`: 39 entries (Asteroids by makeup, Asteroids by orbit, Comets, Dwarf planets and far bodies, Meteors and meteorites) and 7 rules
+- `content/small-bodies.dnat`: 40 entries (Asteroids by makeup, each with its mix, makeup, density, albedo and belt-share; Asteroids by orbit; Comets, with their mix and makeup; Dwarf planets and far bodies, the far ones with theirs; Meteors and meteorites) and 8 rules
 - `content/solar-systems.dnat`: 31 entries (Kinds of systems (real), Real examples, Zones a system is built from) and 12 rules
 - `content/space-tech.dnat`: 44 entries (How big a civilization's power is (Kardashev scale), Megastructures, Space habitats and stations, Ships by job, Drives) and 7 rules
 - `content/stars.dnat`: 34 entries (Main-sequence stars (the seven classic types), Giants and supergiants, Young and failed stars, Dead and strange stars, Luminosity classes (how bright for its type), Extra star types) and 5 rules
