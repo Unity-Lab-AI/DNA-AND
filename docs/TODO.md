@@ -886,3 +886,5 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **A loading screen at the start:** (built: DESIGN 437; waits on the test) "lets put a loading bar or somehting on start till everything is properly ready or what? its a free wheel loading problem"
 - [~] **Calmer time at the start:** (built: DESIGN 438; waits on the test) "and planets spped is way to fast or time scale is way to fast the star is rising like every second"
 - [~] **A calm look at the sky:** (built: DESIGN 439; waits on the test) "and when it looks up at the sky it pans too much and with the fasst time speen it makes me dizzy"
+- [~] **No driver time-out in the matter:** (built: DESIGN 440; waits on the test) "it froze an unknow exemtioon error at matter delpht where teh static was before"
+- [x] **Logs named for their program:** (DESIGN 441) "asnd wehy does it say dna log when we are working on the universe" / "oh we are doing both"
