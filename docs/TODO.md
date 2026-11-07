@@ -892,3 +892,4 @@ Order: galactic scale down, the same order as the sample sets.
 - [x] **Universe content its own file type:** (DESIGN 443) "Universe gets its own (Recommended)"
 - [~] **All docs good to go, in the game and out:** (built: DESIGN 444) "make sure all docs are good to go" / "in game and out" / "the readme last i saw was pretty shit"
 - [~] **Docs finished to the creator's words, no emoji:** (built: DESIGN 445) "fix the files of the docs fully and completely to how ive already descirbbeed many many times then do full cascade for both projects all four remotes" / "and not a emohji desacster like dna and for the docs"
+- [~] **How a universe fits in 1.7 MB, in the readme:** (built: DESIGN 446) "and make sure the readme properly describnbes how we make such a massive universe with only 1.7 Mb or what ever the count is now"
