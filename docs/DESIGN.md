@@ -1156,3 +1156,7 @@ Everything the creator has said about this project, in order. Short process repl
 349. "and when i pauses it needs to look around except on internal zoom layers deep into matter". A pause on the tour looks around everywhere from the cosmic web down to the ground; deep in the matter (inside a grain, among its atoms and inside them) it holds steady.
 
 350. The patchwork of layers at one zoom, seen on a quartz grain's face at 13 nanometres: the face's rings (finest under you, each farther one coarser) were each made from the grain's shape at their own detail, so the finest showed ridges the coarser ones did not, and each ring's edge showed as a seam between looks. Every ring is now made from the same coarse shape, so they meet without a seam, and all the finer detail is worked out per pixel on the card, the same everywhere in the view.
+
+351. "and ther is nothing select able at the 20 un meter scale and above layers". Found in the code: over the ground (from a centimetre down to where the matter takes over) a click did pick the grain, but its ring and card were drawn only inside the matter, so nothing seemed picked. A grain picked over the ground is now ringed, with its card, as anything picked anywhere.
+
+352. "and when i select an elcetron is zooms paasst it instead of to it". Found in the code: a picked electron moves on its path faster than the view glides after it, so zooming in went on past it. Once you are almost at it the view now rides with it, so the zoom goes to it.

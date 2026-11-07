@@ -1438,7 +1438,11 @@ namespace DnaAnd.Shell
             _lastH = h;
             // the point you dive into eases across to what you picked
             double dt = _lastTime < 0 ? 0 : Math.Max(0, Math.Min(0.1, time - _lastTime)); _lastTime = time;
-            double k = 1 - Math.Exp(-dt * Glide); _fx += (_tfx - _fx) * k; _fz += (_tfz - _fz) * k; _fy += (_tfy - _fy) * k;
+            double k = 1 - Math.Exp(-dt * Glide);
+            // an electron moves on its path faster than the view could glide after it: once you are almost at it the view rides with
+            // it, so zooming in goes to it, never past
+            if (_picked != null && _picked.Kind == 3) { double gx = _tfx - _fx, gy = _tfy - _fy, gz = _tfz - _fz; if (gx * gx + gy * gy + gz * gz < Math.Pow(_scale * 3, 2)) k = 1; }
+            _fx += (_tfx - _fx) * k; _fz += (_tfz - _fz) * k; _fy += (_tfy - _fy) * k;
             var solid = new List<StarVertex>(20000); var glow = new List<StarVertex>(2000); var mesh = pipes != null ? new List<StarVertex>(60000) : null;
             _bodies.Clear();
             _clock = time; Build(scaleKm, time, solid, glow, mesh, overlay);

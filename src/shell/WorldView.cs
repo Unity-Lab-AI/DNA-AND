@@ -1947,6 +1947,11 @@ namespace DnaAnd.Shell
                 SetMatter(); _gpu.ClearDepth();
                 Mat4 ov = MatterFrame(look);
                 _matter.Draw(ov, Math.Max(MatterView.BottomKm, overAlt / 0.6), w, h, _matterClock, _meshes, true);
+                {
+                    // a grain picked over the ground: ringed, with its card, as anything picked anywhere
+                    _gpu.ClearDepth(); double gqx, gqy, gqr;
+                    if (_matter.PickedOnScreen(out gqx, out gqy, out gqr)) { _hud.DrawRing(_meshes, gqx, gqy, Math.Min(gqr, h * 0.45), w, h); if (_hud.Visible && _tour == null) _hud.DrawCard(_meshes, _matter.Card(), gqx + gqr + 12 * Math.Max(1, h / 1080.0), gqy - gqr, w, h); }
+                }
             }
             if (_spaceScale > 0)
             {
