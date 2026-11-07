@@ -1135,6 +1135,7 @@ namespace DnaAnd.Shell
                     else if (mesh != null && smalls < 24000) { Octa(mesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); smalls++; }
                 }
             }
+            if (overlay) return;                                                         // over the ground: the ground itself is its grains; nothing is laid over it (only the grains to click)
             if (!_noGrains && !_space && mesh != null && s < FocusRad * 1.5) GrainPatch(mesh, s);   // (down among the atoms too: its rings carry the grain on out round them)
             if (!_noGrains && !_space && s < FocusRad * 1.5) SurfaceThings(solid, glow, mesh, s);
             AirAbove(glow, s);                                                               // the world's air over the ground, molecule by molecule
