@@ -940,3 +940,4 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **No atom wobble:** (built: DESIGN 485; waits on the test) "and eatoms are all wobbel;y looks nosiating the atom is wobbleing even when focused on"
 - [ ] **Every body landed on and zoomed into, with its real make-up:** (roadmap: DESIGN 486) "ie i should be able to find a gold astroid or nickle being most common ect ect and zoom infinated on any body or abject" / "stars shoiuld be mostly hydrogen till getting to it heavey m,etal cores ect ect"
 - [~] **The code's density, said plainly in the docs:** (built: DESIGN 487; waits on the read) "make notes in document this prokject code is mostly not human readible, right? thats correct right?"
+- [~] **Who can change what, said in the docs:** (built: DESIGN 488; waits on the read) "what i mean is without AI only advance coders can manually edit it"
