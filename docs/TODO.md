@@ -899,3 +899,4 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **No driver time-out over the ground's sand:** (built: DESIGN 450; waits on the test) "200 million for a micron sounds high"
 - [ ] **At 20 micrometres, space and black-and-white:** "at 20 microns im seeing space and only white and black texture" (to see on screen)
 - [~] **Moons are worlds, orbits are ellipses:** (built: DESIGN 451; waits on the test) "and remmeber planets can be moons and moons planets and all these bodies orbits are too perfect reall orbits are eliptical and wild in cvariation"
+- [~] **No still frame while the tour looks for what is next:** (built: DESIGN 452; waits on the test) "it pauses at 10570 light years way to long when it needs to look around a little instead of still frame pause for 10 seconds"
