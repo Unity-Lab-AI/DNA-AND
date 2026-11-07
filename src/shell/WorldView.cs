@@ -726,6 +726,14 @@ namespace DnaAnd.Shell
             }
             return best;
         }
+        // where the ground hands you on into the matter of the grain under you: a third of a grain above it (about 30 micrometres
+        // over sand), before the ground's ever finer grain tops would rise to meet the camera and hold it hovering
+        private double HandoffKm()
+        {
+            if (_ground == null || !_ground.Solid) return 2e-9;
+            double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z); var gm = r > 0 ? _ground.GrainMix(y / r) : null;
+            return gm != null && gm.Size > 0 ? Math.Max(2e-9, gm.Size * 0.3) : 2e-9;
+        }
         private double AboveGround()
         {
             if (_ground == null) return double.MaxValue;
@@ -1402,7 +1410,7 @@ namespace DnaAnd.Shell
                 ChooseNear(); LocalStars(); ChooseSystem(); FollowBody(); ChoosePlanet();
                 return true;
             }
-            if (_ground != null && input.Wheel > 0 && AboveGround() < Units.Km(2e-9))   // (the ground itself, its grains its own, carries you down to about 2 micrometres: on one grain's face)
+            if (_ground != null && input.Wheel > 0 && AboveGround() < Units.Km(HandoffKm()))   // (the ground itself, its grains its own, carries you down to about 2 micrometres: on one grain's face)
             {
                 // at the finest ground: on down into what it is made of
                 double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z);
