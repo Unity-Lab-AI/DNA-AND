@@ -36,7 +36,7 @@ Your world saves to save slots, so you can keep several galaxies going at once.
 
 | Group | What's in it |
 |---|---|
-| 🖼️ **Graphics** | Resolution, render scale (draw at 50% to 200% of the window: lower is faster, higher is sharper), **GPU use** (how much of your graphics card's time the game may use: 10% to 90%, never more; the game measures how busy the card really is and turns the detail up or down to hold it there; the first choice comes from your card's video memory), quality, detail distance |
+| 🖼️ **Graphics** | Resolution, render scale (draw at 50% to 200% of the window: lower is faster, higher is sharper), **GPU use** (how much of your graphics card's time the game may use: 10% to 90%, never more; the game measures how busy the card really is and turns the detail up or down to hold it there; the first choice comes from your card's video memory), **GPU and CPU stats** on screen with the frames a second (the processor's and the card's time a frame, the processor's share of every core, memory, the card's memory and how busy it is), quality, detail distance |
 | 🔊 **Sound** | Master, music, nature, effects |
 | 🎮 **Controls** | Rebind keys, mouse speed, edge panning on/off, invert left-right and up-down drag (by default dragging moves the view the other way to the mouse) |
 | ⏱️ **Gameplay** | Milestone slow-downs and cinematics on/off, tooltips on/off |
