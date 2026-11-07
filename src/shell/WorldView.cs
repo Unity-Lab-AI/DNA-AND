@@ -855,8 +855,8 @@ namespace DnaAnd.Shell
         {
             get
             {
-                double want = Math.Max(0.25, Math.Min(1, Window.Fps / 45.0));
-                if (_ground != null && _ground.Backlog > 40) want *= Math.Max(0.3, 40.0 / _ground.Backlog);
+                double want = Math.Max(0.5, Math.Min(1, Window.Fps / 40.0));
+                if (_ground != null && _ground.Backlog > 80) want *= Math.Max(0.6, 80.0 / _ground.Backlog);
                 if (WebNotMade) want = 0.05;                                            // out among the web before its light is made: wait for it
                 _tourPace += (want - _tourPace) * 0.05; return _tourPace;
             }
@@ -1331,13 +1331,13 @@ namespace DnaAnd.Shell
                 {
                     // coming down to the picked planet: from a tenth of its radius the view levels out from its middle toward
                     // its horizon (about 15 degrees below it), keeping the way you face, so you see the land ahead, not your feet
-                    double alt = AboveGround() / Units.Km(1), lev = Math.Max(0, Math.Min(1, 1 - alt / (_ground.Radius * 0.1)));
+                    double alt = AboveGround() / Units.Km(1), lev = Math.Max(0, Math.Min(1, 1.2 - alt / (_ground.Radius * 0.5)));   // (from about half its radius up: the world's curve and the land ahead, never straight down)
                     lev = lev * lev * (3 - 2 * lev);
                     double ux = -tdx / l, uy = -tdy / l, uz = -tdz / l;                 // up: from the planet's middle to you
                     var lk0 = Look; double dot = lk0.X * ux + lk0.Y * uy + lk0.Z * uz;
                     double hx = lk0.X - ux * dot, hy = lk0.Y - uy * dot, hz = lk0.Z - uz * dot, hl = Math.Sqrt(hx * hx + hy * hy + hz * hz);
                     if (hl < 1e-6) { hx = -uz; hy = 0; hz = ux; hl = Math.Sqrt(hx * hx + hz * hz); if (hl < 1e-6) { hx = 1; hl = 1; } }
-                    double down = Math.Sin(15 * Math.PI / 180), flat = Math.Cos(15 * Math.PI / 180);
+                    double down = Math.Sin(20 * Math.PI / 180), flat = Math.Cos(20 * Math.PI / 180);
                     double wx = hx / hl * flat - ux * down, wy = hy / hl * flat - uy * down, wz = hz / hl * flat - uz * down;
                     tdx = tdx / l * (1 - lev) + wx * lev; tdy = tdy / l * (1 - lev) + wy * lev; tdz = tdz / l * (1 - lev) + wz * lev;
                     l = Math.Sqrt(tdx * tdx + tdy * tdy + tdz * tdz);
