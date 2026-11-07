@@ -329,6 +329,20 @@ float4 PS(VO i) : SV_Target
             _sc = Com.Method<SetScissorsFn>(_list, 22); _draw = Com.Method<DrawInstancedFn>(_list, 12);
         }
 
+        /// <summary>Draws vertexCount vertices starting at firstVertex of the buffer (one stone of many, its own constants).</summary>
+        public void Draw(UploadBuffer buffer, int firstVertex, int vertexCount, float[] constants, int x, int y, int w, int h)
+        {
+            if (vertexCount <= 0) return;
+            var vp = new Viewport { X = x, Y = y, W = w, H = h, MinZ = 0, MaxZ = 1 };
+            var r = new Rect { L = x, T = y, R = x + w, B = y + h };
+            _pso(_list, _pipe.Pipeline); _rs(_list, _pipe.RootSignature);
+            _consts(_list, 0, BillboardPipeline.ConstantCount, constants, 0);
+            _srv(_list, 1, buffer.GpuAddress);
+            if (WaveAddress != 0) _srv(_list, 2, WaveAddress);
+            _topo(_list, 4);
+            _vp(_list, 1, ref vp); _sc(_list, 1, ref r);
+            _draw(_list, (uint)vertexCount, 1, (uint)firstVertex, 0);
+        }
         public void Draw(UploadBuffer buffer, int vertexCount, float[] constants, int x, int y, int w, int h)
         {
             if (vertexCount <= 0) return;

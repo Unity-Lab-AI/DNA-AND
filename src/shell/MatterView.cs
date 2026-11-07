@@ -740,7 +740,8 @@ namespace DnaAnd.Shell
 
         // the patch of the grain's surface under you, as a fine lit mesh
         private readonly Dictionary<long, double[]> _patchCache = new Dictionary<long, double[]>(); private long _patchGrain = long.MinValue; private int _patchBudget;
-                private readonly List<StarVertex> _patchMesh = new List<StarVertex>(); private long _patchKey; private double _patchGX, _patchGY, _patchGZ, _patchRad;
+                private readonly List<StarVertex> _stoneMesh = new List<StarVertex>(); private readonly List<double[]> _stones = new List<double[]>(); private StarVertex[] _stoneArr = new StarVertex[0]; private UploadBuffer _stoneBuf;
+        private readonly List<StarVertex> _patchMesh = new List<StarVertex>(); private long _patchKey; private double _patchGX, _patchGY, _patchGZ, _patchRad;
         private void GrainPatch(List<StarVertex> mesh, double s)
         {
             long gi, gj; double gx, gy, gz, rad; FocusGrain(out gi, out gj, out gx, out gy, out gz, out rad);
@@ -1029,10 +1030,7 @@ namespace DnaAnd.Shell
                 pts[k * 3] = (cx + _ico[k].X * rr - _fx) / s + _ex; pts[k * 3 + 1] = (cy + _ico[k].Y * rr + _yOff - _fy) / s + _ey; pts[k * 3 + 2] = (cz + _ico[k].Z * rr - _fz) / s + _ez;
             }
             foreach (int k in _icoTri)
-            {
-                float sr, sg, sb; DnaAnd.Gen.GrainField.Stain(gi, _ico[k].X, _ico[k].Y, _ico[k].Z, rad, rad * 0.2, out sr, out sg, out sb);   // its stains, as the ground shows them
-                l.Add(new StarVertex { X = (float)pts[k * 3], Y = (float)pts[k * 3 + 1], Z = (float)pts[k * 3 + 2], Size = PackNormal(_ico[k].X, _ico[k].Y, _ico[k].Z), R = r * sr, G = g * sg, B = b * sb, A = 1 });   // shaded smooth
-            }
+                l.Add(new StarVertex { X = (float)pts[k * 3], Y = (float)pts[k * 3 + 1], Z = (float)pts[k * 3 + 2], Size = PackNormal(_ico[k].X, _ico[k].Y, _ico[k].Z), R = r, G = g, B = b, A = 1 });   // shaded smooth; its stains and fine detail on the card
         }
 
         // a far grain: eight faces, squashed and turned its own way
@@ -1092,7 +1090,7 @@ namespace DnaAnd.Shell
 
         private void Build(double s, double time, List<StarVertex> solid, List<StarVertex> glow, List<StarVertex> mesh, bool overlay)
         {
-            _yOff = 0; _patchMesh.Clear(); _orbRecs.Clear();                                                 // (the grain's face: made afresh each frame from its kept points)
+            _yOff = 0; _patchMesh.Clear(); _orbRecs.Clear(); _stoneMesh.Clear(); _stones.Clear();                                                 // (the grain's face: made afresh each frame from its kept points)
             if (!_space && !_noGrains)
             {
                 long fgi, fgj; double fgx, fgy, fgz, frad, top; FocusGrain(out fgi, out fgj, out fgx, out fgy, out fgz, out frad);
@@ -1129,7 +1127,7 @@ namespace DnaAnd.Shell
                     if (gr.Layer == 0) { int nb = _bodies.Count; AddBody(0, gi, gj, gx, gy, gz, rad, s); if (_bodies.Count > nb) _bodies[nb].Sym = m.Id; }
                     if (overlay || px < 1.5) continue;                                           // over the ground: the ground itself is their top
                     if (under) continue;                                                         // its face is drawn in rings out to its edge (GrainPatch)
-                    if (mesh != null && px > 8 && meshes < 700) { Stone(mesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); meshes++; }
+                    if (mesh != null && px > 8 && meshes < 700) { int at0 = _stoneMesh.Count; Stone(_stoneMesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); _stones.Add(new double[] { at0, _stoneMesh.Count - at0, gi, gx, gy, gz, rad, m.Lustre }); meshes++; }   // its detail and stains worked out on the card
                     else if (mesh != null && smalls < 24000) { Octa(mesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); smalls++; }
                 }
             }
@@ -1392,6 +1390,22 @@ namespace DnaAnd.Shell
                 for (int q = 0; q < 16; q++) mc[q] = c[q];
                 mc[16] = Light[0]; mc[17] = Light[1]; mc[18] = Light[2]; mc[20] = 0; mc[21] = 0; mc[22] = 0; mc[25] = 0; mc[26] = 0;
                 pipes.Solid.Draw(_meshBuf, mesh.Count, mc, 0, 0, w, h);
+            }
+            if (pipes != null && _stoneMesh.Count > 0)
+            {
+                // the near stones, each drawn with where each pixel is on it, so the card works out its detail and stains
+                Put(_stoneMesh, ref _stoneArr, ref _stoneBuf);
+                var sc0 = new float[BillboardPipeline.ConstantCount];
+                for (int q = 0; q < 16; q++) sc0[q] = c[q];
+                sc0[16] = Light[0]; sc0[17] = Light[1]; sc0[18] = Light[2];
+                foreach (var st in _stones)
+                {
+                    double rad = st[6], sr2 = _scale / Math.Max(1e-30, rad);
+                    var k2 = (float[])sc0.Clone();
+                    k2[40] = (float)((_fx - st[3]) / rad - _ex * sr2); k2[41] = (float)((_fy - _yOff - st[4]) / rad - _ey * sr2); k2[42] = (float)((_fz - st[5]) / rad - _ez * sr2); k2[43] = (float)sr2;
+                    k2[44] = BitConverter.ToSingle(BitConverter.GetBytes((uint)((long)st[2] & 0xFFFFFFFF)), 0); k2[45] = (float)(rad / Math.Max(1e-30, _scale)); k2[46] = 1; k2[47] = 1;
+                    pipes.Solid.Draw(_stoneBuf, (int)st[0], (int)st[1], k2, 0, 0, w, h);
+                }
             }
             if (pipes != null && _patchMesh.Count > 0)
             {
