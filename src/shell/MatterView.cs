@@ -250,6 +250,14 @@ namespace DnaAnd.Shell
         // in its real shape (the processor no longer works out a single point of it)
         private readonly List<StarVertex> _orbRecs = new List<StarVertex>(); private StarVertex[] _orbArr = new StarVertex[0]; private UploadBuffer _orbBuf;
         private const int OrbitalPoints = 60;
+        // an atom as what it is, at any size on screen: its nucleus (a spark at the middle) and its electrons' orbitals (clouds in
+        // their real shapes, worked out on the card); never a solid ball (an atom has no surface: its size is its electrons)
+        private void AtomSystem(List<StarVertex> glow, Element e, double x, double y, double z, double s, double time, long key, float f)
+        {
+            if (e == null || f <= 0.02) return;
+            Orbitals(glow, e, x, y, z, s, time, key, f);
+            Add(glow, x, y, z, Math.Max(NucleusRadius(e) * 3, s * 0.0035), 1f * f, 0.75f * f, 0.5f * f, s);
+        }
         private void Orbitals(List<StarVertex> glow, Element e, double x, double y, double z, double s, double time, long key, float f)
         {
             if (f <= 0.05) return;
@@ -857,12 +865,12 @@ namespace DnaAnd.Shell
                             double oh = st.Bond, half = st.Angle / 2 * Math.PI / 180, turn = Hash(i, j, 104, _seed) * Math.PI * 2;
                             double ball = 1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2);               // close in, each atom becomes its own system
                             float cf = (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2);
-                            if (ball > 0.03) Add(solid, x, y, z, 0.66e-13 * ball, o.R, o.G, o.B, s);
+                            if (ball > 0.03) AtomSystem(glow, o, x, y, z, s, _clock, i * 31 + j, (float)ball);
                             if (cf > 0.01) Cloud(glow, o, x, y, z, s, _clock, i * 31 + j, cf);
                             for (int q = -1; q <= 1; q += 2)
                             {
                                 double hx = q * oh * Math.Sin(half), hy = oh * Math.Cos(half), px = x + hx * Math.Cos(turn), py = y + hy * 0.5, pz = z + hx * Math.Sin(turn);
-                                if (ball > 0.03) Add(solid, px, py, pz, 0.31e-13 * ball, hh.R, hh.G, hh.B, s);
+                                if (ball > 0.03) AtomSystem(glow, hh, px, py, pz, s, _clock, i * 31 + j + q + 7, (float)ball);
                                 if (cf > 0.01) Cloud(glow, hh, px, py, pz, s, _clock, i * 31 + j + q + 7, cf);
                             }
                         }
@@ -1185,7 +1193,7 @@ namespace DnaAnd.Shell
                     // from afar a ball in its colour, growing up out of the face; close in the ball gives way to the atom's own system
                     // (its nucleus and its electrons on their paths), as the electrons are what an atom's size really is
                     double ball = 1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2);
-                    if (ball > 0.03) Add(solid, at.X, ay, at.Z, ar * 0.6 * ball, at.E.R * sh * (0.35f + 0.65f * f), at.E.G * sh * (0.35f + 0.65f * f), at.E.B * sh * (0.35f + 0.65f * f), s);   // each atom at its own size, its colour coming in   // ball and stick: the balls small, so the bonds show
+                    if (ball > 0.03) AtomSystem(glow, at.E, at.X, ay, at.Z, s, time, (long)(at.X / 1e-14) ^ (long)(at.Z / 1e-14) * 31, (float)(ball * f * sh));   // each atom at its own size, its colour coming in   // ball and stick: the balls small, so the bonds show
                     if ((at.X - _fx) * (at.X - _fx) + (at.Z - _fz) * (at.Z - _fz) < bondReach * bondReach) drawnAt.Add(new CAtom { E = at.E, X = at.X, Y = ay, Z = at.Z });
                     if (s < AtomSpacing * 4) Cloud(glow, at.E, at.X, ay, at.Z, s, time, (long)(at.X / 1e-14) ^ (long)(at.Z / 1e-14) * 31, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
                     { int nb = _bodies.Count; AddBody(1, 0, 0, at.X, ay, at.Z, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = at.E.Symbol; }   // every layer's atoms
@@ -1215,15 +1223,15 @@ namespace DnaAnd.Shell
                                 {
                                     var me = El(mol[q].Key); if (me == null) continue; double ox, oy, oz; Orient(i, j, k, mol[q].Value, out ox, out oy, out oz);
                                     double mr = AtomRadius(me) * 0.55;                       // bonded atoms overlap: drawn at their bonded size
-                                    Add(solid, sx + ox, sy - ar + oy - _yOff, sz + oz, mr, me.R * sh * f, me.G * sh * f, me.B * sh * f, s);
+                                    AtomSystem(glow, me, sx + ox, sy - ar + oy - _yOff, sz + oz, s, time, i * 7919 ^ j * 104729 ^ k * 31 + q, sh * f);
                                 }
-                                Add(solid, sx, sy - ar - _yOff, sz, ar * 0.55, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
+                                AtomSystem(glow, el, sx, sy - ar - _yOff, sz, s, time, i * 7919 ^ j * 104729 ^ k, sh * f);
                                 { int nb = _bodies.Count; AddBody(6, i, j, sx, sy - ar - _yOff, sz, ar * 1.6, s); if (_bodies.Count > nb) _bodies[nb].Sym = fm.Id; }   // the whole molecule
                             }
                             else
                             {
                                 double ball = 1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2);
-                                if (ball > 0.03) Add(solid, sx, sy - ar - _yOff, sz, ar * 0.9 * ball, el.R * sh * f, el.G * sh * f, el.B * sh * f, s);
+                                if (ball > 0.03) AtomSystem(glow, el, sx, sy - ar - _yOff, sz, s, time, i * 7919 ^ j * 104729 ^ k, (float)(ball * sh * f));
                                 if (s < AtomSpacing * 4) Cloud(glow, el, sx, sy - ar - _yOff, sz, s, time, i * 7919 ^ j * 104729 ^ k, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
                             }
                             { int nb = _bodies.Count; AddBody(1, i, j, sx, sy - ar - _yOff, sz, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = el.Symbol; }   // every layer's atoms
@@ -1380,8 +1388,9 @@ namespace DnaAnd.Shell
             {
                 // the orbitals' clouds: each record drawn as its points, placed by the card
                 Put(_orbRecs, ref _orbArr, ref _orbBuf);
-                var oc = (float[])c.Clone(); oc[41] = 1; oc[42] = OrbitalPoints; oc[30] = 0.0028f;
-                _dots.Draw(_orbBuf, _orbRecs.Count * OrbitalPoints, oc, 0, 0, w, h);
+                int per = Math.Max(6, Math.Min(OrbitalPoints, 4000000 / Math.Max(1, _orbRecs.Count)));   // with many atoms on screen, fewer points to each orbital: the shapes stay, the frame rate too
+                var oc = (float[])c.Clone(); oc[41] = 1; oc[42] = per; oc[30] = 0.0028f;
+                _dots.Draw(_orbBuf, _orbRecs.Count * per, oc, 0, 0, w, h);
             }
             if (mesh != null && mesh.Count > 0)
             {
