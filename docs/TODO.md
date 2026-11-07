@@ -911,5 +911,5 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **Processor and card at once:** (built: DESIGN 459; waits on the test) "and im just sitting at 1km and its shittly doing 14fps im not even zooming or nothing"
 - [~] **A comet with its coma and tails, seen across its system:** (built: DESIGN 460; waits on the test) "comet didnt have a auros or gas or a tail facing away from star and i could nt see it at solar systems scale like comets should be seen" / "it looks just like an astroid"
 - [ ] **The driver still times out at the ground's hand-over to the matter:** "at 200 mm ant micor level it crashes still" (00:55:06 and 00:55:08, about 185 micrometres over an ice world). Every shader loop is bounded, the octave cap and the palette are in range: next, the device's own record of what it was doing (DRED breadcrumbs and page-fault address) written to the crash log with each draw named.
-- [ ] **Blocky hand-overs at 200 mm:** "200m ther are lock hand offs" / "mm"
+- [~] **Blocky hand-overs at 200 mm:** (built: DESIGN 462; waits on the test) "200m ther are lock hand offs" / "mm"
 - [~] **The crash log names the draw the card died on:** (built: DESIGN 461; waits on the next crash) "at 200 mm ant micor level it crashes still"
