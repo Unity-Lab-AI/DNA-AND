@@ -181,3 +181,4 @@ LAW 11 now includes a content-coverage check.
 - [x] "and the short cut for the univers needs to be an actual icon for the universe and DNA AND when built so the whol things use thier own ico s and flaicon thing": each program its own icon everywhere (DESIGN 393).
 - [x] "and i cant click the top right exit button on the landing page without it giving me an eror beepe of admin": the close button quits (DESIGN 394).
 - [x] "and dopnt have it select nearest galaxy have it zoom across the universe after first full pan out to galaxcy webbing": far-galaxy pick, flight across the universe (DESIGN 395).
+- [x] "and when i fust start up the universe app theher is a white box on the black app that looks funcky as the game is loading in for the first time, it should just be solid black while loading in" "before the landing page": black window background from the start (DESIGN 396).
