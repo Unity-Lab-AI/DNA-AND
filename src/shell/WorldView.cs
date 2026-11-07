@@ -951,7 +951,7 @@ namespace DnaAnd.Shell
         {
             dx = dy = dz = 0; radius = 0;
             if (_tKind == 0) { var g = _galaxies[_tIndex]; dx = (g.X - _ax) - _ox; dy = (g.Y - _ay) - _oy; dz = (g.Z - _az) - _oz; radius = g.Scale * 0.3; return true; }
-            if (_tKind == 1 || _tKind == 4 || _tKind == 5 || _tKind == 6) { dx = (_tx - _ax) - _ox; dy = (_ty - _ay) - _oy; dz = (_tz - _az) - _oz; radius = _tRadius; return true; }   // a star, or a spot in a belt
+            if (_tKind == 1 || _tKind == 4 || _tKind == 5 || _tKind == 6 || _tKind == 7) { dx = (_tx - _ax) - _ox; dy = (_ty - _ay) - _oy; dz = (_tz - _az) - _oz; radius = _tRadius; return true; }   // a star, or a spot in a belt
             if (_tKind == 2 && _system != null && _tIndex < _system.Bodies.Count)
             { double x, y, z; BodyPos(_tIndex, out x, out y, out z); dx = x - _ox; dy = y - _oy; dz = z - _oz; radius = _system.Bodies[_tIndex].RadiusUnits; return true; }
             if (_tKind == 3 && _ground != null)
@@ -1126,6 +1126,13 @@ namespace DnaAnd.Shell
                 _tName = "a point in the space between the stars"; return;
             }
             if (kind < 0) return;
+            var layHere = LayerHere();
+            if (layHere != null && layHere.Matter != "core" && (kind < 0 || kind == 3))
+            {
+                // inside a giant, a click is a point in the layer you are in, just ahead where you clicked (its gas, its plasma, its
+                // hot dense water): the wheel flies to it and on into that layer's own matter
+                double reachU = Units.Km(1000); kind = 7; idx = 0; tx = _ax + _ox + dir.X * reachU; ty = _ay + _oy + dir.Y * reachU; tz = _az + _oz + dir.Z * reachU; trad = 0; name = "a point in its " + layHere.Name.ToLowerInvariant();
+            }
             _tKind = kind; _tIndex = idx; _tx = tx; _ty = ty; _tz = tz; _tRadius = trad; _tName = name; if (kind == 5) _tGal = pickGal;
         }
 
@@ -1335,6 +1342,20 @@ namespace DnaAnd.Shell
                 _matterScale = Math.Max(MatterView.BottomKm, AboveGround() / Units.Km(1) / 0.6);   // the same picture carries on: you are 0.6 of the scale above it
                 _matterTop = Math.Max(MatterView.TopKm, _matterScale * 1.1);
                 return true;
+            }
+            if (_tKind == 7 && input.Wheel > 0 && _spaceScale <= 0 && _matterScale <= 0)
+            {
+                double qx, qy, qz, qr;
+                if (TargetFromCamera(out qx, out qy, out qz, out qr) && Math.Sqrt(qx * qx + qy * qy + qz * qz) < Units.Km(1))
+                {
+                    var lay = LayerHere(); ulong lspot = (ulong)(_tx / Units.Km(1)) ^ (ulong)(_tz / Units.Km(1)) * 31UL;
+                    string air; if (!PlanetTerrain.Air.TryGetValue(_ground != null ? _ground.Kind : "", out air)) air = "hydrogen 90%, helium 10%";
+                    if (lay != null && lay.Matter == "plasma") _matter.SetPlasma(lspot);
+                    else if (lay != null && lay.Matter == "ice") { _matter.SetAir("water vapour 70%, ammonia 15%, methane 15%", lspot); }   // hot dense water, ammonia and methane
+                    else _matter.SetAir(air, lspot);
+                    _spaceScale = Math.Max(MatterView.BottomKm, Math.Sqrt(qx * qx + qy * qy + qz * qz) / Units.Km(1) / 0.6); _spaceTop = _spaceScale * 1.1;
+                    return true;
+                }
             }
             if (_system != null && _ground == null && input.Wheel > 0 && _spaceScale <= 0 && Math.Sqrt(_ox * _ox + _oy * _oy + _oz * _oz) < _system.StarRadius * 1.002 && Math.Abs(_ax) + Math.Abs(_ay) + Math.Abs(_az) >= 0)
             {
