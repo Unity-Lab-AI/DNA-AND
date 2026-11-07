@@ -9,6 +9,10 @@
 # Spec: docs/CONTENT-FORMAT.md · content/black-holes.dnat · content/small-bodies.dnat · content/stars.dnat
 
 @place supermassive-black-hole
+# feeding-share: how many are feeding (a glowing accretion disc; counting the dim, slow-feeding ones, as most galaxies' are);
+#   jets-share: of those feeding, how many fire jets from their poles (radio galaxies, blazars, quasars)
+feeding-share: 0.3
+jets-share: 0.25
 name: A supermassive black hole
 where: galaxy-heart
 entry: blackhole supermassive
@@ -17,6 +21,10 @@ colour: 1 0.7 0.35
 says: millions to billions of times the Sun's mass at the galaxy's heart, its disc of hot gas glowing as it falls in
 
 @place stellar-black-hole
+# feeding only with a close companion star to pull gas from (X-ray binaries), a few in a hundred; a third of those fire jets
+#   (microquasars, as SS 433)
+feeding-share: 0.05
+jets-share: 0.35
 name: A stellar-mass black hole
 where: galaxy
 per-cubic-ly: 4e-6

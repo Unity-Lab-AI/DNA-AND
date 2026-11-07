@@ -308,9 +308,50 @@ namespace DnaAnd.Shell
         // ── every other kind of body, made round you from content/bodies.dnat, drawn and clickable: a supermassive black hole at
         // each galaxy's heart; stellar black holes, neutron stars and rogue planets among a galaxy's stars; stars and rogue
         // planets between the galaxies; asteroids, Kuiper-belt bodies and Oort-cloud comets round a star ──
-        private sealed class Place { public string Id, Name, Where, Entry, Says; public double PerLy3, SizeKm; public int Shown; public float R, G, B; }
-        private sealed class Extra { public double X, Y, Z, R, Mass; public string Name; public List<string> Lines; public float Cr, Cg, Cb; public bool Hole; }
+        private sealed class Place { public string Id, Name, Where, Entry, Says; public double PerLy3, SizeKm, FeedShare, JetShare; public int Shown; public float R, G, B; }
+        private sealed class Extra { public double X, Y, Z, R, Mass; public string Name; public List<string> Lines; public float Cr, Cg, Cb; public bool Hole; public int Feeding; public float Tilt, Turn; }   // Feeding: 0 quiet, 1 a glowing disc, 2 a disc and jets
         private List<Place> _places; private readonly List<Extra> _extras = new List<Extra>(); private string _extraKey = "";
+        // a feeding black hole's accretion disc and its jets, made once in its own units (Schwarzschild radii), drawn for each,
+        // tilted its own way, turning, sized to it
+        private UploadBuffer _bhDisc, _bhJets; private int _bhDiscN, _bhJetsN;
+        private void MakeBlackHoleParts()
+        {
+            var rng = new Rng(0xB1AC4UL); var disc = new List<StarVertex>(); var jets = new List<StarVertex>();
+            for (int k = 0; k < 6000; k++)
+            {
+                // from the innermost stable orbit (3 radii) out to about 60, more of it close in; hottest and brightest inside
+                // (blue-white), cooling outward (yellow, orange, red), thin
+                double r = 3 * Math.Pow(20, Math.Pow(rng.NextDouble(), 1.6)), a = rng.NextDouble() * Math.PI * 2, t = Math.Pow(3 / r, 0.75);
+                float br = (float)Math.Min(1, 1.4 * Math.Pow(3 / r, 1.1) + 0.06);
+                float cr = (float)(1.0 * br), cg = (float)((0.45 + 0.55 * t) * br), cb = (float)((0.15 + 0.85 * t * t) * br);
+                disc.Add(new StarVertex { X = (float)(Math.Cos(a) * r), Y = (float)(rng.Gaussian() * r * 0.02), Z = (float)(Math.Sin(a) * r), Size = (float)(0.6 + r * 0.03), R = cr, G = cg, B = cb, A = 1 });
+            }
+            for (int k = 0; k < 2400; k++)
+            {
+                // two beams from the poles, narrow, fading as they go, blue-violet
+                double y = 3 + Math.Pow(rng.NextDouble(), 1.8) * 600, w = 0.6 + y * 0.03, a = rng.NextDouble() * Math.PI * 2, f = Math.Exp(-y / 300);
+                float br = (float)(0.25 + 0.75 * f); int side = (k & 1) == 0 ? 1 : -1;
+                jets.Add(new StarVertex { X = (float)(Math.Cos(a) * w * rng.NextDouble()), Y = (float)(side * y), Z = (float)(Math.Sin(a) * w * rng.NextDouble()), Size = (float)(1 + y * 0.01), R = 0.55f * br, G = 0.6f * br, B = 1f * br, A = 1 });
+            }
+            _bhDiscN = disc.Count; _bhDisc = new UploadBuffer(_gpu.Device, (long)disc.Count * Stride); _bhDisc.Write(disc.ToArray(), disc.Count);
+            _bhJetsN = jets.Count; _bhJets = new UploadBuffer(_gpu.Device, (long)jets.Count * Stride); _bhJets.Write(jets.ToArray(), jets.Count);
+        }
+        private void DrawBlackHoles(Mat4 vp, Vec3 right, Vec3 up, int w, int h, double time)
+        {
+            foreach (var ex in _extras)
+            {
+                if (!ex.Hole || ex.Feeding == 0 || ex.Mass <= 0) continue;
+                double rs = Units.Km(2.953 * ex.Mass), dx = (ex.X - _ax) - _ox, dy = (ex.Y - _ay) - _oy, dz = (ex.Z - _az) - _oz, d = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+                if (rs * 600 / Math.Max(1e-30, d) * h < 2) continue;                      // (too small on screen to show yet)
+                if (_bhDisc == null) MakeBlackHoleParts();
+                float sc = (float)rs, spin = (float)(time * 0.6 + ex.Turn), ct = (float)Math.Cos(ex.Tilt), st = (float)Math.Sin(ex.Tilt);
+                var m = Mat4.RotationY(spin); var tilt = Mat4.Identity; tilt.M22 = ct; tilt.M23 = st; tilt.M32 = -st; tilt.M33 = ct;
+                var scale = Mat4.Identity; scale.M11 = sc; scale.M22 = sc; scale.M33 = sc;
+                var place = m * tilt * scale * Mat4.Translation((float)dx, (float)dy, (float)dz);
+                DrawPoints(_bhDisc, _bhDiscN, place * vp, right, up, sc, 0.0012f, w, h, time, 0.02f, 1f, 2f);
+                if (ex.Feeding == 2) DrawPoints(_bhJets, _bhJetsN, tilt * scale * Mat4.Translation((float)dx, (float)dy, (float)dz) * vp, right, up, sc, 0.0012f, w, h, time, 0.02f, 1f, 2f);
+            }
+        }
         private UploadBuffer _extraBuf; private StarVertex[] _extraV = new StarVertex[0]; private readonly float[] _lens = new float[4], _web = new float[5];
         private void LoadPlaces()
         {
@@ -318,7 +359,7 @@ namespace DnaAnd.Shell
             foreach (var e in _content.OfKind("bodies.dnat", "place"))
             {
                 double v; var pl = new Place { Id = e.Id, Name = e.Name, Where = e.Get("where", ""), Entry = e.Get("entry", ""), Says = e.Get("says", "") };
-                if (double.TryParse(e.Get("per-cubic-ly", "0"), fs, ci, out v)) pl.PerLy3 = v; if (double.TryParse(e.Get("size-km", "1000"), fs, ci, out v)) pl.SizeKm = v;
+                if (double.TryParse(e.Get("per-cubic-ly", "0"), fs, ci, out v)) pl.PerLy3 = v; if (double.TryParse(e.Get("feeding-share", "0"), fs, ci, out v)) pl.FeedShare = v; if (double.TryParse(e.Get("jets-share", "0"), fs, ci, out v)) pl.JetShare = v; if (double.TryParse(e.Get("size-km", "1000"), fs, ci, out v)) pl.SizeKm = v;
                 int n; if (int.TryParse(e.Get("shown", "0"), out n)) pl.Shown = n;
                 var c = e.Get("colour", "1 1 1").Split(' '); float r = 1, g = 1, b = 1; if (c.Length == 3) { float.TryParse(c[0], fs, ci, out r); float.TryParse(c[1], fs, ci, out g); float.TryParse(c[2], fs, ci, out b); }
                 pl.R = r; pl.G = g; pl.B = b; _places.Add(pl);
@@ -358,6 +399,11 @@ namespace DnaAnd.Shell
                     ex.Hole = true; double rs = 2.953 * ex.Mass; ex.R = Units.Km(rs * 2.6);
                     ex.Lines.Add("event horizon: " + ScaleHud.Words(rs * 2) + " across");
                     ex.Lines.Add("shadow: " + ScaleHud.Words(rs * 5.2) + " across");
+                    // feeding or quiet, by its kind's shares (content/bodies.dnat), from its place
+                    double u2 = Math.Abs(Math.Sin(x * 3.7 + y * 91.1 + z * 13.3) * 24634.6345) % 1, u3 = Math.Abs(Math.Sin(x * 17.9 + y * 5.3 + z * 47.1) * 15731.743) % 1;
+                    ex.Feeding = u2 < pl.FeedShare ? (u3 < pl.JetShare ? 2 : 1) : 0;
+                    ex.Tilt = (float)(u3 * Math.PI); ex.Turn = (float)(u2 * 37 % (Math.PI * 2));
+                    ex.Lines.Add(ex.Feeding == 0 ? "quiet: not feeding, only its shadow and the light it bends" : ex.Feeding == 1 ? "feeding: a disc of gas spiralling in, heated to millions of degrees" : "feeding, and firing jets from its poles at nearly the speed of light");
                 }
                 if (e.Props.ContainsKey("made-by")) ex.Lines.Add("made by: " + e.Get("made-by", ""));
                 if (e.Props.ContainsKey("example")) ex.Lines.Add("for example: " + e.Get("example", ""));
@@ -989,6 +1035,24 @@ namespace DnaAnd.Shell
             switch (what)
             {
                 case "none": _tKind = -1; _tName = ""; _matter.Unpick(); break;
+                case "black-hole":
+                case "asteroid":
+                case "comet":
+                    {
+                        // one of the bodies round you (content/bodies.dnat): the nearest black hole, asteroid of the belt, or comet of
+                        // the Oort cloud
+                        int bi = -1; double bd = double.MaxValue;
+                        for (int q = 0; q < _extras.Count; q++)
+                        {
+                            var ex = _extras[q]; string nm = ex.Name.ToLowerInvariant();
+                            bool fits = what == "black-hole" ? ex.Hole : what == "asteroid" ? nm.Contains("asteroid") : nm.Contains("comet");
+                            if (!fits) continue;
+                            double dx = (ex.X - _ax) - _ox, dy = (ex.Y - _ay) - _oy, dz = (ex.Z - _az) - _oz, d = dx * dx + dy * dy + dz * dz;
+                            if (d < bd) { bd = d; bi = q; }
+                        }
+                        if (bi >= 0) { var ex = _extras[bi]; _tKind = 6; _tIndex = bi; _tx = ex.X; _ty = ex.Y; _tz = ex.Z; _tRadius = ex.R; _tName = ex.Name; }
+                    }
+                    break;
                 case "home-galaxy":
                     {
                         // the galaxy you begin in (the nearest), to open on
@@ -1943,6 +2007,7 @@ namespace DnaAnd.Shell
                 }
             }
             UpdateExtras();
+            DrawBlackHoles(vp, right, up, w, h, time);                               // the feeding ones' discs and jets
             {
                 // the black hole that bends the most light on screen: its Einstein ring, sqrt(2 Rs / distance) radians (light from far
                 // behind it), set for every point drawn
@@ -2131,6 +2196,10 @@ namespace DnaAnd.Shell
             if (_matterScale > 0) return _matterScale * 0.6;
             double qx, qy, qz, qr;
             if (_tKind == 5 && TargetFromCamera(out qx, out qy, out qz, out qr)) return Math.Max(1e-30, Math.Sqrt(qx * qx + qy * qy + qz * qz) / Units.Km(1));
+            // on the tour, how far it is to what the tour goes to (the picked world's ground; anything else picked, itself), never
+            // just the nearest thing (beside a black hole every other zoom would think itself already there)
+            if (_tour != null && _tKind == 2 && _tIndex == _planet && _ground != null) return Math.Max(1e-30, AboveGround()) / Units.Km(1);
+            if (_tour != null && _tKind >= 0 && _farScale <= 0 && TargetFromCamera(out qx, out qy, out qz, out qr)) return Math.Max(1e-30, Math.Sqrt(qx * qx + qy * qy + qz * qz) / Units.Km(1));
             return Math.Max(1e-30, Math.Max(NearestDistance(), _farScale)) / Units.Km(1);   // zoomed out, the view is as wide as how far out you have pulled (out among the web a galaxy is always near)
         }
 
