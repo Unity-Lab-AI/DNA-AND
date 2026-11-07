@@ -703,4 +703,5 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **The comet dived into on the tour the same way as the planet and the asteroid, one chain for any body:** (built: DESIGN 636; waits on the test) "and like i said unify all astral body zoom ins so they are all acruate based on elements zommed into as high scales"
 - [~] **A dive onto a small body landing on the drawn stone's own surface, its spin held while you are on it:** (built: DESIGN 637; waits on the test) "okay but u fixed the invisible astroid as zoom rihgt?" / "what the fuck do u mean its visible ther in not a fucking thing but stars at all the xzoom levels i screen shotted when the sasteroid was selecterd"
 - [~] **A spot on any small body picked by a click on its stone, the zoom flying down to it:** (built: DESIGN 638; waits on the test) "and should differnt spots on an astroid be selctabble just like all bodies" / "so maqke it so for all bodies"
+- [~] **Every small body drawn from its precise offset from its star, never from a billion-light-year double:** (built: DESIGN 639; waits on the test) "that same solar system shit aint fixed i screen shot"
 
