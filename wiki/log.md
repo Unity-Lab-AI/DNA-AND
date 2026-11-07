@@ -190,3 +190,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (the way in by mass; the fall's pace): DESIGN 597, 598.
 - 2026-11-07 (the tour looking round the funnel): DESIGN 599.
 - 2026-11-07 (every hole's photon ring): DESIGN 600.
+- 2026-11-07 (the well rings and straight spokes, the look up then down): DESIGN 601.
