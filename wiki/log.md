@@ -211,3 +211,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (the climb out as fast as the fall): DESIGN 626.
 - 2026-11-07 (the asteroid's caption its own make-up, its dive to a quark, the supernova logged): DESIGN 627-629.
 - 2026-11-07 (the faces before the glows, the picked atom in focus, the stats card's width, the inner cloud brighter): DESIGN 630-633.
+- 2026-11-07 (the orbit lines continuous, no rows of dots): DESIGN 634.
