@@ -22,6 +22,15 @@ foreach ($dir in @('src', 'content', 'installer')) {
         $t = [System.IO.File]::ReadAllText($_.FullName)
         $n = $t.Replace('DnaAnd', 'Universe').Replace('DNA-AND', 'Universe')
         $n = $n.Replace('(each program its own: UniverseWindow, DNAANDWindow)', '(its own: UniverseWindow)').Replace("(the program's own name: universe_zoom.log, dnaand_zoom.log)", "(the program's own name: universe_zoom.log)")
+        $n = $n.Replace('.dnat', '.unt')                                              # its own content format: .unt, Universe text
         if ($n -ne $t) { [System.IO.File]::WriteAllText($_.FullName, $n, $utf8) }
     }
 }
+# its documents name its own content format too
+Get-ChildItem -Path $Root -Recurse -File -Include *.md, *.txt | Where-Object { $_.FullName -notmatch '\\(build|release|\.git)\\' } | ForEach-Object {
+    $t = [System.IO.File]::ReadAllText($_.FullName); $n = $t.Replace('.dnat', '.unt')
+    if ($n -ne $t) { [System.IO.File]::WriteAllText($_.FullName, $n, $utf8) }
+}
+# and its content files carry it: every .dnat becomes .unt
+$content = Join-Path $Root 'content'
+if (Test-Path $content) { Get-ChildItem -Path $content -Recurse -File -Filter *.dnat | ForEach-Object { Move-Item -Force $_.FullName ([System.IO.Path]::ChangeExtension($_.FullName, '.unt')) } }

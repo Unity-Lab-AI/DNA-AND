@@ -889,3 +889,4 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **No driver time-out in the matter:** (built: DESIGN 440; waits on the test) "it froze an unknow exemtioon error at matter delpht where teh static was before"
 - [x] **Logs named for their program:** (DESIGN 441) "asnd wehy does it say dna log when we are working on the universe" / "oh we are doing both"
 - [~] **Nothing labelled wrong between the projects:** (built: DESIGN 442) "make sure nothing else is labels wrong between projects"
+- [x] **Universe content its own file type:** (DESIGN 443) "Universe gets its own (Recommended)"
