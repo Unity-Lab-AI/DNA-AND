@@ -20,6 +20,8 @@ mkdir "%STAGE%\docs"
 copy /y "%~dp0docs\release\UNIVERSE-README.md" "%STAGE%\docs\README.md" > nul
 copy /y "%~dp0docs\release\UNIVERSE-HOW-TO-BUILD.md" "%STAGE%\docs\HOW-TO-BUILD.md" > nul
 copy /y "%~dp0docs\release\UNIVERSE-GUIDE.md" "%STAGE%\docs\GUIDE.md" > nul
+copy /y "%~dp0docs\release\UNIVERSE-LINUX.md" "%STAGE%\docs\LINUX.md" > nul
+copy /y "%~dp0linux\run.sh" "%STAGE%\run-on-linux.sh" > nul
 if exist "%~dp0release\payload.zip" del "%~dp0release\payload.zip"
 powershell -NoProfile -Command "Compress-Archive -Path '%STAGE%\*' -DestinationPath '%~dp0release\payload.zip' -Force" || exit /b 1
 copy /y "%~dp0release\payload.zip" "%~dp0release\DNA-AND-%VER%-windows.zip" > nul

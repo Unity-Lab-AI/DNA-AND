@@ -68,3 +68,8 @@ Download the newer `DNA-AND-Setup.exe` and run it. It installs over the old vers
 ---
 
 📖 Next: the [Player Wiki](wiki/README.md "Every system, explained") · 🛠️ Building from source: [How to Build](HOW-TO-BUILD.md "Build DNA-AND from source")
+
+## 🐧 On Linux
+
+An `.exe` does not run on Linux by itself. Take the **zip** from the releases page (not the installer), unpack it, and run `run-on-linux.sh` inside it: it runs the game through **Wine**, which carries Direct3D 12 on Vulkan, in a private Wine folder of its own. It needs Wine 8 or newer and your card's Vulkan driver, and it tells you what to install if either is missing. The whole way, the Steam way, and what is proven so far: [On Linux](release/UNIVERSE-LINUX.md).
+
