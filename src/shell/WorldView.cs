@@ -792,6 +792,8 @@ namespace DnaAnd.Shell
         /// <summary>Stops the tour; the controls are yours again.</summary>
         public void StopTour() { _tour = null; _pressed = false; }
         private double _tourH0, _tourLook;
+        // the tour is looking round (up at the sky, round the view, gliding): the view is its own, never turned back to the pick
+        private bool TourLooking { get { if (_tour == null || _tourAt >= _tour.Count) return false; var d = _tour[_tourAt].Do; return _ground != null && (d == "look" || d == "glide" || (d == "orbit" && _tKind != 2)); } }
         private string TourCaption { get { return _tour != null && _tourAt < _tour.Count ? _tour[_tourAt].Caption + "   (the view: " + ScaleHud.Words(ViewDistanceKm()) + ")" : ""; } }   // the scale is what the tour shows
         // one frame of the tour: what the stop asks, given to the controls; on to the next when it is done
         private void TourStep(Input input, double dt, int w, int h)
@@ -1231,7 +1233,7 @@ namespace DnaAnd.Shell
             // the camera turns smoothly to face what you picked
             double tdx, tdy, tdz, trad;
             bool amongGrains = _ground != null && _matterScale <= 0 && AboveGround() < Units.Km(MatterView.OverlayKm);
-            if (amongGrains && !(_pressed && _dragged))
+            if (amongGrains && !(_pressed && _dragged) && !TourLooking)
             {
                 // among the grains: the view looks down onto the point you dive into (the way you face kept), so it, and what you
                 // pick there (which eases to it), sits in the middle of the screen
@@ -1244,7 +1246,7 @@ namespace DnaAnd.Shell
                 double wantYaw = Math.Atan2(wz, wx), wantPitch = Math.Asin(Math.Max(-1, Math.Min(1, wy))), k = 1 - Math.Exp(-dt * 4);
                 _yaw += Math.IEEERemainder(wantYaw - _yaw, 2 * Math.PI) * k; _pitch += (wantPitch - _pitch) * k;
             }
-            else if (_tKind >= 0 && _matterScale <= 0 && _spaceScale <= 0 && !(_pressed && _dragged) && TargetFromCamera(out tdx, out tdy, out tdz, out trad))   // (in the matter or the gas, an earlier pick out in the world does not turn you)
+            else if (_tKind >= 0 && _matterScale <= 0 && _spaceScale <= 0 && !(_pressed && _dragged) && !TourLooking && TargetFromCamera(out tdx, out tdy, out tdz, out trad))   // (in the matter or the gas, an earlier pick out in the world does not turn you)
             {
                 double l = Math.Sqrt(tdx * tdx + tdy * tdy + tdz * tdz);
                 if (l > 0 && _tKind == 2 && _tIndex == _planet && _ground != null)

@@ -1141,3 +1141,10 @@ Everything the creator has said about this project, in order. Short process repl
 344. "we dont need to drall all millions of electrons". Each atom's electrons on their paths are now drawn only for the atoms near where you look (within about six atoms), never for every atom in view; the rest show their nucleus.
 
 345. "nucleaus isnt a glow its point of light just like starts with compact nudlceus of protons and nuetrons all prorper for things like nurtron stars and shit and plants of differnt matter and sixzess and velocities". Every atom's nucleus is now a sharp point of light (at its true size once close enough to show it), never a soft glow, opening into its packed protons and neutrons as you come in. Still to build from this message: the same nuclear matter carried up the scales (a neutron star as nucleus-dense matter; worlds of different matter, sizes and speeds drawing on it).
+
+346. "this test is trash so fix all that i said and do it right" / "it never looked up at the sky and panned around at human scale". Found by watching a quick test descent (content/tours/descent.dnat, galaxy to atoms in about three minutes):
+- At the ground the camera kept turning itself back to the picked planet's land, so the tour's look up at the sky and look round never took; the tour's looks, glides and look-rounds now own the view while they run.
+- Bright dashed lines crawling along every triangle edge of a grain's face (the tearing seen when zooming and panning): where a block of pixels straddled two triangles the face's fine detail tilted the light wildly, throwing a glint off glassy minerals; the tilt is now held under about 50 degrees.
+- The face's detail stopped after four rings and the view at a slant reached past it, a ragged edge on black; it now reaches out up to seven rings.
+- At the atoms a flat sheet (the grain's face) hung among them; once the crystal's atoms are in, they are the face and the sheet is gone.
+- The face's pickable spots cost a frame's worth of work; they are fewer and wider.

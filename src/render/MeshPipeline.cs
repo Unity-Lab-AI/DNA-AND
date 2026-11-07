@@ -209,7 +209,13 @@ float4 PS(VO i) : SV_Target
         float h = woctavesD(L, key, 2.5, 0.16, 0.5, maxF) * detB.y;                    // in view units
         float3 dpdx = ddx(i.wp), dpdy = ddy(i.wp); float dhx = ddx(h), dhy = ddy(h);
         float3 r1 = cross(dpdy, n), r2 = cross(n, dpdx); float det = dot(dpdx, r1);
-        if (abs(det) > 1e-20) n = normalize(abs(det) * n - sign(det) * (dhx * r1 + dhy * r2));
+        if (abs(det) > 1e-20)
+        {
+            // the bump's tilt, never more than about 50 degrees: where a pixel block straddles two triangles its slopes are wild,
+            // and an untamed tilt there throws a sharp glint along every triangle edge (lines crawling as you move)
+            float3 gv = sign(det) * (dhx * r1 + dhy * r2) / abs(det); float gl = length(gv); if (gl > 1.2) gv *= 1.2 / gl;
+            n = normalize(n - gv);
+        }
         float lim = min(maxF * 0.8, 5e5);
         float iron = woctavesD(L, key * 7u + 300u, 2.0, 1, 0.6, lim), clay = woctavesD(L + double3(9, 0, -4), key * 7u + 400u, 2.0, 1, 0.6, lim);
         float crk = woctavesD(L * 1.7, key * 7u + 500u, 2.0, 1, 0.6, lim), dark = clamp(0.5 - abs(crk) * 3, 0, 0.6);

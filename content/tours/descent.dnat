@@ -1,0 +1,64 @@
+# DNA-AND content · a quick test descent from a galaxy to the ground and on to the atoms (no story), for checking each scale
+
+@stop g
+do: pick
+target: galaxy
+caption: g
+
+@stop tg
+do: zoom
+rate: 1.2
+until-km: 3e16
+caption: tg
+
+@stop s
+do: pick
+target: star
+caption: s
+
+@stop ts
+do: zoom
+rate: 1.2
+until-km: 3e9
+caption: ts
+
+@stop p
+do: pick
+target: planet
+caption: p
+
+@stop tp
+do: zoom
+rate: 1
+until-km: 2e4
+caption: tp
+
+@stop land
+do: zoom
+rate: 0.6
+until-km: 0.01
+caption: land
+
+@stop n
+do: pick
+target: none
+caption: n
+
+@stop grains
+do: zoom
+rate: 0.25
+until-km: 1e-9
+caption: grains
+
+@stop atoms
+do: zoom
+rate: 0.25
+until-km: 5e-13
+caption: atoms
+
+@stop end
+do: orbit
+turn: 2
+seconds: 10
+caption: end
+

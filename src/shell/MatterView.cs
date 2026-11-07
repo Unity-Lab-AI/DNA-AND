@@ -790,7 +790,7 @@ namespace DnaAnd.Shell
                 int N = (int)Math.Min(160, Math.Ceiling(2 * half / step / 2) * 2);
                 PatchRing(mesh, s, m, gi, gj, gx, gy, gz, rad, Lr, step, N, ring == 0 ? frac : 0, ring == 0 ? 0 : inner * 0.98);
                 inner = N / 2 * step;
-                if (inner > rad * 1.3 || ring >= 3) break;                                // the grain round you as far as can be seen (never the whole of it at nanometres: it cannot show)
+                if (inner > rad * 1.3 || ring >= 6) break;                                // the grain round you as far as can be seen (never the whole of it at nanometres: it cannot show)
             }
         }
         // one ring: a grid of N x N steps round the point you dive into, its quads inside 'hole' (the finer ring's reach) left out
@@ -1171,15 +1171,15 @@ namespace DnaAnd.Shell
                 }
             }
             if (overlay) return;                                                         // over the ground: the ground itself is its grains; nothing is laid over it (only the grains to click)
-            if (!_noGrains && !_space && mesh != null && s < FocusRad * 1.5) GrainPatch(mesh, s);   // (down among the atoms too: its rings carry the grain on out round them)
+            if (!_noGrains && !_space && mesh != null && s < FocusRad * 1.5 && (s > AtomSpacing * 12 || !Structured(FocusMineral))) GrainPatch(mesh, s);   // (once its crystal's atoms are in, they are the face: no sheet among them)
             if (!_noGrains && !_space && s < FocusRad * 1.5 && s > AtomSpacing * 4)
             {
                 // the grain's face can be picked anywhere, at the size you are looking at: a grid of spots round you (each its card:
                 // the mineral, its make-up, its terraces close in, how high you are above it), sitting on the face's real height
                 long fgi, fgj; double fgx, fgy, fgz, frad; FocusGrain(out fgi, out fgj, out fgx, out fgy, out fgz, out frad);
-                double step = s * 0.5; long a0 = (long)Math.Round(_fx / step), b0 = (long)Math.Round(_fz / step);
-                for (long a = a0 - 4; a <= a0 + 4; a++)
-                    for (long b = b0 - 4; b <= b0 + 4; b++)
+                double step = s * 0.8; long a0 = (long)Math.Round(_fx / step), b0 = (long)Math.Round(_fz / step);
+                for (long a = a0 - 2; a <= a0 + 2; a++)
+                    for (long b = b0 - 2; b <= b0 + 2; b++)
                     {
                         double sx = a * step, sz = b * step, sy;
                         if (!GrainTop(fgi, fgj, fgx, fgy, fgz, frad, sx, sz, step, out sy)) continue;
