@@ -164,3 +164,4 @@ Append-only. Newest at the bottom.
 - r04/r05: 100 billion galaxies on the cosmic web with an edge; the waveform (CDF 9/7 + mode-E) drives every surface's detail; orbitals as clouds; gluon fields; star plasma; air over the ground; microbes; tours (content/tours); Universe.exe and its own project kit.
 - r04/r05: atoms are never balls (nucleus, orbitals, electrons on tilted 3D paths); the 1s cloud inside the atom; tilted orbits for planets and moons; far galaxies clickable; sand grains per pixel on the card; zoom carries on into the matter.
 - r04: the grain you are on keeps its 3D body; its fine face in round rings over it (no flat square slab).
+- r04: one ground all the way down to a grain's face (the matter view's own grains removed); face detail in double precision on the card; every card wraps short and sits beside the pick; GPU buffers freed eight frames late (device-removed crash).
