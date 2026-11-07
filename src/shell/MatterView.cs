@@ -252,6 +252,13 @@ namespace DnaAnd.Shell
         // in its real shape (the processor no longer works out a single point of it)
         private readonly List<StarVertex> _orbRecs = new List<StarVertex>(); private StarVertex[] _orbArr = new StarVertex[0]; private UploadBuffer _orbBuf;
         private const int OrbitalPoints = 60;
+        // an atom near where you look (within about three atoms, or half the view): only these show their electrons, paths and
+        // orbitals; every other atom is its nucleus in its place in the lattice, so the crystal's pattern reads, never a fog
+        private bool NearLook(double x, double y, double z, double s)
+        {
+            double dx = x - _fx, dy = y + _yOff - _fy, dz = z - _fz, r = Math.Max(AtomSpacing * 3, s * 0.5);
+            return dx * dx + dy * dy + dz * dz < r * r;
+        }
         // an atom as what it is, at any size on screen: its nucleus (a spark at the middle) and its electrons' orbitals (clouds in
         // their real shapes, worked out on the card); never a solid ball (an atom has no surface: its size is its electrons)
         private void AtomSystem(List<StarVertex> glow, Element e, double x, double y, double z, double s, double time, long key, float f)
@@ -893,12 +900,12 @@ namespace DnaAnd.Shell
                             double ball = 1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2);               // close in, each atom becomes its own system
                             float cf = (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2);
                             if (ball > 0.03) AtomSystem(glow, o, x, y, z, s, _clock, i * 31 + j, (float)ball);
-                            if (cf > 0.01) Cloud(glow, o, x, y, z, s, _clock, i * 31 + j, cf);
+                            if (cf > 0.01 && NearLook(x, y, z, s)) Cloud(glow, o, x, y, z, s, _clock, i * 31 + j, cf);
                             for (int q = -1; q <= 1; q += 2)
                             {
                                 double hx = q * oh * Math.Sin(half), hy = oh * Math.Cos(half), px = x + hx * Math.Cos(turn), py = y + hy * 0.5, pz = z + hx * Math.Sin(turn);
                                 if (ball > 0.03) AtomSystem(glow, hh, px, py, pz, s, _clock, i * 31 + j + q + 7, (float)ball);
-                                if (cf > 0.01) Cloud(glow, hh, px, py, pz, s, _clock, i * 31 + j + q + 7, cf);
+                                if (cf > 0.01 && NearLook(px, py, pz, s)) Cloud(glow, hh, px, py, pz, s, _clock, i * 31 + j + q + 7, cf);
                             }
                         }
                         else
@@ -1242,7 +1249,8 @@ namespace DnaAnd.Shell
                     double ball = 1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2);
                     if (ball > 0.03) AtomSystem(glow, at.E, at.X, ay, at.Z, s, time, (long)(at.X / 1e-14) ^ (long)(at.Z / 1e-14) * 31, (float)(ball * f * sh));   // each atom at its own size, its colour coming in   // ball and stick: the balls small, so the bonds show
                     if ((at.X - _fx) * (at.X - _fx) + (at.Z - _fz) * (at.Z - _fz) < bondReach * bondReach) drawnAt.Add(new CAtom { E = at.E, X = at.X, Y = ay, Z = at.Z });
-                    if (s < AtomSpacing * 4) Cloud(glow, at.E, at.X, ay, at.Z, s, time, (long)(at.X / 1e-14) ^ (long)(at.Z / 1e-14) * 31, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
+                    if (s < AtomSpacing * 4 && !NearLook(at.X, ay, at.Z, s)) AtomSystem(glow, at.E, at.X, ay, at.Z, s, time, 0, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
+                    if (s < AtomSpacing * 4 && NearLook(at.X, ay, at.Z, s)) Cloud(glow, at.E, at.X, ay, at.Z, s, time, (long)(at.X / 1e-14) ^ (long)(at.Z / 1e-14) * 31, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
                     { int nb = _bodies.Count; AddBody(1, 0, 0, at.X, ay, at.Z, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = at.E.Symbol; }   // every layer's atoms
                 }
                 Bonds(glow, drawnAt, s, time, (float)Fade(s, AtomSpacing * 30, AtomSpacing * 16) * (float)(1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2) * 0.6));
@@ -1279,7 +1287,8 @@ namespace DnaAnd.Shell
                             {
                                 double ball = 1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2);
                                 if (ball > 0.03) AtomSystem(glow, el, sx, sy - ar - _yOff, sz, s, time, i * 7919 ^ j * 104729 ^ k, (float)(ball * sh * f));
-                                if (s < AtomSpacing * 4) Cloud(glow, el, sx, sy - ar - _yOff, sz, s, time, i * 7919 ^ j * 104729 ^ k, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
+                                if (s < AtomSpacing * 4 && !NearLook(sx, sy - ar - _yOff, sz, s)) AtomSystem(glow, el, sx, sy - ar - _yOff, sz, s, time, 0, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
+                                if (s < AtomSpacing * 4 && NearLook(sx, sy - ar - _yOff, sz, s)) Cloud(glow, el, sx, sy - ar - _yOff, sz, s, time, i * 7919 ^ j * 104729 ^ k, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
                             }
                             { int nb = _bodies.Count; AddBody(1, i, j, sx, sy - ar - _yOff, sz, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = el.Symbol; }   // every layer's atoms
                         }
