@@ -1428,12 +1428,12 @@ namespace DnaAnd.Shell
                     // ...but never inside the drawn ground: its pieces are flat triangles about ReadyStep across that can stand above
                     // the true ground, so stay at least 0.6 of a step above it until finer pieces are made (close enough to ask for them)
                     double floorKm = Math.Max(5e-7, Math.Min(ready, Math.Max(altBefore * 0.9, ready / 3 * 0.6)));
-                    if (altBefore < MatterView.OverlayKm) floorKm = 5e-7;                 // below a centimetre the grains cover the ground: no waiting for it
+                    if (altBefore < MatterView.OverlayKm) floorKm = 2e-8;                 // below a centimetre the grains cover the ground: no waiting, on down past the 30 micrometres where the matter takes over
                     {
                         // over the sea: no lower than a metre above the water, until the dive under the sea is in the one world
                         double cx0, cy0, cz0; CamFromPlanet(out cx0, out cy0, out cz0); double r0 = Math.Sqrt(cx0 * cx0 + cy0 * cy0 + cz0 * cz0);
                         // over the sea the floor is the water itself, not the sea bed far below (whose pieces stay coarse): down to a millimetre
-                        if (_ground.HasWater && _ground.GroundAt(cx0 / r0, cy0 / r0, cz0 / r0) < 0) floorKm = 5e-7;
+                        if (_ground.HasWater && _ground.GroundAt(cx0 / r0, cy0 / r0, cz0 / r0) < 0) floorKm = 2e-8;
                     }
                     if (AboveGround() < Units.Km(floorKm))
                     {
