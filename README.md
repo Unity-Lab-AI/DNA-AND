@@ -33,9 +33,9 @@ And somewhere along the way, they start to wonder **who you are**.
 
 ## 🧭 The journey
 
-![One zoom from a sky full of galaxies down to a planet's ground](docs/img/journey.gif)
+![The grand tour: from the cosmic web into a galaxy, to a comet, down to a world, its ground and the face of a grain](docs/img/journey.gif)
 
-*One zoom from a sky full of galaxies, into a galaxy, past its stars, to a planet and down to its ground. Recorded in the game.*
+*The grand tour, as the game records it: from the cosmic web into a galaxy, past its stars, to a comet, down to a world, its ground and the face of one grain.*
 
 🔭 **One camera, every scale.** There are no separate views to switch between. The same camera flies from among the galaxies into one, through its hundred billion stars (made around you as you go), into a star's solar system, down to a planet's ground and on into its matter: grains, the crystal of its mineral, then its atoms. Point the mouse and roll the wheel; it flies toward what you point at, at any angle, and slows by itself as things come close. A scale on screen shows how big things are, from billions of light-years down past the quarks: the zoom in has no floor.
 

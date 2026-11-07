@@ -62,17 +62,17 @@ Produced (researched, 1,000+ entries):
 
 The content the live generators work from: seeds, ranges, parts and rules, written now in our own text format (`docs/CONTENT-FORMAT.md`) and compiled to our own binary by our toolchain later. Sample subjects first, then the rest.
 
-### [ ] R1 — Build setup: C# with the compiler built into Windows
+### [x] R1 — Build setup: C# with the compiler built into Windows
 > "Use C# built into Windows"
 
 The game is written in C# and compiled by `csc.exe`, the C# compiler that ships with Windows (.NET Framework 4.x, C# 5). Only the core runtime and Windows' own system files are used, called directly from our code. A single `build.cmd` makes `DNA-AND.exe`. The earlier self-built Helix toolchain is retired (rounds 19–20).
 
-### [ ] R2 — Talking to Windows directly (Mac and Linux later)
+### [x] R2 — Talking to Windows directly (Mac and Linux later)
 > "all three" / "nothing of this game runs in a html its its own system and program"
 
 Opening a window, keyboard and mouse, sound, files, the clock, threads, network. Windows first, with no outside libraries. The only outside software allowed is Windows itself and the graphics card driver ("sure").
 
-### [ ] R3 — Engine core
+### [~] R3 — Engine core
 The base every system sits on: math (vectors, matrices, noise, random numbers that repeat from a seed), memory handling, the "arrays" that hold billions of things, multithreading, saving data to disk.
 
 - Real physics underneath everything: gravity, electromagnetism, and the strong and weak nuclear forces ("dont forget the forces of nature weak and nuclear forces of atoms pysics electormagnatisim magma in plantes that arte tectonic with magnic fields and shit come one wwhat about gravity and atmosphers").
@@ -83,7 +83,7 @@ The base every system sits on: math (vectors, matrices, noise, random numbers th
 - Save files in our own versioned binary chunks.
 > "the arrays"
 
-### [ ] R4 — AAA 3D graphics, built from scratch
+### [~] R4 — AAA 3D graphics, built from scratch
 > "ut will be a AAA game graphics that can do all the microbes and viruses an d gene mapings and peices for every traight and skill and evolutionary thing like breathing air to walking upright to photosynethesiis" / "3d top down world with god mode space mechanics"
 
 Talking to the graphics card per system, lighting, shadows, water, sky, terrain, creatures, zooming from a single microbe up to a whole galaxy.
@@ -91,12 +91,12 @@ Talking to the graphics card per system, lighting, shadows, water, sky, terrain,
 - Uses **Direct3D 12**, which is part of Windows.
 - Also covers our own **3D image generator** and the **auto-capture tool** (a mode of the game exe) that renders every image the docs need: "we will need to design the #D genrator and botting of them".
 
-### [ ] R4.4 — Live generators (no pre-built assets)
+### [x] R4.4 — Live generators (no pre-built assets)
 > "and what about haveing a "crature" city" space tech" generator for everything full on like array dynamic content generation on the fly in the game so we dont pre build and assets but the games program builds them as they get living"
 
 Every asset is built live, on the fly, from data arrays, while life evolves: creatures, plants, microbes, cities, tech, space tech, planets, stars, galaxies, resources, elements, weather and sound. Nothing ships pre-made. Spec: `wiki/systems/r04b-generators.md`.
 
-### [ ] R4.5 — Art style samples (before any final art)
+### [x] R4.5 — Art style samples (before any final art)
 > "things like ingame microbes viruses and intelligernt creature should all have samples 1,2,3 made in 3 diffeernt styles 1,2,3 for a hand ful of things in the game before we go with any one style" / "try a rimworld like and a, populous like, and a stardew like"
 
 The live generators (R4.4) make samples of each subject, opened one set at a time. The first sets compared 3 styles (RimWorld-like, Populous-like, Stardew-like). **Populous-like won and is locked for everything** (`docs/DESIGN.md`, item 67), so the sets that remain show that style only. Sets 1–8 are approved: galaxies, solar systems, stars, planets and gas giants, resource fields, the Dyson sphere, the elements and the microbes, and they join into one zoom from galaxies to microbes. The rest follow in the order each one depends on the one before: the kingdoms of life, intelligent creatures, cities, then stations, colonies and ships.
@@ -105,7 +105,7 @@ The live generators (R4.4) make samples of each subject, opened one set at a tim
 - **Direct3D 12** from day one ("Straight to Direct3D 12"), with our own shader-code generator.
 - **Procedural:** every sample is generated from a seed ("and remember thses things are get dynamic procedural generations"). Built things follow the species that builds them: "ie insect species has insect spaceships ansd insect cities".
 
-### [ ] R5 — The universe: stars, planets, solar systems, galaxies
+### [x] R5 — The universe: stars, planets, solar systems, galaxies
 > "stars+planets>solar sytems> galaxys" / "obviously galaxy size to buidl dyson spheres and ingalactic war"
 
 **Content:** `content/` galaxies, solar-systems, stars, black-holes, nebulas, small-bodies.
@@ -224,7 +224,7 @@ Scores stored on jsonbin. The top players upload a genome, and other players can
 - Our own TLS 1.3 secure connection, written from scratch.
 - The Genebank top three is locked in weekly ("Genome of the Week").
 
-### [ ] R16 — Shipping the Windows exe (Mac and Linux later; on Linux now through Wine, with `linux/run.sh` in the zip and `docs/release/UNIVERSE-LINUX.md`)
+### [x] R16 — Shipping the Windows exe (Mac and Linux later; on Linux now through Wine, with `linux/run.sh` in the zip and `docs/release/UNIVERSE-LINUX.md`)
 > "once we build the exe like the past project like gladiator"
 
 A finished Windows program, built entirely with our own tools.
