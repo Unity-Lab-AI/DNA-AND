@@ -42,7 +42,7 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 - `content/stars.dnat`: 34 entries (Main-sequence stars (the seven classic types), Giants and supergiants, Young and failed stars, Dead and strange stars, Luminosity classes (how bright for its type), Extra star types) and 5 rules
 - `content/black-holes.dnat`: 35 entries (Kinds of black hole, Parts, Active galaxy cores (a feeding supermassive black hole), Events, Real examples) and 7 rules
 - `content/nebulas.dnat`: 12 entries (The five main kinds, Star-forming structures) and 6 rules
-- `content/small-bodies.dnat`: 39 entries (Asteroids by makeup, Asteroids by orbit, Comets, Dwarf planets and far bodies, Meteors and meteorites) and 7 rules
+- `content/small-bodies.dnat`: 40 entries (Asteroids by makeup, each with its mix, makeup, density, albedo and belt-share; Asteroids by orbit; Comets, with their mix and makeup; Dwarf planets and far bodies, the far ones with theirs; Meteors and meteorites) and 8 rules
 - `content/moons.dnat`: 18 entries (By how they formed, By surface and inside, By orbit) and 6 rules
 
 ## 🔨 Built so far

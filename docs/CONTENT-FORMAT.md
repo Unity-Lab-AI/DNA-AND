@@ -24,7 +24,7 @@ Content is **what the live generators work from**. It is never a finished asset 
 
 ```
 # DNA-AND content · stars
-# Lines starting with # are comments.
+# Lines starting with # are comments (inside an entry too: a comment never ends it; a blank line does).
 
 @star o-type
 name: O-type blue star
@@ -105,14 +105,14 @@ The sample subjects come first (round 15): planets, stars, gas giants, Dyson sph
 - `content/geology.dnat`
 - `content/moons.dnat`
 - `content/nebulas.dnat`
-- `content/physics.dnat`
+- `content/physics.dnat` (`@law` entries; `@law supernova` and the `@supernova` kinds)
 - `content/planets.dnat`
 - `content/resource-fields.dnat`
-- `content/small-bodies.dnat`
+- `content/small-bodies.dnat` (each kind with `mix`, `makeup`, `density`, `albedo`; asteroids with `belt-share`)
 - `content/terrain.dnat` (`@terrain`: each kind of world's size, ground, water, air, clouds, rock and base temperature)
 - `content/solar-systems.dnat`
 - `content/space-tech.dnat`
-- `content/stars.dnat`
+- `content/stars.dnat` (each `@star` with `makeup`, by count of atoms, and `makeup-note`)
 
 `real:` values in use: `yes`, `hypothetical`, `game` (for example hyperdrives and world grinders), and `rule`.
 
