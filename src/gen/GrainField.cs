@@ -55,8 +55,10 @@ namespace DnaAnd.Gen
 
         public static double Hash(long i, long j, long k, ulong seed)
         {
-            ulong h = (ulong)i * 0x9E3779B97F4A7C15UL ^ (ulong)j * 0xC2B2AE3D27D4EB4FUL ^ (ulong)k * 0x165667B19E3779F9UL ^ seed;
-            h ^= h >> 31; h *= 0xBF58476D1CE4E5B9UL; h ^= h >> 29; h *= 0x94D049BB133111EBUL; h ^= h >> 32;
+            // 32-bit wrapped words and a 32-bit mix, so the card's shaders work out exactly the same grains (HLSL has no 64-bit
+            // multiply to rely on): the same bits on the processor and the card, never two grain beds
+            uint h = (uint)i * 0x9E3779B1u ^ (uint)j * 0x85EBCA77u ^ (uint)k * 0xC2B2AE3Du ^ (uint)seed ^ (uint)(seed >> 32) * 0x27D4EB2Fu;
+            h ^= h >> 16; h *= 0x7FEB352Du; h ^= h >> 15; h *= 0x846CA68Bu; h ^= h >> 16;
             return (h & 0xFFFFFF) / (double)0x1000000;
         }
 
@@ -64,7 +66,7 @@ namespace DnaAnd.Gen
         /// below the ground, its mineral (index into the mix) and its shade.</summary>
         public struct Grain { public long Key; public double Dx, Dy, Dz, Rad, Depth; public int Mineral; public float Shade; }
 
-        private static long Key(long i, long j, long k) { return i * 73856093L ^ j * 19349663L ^ k * 83492791L; }
+        private static long Key(long i, long j, long k) { return (uint)((uint)i * 73856093u ^ (uint)j * 19349663u ^ (uint)k * 83492791u); }   // 32-bit wrapped, as the card works it out
 
         // the grain of cube (i, j, k), if that cube's point lies on the planet's shell (within half a grain of radius R)
         public static bool At(long i, long j, long k, int layer, double R, Mix m, ulong seed, out Grain g) { return At(i, j, k, layer, 0, R, m, seed, out g); }
