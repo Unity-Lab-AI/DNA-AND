@@ -165,3 +165,4 @@ Append-only. Newest at the bottom.
 - r04/r05: atoms are never balls (nucleus, orbitals, electrons on tilted 3D paths); the 1s cloud inside the atom; tilted orbits for planets and moons; far galaxies clickable; sand grains per pixel on the card; zoom carries on into the matter.
 - r04: the grain you are on keeps its 3D body; its fine face in round rings over it (no flat square slab).
 - r04: one ground all the way down to a grain's face (the matter view's own grains removed); face detail in double precision on the card; every card wraps short and sits beside the pick; GPU buffers freed eight frames late (device-removed crash).
+- r04: the tour told as a story with reading time, ending on a quark; tour on/off (View, T); screenshots (F12, PNG) and clips (F9, MP4 via Media Foundation); --record films the tour.

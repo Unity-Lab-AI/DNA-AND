@@ -25,6 +25,8 @@ namespace DnaAnd.Shell
             "B, among atoms: glide across the bond to the next atom, through the electrons they share.\n" +
             "Mouse wheel: fly in or out toward what the mouse points at. A star or planet near the pointer is flown at straight.\n" +
             "Hold Ctrl with the wheel: eight times as fast.\n" +
+            "T: the panoramic tour, galaxies down to the quarks, told as a story (any key or click takes the controls back).\n" +
+            "F12: a screenshot (PNG). F9: start or stop recording a clip (MP4 video). Both go in the captures folder.\n" +
             "Right click: let go of what you picked.\n" +
             "Space: pause time, or carry on. Comma and full stop: slower and faster, from real time to ten years a second (the Time menu too). Each planet turns on its own day, so its days and nights pass over the ground; the title bar shows the time where you are.\n" +
             "W A S D: fly forward, back, left and right; Q and E: down and up. The speed scales to the nearest thing, so it feels the same among galaxies as above the ground. Hold Shift: four times as fast. Flying yourself lets go of what you picked.\n" +
