@@ -92,7 +92,7 @@ The sample subjects come first (round 15): planets, stars, gas giants, Dyson sph
 - `content/elements.dnat` (each `@element` also carries `colour`, `covalent-a`, `atomic-a`)
 - `content/galaxies.dnat`
 - `content/gas-giants.dnat`
-- `content/minerals.dnat` (`@mineral` with `lustre` and `clarity`, `@mix`, `@surface`)
+- `content/minerals.dnat` (`@mineral` with `lustre`, `clarity` and `trace` lines, `@mix`, `@surface`)
 - `content/life/animals.dnat`
 - `content/life/archaea.dnat`
 - `content/life/bacteria.dnat`
