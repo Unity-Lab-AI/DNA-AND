@@ -614,7 +614,7 @@ namespace DnaAnd.Shell
         }
 
         // the patch of the grain's surface under you, as a fine lit mesh
-        private readonly Dictionary<long, double[]> _patchCache = new Dictionary<long, double[]>(); private long _patchGrain = long.MinValue;
+        private readonly Dictionary<long, double[]> _patchCache = new Dictionary<long, double[]>(); private long _patchGrain = long.MinValue; private int _patchBudget;
                 private void GrainPatch(List<StarVertex> mesh, double s)
         {
             long gi, gj; double gx, gy, gz, rad; FocusGrain(out gi, out gj, out gx, out gy, out gz, out rad);
@@ -623,7 +623,8 @@ namespace DnaAnd.Shell
             // the grain's face as rings of detail round you: the finest grid under you, then rings each four times coarser out
             // to the whole grain, each on a grid fixed on the grain (never on the camera, so nothing slides as you zoom and
             // move), each point worked out once; the finest eases between its two sizes so nothing pops
-            const int N0 = 40; double want = 4.8 * s / N0, lv = Math.Log(want / AtomSpacing, 2), L = Math.Floor(lv), frac = lv - L;
+            const int N0 = 40; double want = 4.8 * s / N0, lv = Math.Max(0, Math.Log(want / AtomSpacing, 2)), L = Math.Floor(lv), frac = lv - L;   // never finer than the atoms (they are the face from there)
+            _patchBudget = 12000;                                                          // new points a frame at most: the rest come in over the next frames, the frame never stalls
             double inner = 0;
             for (int ring = 0; ring < 12; ring++)
             {
@@ -647,6 +648,7 @@ namespace DnaAnd.Shell
                     long key = ((long)L * 1000003L + (ia0 + a)) * 2000003L + (ib0 + b); double[] c;   // each point fixed on the grain: worked out once
                     if (!_patchCache.TryGetValue(key, out c))
                     {
+                        if (_patchBudget-- <= 0) { hy[a, b] = 0; ok[a, b] = false; continue; }      // not worked out yet: next frame
                         double y; bool o = GrainTop(gi, gj, gx, gy, gz, rad, _fx + atA(a), _fz + atB(b), step * 1.5, out y);
                         float sr = 1, sg = 1, sb2 = 1;
                         if (o) { double ex = atA(a) + _fx - gx, ey = y - gy, ez = atB(b) + _fz - gz, el = Math.Sqrt(ex * ex + ey * ey + ez * ez) + 1e-30; DnaAnd.Gen.GrainField.Stain(gi, ex / el, ey / el, ez / el, rad, step * 1.5, out sr, out sg, out sb2); }
