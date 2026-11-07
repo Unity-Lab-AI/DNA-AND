@@ -143,7 +143,7 @@ Still to come:
 |--|--|
 | 🌀 **Galaxies** | Spirals, barred spirals, ellipticals, rings, starbursts, green peas, jellyfish galaxies, grouped into clusters, filaments and voids |
 | ⭐ **Stars** | Every real type, from red dwarfs to blue hypergiants, brown dwarfs, carbon stars, white dwarfs, pulsars and magnetars, each with what it is made of; supernovae of every real kind, a neutron star, black hole or magnetar born at each |
-| ⚫ **Black holes and quasars** | Stellar to ultramassive, spinning black holes, accretion disks and jets, quasars, blazars and Seyfert galaxies; the gravity well drawn round each, and the fall through the horizon to the singularity |
+| ⚫ **Black holes and quasars** | Stellar to ultramassive, spinning black holes, accretion disks and jets, quasars, blazars and Seyfert galaxies; the fall through the horizon to the singularity, down the gravity well itself, Flamm's surface as a grid round you |
 | 🌫️ **Nebulas** | Star nurseries, pillars, dark clouds, planetary nebulas and supernova remnants |
 | 🪐 **Worlds** | Lava worlds, ocean worlds, super-Earths, mini-Neptunes, hot Jupiters, ice giants, rogue planets |
 | 🌙 **Moons** | Volcanic moons, ice-shell ocean moons with geysers, moons with thick air and hydrocarbon lakes |
