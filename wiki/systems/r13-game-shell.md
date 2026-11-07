@@ -22,7 +22,7 @@ last-verified: none (plan only)
 | 🚪 Quit | Exit |
 
 ## 🖱️ Controls (decided)
-WASD or screen edges to pan · scroll wheel to zoom from microbe to galaxy · right-drag to rotate · left-click to use a power.
+WASD or screen edges to pan · scroll wheel to zoom from the quarks to the cosmic web of galaxies · right-drag to rotate · left-click to use a power.
 
 ## 📖 In-game wiki
 The in-game wiki covers everything in the game: every entry in the top-100 lists, every power, stage and age.

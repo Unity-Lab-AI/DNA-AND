@@ -47,4 +47,4 @@ Everyone works toward the same galaxy. Life you all grow, and life you all harve
 
 ## 🔗 See also
 
-[Menus & Settings](menus-and-settings.md "Main menu, saving and settings") · [Leaderboard & Genebank](leaderboard-and-genebank.md "Scores and Genome of the Week") · [Controls](controls.md "Mouse, keys, and zooming from microbe to galaxy") · [FAQ](faq.md "Common questions") · [🏠 Wiki home](README.md)
+[Menus & Settings](menus-and-settings.md "Main menu, saving and settings") · [Leaderboard & Genebank](leaderboard-and-genebank.md "Scores and Genome of the Week") · [Controls](controls.md "Mouse, keys, and zooming from the cosmic web to the quarks") · [FAQ](faq.md "Common questions") · [🏠 Wiki home](README.md)

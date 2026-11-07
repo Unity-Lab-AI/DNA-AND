@@ -33,7 +33,7 @@ That's it. Nothing to download or install.
 
 🧰 **Separate copies:** `build.cmd NAME` builds `build\NAME\DNA-AND.exe`, so a game that is already open is never closed by a rebuild.
 
-🌌 **The universe preview:** `build.cmd NAME preview` builds a copy that always opens straight into the universe, from the galaxies down to atoms.
+🌌 **The universe preview:** `build.cmd NAME preview` builds a copy that always opens straight into the universe, from the cosmic web of galaxies and the supermassive black holes at their hearts down to the quarks.
 
 🔭 **Sample sets:** run the exe with `--set2` to `--set6` to open one sample set on its own (`--set5` resource fields, `--set6` the Dyson sphere: I or C goes in and out, M is the view from the middle, inside W A S D flies and dragging looks around).
 
@@ -53,20 +53,19 @@ Universe, the standalone universe program, is this same source shipped on its ow
 
 ## 🗂️ Source layout
 
-One folder per part of the game:
+One folder per part of the game. The folders that exist today:
 
 | Folder | Part |
 |---|---|
-| `content/` | Game content, read by the generators |
-| `src/platform/` | Talking to Windows: window, input, files, sound, timing |
-| `src/core/` | Math, memory, big arrays, jobs, saves |
-| `src/render/` | Direct3D 12 graphics |
-| `src/gen/` | The live generators: creature, city, space tech and the rest |
-| `src/universe/` · `src/planet/` | Galaxies → planets |
-| `src/genome/` · `src/life/` | DNA → living things |
-| `src/civ/` · `src/space/` | Civilization → space |
-| `src/god/` · `src/time/` · `src/shell/` | Powers, clock, menus and HUD |
-| `src/net/` · `sidecar/` | Multiplayer, leaderboard side car |
+| `content/` | Game content, read by the generators (`.dnat`) |
+| `src/platform/` | Talking to Windows: the window, input, menus, settings, the document viewer, the landing page |
+| `src/core/` | Math, the CDF 9/7 wavelet and mode-E, physics, jobs, saves, the content reader |
+| `src/render/` | Direct3D 12 graphics, the shaders, the PNG, GIF and MP4 writers |
+| `src/gen/` | The live generators: galaxies, stars, star systems, worlds and their ground, bodies in space, grains, elements, creature bodies, cities |
+| `src/sim/` | The living planet (core, plates, surface, air, weather, impacts), planet life, the microbe world, sea life |
+| `src/shell/` | The views: the universe (one camera from the cosmic web to the quarks), the matter, the planet, the elements, the samples; the scale and cards on screen |
+
+Planned, as the game grows (not yet in the tree): `src/genome/` and `src/life/` (DNA to living things), `src/civ/` and `src/space/` (civilization to space), `src/god/` and `src/time/` (powers and the clock), `src/net/` and `sidecar/` (multiplayer, the leaderboard side car).
 
 ---
 

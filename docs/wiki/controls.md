@@ -13,7 +13,7 @@
 | 🖱️ **Left-click** | Use the selected [power](god-powers.md "Your god abilities: fire, water, plague, meteor and 96 more"), or pick a galaxy, star, planet, moon, a spot on the ground, a grain or an atom to go to; it lands exactly where you click, at every scale |
 | 🖱️ **Left-drag** | With something picked, circle round it at the distance you are at (see a solar system from above, a galaxy edge-on); with nothing picked, look around (on a planet, round its own up) |
 | 🖱️ **Right-click** | Let go of what you picked |
-| 🖱️ **Scroll wheel** | Zoom where the mouse points, from a whole universe of galaxies down to a single microbe |
+| 🖱️ **Scroll wheel** | Zoom where the mouse points, from the cosmic web of galaxies down to a single microbe, and on through the ground's grains to the atoms and the quarks inside them |
 | ⌨️🖱️ **Ctrl + scroll** | Zoom eight times as fast |
 | 🖱️ **Move to screen edge** | Pan the camera |
 
@@ -32,6 +32,12 @@
 | **, .** | Time slower and faster: real time, a minute, an hour, a day, a week or a month a second, a year in 20 seconds, a year or ten years a second (also the Time menu) |
 | **1 – 5** | Time speeds (1×, 10×, 100×, 1,000×, max) |
 | **H** | The scale bar and the information cards, on or off |
+| **T** / **R** | The grand tour, from the cosmic web to a quark: start or carry on / start again |
+| **B** | Among atoms: glide across the bond to the next atom |
+| **F12** / **F9** | A screenshot / start or stop a clip (View > Clip size) |
+| **T** / **R** | The grand tour, from the cosmic web to a quark: start or carry on / start again |
+| **B** | Among atoms: glide across the bond to the next atom |
+| **F12** / **F9** | A screenshot / start or stop a clip (View > Clip size) |
 | **Esc** | Menu |
 | **F1** | Open the in-game wiki |
 | **Ctrl+F**, **F3** | In the document viewer: search all the documents, next match |

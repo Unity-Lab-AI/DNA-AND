@@ -26,7 +26,7 @@ Get the latest `DNA-AND-Setup.exe` from either release page. They're the same fi
 | 🧠 CPU | 4 cores | 8+ cores |
 | 💾 RAM | 8 GB | 16 GB |
 | 🎨 Graphics | Direct3D 12 card, 4 GB | Direct3D 12 card, 8 GB |
-| 📀 Disk | Measured at first release | Measured at first release |
+| 📀 Disk | Under 2 MB (a 0.6 MB installer) | Under 2 MB |
 | 🌐 Internet | Only for the leaderboard, Genebank and online multiplayer | — |
 
 ## 📦 3. Install
@@ -37,6 +37,10 @@ Get the latest `DNA-AND-Setup.exe` from either release page. They're the same fi
 4. Click **Install**, then **Launch**.
 
 ## 🚀 4. First launch
+
+> 🔭 **In the 0.1.0 universe preview** the program opens on the universe's landing page (type a seed or leave it blank, Begin or Take the tour), not the main menu below: the menu, the powers and the saves are the full game's, still to come. The preview's keys are in the [README](../README.md#-keys).
+
+> 🔭 **In the 0.1.0 universe preview** the program opens on the universe's landing page (type a seed or leave it blank, Begin or Take the tour), not the main menu below: the menu, the powers and the saves are the full game's, still to come. The preview's keys are in the [README](../README.md#-keys).
 
 | Step | What you'll see |
 |---|---|
@@ -63,7 +67,7 @@ Download the newer `DNA-AND-Setup.exe` and run it. It installs over the old vers
 |---|---|
 | Won't start | Update your graphics driver (DNA-AND needs Direct3D 12) |
 | Leaderboard won't load | Check your internet connection. The game still plays offline |
-| Running slow | Settings → Graphics → lower the quality |
+| Running slow | Settings → Graphics → lower the quality (in the universe preview: View → Render scale and View → GPU use) |
 
 ---
 

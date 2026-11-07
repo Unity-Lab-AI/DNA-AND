@@ -36,7 +36,7 @@ About **4–6 hours** from the first cell to a space-faring civilization. After 
 Both. It runs like a simulation, and you play it with god mode.
 
 **10. Is it made with an engine?**  
-No. Everything is built from scratch, even the tools that build it.
+No. Everything is built from scratch, with the compiler that comes with Windows: no engine, no libraries, no stored art.
 
 ---
 
@@ -49,7 +49,7 @@ Earth comes first. Other [planet templates](planets-and-templates.md) unlock as 
 100. The first after Earth are Ocean, Desert, Ice, Jungle, Volcanic, Tidally locked and Gas giant moon.
 
 **13. How big is the universe?**  
-Galaxy-sized, with stars, planets, solar systems and more than one galaxy.
+A visible universe 13.4 billion light-years across, about 100 billion galaxies along the cosmic web, each of about a hundred billion stars, every star with its worlds and every world down to its atoms. Your game's own galaxy is the one you start in.
 
 **14. Can I pick the galaxy size?**  
 Yes: Small (100 star systems), Medium (500), Large (2,000) or Massive (10,000). Every system is fully simulated.
@@ -259,7 +259,7 @@ At each stage's headline milestone, time drops to 1× and a short cinematic play
 Yes, in Settings → Gameplay.
 
 **75. How do I zoom?**  
-Scroll wheel, from one microbe to a whole galaxy.
+Scroll wheel, from the cosmic web of galaxies down to a single microbe, and on into the atoms and quarks.
 
 **76. How do I move the camera?**  
 WASD or the screen edges, and right-drag to rotate.
@@ -315,7 +315,7 @@ No. Cheats won't work.
 ## 🛠️ Install and tech
 
 **91. What can I play it on?**  
-Windows 10 or 11, 64-bit. Mac and Linux are planned for later.
+Windows 10 or 11, 64-bit. On Linux it runs today through Wine with the script in the zip; native Mac and Linux builds are planned for later.
 
 **92. Where do I download it?**  
 From the release pages on [Unity AI Lab Git](https://git.unityailab.com/GFourteen/DNA-AND/releases) or [GitHub](https://github.com/Unity-Lab-AI/DNA-AND/releases).
