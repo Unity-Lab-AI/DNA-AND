@@ -1,42 +1,74 @@
-# DNA-AND content · the grand tour: one flight from among the galaxies down to the quarks, for watching
-# Run it: DNA-AND.exe --tour grand-tour   (any key or click takes the controls back). Edit the stops to make your own.
-# Each @stop is done in order:
+# DNA-AND content · the grand tour: one flight from the whole visible universe down to the quarks, for watching
+# Run it: Universe.exe --tour grand-tour (or DNA-AND.exe --tour grand-tour). Any key or click takes the controls back.
+# Edit the stops to make your own. Each @stop is done in order:
 #   do: zoom    fly in (or out, with a negative rate) steadily until the view is "until-km" across (km, the distance to what
-#               you look at); rate: tenfolds a second (one steady rate: each tenfold takes the same time), eased in and out
-#               (a zoom that stops getting anywhere for six seconds goes on to the next stop)
-#   do: orbit   circle slowly round what is picked (or look round if nothing is): turn degrees a second, for seconds
+#               you look at); rate: tenfolds a second (one steady rate, each tenfold the same time), eased in and out; a zoom
+#               that stops getting anywhere for six seconds goes on to the next stop
+#   do: orbit   circle slowly round what is picked (or look round if nothing is): turn degrees a second, for seconds; the view
+#               is eased toward level first, so it never spins round straight up or down
 #   do: look    tilt your view up (+) or down (-) by tilt degrees over seconds, turning a little as it goes
-#   do: pick    choose what to go to: galaxy, star, planet, none, atom, electron, nucleus, proton, quark
+#   do: pick    choose what to go to: galaxy, next-galaxy, star, planet, next-planet, none, atom, electron, nucleus, proton, quark
 #   caption:    the words shown while the stop runs
-# Sizes for scale: a galaxy about 1e18 km across, a star system about 1e10 km, Earth 12,742 km, a person 0.0018 km,
-# a sand grain 2e-7 km, an atom 2e-13 km, a nucleus 1e-17 km, a proton 1.7e-18 km.
+# For the eye: zoom no faster than about one tenfold in five seconds, turn no more than about four degrees a second, and
+# stop to look round at each new scale, so each size can be read against the last.
+# Sizes for scale: the visible universe 1.3e23 km, a web filament 1e21 km, a galaxy 1e18 km, a star system 1e10 km, Earth
+# 12,742 km, a person 0.0018 km, a sand grain 2e-7 km, an atom 2e-13 km, a nucleus 1e-17 km, a proton 1.7e-18 km.
 
 @stop leave
 do: zoom
-rate: -0.35
-until-km: 3e20
-caption: Leaving the galaxy behind: out among the galaxies
+rate: -0.2
+until-km: 2e22
+caption: Out past the galaxies, until the visible universe shows its shape
 
-@stop galaxies
+@stop web
 do: orbit
-turn: 5
-seconds: 22
-caption: The universe: galaxies of every kind, each of a hundred billion stars
+turn: 3
+seconds: 30
+caption: The cosmic web: galaxies along filaments and walls, gathered in clusters, round great empty voids
+
+@stop back-in
+do: zoom
+rate: 0.2
+until-km: 3e19
+caption: Back in, toward one strand of the web
 
 @stop choose-galaxy
 do: pick
 target: galaxy
-caption: One galaxy
+caption: A galaxy
+
+@stop to-galaxy
+do: zoom
+rate: 0.18
+until-km: 1.5e18
+caption: Flying to it
 
 @stop round-galaxy
 do: orbit
-turn: 6
-seconds: 14
-caption: Its arms, its bulge, its clusters and nebulae
+turn: 3
+seconds: 22
+caption: A galaxy of a hundred billion stars: its arms or its smooth glow, its clusters and nebulae
+
+@stop choose-next
+do: pick
+target: next-galaxy
+caption: On to a neighbour
+
+@stop to-next
+do: zoom
+rate: 0.18
+until-km: 1.5e18
+caption: Across the space between galaxies, millions of light-years
+
+@stop round-next
+do: orbit
+turn: 3
+seconds: 18
+caption: Every galaxy is its own kind and shape
 
 @stop into-galaxy
 do: zoom
-rate: 0.3
+rate: 0.18
 until-km: 1e16
 caption: Into the galaxy, among its stars
 
@@ -47,36 +79,70 @@ caption: A star
 
 @stop into-system
 do: zoom
-rate: 0.3
+rate: 0.18
 until-km: 2e9
 caption: Down to the star and its planets
 
 @stop round-system
 do: orbit
-turn: 7
-seconds: 22
-caption: Its solar system: the star, its planets and their moons, its belts
+turn: 3
+seconds: 26
+caption: Its solar system: the star, its planets, their moons, its belts
+
+@stop planet-1
+do: pick
+target: next-planet
+caption: One of its worlds
+
+@stop to-planet-1
+do: zoom
+rate: 0.18
+until-km: 1e5
+caption: Flying past it
+
+@stop round-planet-1
+do: orbit
+turn: 3
+seconds: 14
+caption: A world of its own kind
+
+@stop planet-2
+do: pick
+target: next-planet
+caption: The next world
+
+@stop to-planet-2
+do: zoom
+rate: 0.18
+until-km: 1e5
+caption: Across to the next world
+
+@stop round-planet-2
+do: orbit
+turn: 3
+seconds: 14
+caption: Each world its own size, air and ground
 
 @stop choose-planet
 do: pick
 target: planet
-caption: A world
+caption: The world we go down to
 
 @stop to-planet
 do: zoom
-rate: 0.3
+rate: 0.18
 until-km: 4e4
 caption: To the planet
 
 @stop round-planet
 do: orbit
-turn: 8
-seconds: 22
-caption: The whole world: seas, land, clouds, air
+turn: 3
+seconds: 26
+caption: The whole world: seas, land, clouds and air
 
 @stop to-ground
 do: zoom
-rate: 0.3
+rate: 0.18
 until-km: 0.002
 caption: Down through the air to the ground
 
@@ -87,59 +153,71 @@ caption: Standing on the ground, six feet up
 
 @stop look-up
 do: look
-tilt: 55
-turn: 6
-seconds: 9
+tilt: 40
+turn: 2
+seconds: 12
 caption: Looking up into the sky and space
 
 @stop sky
 do: orbit
-turn: 6
-seconds: 12
+turn: 3
+seconds: 16
 caption: The sky, the star, the other worlds
 
 @stop look-down
 do: look
-tilt: -95
-turn: 4
-seconds: 8
+tilt: -75
+turn: 2
+seconds: 12
 caption: And down to the ground at your feet
+
+@stop to-stones
+do: zoom
+rate: 0.15
+until-km: 1e-4
+caption: The ground breaks into stones and pebbles
+
+@stop round-stones
+do: orbit
+turn: 3
+seconds: 12
+caption: Stones and pebbles of the ground's own rock
 
 @stop to-grains
 do: zoom
-rate: 0.3
+rate: 0.15
 until-km: 2e-6
-caption: The ground breaks into stones, pebbles and grains of sand
+caption: And into grains of sand
 
 @stop round-grains
 do: orbit
-turn: 8
-seconds: 12
-caption: Grains of the ground's own minerals, each its own shape
+turn: 3
+seconds: 14
+caption: Grains of the ground's own minerals, each its own shape, colour and stains
 
 @stop to-face
 do: zoom
-rate: 0.3
+rate: 0.15
 until-km: 2e-9
-caption: Onto one grain: its steps, cracks, stains and the specks lying on it
+caption: Onto one grain: its steps, cracks and stains, the specks lying on it
 
 @stop round-face
 do: orbit
-turn: 8
-seconds: 10
+turn: 3
+seconds: 14
 caption: A grain's face: clay plates, iron skins, a film of water
 
 @stop to-crystal
 do: zoom
-rate: 0.3
+rate: 0.15
 until-km: 6e-12
 caption: Its crystal: the atoms in their real places
 
 @stop round-crystal
 do: orbit
-turn: 8
-seconds: 14
-caption: The lattice, every atom held by its shared electrons
+turn: 3
+seconds: 20
+caption: The lattice, every atom held to its neighbours by shared electrons
 
 @stop choose-atom
 do: pick
@@ -148,26 +226,26 @@ caption: One atom
 
 @stop to-atom
 do: zoom
-rate: 0.25
+rate: 0.15
 until-km: 6e-13
 caption: Into one atom
 
 @stop round-atom
 do: orbit
-turn: 9
-seconds: 18
+turn: 3
+seconds: 24
 caption: An atom: its electrons in their shells round the nucleus, like a solar system; the outer (valence) shell in gold
 
 @stop choose-electron
 do: pick
 target: electron
-caption: Following one electron
+caption: One electron
 
 @stop follow-electron
 do: orbit
-turn: 5
-seconds: 14
-caption: An electron, a point as far as anyone has measured, on its path round the nucleus
+turn: 2
+seconds: 18
+caption: Following an electron, a point as far as anyone has measured, on its way round the nucleus
 
 @stop choose-nucleus
 do: pick
@@ -176,14 +254,14 @@ caption: The nucleus
 
 @stop to-nucleus
 do: zoom
-rate: 0.6
+rate: 0.25
 until-km: 3e-17
 caption: Across the emptiness: the nucleus is a hundred thousand times smaller than the atom
 
 @stop round-nucleus
 do: orbit
-turn: 8
-seconds: 16
+turn: 3
+seconds: 20
 caption: The nucleus: its protons and neutrons, held by the strong force against the protons' electric push
 
 @stop choose-proton
@@ -193,14 +271,14 @@ caption: One proton
 
 @stop to-proton
 do: zoom
-rate: 0.25
+rate: 0.15
 until-km: 2.5e-18
 caption: Into a proton
 
 @stop round-proton
 do: orbit
-turn: 8
-seconds: 14
+turn: 3
+seconds: 18
 caption: A proton: three quarks, two up and one down, in the glow of the gluons
 
 @stop choose-quark
@@ -210,12 +288,12 @@ caption: One quark
 
 @stop to-quark
 do: zoom
-rate: 0.25
+rate: 0.15
 until-km: 6e-19
 caption: A quark and its colour charge
 
 @stop end
 do: orbit
-turn: 5
+turn: 2
 seconds: 30
-caption: The smallest things known: from here the universe is waves of its fields
+caption: The smallest things known

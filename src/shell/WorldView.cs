@@ -126,12 +126,19 @@ namespace DnaAnd.Shell
             _galaxies.Add(g);
         }
         // how crowded the cosmic web is at a place: filaments and walls (ridges of a noise a web cell across) dense, voids empty
+        // how crowded the cosmic web is at a place (its mean over space about one): walls are the ridges of a noise a web cell
+        // across, filaments where two such walls cross, clusters where three meet (Virgo-like knots of a thousand galaxies); the
+        // voids between, which fill most of the space, hold only a few (as surveys measure: about 70% of space is void, the
+        // filaments and clusters holding most galaxies)
         private double Web(double x, double y, double z)
         {
-            float f = (float)(1.0 / _webUnits);
-            double n = Noise.Fractal((float)(x * f) + 11.3f, (float)(y * f) - 7.1f, (float)(z * f) + 3.7f, (uint)(_seed & 0xFFFFFFFF) ^ 0x3EBu, 3);
-            double ridge = 1 - Math.Abs(n * 2 - 1);                                         // highest along the walls between cells
-            return Math.Pow(ridge, 3) * _webContrast;                                      // (its average over space is about one)
+            float f = (float)(1.0 / _webUnits); uint sd = (uint)(_seed & 0xFFFFFFFF);
+            Func<float, float, float, uint, double> ridge = (a, b2, c, k) => 1 - Math.Abs(Noise.Fractal(a, b2, c, sd ^ k, 3) * 2 - 1);
+            double w1 = ridge((float)(x * f) + 11.3f, (float)(y * f) - 7.1f, (float)(z * f) + 3.7f, 0x3EBu);
+            double w2 = ridge((float)(x * f) - 5.9f, (float)(y * f) + 2.3f, (float)(z * f) - 9.4f, 0x7A1u);
+            double w3 = ridge((float)(x * f) + 1.7f, (float)(y * f) + 8.8f, (float)(z * f) + 4.2f, 0xC55u);
+            double wall = Math.Pow(w1, 6), filament = Math.Pow(w1 * w2, 6), knot = Math.Pow(w1 * w2 * w3, 6);
+            return (0.15 + wall * 1.2 + filament * 6 + knot * 40) * _webContrast / 6;
         }
         private double MeanPerUnit3 { get { return _uGalaxies / (4.0 / 3.0 * Math.PI * _uRadius * _uRadius * _uRadius); } }
         // the galaxies of every region within reach of you that has none yet (each region's own from its place); at most a few a frame
@@ -176,7 +183,7 @@ namespace DnaAnd.Shell
                 {
                     double x = (rng.NextDouble() * 2 - 1) * _uRadius, y = (rng.NextDouble() * 2 - 1) * _uRadius, z = (rng.NextDouble() * 2 - 1) * _uRadius;
                     if (x * x + y * y + z * z > _uRadius * _uRadius) continue;
-                    if (rng.NextDouble() * _webContrast > Web(x, y, z)) continue;
+                    if (rng.NextDouble() * 12 > Web(x, y, z)) continue;                         // kept by how crowded the web is there
                     float warm = (float)rng.NextDouble();                                  // old red-gold ellipticals to young blue spirals
                     list.Add(new StarVertex { X = (float)x, Y = (float)y, Z = (float)z, Size = (float)(1.2 + rng.NextDouble() * 2), R = 0.75f + 0.25f * warm, G = 0.72f + 0.1f * warm, B = 1f - 0.3f * warm, A = 1 });
                 }
@@ -629,6 +636,9 @@ namespace DnaAnd.Shell
                 case "orbit":
                 case "look":
                     {
+                        // never circling while looking near straight up or down (the turn would spin round the pole): ease the
+                        // view toward level first, gently
+                        if (st.Do == "orbit" && Math.Abs(_pitch) > 0.9) _pitch += (Math.Sign(_pitch) * 0.9 - _pitch) * (1 - Math.Exp(-dt * 0.8));
                         // a slow steady drag: round the pick (or round you, looking, with none); look also tilts by its degrees
                         double px = h / (2 * Math.Tan(0.45)) * Math.PI / 180 / Math.Max(1, Window.DragSpeed);   // pixels of drag a degree
                         double ease = Math.Min(1, _tourT / 1.5) * Math.Min(1, Math.Max(0, st.Seconds - _tourT) / 1.5);
@@ -652,10 +662,12 @@ namespace DnaAnd.Shell
             {
                 case "none": _tKind = -1; _tName = ""; _matter.Unpick(); break;
                 case "galaxy":
+                case "next-galaxy":
                     {
-                        int bi = -1; double bd = double.MaxValue;
+                        // the nearest galaxy (next-galaxy: the nearest other than the one picked, for a galaxy-to-galaxy fly-by)
+                        int bi = -1; double bd = double.MaxValue; int skip = what == "next-galaxy" && _tKind == 0 ? _tIndex : -1;
                         for (int i = 0; i < _galaxies.Count; i++)
-                        { var g = _galaxies[i]; double dx = (g.X - _ax) - _ox, dy = (g.Y - _ay) - _oy, dz = (g.Z - _az) - _oz, d = dx * dx + dy * dy + dz * dz; if (d < bd) { bd = d; bi = i; } }
+                        { if (i == skip) continue; var g = _galaxies[i]; double dx = (g.X - _ax) - _ox, dy = (g.Y - _ay) - _oy, dz = (g.Z - _az) - _oz, d = dx * dx + dy * dy + dz * dz; if (d < bd) { bd = d; bi = i; } }
                         if (bi >= 0) { _tKind = 0; _tIndex = bi; _tName = _galaxies[bi].Name; }
                     }
                     break;
@@ -663,6 +675,14 @@ namespace DnaAnd.Shell
                     {
                         double d; int k = NearestStar(out d); if (k < 0) break;
                         double ux, uy, uz; StarPos(k, out ux, out uy, out uz); _tKind = 1; _tx = ux; _ty = uy; _tz = uz; _tRadius = Units.Km(696000); _tName = "a star";
+                    }
+                    break;
+                case "next-planet":
+                    if (_system != null)
+                    {
+                        // the next of the star's planets in turn (for a fly-by of each)
+                        int start = _tKind == 2 ? _tIndex : -1;
+                        for (int q = 1; q <= _system.Bodies.Count; q++) { int i = (start + q + _system.Bodies.Count) % _system.Bodies.Count; if (_system.Bodies[i].Parent < 0) { _tKind = 2; _tIndex = i; _tName = _system.Bodies[i].Kind; break; } }
                     }
                     break;
                 case "planet":
