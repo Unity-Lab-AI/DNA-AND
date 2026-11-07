@@ -914,3 +914,4 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **Blocky hand-overs at 200 mm:** (built: DESIGN 462; waits on the test) "200m ther are lock hand offs" / "mm"
 - [~] **The crash log names the draw the card died on:** (built: DESIGN 461; waits on the next crash) "at 200 mm ant micor level it crashes still"
 - [~] **Ids for asteroids, comets and every body:** (built: DESIGN 464; waits on the test) "astroids and comets and shit dont have stellar ids"
+- [~] **The sky caption says what is really up:** (built: DESIGN 465; waits on the test) "the look up to thew sky at human ground level inproprly says its star and other worlds when worlds are viewable and  no star is in the sky at the moment"
