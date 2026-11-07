@@ -204,3 +204,5 @@ LAW 11 now includes a content-coverage check.
 - [x] "probnelm: after it zooms out to galaxy web view it inprorply still shows the web once zoomed into another galaxy when ist should show gaslaxies in the sky noit just dots of the webbing": no web dots inside a galaxy; the galaxies themselves in its sky (DESIGN 417).
 - [x] "astroid it zoomed into was a ghost like apporition and not properly stone or rock or other elements": solid stone asteroids and nuclei (DESIGN 418).
 - [x] "on planet drop in its hit lows of 7fps": background workers never starve the frame (DESIGN 419).
+- [x] "andf ther should be an options to turn off day night cycle to be only day" / "and days need to be when the star is actuall on that side of planet" / "as polanets rotate and spin": true day and night with the sky turning; Time > Always day (DESIGN 420).
+- [x] "it stopped at 500 nano metter looking like a freeze": never held waiting over a pick (DESIGN 421).
