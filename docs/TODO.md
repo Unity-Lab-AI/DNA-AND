@@ -888,3 +888,4 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **A calm look at the sky:** (built: DESIGN 439; waits on the test) "and when it looks up at the sky it pans too much and with the fasst time speen it makes me dizzy"
 - [~] **No driver time-out in the matter:** (built: DESIGN 440; waits on the test) "it froze an unknow exemtioon error at matter delpht where teh static was before"
 - [x] **Logs named for their program:** (DESIGN 441) "asnd wehy does it say dna log when we are working on the universe" / "oh we are doing both"
+- [~] **Nothing labelled wrong between the projects:** (built: DESIGN 442) "make sure nothing else is labels wrong between projects"

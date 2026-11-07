@@ -274,13 +274,13 @@ namespace DnaAnd.Shell
                 }
                 if (_microbes != null) where += " · " + _microbes.Microbes.Count + " microbes in " + _microbes.Families + " families around you, " + _microbes.Viruses.Count + " viruses";
                 if (_terrain.Solid && _fieldHere >= 0 && !_terrain.Shell) where += " · field here: " + PlanetTerrain.Fields[_fieldHere].Name;
-                if (_centre) return "DNA-AND · " + _terrain.Name + " · THE VIEW FROM THE MIDDLE: the whole inner world wrapped around its star, the metal hull outside · drag to turn · C to go back";
+                if (_centre) return DnaAnd.Shell.PreviewText.AppName + " · " + _terrain.Name + " · THE VIEW FROM THE MIDDLE: the whole inner world wrapped around its star, the metal hull outside · drag to turn · C to go back";
                 if (_terrain.Shell)
                     where += _inside ? " · INSIDE: the shell's spin holds you on its inner land, the star overhead (I or C to go back out, M for the view from the middle)"
                                      : (_terrain.Habitable ? " · outside the hull (I or C to go inside, M for the view from the middle)" : " · outside the hull");
                 if (_terrain == _fields) where += " · RESOURCE VIEW (R to switch off, Legend for colours)";
                 string loading = _shown > _alt * 1.01 ? " (finer ground still forming: going down to " + Size(_alt) + ")" : "";
-                return "DNA-AND · " + _terrain.Name + " · " + Size(_shown) + loading + " above the " + (_terrain.Shell && !_inside ? "hull" : _terrain.Solid ? (_overSea ? "sea floor" : "ground") : "deep cloud tops") + where +
+                return DnaAnd.Shell.PreviewText.AppName + " · " + _terrain.Name + " · " + Size(_shown) + loading + " above the " + (_terrain.Shell && !_inside ? "hull" : _terrain.Solid ? (_overSea ? "sea floor" : "ground") : "deep cloud tops") + where +
                        (_terrain.Solid ? "" : " (a giant has no ground)") + (_inside ? " · W S: fly forward and back · A D: step sideways · drag: look around · wheel: fly forward and back · Esc: back"
                             : " · wheel: closer and further · drag or W A S D: move · Q E: turn · R: resource view · N: next field · Esc: back");
             }

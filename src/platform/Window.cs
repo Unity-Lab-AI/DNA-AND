@@ -6,7 +6,7 @@ namespace DnaAnd.Platform
 {
     internal sealed class Window
     {
-        private const string ClassName = "DnaAndWindow";
+        private static readonly string ClassName = DnaAnd.Shell.PreviewText.AppName.Replace("-", "") + "Window";   // (each program its own: UniverseWindow, DNAANDWindow)
         private readonly Win32.WndProc _proc; // kept alive so Windows can call it
         public IntPtr Handle { get; private set; }
         [DllImport("gdi32.dll")] private static extern IntPtr GetStockObject(int i);

@@ -25,6 +25,11 @@ copy /y "%~dp0docs\release\LICENSE.txt" "%U%\LICENSE.txt" > nul
 copy /y "%~dp0docs\release\PRIVACY.txt" "%U%\PRIVACY.txt" > nul
 copy /y "%~dp0docs\release\universe\build.cmd" "%U%\build.cmd" > nul
 copy /y "%~dp0docs\release\universe\release.cmd" "%U%\release.cmd" > nul
+rem DNA-AND's own tooling and icon stay out of it
+if exist "%U%\installer\universe-names.ps1" del "%U%\installer\universe-names.ps1"
+if exist "%U%\installer\dna-and.ico" del "%U%\installer\dna-and.ico"
+rem its own name throughout its code and content (namespace, file headers, content labels), never DNA-AND's
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0installer\universe-names.ps1" "%U%" || exit /b 1
 > "%U%\.gitignore" echo build/
 >> "%U%\.gitignore" echo release/
 echo Universe synced into %U%

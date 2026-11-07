@@ -89,7 +89,7 @@ namespace DnaAnd.Shell
             get
             {
                 var g = Galaxies[_focus];
-                return "DNA-AND · the universe · " + Galaxies.Count + " galaxies in view · centred on: " + g.Name + " · view " + Units.Describe(_dist) +
+                return DnaAnd.Shell.PreviewText.AppName + " · the universe · " + Galaxies.Count + " galaxies in view · centred on: " + g.Name + " · view " + Units.Describe(_dist) +
                        " across · click a galaxy or Tab to pick it · wheel in to fly into it · drag to turn · Esc: close";
             }
         }

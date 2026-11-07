@@ -221,7 +221,7 @@ namespace DnaAnd
                     endReason = "back to the start page"; window.Close();
                 }
                 else if (cmd == Window.CmdAskNow) askNow = true;
-                else if (cmd == Window.CmdLegend) window.Tell(style != null ? style.Legend() : microbes != null ? microbes.Legend() : elements != null ? elements.Legend() : planet != null ? planet.Legend() : viewer.Legend(), "DNA-AND · Legend");
+                else if (cmd == Window.CmdLegend) window.Tell(style != null ? style.Legend() : microbes != null ? microbes.Legend() : elements != null ? elements.Legend() : planet != null ? planet.Legend() : viewer.Legend(), DnaAnd.Shell.PreviewText.AppName + " · Legend");
                 else if (cmd == Window.CmdPause && world != null) world.TogglePause();
                 else if (cmd >= Window.CmdTimeBase && cmd < Window.CmdTimeBase + 16 && world != null) world.SetTime(cmd - Window.CmdTimeBase);
                 else if (cmd > Window.CmdDragBase && cmd <= Window.CmdDragBase + 10) { Settings.Set("drag-speed", cmd - Window.CmdDragBase); menuDirty = true; }
@@ -245,7 +245,7 @@ namespace DnaAnd
                 // keep-or-revert safety pop-up: Yes keeps the test going, No or no answer in 15 s closes it safely
                 if (askNow || (tryEvery > 0 && clock.Total >= nextAsk))
                 {
-                    int answer = window.Ask("Keep this test running?\n\nYes = keep going\nNo = revert (close the game safely)\n\nNo answer in 15 seconds = revert.", "DNA-AND · Keep or revert", 15);
+                    int answer = window.Ask("Keep this test running?\n\nYes = keep going\nNo = revert (close the game safely)\n\nNo answer in 15 seconds = revert.", DnaAnd.Shell.PreviewText.AppName + " · Keep or revert", 15);
                     if (answer == Win32.IDYES) nextAsk = tryEvery > 0 ? clock.Total + tryEvery : double.MaxValue;
                     else { endReason = answer == Win32.MB_TIMEDOUT ? "closed safely: no answer to the keep-or-revert pop-up" : "reverted with the No button"; window.Close(); }
                 }

@@ -71,11 +71,11 @@ namespace DnaAnd.Platform
             if (!_registered)
             {
                 _proc = Proc;
-                var wc = new Win32.WNDCLASSEX { cbSize = (uint)Marshal.SizeOf(typeof(Win32.WNDCLASSEX)), lpfnWndProc = _proc, hInstance = inst, hCursor = Win32.LoadCursor(IntPtr.Zero, (IntPtr)32512), hbrBackground = (IntPtr)16, lpszClassName = "DnaAndDocs" };
+                var wc = new Win32.WNDCLASSEX { cbSize = (uint)Marshal.SizeOf(typeof(Win32.WNDCLASSEX)), lpfnWndProc = _proc, hInstance = inst, hCursor = Win32.LoadCursor(IntPtr.Zero, (IntPtr)32512), hbrBackground = (IntPtr)16, lpszClassName = DnaAnd.Shell.PreviewText.AppName.Replace("-", "") + "Docs" };
                 Win32.RegisterClassEx(ref wc); _registered = true;
             }
             int sw = Win32.GetSystemMetrics(0), sh = Win32.GetSystemMetrics(1), w = (int)(sw * 0.62), h = (int)(sh * 0.78);
-            _wnd = Win32.CreateWindowEx(0, "DnaAndDocs", DnaAnd.Shell.PreviewText.AppName + " · Documents", WS_OVERLAPPEDWINDOW, (sw - w) / 2, (sh - h) / 2, w, h, owner, IntPtr.Zero, inst, IntPtr.Zero);
+            _wnd = Win32.CreateWindowEx(0, DnaAnd.Shell.PreviewText.AppName.Replace("-", "") + "Docs", DnaAnd.Shell.PreviewText.AppName + " · Documents", WS_OVERLAPPEDWINDOW, (sw - w) / 2, (sh - h) / 2, w, h, owner, IntPtr.Zero, inst, IntPtr.Zero);
             float s = Scale();
             _font = CreateFont(-(int)(15 * s), 0, 0, 0, 400, 0, 0, 0, 1, 0, 0, 5, 0, "Segoe UI");
             _list = Child(WS_EX_CLIENTEDGE, "LISTBOX", "", WS_VSCROLL | LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | WS_TABSTOP, IdList);

@@ -39,7 +39,7 @@ namespace DnaAnd.Core
             {
                 var r = new BinaryReader(f);
                 var magic = r.ReadBytes(4);
-                if (magic.Length < 4 || magic[0] != 'D' || magic[1] != 'N' || magic[2] != 'A' || magic[3] != 'S') throw new InvalidDataException("not a DNA-AND save");
+                if (magic.Length < 4 || magic[0] != 'D' || magic[1] != 'N' || magic[2] != 'A' || magic[3] != 'S') throw new InvalidDataException("not a " + DnaAnd.Shell.PreviewText.AppName + " save");
                 uint ver = r.ReadUInt32();
                 if (ver > FileVersion) throw new InvalidDataException("this save is from a newer game (file version " + ver + ")");
                 int n = r.ReadInt32();

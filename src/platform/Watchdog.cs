@@ -22,7 +22,7 @@ namespace DnaAnd.Platform
         {
             _clock = clock; _stallSeconds = stallSeconds; _hardLimitSeconds = hardLimitSeconds;
             Beat();
-            var t = new Thread(Run) { IsBackground = true, Name = "DNA-AND watchdog" };
+            var t = new Thread(Run) { IsBackground = true, Name = DnaAnd.Shell.PreviewText.AppName + " watchdog" };
             t.Start();
         }
 
