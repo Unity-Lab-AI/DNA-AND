@@ -698,4 +698,5 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **The atom you picked the atom in focus, the proton and quark stops no longer skipped:** (built: DESIGN 631; waits on the test) "and it neverr got to querk level where did my planet zoom do with the qwerks"
 - [~] **The stats card never wider than a wrapped line:** (built: DESIGN 632; waits on the test) seen in the shots: the stats card over the matter's card
 - [~] **The inner cloud at a picometre bright enough to see:** (built: DESIGN 633; waits on the test) "and just above and at 1 picometer shit is too dim"
+- [~] **The orbit lines faint continuous lines, never rows of evenly spaced dots:** (built: DESIGN 634; waits on the test) "im still seeing that patterning in solar syastem of planets lik being designed in straight lines"
 
