@@ -908,3 +908,4 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **Nothing shows through an asteroid or a nucleus:** (built: DESIGN 457; waits on the test) "the comet is transdpartent i can see stars through it" / "i mean asstroid but comet prolly same problem"
 - [~] **A pick always shows its card:** (built: DESIGN 458; waits on the test) "also im clicking around at 1km scale and i cant select anything"
 - [ ] **Towers, spikes and lines from the ground:** "i took scren shot im getting weild toweres and spikes and lines coming out of the ground" (the F12 picture did not save: to see on screen, and why F12 saved nothing)
+- [~] **Processor and card at once:** (built: DESIGN 459; waits on the test) "and im just sitting at 1km and its shittly doing 14fps im not even zooming or nothing"
