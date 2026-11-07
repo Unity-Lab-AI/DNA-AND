@@ -20,6 +20,7 @@ copy /y "%~dp0docs\release\universe\CREDITS.md" "%U%\CREDITS.md" > nul
 if not exist "%U%\docs\img" mkdir "%U%\docs\img"
 xcopy /e /i /q /y "%~dp0docs\release\universe\img" "%U%\docs\img" > nul
 if not exist "%U%\docs\in-game" mkdir "%U%\docs\in-game"
+copy /y "%~dp0docs\release\IN-GAME-DOCS.md" "%U%\docs\in-game\DOCS.md" > nul
 copy /y "%~dp0docs\release\IN-GAME-ABOUT.md" "%U%\docs\in-game\ABOUT.md" > nul
 copy /y "%~dp0docs\release\IN-GAME-README.md" "%U%\docs\in-game\README.md" > nul
 copy /y "%~dp0docs\release\IN-GAME-HOW-IT-WORKS.md" "%U%\docs\in-game\HOW-IT-WORKS.md" > nul
