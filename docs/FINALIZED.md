@@ -196,3 +196,4 @@ LAW 11 now includes a content-coverage check.
 - [x] "put on ur movieaehat and make it proper dynamically and prcedural like": a director, each shot afresh each viewing (DESIGN 408).
 - [x] "and how do i bring the landing page back up is it a drop down from the menu toolbars?": Start page on the menu bar (DESIGN 409).
 - [x] "tour is still jsut side panning for 50 million miles as galaxies fly by in darkness": circles only what is close; far off it pans in place (DESIGN 410).
+- [x] "i told you to put on your movie making hat" / "stop it with these shit edits and do the full fucking thing correctly": real framed shots for the tour in space (DESIGN 411).
