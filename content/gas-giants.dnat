@@ -84,28 +84,47 @@ says: hottest, with clouds of rock and iron
 
 # ── Layers ──
 
+# from-r, to-r: where the layer lies, as shares of the planet's radius from its middle (Jupiter: metallic hydrogen from
+#   about 0.8 of the way out, a core of rock and metal in the inner 0.1 to 0.2, perhaps fuzzy); matter: what going in finds
+#   there (air: its gases; plasma: hydrogen crushed into protons in a sea of free electrons; ice: hot dense water,
+#   ammonia and methane; core: rock, iron and ice).
 @layer cloud-tops
 name: Cloud tops
+from-r: 0.99
+to-r: 1
+matter: air
 real: yes
 says: layers of ammonia and water clouds at the top
 
 @layer molecular-hydrogen
 name: Molecular hydrogen layer
+from-r: 0.8
+to-r: 0.99
+matter: air
 real: yes
 says: squeezed hydrogen gas, thickening into liquid with depth
 
 @layer metallic-hydrogen
 name: Metallic hydrogen layer
+from-r: 0.15
+to-r: 0.8
+matter: plasma
 real: yes
 says: hydrogen crushed so hard it conducts electricity like metal; makes up most of a gas giant and drives its huge magnetic field
 
 @layer ice-mantle
 name: Ice mantle
+from-r: 0.15
+to-r: 0.85
+matter: ice
 real: yes
 says: in ice giants, hot dense water, ammonia and methane under pressure
 
 @layer core
 name: Core
+from-r: 0
+to-r: 0.15
+matter: core
 real: yes
 says: a likely core of rock and metal at the center
 

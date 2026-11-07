@@ -1191,6 +1191,11 @@ name: Molten rock (a lava lake or flow, about 1,100 to 1,200 C)
 grain-mm: 0..0
 minerals: basalt-melt 100
 
+@mix core
+name: A giant planet's core (rock, iron and ice under enormous pressure)
+grain-mm: 0.1..0.5
+minerals: forsterite 30, magnetite 25, enstatite 15, water-ice 20, methane-ice 5, pyrite 5
+
 @mix sea
 name: The sea
 grain-mm: 0..0

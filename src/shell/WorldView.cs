@@ -674,6 +674,10 @@ namespace DnaAnd.Shell
                 if (_matterSpot == gspot && _matterPlanet == _planet) return;
                 _matterSpot = gspot; _matterPlanet = _planet; _mox = x / r; _moy = y / r; _moz = z / r;
                 string air; if (!PlanetTerrain.Air.TryGetValue(_ground.Kind, out air)) air = "hydrogen 90%, helium 10%";
+                var lay = LayerHere();
+                if (lay != null && lay.Matter == "core") { _matter.Set("core", false, false, 0.5f, 0.45f, 0.4f, gspot); _matter.SetGround(_ground.Radius * CoreShare, x / r, y / r, z / r, "core", _ground.GrainSeed, 0, 0); _matter.SetAirAbove(null); return; }   // its core: rock, iron and ice
+                if (lay != null && lay.Matter == "plasma") { _matter.SetPlasma(gspot); return; }      // metallic hydrogen: protons in a sea of free electrons
+                if (lay != null && lay.Matter == "ice") { _matter.Set("ice", false, true, 0.7f, 0.8f, 0.9f, gspot); return; }   // the ice mantle: hot dense water, ammonia, methane
                 _matter.SetAir(air, gspot); return;
             }
             bool sea = _ground.HasWater && _ground.GroundAt(x / r, y / r, z / r) < 0, ice = Math.Abs(y / r) > 0.86;
@@ -699,13 +703,36 @@ namespace DnaAnd.Shell
 
         // how far above the planet's ground the camera is (universe units)
         private double _surfaceCell, _lastAbove = 1;
+        // a giant's layers (content/gas-giants.dnat @layer: from-r, to-r, matter), and where its core begins
+        private sealed class Layer { public string Id, Name, Matter, Says; public double From, To; }
+        private List<Layer> _layers;
+        private List<Layer> Layers()
+        {
+            if (_layers != null) return _layers; _layers = new List<Layer>(); var ci = System.Globalization.CultureInfo.InvariantCulture; var fs = System.Globalization.NumberStyles.Float;
+            foreach (var e in _content.OfKind("gas-giants.dnat", "layer")) { double a, b; if (!double.TryParse(e.Get("from-r", ""), fs, ci, out a) || !double.TryParse(e.Get("to-r", ""), fs, ci, out b)) continue; _layers.Add(new Layer { Id = e.Id, Name = e.Name, Matter = e.Get("matter", "air"), Says = e.Get("says", ""), From = a, To = b }); }
+            return _layers;
+        }
+        private double CoreShare { get { foreach (var l in Layers()) if (l.Matter == "core") return l.To; return 0.15; } }
+        // the layer of a giant you are in now (by your share of its radius from its middle); null above its clouds
+        private Layer LayerHere()
+        {
+            if (_ground == null || _ground.Solid) return null; double x, y, z; CamFromPlanet(out x, out y, out z); double share = Math.Sqrt(x * x + y * y + z * z) / _ground.Radius;
+            bool ice = _ground.Kind == "ice-giant"; Layer best = null;
+            foreach (var l in Layers())
+            {
+                if (share < l.From || share > l.To) continue;
+                if (ice && l.Id == "metallic-hydrogen") continue; if (!ice && l.Id == "ice-mantle") continue;   // an ice giant has an ice mantle; a gas giant metallic hydrogen
+                if (best == null || l.To - l.From < best.To - best.From) best = l;
+            }
+            return best;
+        }
         private double AboveGround()
         {
             if (_ground == null) return double.MaxValue;
             _surfaceCell = Math.Max(1e-11, _lastAbove / Units.Km(1) / 30);                   // (from the height last asked: a thirtieth of it)
             double x, y, z; CamFromPlanet(out x, out y, out z);
             double r = Math.Sqrt(x * x + y * y + z * z); if (r <= 0) return 0;
-            return _lastAbove = Math.Max(1e-9, (r - _ground.Radius - (_ground.Solid ? Surface(x / r, y / r, z / r) : 0))) * Units.Km(1);
+            return _lastAbove = Math.Max(1e-9, (r - _ground.Radius - (_ground.Solid ? Surface(x / r, y / r, z / r) : -_ground.Radius * (1 - CoreShare)))) * Units.Km(1);   // a giant: down through its clouds and layers to its core
         }
 
         // the system's planets, moons and star placed around the star (anchor), and the nearest surface to the camera
@@ -2103,6 +2130,7 @@ namespace DnaAnd.Shell
                     : _system != null ? "in the system of a " + _system.StarName + " (" + _system.Bodies.Count + " planets and moons)"
                     : _near >= 0 ? (NearShare() > 0.5 ? "among the stars of " : "near ") + _galaxies[_near].Name : "among the galaxies";
                 double hr = LocalHour(); string when = " · time: " + TimeNames[TimeStep] + (hr >= 0 ? ", " + ((int)hr).ToString("00") + ":" + ((int)(hr % 1 * 60)).ToString("00") + " here" : "");
+                var lh = LayerHere(); if (lh != null) where = "inside " + (_system != null && _planet >= 0 ? _system.Bodies[_planet].Kind : "the giant") + ", in its " + lh.Name.ToLowerInvariant() + " (" + lh.Says + ")";
                 return PreviewText.AppName + " · one world · " + where + when + picked + (_tour != null && _tourAt < _tour.Count ? " · tour: " + _tour[_tourAt].Name : "") + " · " + (_spaceScale > 0 || _matterScale > 0 || _tKind == 5 ? "looking at " + ScaleHud.Words(ViewDistanceKm()) + " away" : "nearest thing " + Units.Describe(NearestDistance()) + " away") + " · wheel: fly in or out toward the mouse · drag: circle the pick or look around · right click: clear the pick · W A S D Q E: fly · H: scale on or off · Esc: close · card " + (int)Math.Round(Window.GpuBusy * 100) + "% busy (GPU use " + (int)Math.Round(Window.GpuUse * 100) + "%)";
             }
         }
