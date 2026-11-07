@@ -651,4 +651,5 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **Decay happening before your eyes:** (built: DESIGN 583; waits on the test; the fields particles are waves in stay open)
 - [~] **The tour's end: a true figure of what it reached against everything there is:** (built: DESIGN 584; waits on the test) "and at the end of the tour say something acurat like Now youve seen .0000000000012% of the universe. but a real number of total number of destinmnations version the trip the tour takes" / "Vs* not version"
 - [~] **The clip's text scaled to the clip's size:** (built: DESIGN 585; waits on the test) "and when we change resolution of the recorder the text needs to be proerply scales and sized to the resolutions"
+- [~] **Clip size on the landing page, the clip's text measured right:** (built: DESIGN 587; waits on the test) "the text isnt sclaed correctly and i didnt have a resolution selection i could see for the recording"
 
