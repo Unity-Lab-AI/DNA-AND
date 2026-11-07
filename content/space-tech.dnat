@@ -265,3 +265,60 @@ says: every build costs resources from the 100 space resources; megastructures c
 @rule tech-hypothetical
 real: rule
 says: real-but-unbuilt designs are allowed in the game; they unlock late and are marked hypothetical in content
+
+# ── Dyson builds: the steps of enclosing a star, each made of parts (sizes in AU from the star) ──
+# of: the megastructure it is a step of (its name from there); suffix: added to that name. star-bright: how much of the
+# star's light still gets out (1 all). outer-au: how far out it reaches.
+# part: one piece of it, any number of them:
+#   mirrors COUNT FROM-AU TO-AU            mirror satellites orbiting, catching light
+#   swarm COUNT RINGS BRIGHTNESS           collectors on tilted orbits round about 1 AU (dark panels that glint blue)
+#   bubble COUNT                           light sails held still by the star's own light: a thin even sphere
+#   shell RADIUS-AU LAND MODE [R G B GLOW] a solid shell (LAND yes: lived on inside; MODE 0 whole, 1 a ring band, 2 part
+#                                          built, 3 a one-sided cap; R G B GLOW: its hull's colour and glow)
+#   jet COUNT                              the light pushed out one way, as a long glowing plume (a stellar engine)
+@build mirrors
+name: Mirror satellites (the first step)
+part: mirrors 500 0.5 0.9
+
+@build dyson-swarm
+of: dyson-swarm
+part: swarm 30000 40 0.7
+star-bright: 0.8
+
+@build star-ring
+of: star-ring
+part: shell 1 yes 1
+
+@build dyson-bubble
+of: dyson-bubble
+part: bubble 24000
+star-bright: 0.7
+
+@build part-shell
+of: dyson-shell
+suffix: , part-built
+part: shell 1 yes 2
+
+@build dyson-shell
+of: dyson-shell
+part: shell 1 yes 0
+star-bright: 0
+
+@build matrioshka-brain
+of: matrioshka-brain
+part: shell 0.4 no 0 0.5 0.12 0.08 0.6
+part: shell 0.9 no 2 0.38 0.12 0.08 0.42
+part: shell 1.8 no 2 0.26 0.12 0.08 0.24
+star-bright: 0
+outer-au: 1.8
+
+@build stellar-engine
+of: stellar-engine
+part: shell 1 no 3 0.85 0.86 0.9 0.45
+part: jet 3000
+
+@build dimmed-swarm
+of: dyson-swarm
+suffix: , finished (the star is nearly hidden)
+part: swarm 70000 160 0.5
+star-bright: 0.2

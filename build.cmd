@@ -9,11 +9,14 @@ if not exist "%CSC%" (
 )
 rem   build.cmd        builds build\DNA-AND.exe (the copy you play)
 rem   build.cmd NAME   builds build\NAME\DNA-AND.exe (a separate copy, such as dev or test, so a running game is never closed or touched)
+rem   build.cmd NAME preview   builds the universe preview release (it always opens in the one-world universe)
+set DEF=
+if "%2"=="preview" set DEF=/define:PREVIEW
 set OUT=build\DNA-AND.exe
 if not "%1"=="" set OUT=build\%1\DNA-AND.exe
 if not exist build mkdir build
 if not "%1"=="" if not exist build\%1 mkdir build\%1
-"%CSC%" /nologo /target:winexe /platform:x64 /optimize+ /unsafe /warnaserror+ /out:%OUT% /recurse:src\*.cs
+"%CSC%" /nologo /target:winexe /platform:x64 /optimize+ /unsafe /warnaserror+ %DEF% /out:%OUT% /resource:docs\release\UNIVERSE-README.md,universe-readme.md /resource:docs\release\UNIVERSE-HOW-TO-BUILD.md,how-to-build.md /recurse:src\*.cs
 if errorlevel 1 (
   echo Build failed.
   exit /b 1

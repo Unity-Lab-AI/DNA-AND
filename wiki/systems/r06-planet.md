@@ -1,8 +1,8 @@
 ---
 title: R6 · Planet
 status: partial
-sources: [docs/DESIGN.md (rounds 1, 2, 4), docs/LISTS.md, docs/ROADMAP.md#R6]
-last-verified: fdaea69
+sources: [content/geology.dnat, content/terrain.dnat, src/gen/PlanetTerrain.cs, content/climate.dnat, docs/DESIGN.md (rounds 1, 2, 4), docs/LISTS.md, docs/ROADMAP.md#R6]
+last-verified: 5dd380b
 ---
 
 # 🌍 R6 · Planet
@@ -52,7 +52,29 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 - **Sky and water:** an air glow, turning clouds, weather near the ground, see-through water with a sea floor, and light fading with depth.
 - **Resource fields:** volcanoes, rivers and 16 kinds of field placed by geology, plus the resource view.
 - **Air:** each world kind's air make-up is in content (`air:`).
+- **World kinds:** each kind's size, ground colours by height, seas, clouds, air colour, rock, base temperature and behaviours (molten cracks, dunes, frozen seas, a tidally locked day and night, tropical soils, life or none, volcanoes, giants' belts and storms) are `@terrain` entries in `content/terrain.dnat`; any kind can take any of them.
+- **Universe seed:** a new universe every launch (seed in the title bar); `--seed N` plays one again.
 - **The fly-down** (`src/shell/PlanetView.cs`):
   - from orbit to the ground, into the ground (solid colour darkening with depth), and under the sea
   - sea life at true scale (`src/sim/SeaLife.cs`)
   - on land, the view fades to black before the microbes
+
+## 🌋 The living planet: what runs today and what does not
+
+| Process | In the code now | To build (TODO R6b) |
+|---|---|---|
+| Inside (core, mantle, crust, heat) | `src/sim/PlanetCore.cs`: heat that runs out (Earth today = 1, bigger planets hold it longer), magma ocean when young, molten outer core and growing solid inner core, plates or a stagnant lid; shown in the title, saved as the `CORE` chunk | Layers from size and makeup; heat that cools over billions of years |
+| Plates | `src/sim/PlanetPlates.cs`: 8 to 15 plates turning at 1 to 10 cm a year; every edge spreading, crashing or sliding (the ground does not move yet) | Moving plates, drift, ridges, trenches, faults, supercontinents |
+| Earthquakes | Along edges, real magnitude counts (one magnitude 8 a year on Earth), tsunamis on oceanic crashing edges, magnitude 9 harms nearby life | Quakes along edges and faults, tsunamis |
+| Volcanoes | Placed once on the ground; erupting over time on edges and hot spots (VEI 7 per 1,000 years, VEI 8 per 50,000), killing nearby life; super-eruptions cool the world | Eruptions over time, ash, new land, island chains |
+| Magnetic field | Geodynamo from a liquid outer core and spin; random flips about every 450,000 years; the shield sets how much radiation reaches dry land (harming land life) | Geodynamo, magnetosphere, air stripping, auroras, flips |
+| Air | `src/sim/PlanetAir.cs`: pressure, carbon dioxide, oxygen, methane and temperature on the planet's clock; volcanoes in, rain on rock out (settling over 400,000 years); oxygen from plant-like life after the seas rust (the great oxidation, near 21%); methane from early microbes; air stripped once the field dies; runaway greenhouse and snowball; the world's warmth and oxygen feed back into life. On the test planet: methane-rich at 1 billion years, 21% oxygen by 2.5 billion, 12 °C at 5.6 billion | Layers, greenhouse, escape, gases from volcanoes, carbon-silicate cycle |
+| Water and weather | `src/sim/PlanetWeather.cs`: per region temperature, rain belts and ice; ice ages from orbit wobbles, seas up to 130 m lower; hurricanes over warm seas; seasons at slow speeds; ocean currents that even out sea and coast temperatures; upwelling and tides that bring nutrients to coastal seas; all fed into life. Seas on the ground and rain pictures are still fixed | Water cycle, winds, storms, currents, tides, ice ages, sea level |
+| Surface | The ground you see is still a fixed height map. `src/sim/PlanetSurface.cs` runs per region: mountains pushed up at crashing edges and worn down by rain and ice, soil from worn rock (faster under plants), river mud carried to the seas, sediment buried into stone; soil and mud feed life | Erosion, the rock cycle, soil, landslides |
+| From outside | `src/sim/PlanetImpacts.cs`: the 10 impact sizes at real rates (a house-size rock every 60 years to a 10 km one every 100 million), many times more in the young heavy bombardment, harm to life by size, dust that darkens and cools; deep microbes always survive. The star brightens with age (about 30% dimmer when young), warming the world | Impacts, star flares, the star ageing |
+
+**The ground you see** now follows the sim: `PlanetTerrain` takes a sea drop, a mountain scale per region and a crater list, and every ground piece made before a change is remade a few at a time (a `Generation` number). Continents drift: each spot's ground is looked up where its plate carried it from (`PlanetPlates.Back`), with sea-floor ridges at spreading edges and mountains at crashing ones; climate colours follow the true latitude (kept per thread, as heights are worked out on many cores).
+
+**Showing the changes:** the ground is never rebuilt piece by piece in view. A change builds the new ground out of sight (`_pending`) and swaps the whole planet at once when every visible piece is ready, under a short fade; only at big moments (ice age start or end, a 90 km crater, 200 million years of drift), at most once every 30 seconds.
+
+**Change fields as wavelets:** at each swap the mountain scale and crater shape are baked over the six cube faces (512 cells each) and kept as CDF 9/7 wavelet terms (`PlanetTerrain.BakeChanges`); the ground reads the rebuilt grids, so no crater loop runs per point.

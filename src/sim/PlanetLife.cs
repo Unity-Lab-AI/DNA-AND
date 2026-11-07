@@ -27,6 +27,23 @@ namespace DnaAnd.Sim
         public int Sparks;                                         // how many times life has been started
         /// <summary>The god's Souls on this planet. Living things give them off; powers spend them.</summary>
         public double Souls;
+        /// <summary>How much of the star's harmful radiation reaches the ground (0 to 1), set from the planet's magnetic shield. Water shields sea life.</summary>
+        public double Radiation = 0.25;
+        /// <summary>Set from the planet's air: how much warmer or colder the world is than Earth's 15 °C, and the oxygen in the air.</summary>
+        public double WarmerK, Oxygen = 0.21;
+        /// <summary>The regions' weather, set by the planet's weather each step: rain (1 = average) and ice cover (0 to 1).</summary>
+        public PlanetWeather Weather;
+        public double RegionY(int i) { return PY[i]; }
+        public int[] Neighbours(int i) { return Near[i]; }
+        public void RegionCentre(int i, out double x, out double y, out double z) { Centre(i, out x, out y, out z); }
+        /// <summary>Plant-like life in a region (crowds).</summary>
+        public double RegionProducers(int i) { double p = 0; foreach (var kv in _cells[i]) if (All[kv.Key].G.Photo > 0.5f) p += kv.Value; return p; }
+        /// <summary>The surface (soil, river mud), set by the planet each step.</summary>
+        public PlanetSurface Surface;
+        public double RegionWarmth(int i) { return _warm[i]; }
+        public double RegionSea(int i) { return _wet[i]; }
+        /// <summary>Plant-like life and early microbes on the whole planet (crowds), for the air.</summary>
+        public double Producers, Microbes;
         public const double LightningCost = 4;                     // Lightning is tier 4: tier x area (one strike) x strength (1)
         /// <summary>Living things give off Souls slowly: this many a year for every crowd of life (a starting value, to be balanced).</summary>
         public const double SoulsPerCrowdYear = 5e-11;
@@ -80,10 +97,17 @@ namespace DnaAnd.Sim
             var cnt = new int[Regions];
             for (int i = 0; i < Regions; i++) _cells[i] = new Dictionary<int, double>();
             const int S = 4000;
+            // the ground heights are measured on every core at once (each spot writes only its own slot); the first one
+            // is measured alone, so anything the ground sets up on first use is ready before the workers start
+            var gs = new double[S];
+            Func<int, double> spotY = k => 1 - 2 * (k + 0.5) / S;
+            Action<int, double[]> spot = (k, xyz) => { double y = spotY(k), r = Math.Sqrt(1 - y * y), th = k * 2.399963229728653; xyz[0] = Math.Cos(th) * r; xyz[1] = y; xyz[2] = Math.Sin(th) * r; };
+            { var p0 = new double[3]; spot(0, p0); gs[0] = groundAt(p0[0], p0[1], p0[2]); }
+            Jobs.For(S - 1, j => { var p = new double[3]; spot(j + 1, p); gs[j + 1] = groundAt(p[0], p[1], p[2]); });
             for (int k = 0; k < S; k++)
             {
-                double y = 1 - 2 * (k + 0.5) / S, r = Math.Sqrt(1 - y * y), th = k * 2.399963229728653, x = Math.Cos(th) * r, z = Math.Sin(th) * r;
-                int i = RegionAt(x, y, z); double g = groundAt(x, y, z);
+                double y = spotY(k), r = Math.Sqrt(1 - y * y), th = k * 2.399963229728653, x = Math.Cos(th) * r, z = Math.Sin(th) * r;
+                int i = RegionAt(x, y, z); double g = gs[k];
                 _wet[i] += g < 0 ? 1 : Math.Max(0, 0.5 - g * 0.2);          // seas are wet; low land is damp, high land is dry
                 _warm[i] += 1 - Math.Abs(y) - Math.Max(0, g) * 0.06;        // warm at the middle, cold at the poles and on mountains
                 _light[i] += g < -2 ? 0.3 : 1;                               // deep water is dim
@@ -128,12 +152,40 @@ namespace DnaAnd.Sim
             return true;
         }
 
-        private double Fit(Genome g, int i)
+        /// <summary>A region's food web for one step: what there is to eat, and how hard each kind is being eaten.</summary>
+        private struct Web
         {
-            double heat = 1 - Math.Abs(_warm[i] - g.Warm) * 2.2;
-            double food = g.Photo * _light[i] + g.Graze * 0.8 + g.Hunt * 0.5;
-            double water = 0.3 + g.Coat * 0.7 + (0.7 - g.Coat * 0.7) * _wet[i];   // the wetter the region, the less a tough coat is needed              // dry land needs a tough coat
-            return Math.Max(0, heat) * food * water;
+            public double Nutrients;   // nutrients left for each plant-like living thing, once the region's crowd shares them
+            public double Plants;      // 0..1: how much plant-like life a grazer finds
+            public double Prey;        // 0..1: how much animal life a hunter finds
+            public double Grazed;      // how hard plant-like life is being grazed (per thousand years)
+            public double Hunted;      // how hard animal life is being hunted (per thousand years)
+            /// <summary>A region nobody lives in yet: all its nutrients, nothing to graze or hunt, nothing eating.</summary>
+            public static Web Open(double nutrients) { return new Web { Nutrients = nutrients, Plants = 0.3, Prey = 0.2 }; }
+        }
+
+        // the nutrients a region holds: water and warmth wash minerals loose; deep cold or dry ground holds little
+        private double Nutrients(int i) { return Math.Max(0.05, Math.Min(1, 0.2 + _wet[i] * 0.5 + _warm[i] * 0.4 + (Weather != null ? Weather.Upwelling[i] : 0) + (Surface != null ? (_wet[i] > 0.6 ? Surface.RiverMud[i] : Math.Min(0.3, Surface.SoilM[i] / 10)) : 0))); }   // soil on land, river mud in the sea   // upwelling currents add more
+
+        // how fast it is eaten: plant-like life by grazers, animal life by hunters; defences, speed, armour and a tough coat help
+        private static double Eaten(Genome g, Web w)
+        {
+            double guard = (1 - g.Defence * 0.5) * (1 - g.Coat * 0.3) * (1 - g.Armour * 0.4) * (1 - g.Speed * 0.3);
+            return (w.Grazed * g.Photo + w.Hunted * (1 - g.Photo) * (1 - g.Hunt * 0.5)) * guard;
+        }
+
+        private double Fit(Genome g, int i, Web w)
+        {
+            double warmth = Weather != null ? 0.62 + (Weather.TempC[i] - 15) / 40.0 : _warm[i] + WarmerK / 60.0;   // the region's own temperature, from the weather
+            double heat = 1 - Math.Abs(warmth - g.Warm) * 2.2;
+            // food: light and nutrients for plant-like life, plant-like life for grazers, other animals for hunters
+            double food = g.Photo * _light[i] * (0.4 + w.Nutrients) + g.Graze * (0.3 * w.Nutrients + 0.9 * w.Plants) + g.Hunt * 1.1 * w.Prey;
+            double wet = Weather != null && _wet[i] < 0.6 ? Math.Min(1, _wet[i] * Weather.Rain[i]) : _wet[i];   // on land, rain decides how wet it is
+            double water = 0.3 + g.Coat * 0.7 + (0.7 - g.Coat * 0.7) * wet;   // the wetter the region, the less a tough coat is needed              // dry land needs a tough coat
+            double shield = 1 - Radiation * 0.7 * (1 - _wet[i]);                     // without a magnetic shield, life on dry land is burned by the star
+            double ice = Weather != null ? 1 - Weather.Ice[i] * (_wet[i] > 0.6 ? 0.4 : 0.85) : 1;          // ice: hard on land, sea life lives on under it
+            double breath = g.Stage >= 3 ? Math.Min(1, 0.05 + Oxygen / 0.02) : 1;      // animals with nerves and more need oxygen in the air
+            return Math.Max(0, heat) * food * water * shield * breath * ice;
         }
 
         /// <summary>One step of the planet's life: growth, competition, spread to neighbours, new species. <paramref name="years"/> long.</summary>
@@ -146,12 +198,22 @@ namespace DnaAnd.Sim
             {
                 var cell = _cells[i]; if (cell.Count == 0) continue;
                 var keys = new List<int>(cell.Keys);
+                // the food web of this region: how much plant-like life there is to graze, how much animal life to hunt,
+                // and how hard each is being eaten
+                double pm = 0, gm = 0, am = 0, hm = 0;
+                foreach (int id in keys)
+                {
+                    var g0 = All[id].G; double n0 = cell[id];
+                    pm += n0 * g0.Photo; gm += n0 * g0.Graze; hm += n0 * g0.Hunt; am += n0 * (1 - g0.Photo);
+                }
+                var web = new Web { Nutrients = Nutrients(i) * Room / (pm + Room), Plants = pm / (pm + gm + 1), Prey = am / (am + hm + 1),
+                    Grazed = 0.5 * gm / (pm + gm + 1), Hunted = 0.6 * hm / (am + hm + 1) };
                 foreach (int id in keys)
                 {
                     var sp = All[id]; double n = cell[id];
-                    double f = Fit(sp.G, i);
-                    // grows where it fits, crowded out where it does not; rates are per thousand years, worked out exactly for any step
-                    double kyr = years / 1000.0, r = f * 0.6 - 0.08;                   // per thousand years: grows where it fits, dies back where it does not
+                    double f = Fit(sp.G, i, web);
+                    // grows where it finds food and fits the conditions, and is eaten by what grazes or hunts it; rates are per thousand years, worked out exactly for any step
+                    double kyr = years / 1000.0, r = f * 0.6 - 0.08 - Eaten(sp.G, web);
                     n *= Math.Exp(Math.Max(-4, Math.Min(4, r * kyr)));
                     if (n < 0.05) { cell.Remove(id); continue; }
                     cell[id] = n;
@@ -159,6 +221,7 @@ namespace DnaAnd.Sim
                     if (_rng.NextDouble() < 1 - Math.Exp(-kyr * 0.6 * (0.5 + _wet[i] + sp.G.Speed)))
                     {
                         int j = Neighbour(i);
+                        if (Fit(sp.G, j, Web.Open(Nutrients(j))) < 0.12) continue;       // spreads only where the nutrients and conditions suit it
                         add.Add(new KeyValuePair<int, KeyValuePair<int, double>>(j, new KeyValuePair<int, double>(id, Math.Min(n * 0.2, 1))));
                     }
                     // a new species: copies drift far enough from the parent (about once in two million years per region)
@@ -212,8 +275,87 @@ namespace DnaAnd.Sim
             var gone = new List<int>();
             foreach (var sp in All.Values) { sp.Extinct = sp.Total <= 0; if (sp.Extinct) gone.Add(sp.Id); else { Alive++; crowds += sp.Total; if (sp.G.Stage > TopStage) TopStage = sp.G.Stage; } }
             foreach (int id in gone) All.Remove(id);
+            Producers = 0; Microbes = 0; foreach (var sp in All.Values) { if (sp.G.Photo > 0.5f) Producers += sp.Total; if (sp.G.Stage <= 1) Microbes += sp.Total; }
             if (TopStage > before) _stageReached = Years;
             Souls += crowds * SoulsPerCrowdYear * years;
+        }
+
+        /// <summary>The whole life of this planet as a save chunk ("LIFE"): its clock, its species and where each one lives.
+        /// The regions' warmth, wetness and light are not saved; they come from the planet's own ground.</summary>
+        public Chunk Save()
+        {
+            var ms = new System.IO.MemoryStream(); var o = new System.IO.BinaryWriter(ms);
+            o.Write(Years); o.Write(Sparks); o.Write(Souls); o.Write(Climbs); o.Write(_nextId); o.Write(_stageReached);
+            foreach (var u in _rng.State) o.Write(u);
+            o.Write(All.Count);
+            foreach (var sp in All.Values)
+            {
+                o.Write(sp.Id); o.Write(sp.Parent); o.Write(sp.Root); o.Write(sp.Born); o.Write(sp.Total); o.Write(sp.Spoke);
+                SaveFile.WriteFields(o, sp.G);
+            }
+            o.Write(_cells.Length);
+            foreach (var cell in _cells) { o.Write(cell.Count); foreach (var kv in cell) { o.Write(kv.Key); o.Write(kv.Value); } }
+            o.Flush();
+            return new Chunk { Name = "LIFE", Version = 1, Data = ms.ToArray() };
+        }
+
+        /// <summary>Puts back the life saved by <see cref="Save"/>, on the same planet.</summary>
+        public void Load(Chunk c)
+        {
+            if (c.Name != "LIFE" || c.Version > 1) throw new System.IO.InvalidDataException("not a life chunk this game can read");
+            var r = new System.IO.BinaryReader(new System.IO.MemoryStream(c.Data));
+            Years = r.ReadDouble(); Sparks = r.ReadInt32(); Souls = r.ReadDouble(); Climbs = r.ReadInt32(); _nextId = r.ReadInt32(); _stageReached = r.ReadDouble();
+            _rng.SetState(new[] { r.ReadUInt64(), r.ReadUInt64(), r.ReadUInt64(), r.ReadUInt64() });
+            All.Clear();
+            int n = r.ReadInt32();
+            for (int i = 0; i < n; i++)
+            {
+                var sp = new Species { Id = r.ReadInt32(), Parent = r.ReadInt32(), Root = r.ReadInt32(), Born = r.ReadDouble(), Total = r.ReadDouble(), Spoke = r.ReadDouble() };
+                sp.G = SaveFile.ReadFields<Genome>(r);
+                All[sp.Id] = sp;
+            }
+            int regions = r.ReadInt32();
+            if (regions != _cells.Length) throw new System.IO.InvalidDataException("this life was saved on a planet with " + regions + " regions");
+            for (int i = 0; i < regions; i++) { _cells[i].Clear(); int m = r.ReadInt32(); for (int k = 0; k < m; k++) { int id = r.ReadInt32(); _cells[i][id] = r.ReadDouble(); } }
+            Alive = 0; TopStage = 0;
+            foreach (var sp in All.Values) { Alive++; if (sp.G.Stage > TopStage) TopStage = sp.G.Stage; }
+        }
+
+        /// <summary>A disaster at a spot (a great eruption or quake): kills a share of the life in that region and half that in
+        /// its neighbours. A share of a half or more also darkens and cools the whole world, so everywhere loses some.</summary>
+        public void Disaster(double x, double y, double z, double share)
+        {
+            int i = RegionAt(x, y, z);
+            Kill(i, share);
+            foreach (int j in Near[i]) Kill(j, share * 0.5);
+            if (share >= 0.5) for (int k = 0; k < _cells.Length; k++) Kill(k, 0.15);
+        }
+
+        /// <summary>A disaster for the whole world (a great impact): every region loses this share of its life.</summary>
+        public void GlobalKill(double share)
+        {
+            for (int k = 0; k < _cells.Length; k++)
+            {
+                // microbes deep in the rock and at sea-floor vents ride out even the worst: a few of each stay alive
+                var cell = _cells[k]; var ids = new List<int>(cell.Keys);
+                foreach (int id in ids)
+                {
+                    double n = cell[id] * (1 - share);
+                    if (All[id].G.Stage <= 1) n = Math.Max(n, Math.Min(cell[id], 0.1));
+                    if (n < 0.05) cell.Remove(id); else cell[id] = n;
+                }
+            }
+        }
+
+        private void Kill(int i, double share)
+        {
+            var cell = _cells[i]; var ids = new List<int>(cell.Keys);
+            foreach (int id in ids)
+            {
+                double n = cell[id] * (1 - share);
+                if (All[id].G.Stage <= 1) n = Math.Max(n, Math.Min(cell[id], 0.1));   // microbes deep in the rock and at vents ride it out
+                if (n < 0.05) cell.Remove(id); else cell[id] = n;
+            }
         }
 
         private int Neighbour(int i) { return Near[i][_rng.Below(6)]; }

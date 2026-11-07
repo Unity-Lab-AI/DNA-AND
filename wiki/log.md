@@ -133,3 +133,39 @@ Append-only. Newest at the bottom.
 - r08 life sim: a test jump to land where an intelligent species lives; its village seen on the ground.
 - r08 life sim: intelligent species go step by step after communication (wild, tribes, villages, towns, cities, space), shown on land.
 - r04b generators: build sample keys 1-5 compare the five ways of building; everything is built on the fly when first seen.
+- r05 universe: every shining star kind can appear; colour from surface temperature, brightness from size and temperature.
+- r04 renderer: render scale, 50 to 200% of the window, from a menu.
+- r04 renderer: our own GIF clip writer; a first journey clip saved.
+- r04 renderer: the 10-second journey clip, galaxies to the ground.
+- r03 engine core: the job system, one worker per core on a shared queue.
+- r03 engine core: the save file format (versioned chunks) and the life chunk.
+- r08 life sim: a food web per region (producers, grazers, hunters, nutrients); spreading follows conditions.
+- r08 life sim: research review of what real life does; a real-life checklist added; TODO R8b; player page docs/wiki/ecology.md.
+- r06 planet: the living planet written out in full (TODO R6b); table of what runs today and what does not.
+- r06 planet: the planet's inside runs on its clock (heat, core, plates or lid, magnetic field and flips), and the field shields land life.
+- r06 planet: plates, edges, earthquakes and eruptions on the planet's clock; disasters kill life.
+- r06 planet: the air and climate (carbon-silicate cycle, great oxidation, methane, escape, runaway and snowball), feeding life.
+- r06 planet: water and weather per region (temperature, rain belts, ice, ice ages, sea level, hurricanes, seasons), feeding life.
+- r06 planet: ocean currents, upwelling and tides, feeding sea life.
+- r06 planet: erosion, soil, river mud and the rock cycle per region, feeding life.
+- r06 planet: impacts at real rates with the heavy bombardment, and the brightening star; deep microbes survive.
+- r06 planet: researched content for geology (edges, faults, quakes, erosion, soil, rock cycle) and climate (water cycle, circulation, weather, currents, tides, ice ages, Köppen zones).
+- r06 planet: the visible ground follows the sim (sea level, mountain heights, craters), remade a few pieces at a time.
+- r06 planet: continents drift with their plates (ridges and mountains at edges). r04: --native checks at the screen's own resolution.
+- r04 renderer: the coefficient waveform engine (CDF 9/7, from Uni Vs Matics) ported to the core; plan to use it everywhere (TODO R4.6).
+- r04 renderer: mode-E endless detail ported (identical to the lab's fractalize.ts).
+- r06 planet: whole-planet swap for ground changes at big moments; r04: ground detail true to screen resolution.
+- r05/r04: dead stars kept out of young arms (pulsars rarest); the wheel glides; planet handoff at the planet view's own distance; skirts lit; planet changes as wavelet change fields.
+- r04 renderer: the one-world camera begins (universe and galaxies, no handoff).
+- r04 renderer: reversed float depth everywhere; the one world goes on into matter, down to atoms.
+- r04 renderer: ground pieces built in the background on every core; the frame never waits.
+- r04/r05/r06: everything drawn from the data, nothing named in code (crystals from published unit cells, lustre, surface things, element colours and sizes, world kinds and behaviours, star faces, galaxy layouts, Dyson builds); smooth shading; drag speed; a new universe each launch.
+- r04: one grain field for the whole planet; the ground's finest detail is the top of its grains and the matter view goes into the same ones (no layer laid over the ground); nucleus by the strong and electric forces; bonds as shared electrons.
+- r04/r05: 100 billion galaxies on the cosmic web with an edge; the waveform (CDF 9/7 + mode-E) drives every surface's detail; orbitals as clouds; gluon fields; star plasma; air over the ground; microbes; tours (content/tours); Universe.exe and its own project kit.
+- r04/r05: atoms are never balls (nucleus, orbitals, electrons on tilted 3D paths); the 1s cloud inside the atom; tilted orbits for planets and moons; far galaxies clickable; sand grains per pixel on the card; zoom carries on into the matter.
+- r04: the grain you are on keeps its 3D body; its fine face in round rings over it (no flat square slab).
+- r04: one ground all the way down to a grain's face (the matter view's own grains removed); face detail in double precision on the card; every card wraps short and sits beside the pick; GPU buffers freed eight frames late (device-removed crash).
+- r04: the tour told as a story with reading time, ending on a quark; tour on/off (View, T); screenshots (F12, PNG) and clips (F9, MP4 via Media Foundation); --record films the tour.
+- r04/r05: atoms in a crystal are element-coloured nucleus points in their lattice places, electrons and orbitals only round the atoms near the view (no fog); the view rides with a picked electron; a grain's face from one coarse shape with all fine detail per pixel (no seams), no glints along triangle edges, no sheet among the atoms; ground colours shade into each other; tour: a second world and a second star system, looks own the view at the ground, pauses look around except deep in matter, captions with a live line; neutron stars with real masses and nuclear density; matter entered a third of a grain up.
+- r04/r05: GPU first, the web's light sent once and sifted per point on the card; galaxies made on the background workers, drawn with as many stars as their size on screen, let go far behind you (55-58 fps on the pull out, from 4); the web's points as bright as the galaxies at the hand-over, kept by density squared (strands bright, voids dark); zoomed-out view size from how far out you have pulled; tour paced by frame rate and ground building, waits for the web, opens on home; start-up allowed a minute.
+- r04/r05: black holes feeding (accretion disc from 3 to about 60 Schwarzschild radii, hot inside, some with jets) or quiet, by shares in content/bodies.dnat; tour visits a black hole (a feeding one first), an asteroid and a comet, circles in on star systems, looks up at the sky by the world's own horizon; no 'suns' (stars are stars); viewer pages as formatted text; galaxies you go to made at once.

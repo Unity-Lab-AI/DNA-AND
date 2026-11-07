@@ -30,6 +30,11 @@ namespace DnaAnd.Shell
 
         public ElementView(Gpu gpu, MeshPipes pipes, ContentLibrary content)
         {
+            foreach (var fe in content.OfKind("elements.dnat", "family"))
+            {
+                var w = fe.Get("colour", "").Split(' '); float r, g, b; var ci = System.Globalization.CultureInfo.InvariantCulture;
+                if (w.Length == 3 && float.TryParse(w[0], System.Globalization.NumberStyles.Float, ci, out r) && float.TryParse(w[1], System.Globalization.NumberStyles.Float, ci, out g) && float.TryParse(w[2], System.Globalization.NumberStyles.Float, ci, out b)) Family[fe.Name] = new[] { r, g, b };
+            }
             _device = gpu.Device; _pipes = pipes;
             _els = ElementGen.Load(content);
             foreach (var e in _els) e.Centre = new Vec3((e.Col - 1) * Tile, -(e.Row - 1) * Tile - (e.Row >= 8 ? 0.3f : 0), 0);
@@ -156,13 +161,8 @@ namespace DnaAnd.Shell
             Tri(l, c + shape(a) * rad, c + shape(b) * rad, c + shape(d) * rad, r * k, g * k, bl * k, al, glow);
         }
 
-        private static readonly Dictionary<string, float[]> Family = new Dictionary<string, float[]>
-        {
-            { "Alkali metal", new[] { 0.85f, 0.3f, 0.25f } }, { "Alkaline earth", new[] { 0.9f, 0.55f, 0.2f } }, { "Transition", new[] { 0.45f, 0.55f, 0.7f } },
-            { "Post-transition", new[] { 0.55f, 0.58f, 0.6f } }, { "Metalloid", new[] { 0.25f, 0.65f, 0.6f } }, { "Nonmetal", new[] { 0.35f, 0.75f, 0.3f } },
-            { "Halogen", new[] { 0.9f, 0.85f, 0.25f } }, { "Noble gas", new[] { 0.6f, 0.4f, 0.85f } }, { "Lanthanide", new[] { 0.9f, 0.5f, 0.65f } },
-            { "Actinide", new[] { 0.8f, 0.3f, 0.7f } },
-        };
+        // each family's colour on the table (content/elements.dnat @family)
+        private readonly Dictionary<string, float[]> Family = new Dictionary<string, float[]>();
 
         private void Text(List<StarVertex> l, string s, Vec3 topLeft, float cell, float r, float g, float b)
         {

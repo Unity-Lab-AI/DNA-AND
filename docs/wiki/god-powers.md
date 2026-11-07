@@ -46,9 +46,8 @@ On a dead planet, on day one, you have:
 | 🔥 | **Heat** | Warms a frozen world |
 | ❄️ | **Cold** | Cools a boiling one |
 | 💧 | **Water** | Fills basins, makes seas |
-| ✨ | **Spark of Life** | Tries to start the first cells |
-| 🧬 | **Add Genes** | Puts genetic material into the world (life still decides what to do with it) |
-| ⚗️ | **Add Elements** | Adds any of the **118 elements** of the periodic table. See [Elements](elements.md "All 118 elements, and what life and civilization use them for") |
+
+That is all. Life starts from nothing: the first lightning in the early seas makes the first simple replicators, and everything after that has to evolve. Every other power, adding genes and adding elements included, is unlocked by the life on your world. An element unlocks once living things first use it. See [Elements](elements.md "All 118 elements, and what life and civilization use them for").
 
 > 💡 **Tip:** life only starts when the conditions are right. Use the toolkit to set the stage first, then try the spark.
 
@@ -66,7 +65,7 @@ On a dead planet, on day one, you have:
 
 ⏳ **Cooldowns:** the 20 strongest powers (T81–T100) need time to recharge after each use. Everything below T81 has no cooldown, so souls are the only limit.
 
-🔓 **100 unlock points:** the 100 [stages of life](stages-of-life.md). The 5 starters (Fire, Cold, Water, Lightning and Spark of Life) are yours at stage 1, on the dead planet. Every other power opens at its own stage.
+🔓 **100 unlock points:** the 100 [stages of life](stages-of-life.md). The 4 starters (Fire, Cold, Water and Lightning) are yours at stage 1, on the dead planet. Every other power opens at its own stage.
 
 ---
 

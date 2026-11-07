@@ -72,7 +72,9 @@ namespace DnaAnd.Core
         {
             float h = 1f / (float)Math.Tan(fovY * 0.5f), w = h / aspect;
             var m = new Mat4();
-            m.M11 = w; m.M22 = h; m.M33 = far / (far - near); m.M34 = 1; m.M43 = -near * far / (far - near);
+            // reversed depth: the near plane lands at 1 and the far at 0, so a float depth buffer keeps fine precision at every
+            // distance (from a micrometre in front of you to the far side of a galaxy)
+            m.M11 = w; m.M22 = h; m.M33 = -near / (far - near); m.M34 = 1; m.M43 = near * far / (far - near);
             return m;
         }
     }
@@ -81,6 +83,9 @@ namespace DnaAnd.Core
     internal sealed class Rng
     {
         private ulong _a, _b, _c, _d;
+        /// <summary>The generator's whole state, for saving; <see cref="SetState"/> puts it back exactly.</summary>
+        public ulong[] State { get { return new[] { _a, _b, _c, _d }; } }
+        public void SetState(ulong[] s) { _a = s[0]; _b = s[1]; _c = s[2]; _d = s[3]; }
         public Rng(ulong seed)
         {
             ulong s = seed;

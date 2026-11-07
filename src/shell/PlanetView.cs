@@ -29,11 +29,16 @@ namespace DnaAnd.Shell
         private static readonly Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetLife> Lives = new Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetLife>();
         private DnaAnd.Sim.PlanetLife _life;
         private LandLife _land;
+        /// <summary>The planet's inside (core, heat, plates, magnetic field), one per planet, on the same clock as its life.</summary>
+        public static readonly System.Collections.Generic.Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetCore> Cores = new System.Collections.Generic.Dictionary<PlanetTerrain, DnaAnd.Sim.PlanetCore>();
+        private DnaAnd.Sim.PlanetCore _core; private DnaAnd.Sim.PlanetPlates _plates; private DnaAnd.Sim.PlanetAir _air; private DnaAnd.Sim.PlanetWeather _weather; private DnaAnd.Sim.PlanetSurface _surface; private DnaAnd.Sim.PlanetImpacts _impacts; private int _seenImpacts; private double _shapeSea, _shapeCheck, _shapeMoved, _swapFadeUntil; private int _seenSwaps; private int _shapeCraters; private double[] _shapeScales; private DnaAnd.Core.Chunk _loadedAir; private int _seenEvents; private DnaAnd.Core.Chunk _loadedCore; private string _coreNews = ""; private double _coreNewsUntil;
         private SeaBodies _seaBodies;
         /// <summary>Test runs: start life and run it this many years forward at once.</summary>
         public double TestEvolveYears;
         /// <summary>Test runs: once life is run forward, go to land on the lit side where an intelligent species lives.</summary>
         public bool TestGoToCiv;
+        /// <summary>Test runs: once life is run forward, save it to this file; or load life from this file instead of starting it.</summary>
+        public string TestSaveLife, TestLoadLife;
         /// <summary>Test runs: force an intelligent species' step (0 wild to 5 space) on land.</summary>
         public int TestCivStep = -1;
         private string _testNote = "";
@@ -193,7 +198,7 @@ namespace DnaAnd.Shell
             float sr = _terrain.AirR * 0.55f, sg = _terrain.AirG * 0.6f, sb = _terrain.AirB * 0.75f;
             float fogDist = airT > 0.01 ? (float)(far * 0.9) : 0;
             gpu.ClearNow(sr * airT, sg * airT, sb * airT);
-            _terrain.Draw(_pipes, _px, _py, _pz, view, proj, _time, 3.0, fogDist, sr, sg, sb, 0, 0, width, height, 400);
+            _terrain.Draw(_pipes, _px, _py, _pz, view, proj, _time, 3.0 * Detail(height), fogDist, sr, sg, sb, 0, 0, width, height, 400);
             DrawStructure(gpu, view, proj, _px, _py, _pz, width, height);
         }
 
@@ -259,6 +264,7 @@ namespace DnaAnd.Shell
                     if (_seaBodies != null && _seaBodies.Here.Length > 0) names.Insert(0, _seaBodies.Here);
                     where += " · in the water around you: " + string.Join(", ", names.ToArray());
                 }
+                if (_core != null) where += " · PLANET: " + _core.Describe() + (_plates != null && _core.Plates ? ", " + _plates.Describe() : "") + (_air != null ? " · " + _air.Describe() : "") + (_weather != null ? ", " + _weather.Describe() : "") + (_surface != null ? ", " + _surface.Describe(_life) : "") + (_impacts != null ? ", " + _impacts.Describe() + ", " + _normal.Craters.Count + " craters on the ground (changed " + _normal.Swaps + " times" + (_normal.ChangeTerms != null ? ", " + _normal.ChangeTermCount.ToString("N0") + " wavelet terms for " + (12 * DnaAnd.Gen.PlanetTerrain.ChangeGrid * DnaAnd.Gen.PlanetTerrain.ChangeGrid).ToString("N0") + " cells" : "") + ")" : "") + (_time < _coreNewsUntil ? " · NEWS: " + _coreNews : "");
                 if (_life != null)
                 {
                     where += " · LIFE: " + (_life.Sparks == 0 ? "none yet (L: lightning, the first spark is free)" :
@@ -283,12 +289,56 @@ namespace DnaAnd.Shell
         /// <summary>Returns false when the player goes back.</summary>
         private double _frameDt = 0.016;
 
+        // a world's temperature from its star alone, before any greenhouse (Earth: 255 K), by kind of world
+        private static double BaseKelvin(string kind)
+        {
+            return DnaAnd.Gen.PlanetTerrain.TerrainKind(kind).BaseK;                         // content/terrain.dnat
+        }
+
+        // the ground you see follows the planet: seas falling in ice ages, mountains worn down or pushed up, new craters.
+        // Checked every few seconds; when it has changed enough, the ground is remade a few pieces at a time
+        private void ReshapeGround()
+        {
+            if (_time < _shapeCheck || _surface == null || _weather == null) return;
+            _shapeCheck = _time + 1;
+            int n = _life.RegionCount;
+            if (_shapeScales == null) { _shapeScales = new double[n]; for (int i = 0; i < n; i++) _shapeScales[i] = 1; }
+            if (_normal.Drift == null) { var pp = _plates; _normal.Drift = pp.Back; }
+            if (_normal.Generation != _normal.DrawnGeneration) return;               // a new shape is still being built: wait for it
+            if (_time < _swapFadeUntil + 30) return;                                  // at most one change every 30 seconds, however fast time runs
+            // the ground changes only at big moments, all at once: an ice age starting or ending, a great impact,
+            // or every 200 million years of drifting plates; mountains and seas catch up at the same time
+            bool big = false;
+            double sea = Math.Max(0, -_weather.SeaLevelM) / 1000.0;
+            if (Math.Abs(sea - _shapeSea) > 0.04) big = true;                          // an ice age begins or ends (40 m or more)
+            int greatCraters = 0; foreach (var c in _impacts.Craters) if (c[3] >= 90) greatCraters++;
+            if (greatCraters != _shapeCraters) big = true;
+            double moved = _core.Plates ? _core.Age - 2e8 : _shapeMoved;
+            if (moved - _shapeMoved >= 2e8) big = true;
+            if (!big) return;
+            _shapeSea = sea; _shapeCraters = greatCraters; _shapeMoved = moved;
+            for (int i = 0; i < n; i++) _shapeScales[i] = _surface.Scale(i);
+            var scales = (double[])_shapeScales.Clone();
+            _plates.MovedYears = _shapeMoved;
+            _normal.SeaDropKm = _shapeSea;
+            _normal.MountainScale = (x, y, z) => scales[DnaAnd.Sim.PlanetLife.RegionAt(x, y, z)];
+            var newCraters = new System.Collections.Generic.List<double[]>(); foreach (var c in _impacts.Craters) if (c[3] >= 8) newCraters.Add(c);
+            _normal.Craters = newCraters;
+            _normal.BakeChanges();                                                   // the changes become wavelet terms
+            _normal.Generation++;
+        }
+
+        // ground pieces split by how big they look on screen in pixels, so a facet stays about the same size at any
+        // resolution: a 2,000-pixel-tall picture gets finer ground than a 600-pixel one (tuned at 600 pixels tall)
+        private static double Detail(int height) { return Math.Max(1, height / 600.0); }
+
         public bool Update(Input input, double dt)
         {
             _time += dt; _frameDt = dt;
             if (_life == null && _terrain.Solid && !_terrain.Shell)
             {
                 if (!Lives.TryGetValue(_normal, out _life)) { var tt = _normal; _life = new DnaAnd.Sim.PlanetLife((x, y, z) => tt.GroundAt(x, y, z), 77); Lives[_normal] = _life; }
+                if (TestLoadLife != null) { var saved = DnaAnd.Core.SaveFile.Read(TestLoadLife); foreach (var c0 in saved) { if (c0.Name == "LIFE") _life.Load(c0); if (c0.Name == "CORE") _loadedCore = c0; if (c0.Name == "AIR ") _loadedAir = c0; } _testNote = " · test: life loaded"; TestEvolveYears = Math.Max(TestEvolveYears, _life.Years); TestLoadLife = null; }
             }
             if (_life != null && TestEvolveYears > 0)
             {
@@ -298,6 +348,7 @@ namespace DnaAnd.Shell
                 var sw = System.Diagnostics.Stopwatch.StartNew();                        // a little each frame, so the window keeps answering
                 while (_life.Years < TestEvolveYears && sw.ElapsedMilliseconds < 120) _life.Step(1e6);
                 if (_life.Years >= TestEvolveYears) TestEvolveYears = 0;
+                if (TestEvolveYears == 0 && TestSaveLife != null) { DnaAnd.Core.SaveFile.Write(TestSaveLife, _core != null && _air != null ? new[] { _life.Save(), _core.Save(), _air.Save() } : new[] { _life.Save() }); _testNote = " · test: life saved"; TestSaveLife = null; }
                 if (TestEvolveYears == 0 && TestGoToCiv)
                 {
                     TestGoToCiv = false; _testNote = " · test: no intelligent species on land";
@@ -316,6 +367,42 @@ namespace DnaAnd.Shell
                 }
             }
             if (_life != null) _life.Step(dt * _life.YearsPerSecond);
+            if (_life != null)
+            {
+                // the planet's own clock: it formed about 200 million years before the game starts (the crust has just cooled)
+                if (_core == null && !Cores.TryGetValue(_normal, out _core))
+                {
+                    _core = new DnaAnd.Sim.PlanetCore(_terrain.Radius, _terrain.HasWater, DnaAnd.Gen.PlanetTerrain.TerrainKind(_terrain.Kind).DayHours, 2e8, 991);
+                    Cores[_normal] = _core;
+                    if (_loadedCore != null) { _core.Load(_loadedCore); _loadedCore = null; }
+                }
+                _core.Age = 2e8 + _life.Years; _core.Update();
+                if (_plates == null) _plates = new DnaAnd.Sim.PlanetPlates(_terrain.Radius, 992);
+                if (_air == null) { _air = new DnaAnd.Sim.PlanetAir(BaseKelvin(_terrain.Kind)); if (_loadedAir != null) { _air.Load(_loadedAir); _loadedAir = null; } }
+                _air.Advance(_core, _life.Producers, _life.Microbes, _terrain.HasWater);
+                if (_air.Events.Length > 0) { _coreNews = _air.Events; _coreNewsUntil = _time + 8; }
+                _life.WarmerK = _air.TempK - 288; _life.Oxygen = _air.O2;
+                if (_weather == null) { _weather = new DnaAnd.Sim.PlanetWeather(_life.RegionCount, DnaAnd.Gen.PlanetTerrain.TerrainKind(_terrain.Kind).Tides); /* a locked world has almost no tides */ _life.Weather = _weather; }
+                double yps = _life.YearsPerSecond;
+                _weather.Update(_life, _air, _core.Age, _terrain.HasWater, yps < 3 ? (_core.Age % 1.0) : -1);
+                if (_weather.Events.Length > 0) { _coreNews = _weather.Events; _coreNewsUntil = _time + 8; }
+                if (_surface == null) { var tt2 = _normal; _surface = new DnaAnd.Sim.PlanetSurface(_life, _plates, (x, y, z) => tt2.GroundAt(x, y, z)); _life.Surface = _surface; }
+                _surface.Advance(_core, _life, _weather);
+                if (_impacts == null) _impacts = new DnaAnd.Sim.PlanetImpacts(993);
+                _impacts.Advance(_core, _life);
+                if (_impacts.Total != _seenImpacts) { _seenImpacts = _impacts.Total; _coreNews = _impacts.Last; _coreNewsUntil = _time + 8; }
+                _air.DarkK = _impacts.DarkYearsLeft > 0 ? 15 : 0;
+                ReshapeGround();
+                var lifeHere = _life;
+                _plates.Advance(_core, (x, y, z, share) => lifeHere.Disaster(x, y, z, share));
+                if (_plates.Total != _seenEvents)
+                {
+                    _seenEvents = _plates.Total;
+                    _coreNews = (_core.Events.Length > 0 ? _core.Events + "; " : "") + _plates.Recent[_plates.Recent.Count - 1].What; _coreNewsUntil = _time + 6;
+                }
+                if (_core.Events.Length > 0) { _coreNews = _core.Events; _coreNewsUntil = _time + 8; }
+                _life.Radiation = _core.Radiation;
+            }
             if (_life != null && input.WasPressed(0x4C))                                      // L: a lightning strike on the spot below
             {
                 double lx = Math.Cos(_lat) * Math.Cos(_lon), ly = Math.Sin(_lat), lz = Math.Cos(_lat) * Math.Sin(_lon);
@@ -448,7 +535,7 @@ namespace DnaAnd.Shell
                 return;
             }
             gpu.ClearNow(sr * airT, sg * airT, sb * airT);
-            _terrain.Draw(_pipes, cx, cy, cz, view, proj, _time, 3.0, fogDist, sr, sg, sb, 0, 0, width, height, 400);
+            _terrain.Draw(_pipes, cx, cy, cz, view, proj, _time, 3.0 * Detail(height), fogDist, sr, sg, sb, 0, 0, width, height, 400);
             if (_terrain.Shell) DrawStructure(gpu, view, proj, cx, cy, cz, width, height);
             DrawWeather(view, proj, up, northV, eastV, width, height);
             if (_underWater) DrawSea(gpu, view, proj, cx, cy, cz, up, width, height);
@@ -459,6 +546,9 @@ namespace DnaAnd.Shell
                 _land.Update(_life, _terrain, cx, cy, cz, _shown, _time);
                 _land.Draw(_pipes, view, proj, _terrain.StarDir, cx, cy, cz, width, height);
             }
+            // the planet has just changed shape (an ice age, a great impact, the continents moved on): a short fade over the swap
+            if (_normal.Swaps != _seenSwaps) { _seenSwaps = _normal.Swaps; _swapFadeUntil = _time + 0.8; }
+            if (_time < _swapFadeUntil) Veil(gpu, view, proj, (float)(0.55 * (_swapFadeUntil - _time) / 0.8), width, height);
             // on land, below about 5 mm, the view fades to black (down into the soil) before the microbes show
             if (!_underWater && _terrain.Solid && !_terrain.Shell && _shown < 5e-6)
                 Veil(gpu, view, proj, (float)Math.Max(0, Math.Min(0.97, (Math.Log10(5e-6) - Math.Log10(_shown)) / 1.4)), width, height);
@@ -475,7 +565,7 @@ namespace DnaAnd.Shell
             Mat4 view = Mat4.LookAt(new Vec3(0, 0, 0), look, new Vec3(0, 1, 0));
             Mat4 proj = Mat4.Perspective(1.3f, width / (float)Math.Max(1, height), (float)(R * 0.02), (float)(R * 3));
             gpu.ClearNow(0.01f, 0.012f, 0.02f);
-            _terrain.Draw(_pipes, cx, cy, cz, view, proj, _time, 2.2, 0, 0, 0, 0, 0, 0, width, height, 30);
+            _terrain.Draw(_pipes, cx, cy, cz, view, proj, _time, 2.2 * Detail(height), 0, 0, 0, 0, 0, 0, width, height, 30);
             DrawStructure(gpu, view, proj, cx, cy, cz, width, height);
         }
 
@@ -546,7 +636,7 @@ namespace DnaAnd.Shell
         // at microbe size, the living microbes of set 8 on the spot below (a patch of ground or water about 0.4 mm across)
         private void DrawMicrobes(Gpu gpu, Mat4 view, Mat4 proj, double cx, double cy, double cz, double ux, double uy, double uz, double ground, Vec3 up, Vec3 north, Vec3 east, int width, int height)
         {
-            if (!_terrain.Solid || _terrain.Kind == "lava") { _microbes = null; return; }       // nothing can live in molten rock
+            if (!_terrain.Solid || !DnaAnd.Gen.PlanetTerrain.TerrainKind(_terrain.Kind).Life) { _microbes = null; return; }       // nothing can live in molten rock (terrain.dnat life: no)
             double sz = _shown;
             if (sz > 2e-6) { if (sz > 5e-6) _microbes = null; return; }                            // only below about 2 mm
             if (_microbes == null)

@@ -38,12 +38,20 @@ namespace DnaAnd.Shell
         {
             StarVertex[] m;
             if (_meshes.TryGetValue(sp.Id, out m)) { fit = _fit[sp.Id]; return m; }
+            m = MakeMesh(sp, out fit);
+            _meshes[sp.Id] = m; _fit[sp.Id] = fit;
+            return m;
+        }
+
+        // one species' body from its genes; touches nothing shared, so many can be built at once
+        private static StarVertex[] MakeMesh(Species sp, out float[] fit)
+        {
+            StarVertex[] m;
             var body = GeneBody.FromGenome(sp.G, (ulong)sp.Id * 7919UL + 1);
             m = BodyGen.Build(body, 0, 3, false);
             float lo = float.MaxValue, hi = float.MinValue, x0 = float.MaxValue, x1 = float.MinValue;
             foreach (var v in m) { lo = Math.Min(lo, v.Y); hi = Math.Max(hi, v.Y); x0 = Math.Min(x0, v.X); x1 = Math.Max(x1, v.X); }
             fit = new[] { float.IsNaN(body.GroundY) ? lo : body.GroundY, Math.Max(1e-3f, hi - lo), Math.Max(1e-3f, x1 - x0) };
-            _meshes[sp.Id] = m; _fit[sp.Id] = fit;
             return m;
         }
 
@@ -74,6 +82,14 @@ namespace DnaAnd.Shell
             if (!zoomed && moved < shown * 4 && keyB.ToString() == _key) return;
             _key = keyB.ToString(); _ax = cx; _ay = cy; _az = cz; _aSize = shown;
 
+            // bodies not seen before are built on every core at once (each builds only its own), then kept
+            var fresh = new List<Species>(); foreach (var kv in shownSp) if (!_meshes.ContainsKey(kv.Key.Id)) fresh.Add(kv.Key);
+            if (fresh.Count > 0)
+            {
+                var built = new StarVertex[fresh.Count][]; var fits = new float[fresh.Count][];
+                Jobs.For(fresh.Count, i => built[i] = MakeMesh(fresh[i], out fits[i]));
+                for (int i = 0; i < fresh.Count; i++) { _meshes[fresh[i].Id] = built[i]; _fit[fresh[i].Id] = fits[i]; }
+            }
             // a flat frame on the ground here: east and north along the surface
             var up = new Vec3((float)ux, (float)uy, (float)uz);
             var north = Vec3.Cross(Math.Abs(uy) < 0.99 ? new Vec3(0, 1, 0) : new Vec3(1, 0, 0), up); north = Vec3.Cross(up, north).Normalized;

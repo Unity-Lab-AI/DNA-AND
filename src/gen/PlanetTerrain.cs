@@ -16,7 +16,14 @@ namespace DnaAnd.Gen
         public readonly string Kind, Name;
         public readonly double Radius;          // km
         public readonly bool Solid;             // false for gas and ice giants: no ground, only cloud tops
-        public double[] StarDir = { 0.78, 0.35, 0.52 };   // direction the starlight comes from (unit length)
+        public double[] StarDir = { 0.78, 0.35, 0.52 };
+        public float[] SunColour, NightColour;
+        /// <summary>The detail the ground is built for (1 = the usual): its upload time a frame and its builders scale with it.</summary>
+        public static double Power = 1;
+        /// <summary>Pieces waiting to be built or put on the card: when this is large, the ground is not keeping up.</summary>
+        public int Backlog { get { lock (_askLock) return _inFlight.Count + _asks.Count; } }
+        /// <summary>Where the camera looks (unit, planet frame) and the half-angle the view covers corner to corner; null: everything round you.</summary>
+        public double[] ViewDir; public double ViewHalfAngle = 0.85;           // the light on the ground by day and by night (null: plain white)   // direction the starlight comes from (unit length)
         private readonly uint _seed;
         private const int Grid = 16;            // quads along a patch edge
         // deepest split for each layer: the ground goes down to about a millionth of a metre (microbe size),
@@ -61,48 +68,83 @@ namespace DnaAnd.Gen
         /// <summary>The size (km) of the finest ground piece ready under the camera. The camera may not go lower
         /// than a few of its steps, so it always lands on finished ground and never inside a rough early piece.</summary>
         public double ReadyStep { get; private set; }
-        private readonly StarVertex[] _scratch = new StarVertex[Grid * Grid * 6 + 4 * Grid * 6];
-        private readonly double[] _hx = new double[(Grid + 1) * (Grid + 1)], _hy = new double[(Grid + 1) * (Grid + 1)], _hz = new double[(Grid + 1) * (Grid + 1)];
-        private readonly double[] _hh = new double[(Grid + 1) * (Grid + 1)];
-        private readonly float[] _ca = new float[(Grid + 1) * (Grid + 1)];
-        private readonly float[] _cr = new float[(Grid + 1) * (Grid + 1)], _cg = new float[(Grid + 1) * (Grid + 1)], _cb = new float[(Grid + 1) * (Grid + 1)], _cgl = new float[(Grid + 1) * (Grid + 1)];
+        // the work arrays a piece is built in: one set per thread, so pieces are built in the background on every core
+        private sealed class Work
+        {
+            public readonly StarVertex[] Scratch = new StarVertex[Grid * Grid * 6 + 4 * Grid * 6];
+            public readonly double[] Hx = new double[(Grid + 1) * (Grid + 1)], Hy = new double[(Grid + 1) * (Grid + 1)], Hz = new double[(Grid + 1) * (Grid + 1)], Hh = new double[(Grid + 1) * (Grid + 1)];
+            public readonly float[] Ca = new float[(Grid + 1) * (Grid + 1)], Cr = new float[(Grid + 1) * (Grid + 1)], Cg = new float[(Grid + 1) * (Grid + 1)], Cb = new float[(Grid + 1) * (Grid + 1)], Cgl = new float[(Grid + 1) * (Grid + 1)];
+        }
+        [ThreadStatic] private static Work _work;
+        private static Work W { get { return _work ?? (_work = new Work()); } }
+        private static StarVertex[] _scratch { get { return W.Scratch; } }
+        private static double[] _hx { get { return W.Hx; } }
+        private static double[] _hy { get { return W.Hy; } }
+        private static double[] _hz { get { return W.Hz; } }
+        private static double[] _hh { get { return W.Hh; } }
+        private static float[] _ca { get { return W.Ca; } }
+        private static float[] _cr { get { return W.Cr; } }
+        private static float[] _cg { get { return W.Cg; } }
+        private static float[] _cb { get { return W.Cb; } }
+        private static float[] _cgl { get { return W.Cgl; } }
 
         private sealed class Patch
         {
-            public double Cx, Cy, Cz, Edge; public UploadBuffer Buffer; public int Count; public int LastUsed; public int Level;
+            public double Cx, Cy, Cz, Edge; public UploadBuffer Buffer; public int Count; public int LastUsed; public int Level; public int Gen;
+            public StarVertex[] Verts;          // built, not yet on the graphics card
         }
 
         public PlanetTerrain(IntPtr device, string kind, string name, uint seed, bool resourceView = false, double radiusKm = 0)
         {
             _device = device; Kind = kind; Name = name; _seed = seed; ResourceView = resourceView;
-            switch (kind)
-            {
-                case "ocean": Radius = 7400; break;
-                case "desert": Radius = 5100; break;
-                case "lava": Radius = 4300; break;
-                case "snowball": Radius = 5900; break;
-                case "tidally-locked": Radius = 6700; break;
-                case "gas-giant": Radius = 69911; break;
-                case "ice-giant": Radius = 24622; break;
-                case "hot-jupiter": Radius = 95000; break;
-                default: Radius = 6371; break;
-            }
+            var tk = TerrainKind(kind); Radius = tk.Radius;
             if (radiusKm > 0) Radius = radiusKm;
-            Solid = kind != "gas-giant" && kind != "ice-giant" && kind != "hot-jupiter" && kind != "dyson-hull";
-            HasWater = kind == "temperate" || kind == "ocean";
-            HasClouds = kind != "dyson-hull" && kind != "dyson-shell";   // giants get a high haze deck over their deep clouds
-            // how high the clouds float and how thick the air is (km), and the air's colour
-            switch (kind)
+            Solid = tk.Solid; HasWater = tk.Water; HasClouds = tk.Clouds;
+            CloudKm = tk.CloudKm; AirKm = tk.AirKm; AirR = tk.Air[0]; AirG = tk.Air[1]; AirB = tk.Air[2];
+            _tk = tk;
+        }
+
+        // ── each kind of world's ground, air and clouds, from content/terrain.dnat (none named in code) ──
+        public sealed class TerrainKindData { public double Radius = 6371, CloudKm = 9, AirKm = 110, CloudThick = 1, BaseK = 255; public bool Solid = true, Water, Clouds = true; public float[] Air = { 0.35f, 0.56f, 1f }, Cloud = { 0.97f, 0.97f, 0.97f }, Rock = { 0.4f, 0.38f, 0.36f };
+            public double LandShare = 0.06, CloudShift, DayHours = 24, Tides = 0.5, Bands = 19, GreatStorm = 1;
+            public bool Molten, Dunes, FrozenSea, SnowPatches, Locked, PolarIce = true, Dry, TropicalSoil, Life = true, ManyVolcanoes;
+            public double[][] Ground;                  // land colours by height: below h, r g b, and 1 if the ground's patchiness tints it
+            public float[] BandLow = { 0.42f, 0.26f, 0.16f }, BandHigh = { 0.96f, 0.88f, 0.78f }, Storm = { 0.96f, 0.93f, 0.86f }, River = { 0.1f, 0.3f, 0.5f }; }
+        private static readonly Dictionary<string, TerrainKindData> Kinds = new Dictionary<string, TerrainKindData>();
+        private TerrainKindData _tk;
+        public static TerrainKindData TerrainKind(string kind) { TerrainKindData t; return Kinds.TryGetValue(kind ?? "", out t) ? t : Kinds.TryGetValue("default", out t) ? t : new TerrainKindData(); }
+        private static void LoadKinds(ContentLibrary content)
+        {
+            var ci = System.Globalization.CultureInfo.InvariantCulture; var fs = System.Globalization.NumberStyles.Float;
+            ContentEntry def = null; foreach (var e in content.OfKind("terrain.dnat", "terrain")) if (e.Id == "default") def = e;
+            foreach (var e in content.OfKind("terrain.dnat", "terrain"))
             {
-                case "desert": CloudKm = 6; AirKm = 70; AirR = 0.95f; AirG = 0.62f; AirB = 0.38f; break;
-                case "lava": CloudKm = 12; AirKm = 150; AirR = 1f; AirG = 0.42f; AirB = 0.18f; break;
-                case "snowball": CloudKm = 5; AirKm = 50; AirR = 0.6f; AirG = 0.76f; AirB = 1f; break;
-                case "tidally-locked": CloudKm = 9; AirKm = 80; AirR = 0.45f; AirG = 0.56f; AirB = 0.9f; break;
-                case "gas-giant": CloudKm = 55; AirKm = 2200; AirR = 0.95f; AirG = 0.82f; AirB = 0.6f; break;
-                case "ice-giant": CloudKm = 45; AirKm = 1000; AirR = 0.45f; AirG = 0.65f; AirB = 1f; break;
-                case "hot-jupiter": CloudKm = 80; AirKm = 4500; AirR = 1f; AirG = 0.55f; AirB = 0.3f; break;
-                case "ocean": CloudKm = 10; AirKm = 120; AirR = 0.35f; AirG = 0.56f; AirB = 1f; break;
-                default: CloudKm = 9; AirKm = 110; AirR = 0.35f; AirG = 0.56f; AirB = 1f; break;
+                Func<string, string> g = k => e.Props.ContainsKey(k) ? e.Get(k, "") : def != null ? def.Get(k, "") : "";
+                Func<string, double, double> d = (k, f) => { double v; return double.TryParse(g(k), fs, ci, out v) ? v : f; };
+                Func<string, float[], float[]> c = (k, f) => { var w = g(k).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries); float x, y, z; return w.Length == 3 && float.TryParse(w[0], fs, ci, out x) && float.TryParse(w[1], fs, ci, out y) && float.TryParse(w[2], fs, ci, out z) ? new[] { x, y, z } : f; };
+                var t = new TerrainKindData();
+                t.Radius = d("radius-km", 6371); t.CloudKm = d("cloud-km", 9); t.AirKm = d("air-km", 110); t.CloudThick = d("cloud-thickness", 1); t.BaseK = d("base-k", 255);
+                t.Solid = g("solid") != "no"; t.Water = g("water") == "yes"; t.Clouds = g("clouds") != "no";
+                t.Air = c("air-colour", t.Air); t.Cloud = c("cloud-colour", t.Cloud); t.Rock = c("rock-colour", t.Rock);
+                Func<string, bool, bool> yes = (k, f) => { var v = g(k); return v == "" ? f : v == "yes"; };
+                t.LandShare = d("land-share", 0.06); t.CloudShift = d("cloud-shift", 0); t.DayHours = d("day-hours", 24); t.Tides = d("tides", 0.5);
+                t.Bands = d("bands", 19); t.GreatStorm = d("great-storm", 1);
+                t.Molten = yes("molten", false); t.Dunes = yes("dunes", false); t.FrozenSea = yes("frozen-sea", false); t.SnowPatches = yes("snow-patches", false);
+                t.Locked = yes("tidally-locked", false); t.PolarIce = yes("polar-ice", true); t.Dry = yes("dry", false); t.TropicalSoil = yes("tropical-soil", false);
+                t.Life = yes("life", true); t.ManyVolcanoes = g("volcanoes") == "many";
+                t.BandLow = c("band-dark", t.BandLow); t.BandHigh = c("band-light", t.BandHigh); t.Storm = c("storm-colour", t.Storm); t.River = c("river-colour", t.River);
+                var gl = g("ground");
+                if (gl.Length > 0)
+                {
+                    var bands = new List<double[]>();
+                    foreach (var part in gl.Split(';'))
+                    {
+                        var w = part.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries); if (w.Length < 4) continue;
+                        var row = new double[5]; for (int q = 0; q < 4; q++) double.TryParse(w[q], fs, ci, out row[q]); row[4] = w.Length > 4 && w[4] == "tinted" ? 1 : 0; bands.Add(row);
+                    }
+                    if (bands.Count > 0) t.Ground = bands.ToArray();
+                }
+                Kinds[e.Id] = t;
             }
         }
 
@@ -147,13 +189,15 @@ namespace DnaAnd.Gen
 
         /// <summary>Fine roughness: from layer <paramref name="from"/> to <paramref name="to"/>, each layer's bumps are about a
         /// fifth of their own width tall, so the ground looks just as rough at a metre, a millimetre or a micrometre.</summary>
+        private double _grainKm { get { var m = GrainMix(0); return m != null ? m.Size : 0; } }
         private double Micro(double x, double y, double z, uint seed, int from, int to)
         {
             double sum = 0, f = 48 * Math.Pow(2, from);
             for (int i = from; i < to; i++)
             {
                 double width = Radius / f;                           // km across one bump at this layer
-                sum += (Value(x * f + i * 3.1, y * f - i * 5.3, z * f + i * 2.9, seed + (uint)i * 13u) * 2 - 1) * Math.Min(width * 0.18, 3.0);
+                if (_grainKm > 0 && width < _grainKm * 0.25) break;  // finer than a quarter of a sand grain: the grains themselves take over (the stones lie on it all the way)
+                sum += Waveform.Layer(x * f + i * 3.1, y * f - i * 5.3, z * f + i * 2.9, seed, i, 26) * 2.2 * Math.Min(width * 0.18, 3.0);   // each layer one octave of the waveform (stored CDF 9/7 levels, mode-E past them)
                 f *= 2;
             }
             return sum;
@@ -210,11 +254,202 @@ namespace DnaAnd.Gen
                 }
                 LastField = -1; return hs;
             }
+            // drifting plates: the ground here is the ground that was carried here from where its plate started
+            double ox = x, oy = y, oz = z, edgeAt = 9; int edgeKind = 2;
+            double x2 = x, y2 = y, z2 = z, share = 1;
+            if (Drift != null && Solid) Drift(ox, oy, oz, out x, out y, out z, out x2, out y2, out z2, out share, out edgeAt, out edgeKind);
+            if (Drift != null && Solid) _latOverride = Math.Abs(oy);                // climate follows where the ground is now
             double h = HeightBase(x, y, z, layers, out r, out g, out b, out glow);
             if (!Solid) { LastField = -1; return h; }
             h = Landforms(x, y, z, h, layers, ref r, ref g, ref b, ref glow);
+            if (share < 1)
+            {
+                // near a plate edge, the ground of both plates is blended, half and half right on the edge, so the two join
+                // smoothly instead of standing as a cliff
+                float r2, g2, b2, gl2;
+                double h2 = HeightBase(x2, y2, z2, layers, out r2, out g2, out b2, out gl2);
+                h2 = Landforms(x2, y2, z2, h2, layers, ref r2, ref g2, ref b2, ref gl2);
+                float w = (float)share;
+                h = h * share + h2 * (1 - share); r = r * w + r2 * (1 - w); g = g * w + g2 * (1 - w); b = b * w + b2 * (1 - w); glow = glow * w + gl2 * (1 - w);
+            }
+            if (edgeAt < 1)
+            {
+                // plate edges shape the ground: pulling apart, a deep ridge under the sea and a shallow rift valley on land;
+                // crashing, mountains crumple up
+                double t = 1 - edgeAt, s2 = t * t * (3 - 2 * t);
+                if (edgeKind == 0) { if (h < 0) { h = h * (1 - s2) + (-2.6 + 0.6 * t) * s2; r = 0.18f; g = 0.2f; b = 0.22f; } else h -= 0.35 * s2; }
+                else if (edgeKind == 1) { h = Math.Max(h, 0) + 3.5 * s2; double rock = Math.Min(1, s2 * 1.5); r = (float)(r * (1 - rock) + 0.5 * rock); g = (float)(g * (1 - rock) + 0.47 * rock); b = (float)(b * (1 - rock) + 0.43 * rock); }
+            }
             LastField = ClassifyField(x, y, z, h, layers, ref r, ref g, ref b, ref glow);
+            _latOverride = -1;
+            x = ox; y = oy; z = oz;
+            h = Reshaped(x, y, z, h);                                                // craters and sea level are where they are now
+            h = Grains(x, y, z, h, layers, ref r, ref g, ref b, glow);
             if (ResourceView) ViewColour(LastField, h, ref r, ref g, ref b, ref glow);
+            return h;
+        }
+
+        /// <summary>Which ground's grains this world has (content/minerals.dnat @mix): its kind, or what it is set to (a moon's
+        /// regolith); the same grains the matter view goes into.</summary>
+        public string MixId;
+        public ulong GrainSeed { get { return (ulong)_seed * 0x9E3779B97F4A7C15UL + 0x6A1u; } }
+        public GrainField.Mix GrainMix(double y) { if (!Solid) return null; if (Math.Abs(y) > 0.86 && GrainField.For("ice") != null) return GrainField.For("ice"); return GrainField.For(MixId ?? Kind) ?? GrainField.For("desert"); }   // (the same choice the matter view makes)
+        // the ground's finest detail: the top of its grains, coming in as the detail grows finer than a couple of grains, so
+        // zooming in, the ground itself breaks into its grains (each its own mineral, shape and shade), never a layer laid over it
+        private double Grains(double x, double y, double z, double h, int layers, ref float r, ref float g, ref float b, float glow)
+        {
+            if (_noGrainsNow || !Solid || Shell || glow > 0.01 || (HasWater && h < 0) || layers <= 6) return h;
+            var gm = GrainMix(y); if (gm == null || gm.Size <= 0) return h;
+            double W = Math.Max(Radius * 0.1125 / Math.Pow(2, layers - 6) * 2, _cellAtLeast), G = gm.Size;   // the finest detail here (km): twice the real spacing of this piece's corners, so a stone comes into the ground's shape only once its corners can round it (never a single coloured corner: a soft hexagon)
+            double big = GrainField.SizeOf(gm, GrainField.Classes(gm) - 1);              // the biggest stones come in first
+            if (W > big * 0.25) return h;
+            double wgt = Math.Max(0, Math.Min(1, (G * 0.25 - W) / (G * 0.15)));         // the sand's own share (each size class weighs itself in Top)
+            double top; GrainField.Grain gr;
+            bool on = GrainField.Top(x, y, z, Radius, gm, GrainSeed, Math.Max(W, 1e-13), out top, out gr);
+            float cr, cg, cb;
+            if (on)
+            {
+                var c = gm.Colour[gr.Mineral]; float sr, sg, sb;
+                double ex, ey, ez, nx, ny, nz; GrainField.Axes(x, y, z, out ex, out ey, out ez, out nx, out ny, out nz);
+                double ox = (x - gr.Dx) * Radius, oy = (y - gr.Dy) * Radius, oz = (z - gr.Dz) * Radius, la = ox * ex + oy * ey + oz * ez, lb = ox * nx + oy * ny + oz * nz, lu = top + gr.Depth, ll = Math.Sqrt(la * la + lb * lb + lu * lu) + 1e-30;
+                GrainField.Stain(gr.Key, la / ll, lu / ll, lb / ll, gr.Rad, Math.Max(W, 1e-13), out sr, out sg, out sb);   // its stains, the same the matter view shows
+                cr = c[0] * gr.Shade * sr; cg = c[1] * gr.Shade * sg; cb = c[2] * gr.Shade * sb;
+            }
+            else { cr = r * 0.25f; cg = g * 0.25f; cb = b * 0.25f; }                    // down in a gap between grains
+            float w = (float)(on && gr.Rad > G ? 1 : wgt); r = r * (1 - w) + cr * w; g = g * (1 - w) + cg * w; b = b * (1 - w) + cb * w;   // a stone shows its colour as soon as it shows
+            return h + top;                                                              // (Top has weighed each size in as it comes)
+        }
+
+        // ── the planet changing shape over time ──
+        /// <summary>Bumped whenever the planet's shape changes; pieces made before are remade, a few each frame.</summary>
+        public int Generation;
+        /// <summary>How far the seas have fallen (km; ice ages lock water in ice), so the ground stands that much higher against them.</summary>
+        public double SeaDropKm;
+        /// <summary>How tall each place's mountains now stand against how they began (from erosion and uplift); null: unchanged.</summary>
+        public Func<double, double, double, double> MountainScale;
+        /// <summary>Where the ground at a spot came from, as its plate carried it, and where the neighbouring plate's would have
+        /// come from (both unit vectors), how much of the spot is its own plate's ground (1 well inside, a half on the edge), how near a plate edge the
+        /// spot is (0 on the edge, 1 or more well inside) and what kind of edge (0 spreading, 1 crashing, 2 sliding).</summary>
+        public delegate void DriftFn(double x, double y, double z, out double bx, out double by, out double bz, out double bx2, out double by2, out double bz2, out double share, out double edge, out int kind);
+        /// <summary>The plates moving the ground; null: the ground stays where it formed.</summary>
+        public DriftFn Drift;
+        /// <summary>Craters from impacts: direction (unit x, y, z), radius in km.</summary>
+        public List<double[]> Craters = new List<double[]>();          // replaced whole (never changed in place): background builders read it
+
+        /// <summary>The shape the ground on screen was built for; it lags <see cref="Generation"/> until the new ground is ready.</summary>
+        public int DrawnGeneration;
+        /// <summary>How many times the whole planet's ground has been swapped to a new shape.</summary>
+        public int Swaps;
+        private readonly Dictionary<PKey, Patch> _pending = new Dictionary<PKey, Patch>();
+        private int _missing, _framesWaiting;
+
+        private void SwapGround()
+        {
+            foreach (var kv in _pending) { Patch old; if (_cache.TryGetValue(kv.Key, out old)) Release(old); _cache[kv.Key] = kv.Value; }
+            _pending.Clear();
+            // pieces of the old shape that were out of view are dropped, so they are made fresh in the new shape when needed
+            var stale = new List<PKey>(); foreach (var kv in _cache) if (kv.Value.Gen != Generation) stale.Add(kv.Key);
+            foreach (var k in stale) { Release(_cache[k]); _cache.Remove(k); }
+            DrawnGeneration = Generation; _framesWaiting = 0; Swaps++;
+        }
+
+        // ── the planet's changes as coefficient waveforms ──
+        // Each change is a field over the planet's six cube faces (Bake), stored as sparse CDF 9/7 wavelet terms (the lab's
+        // engine, src/core/Wavelet97.cs) and read back by the rebuilt grid. Mountain height scale and the crater shapes are
+        // two fields; the ground looks them up at any spot without touching every crater, and saves carry only the terms.
+        public const int ChangeGrid = 512;                                           // cells along each cube face
+        /// <summary>The change fields as wavelet equations: [0..5] mountain scale per face, [6..11] crater depth per face (km).</summary>
+        public Wavelet97.Field[] ChangeTerms;
+        private double[][] _change;                                                  // the rebuilt grids, read by the ground
+        /// <summary>How many wavelet terms the change fields carry in all, against the grid cells they stand for.</summary>
+        public int ChangeTermCount { get { int n = 0; if (ChangeTerms != null) foreach (var f in ChangeTerms) n += f.Terms; return n; } }
+
+        /// <summary>Writes the planet's current changes (mountain scale, craters) into the wavelet change fields.</summary>
+        public void BakeChanges()
+        {
+            int N = ChangeGrid;
+            var terms = new Wavelet97.Field[12]; var grids = new double[12][];
+            for (int fi = 0; fi < 12; fi++)
+            {
+                int f = fi % 6; bool crater = fi >= 6;
+                var g = new double[N * N];
+                Jobs.For(N, row =>
+                {
+                    for (int col = 0; col < N; col++)
+                    {
+                        double s = (col + 0.5) / N * 2 - 1, t = (row + 0.5) / N * 2 - 1, x, y, z; Dir(f, s, t, out x, out y, out z);
+                        g[row * N + col] = crater ? CraterAt(x, y, z) : (MountainScale != null ? MountainScale(x, y, z) - 1 : 0);
+                    }
+                });
+                Wavelet97.Forward(g, N, N);
+                terms[fi] = Wavelet97.Keep(g, N, N, 0.01);                           // 99.99% of the change's energy
+                grids[fi] = Wavelet97.Rebuild(terms[fi]);
+            }
+            ChangeTerms = terms; _change = grids;
+        }
+
+        /// <summary>Puts back change fields read from a save.</summary>
+        public void LoadChanges(Wavelet97.Field[] terms)
+        {
+            var grids = new double[terms.Length][];
+            for (int i = 0; i < terms.Length; i++) grids[i] = Wavelet97.Rebuild(terms[i]);
+            ChangeTerms = terms; _change = grids;
+        }
+
+        // a change field read at a spot: the cube face it falls on, then the rebuilt grid smoothly between cells
+        private double ChangeAt(int which, double x, double y, double z)
+        {
+            int f = 0; double best = -2;
+            for (int q = 0; q < 6; q++) { double k = FaceN[q, 0] * x + FaceN[q, 1] * y + FaceN[q, 2] * z; if (k > best) { best = k; f = q; } }
+            double s = (FaceU[f, 0] * x + FaceU[f, 1] * y + FaceU[f, 2] * z) / best, t = (FaceV[f, 0] * x + FaceV[f, 1] * y + FaceV[f, 2] * z) / best;
+            int N = ChangeGrid;
+            double gx = (s + 1) / 2 * N - 0.5, gy = (t + 1) / 2 * N - 0.5;
+            int x0 = Math.Max(0, Math.Min(N - 2, (int)Math.Floor(gx))), y0 = Math.Max(0, Math.Min(N - 2, (int)Math.Floor(gy)));
+            double fx = Math.Max(0, Math.Min(1, gx - x0)), fy = Math.Max(0, Math.Min(1, gy - y0));
+            var g = _change[which * 6 + f];
+            double a = g[y0 * N + x0] * (1 - fx) + g[y0 * N + x0 + 1] * fx, b = g[(y0 + 1) * N + x0] * (1 - fx) + g[(y0 + 1) * N + x0 + 1] * fx;
+            return a * (1 - fy) + b * fy;
+        }
+
+        // the craters' shape at a spot, as the change field stores it
+        private double CraterAt(double x, double y, double z)
+        {
+            double h = 0;
+            var cl2 = Craters;
+            for (int k = 0; k < cl2.Count; k++)
+            {
+                var c = cl2[k];
+                double d = (1 - (x * c[0] + y * c[1] + z * c[2])) * 2;
+                double rad = c[3] / Radius; if (d > rad * rad * 9) continue;
+                double t = Math.Sqrt(d) / rad;
+                double depth = Math.Min(4, 0.3 + c[3] * 0.025);
+                double bowl = t < 0.6 ? 1 : 1 - (t - 0.6) / 0.4 * ((t - 0.6) / 0.4);
+                h += t < 1 ? -depth * Math.Max(0, bowl) + depth * 0.15 * t * t : depth * 0.15 * Math.Exp(-(t - 1) * 3);
+            }
+            return h;
+        }
+
+        private double Reshaped(double x, double y, double z, double h)
+        {
+            if (_change != null)
+            {
+                // the baked change fields, rebuilt from their wavelet terms
+                if (h > 0) h *= 1 + ChangeAt(0, x, y, z);
+                return h + SeaDropKm + ChangeAt(1, x, y, z);
+            }
+            if (h > 0 && MountainScale != null) h *= MountainScale(x, y, z);
+            h += SeaDropKm;
+            var cl = Craters;
+            for (int k = 0; k < cl.Count; k++)
+            {
+                var c = cl[k];
+                double d = (1 - (x * c[0] + y * c[1] + z * c[2])) * 2;                 // about the squared angle apart
+                double rad = c[3] / Radius; if (d > rad * rad * 9) continue;
+                double t = Math.Sqrt(d) / rad;                                          // 0 at the middle, 1 at the rim
+                double depth = Math.Min(4, 0.3 + c[3] * 0.025);                       // real big craters are shallow: a few km deep at most, flat-floored
+                double bowl = t < 0.6 ? 1 : 1 - (t - 0.6) / 0.4 * ((t - 0.6) / 0.4);       // a flat floor, then walls rising to the rim
+                h += t < 1 ? -depth * Math.Max(0, bowl) + depth * 0.15 * t * t : depth * 0.15 * Math.Exp(-(t - 1) * 3);   // floor, walls, a low rim fading into the land
+            }
             return h;
         }
 
@@ -245,50 +480,51 @@ namespace DnaAnd.Gen
             double land, h;
             switch (Kind)
             {
-                case "ocean": land = cont - 0.38; break;
-                case "desert": land = cont + 0.2; break;
-                case "lava": case "snowball": land = cont + 0.1; break;
                 case "dyson-shell": land = cont + _shellLand; break;   // each terraformed section has its own share of land
-                default: land = cont + 0.06; break;            // Earth-like: about a third land
+                default: land = cont + _tk.LandShare; break;   // from its kind (terrain.dnat): Earth-like about a third land
             }
             double mtn = ridge * ridge * Smooth(0, 0.35, land) * (Kind == "dyson-shell" ? _shellMtn : 1);
             _land = land; _mtn = mtn; _tint = tint;
             h = land * 3.2 + mtn * 7.5 + mtn * (mtnFine - 0.5) * 2.2 + detail * (0.12 + 0.35 * Smooth(0, 0.4, land) + 0.6 * mtn) + micro;
-            if (Kind == "desert")
+            if (_tk.Dunes)
             {
                 double dune = Math.Sin(x * 900 + Fbm(x, y, z, _seed + 3u, 30, 3) * 40) * 0.5 + 0.5;  // long dune ridges
                 h += dune * 0.06 * Smooth(0.0, 0.3, 0.9 - ridge);
             }
             float tv = (float)(0.9 + 0.2 * tint);
-            switch (Kind)
+            // the ground of this kind of world (terrain.dnat): molten, frozen seas, a locked day and night side, then its colours by height
+            if (_tk.Molten)
             {
-                case "lava":
-                    double crack = Ridged(x, y, z, _seed + 900u, 5, 4 + Math.Min(fine, 8));
-                    if (crack > 0.9 - 0.04 * Math.Min(1, fine / 10.0) && h < 3) { r = 1f; g = (float)(0.3 + 0.35 * tint); b = 0.06f; glow = 0.9f; return h - 0.03; }   // glowing cracks and rivers
-                    if (h < -0.3) { r = 1f; g = (float)(0.35 + 0.3 * tint); b = 0.08f; glow = 0.95f; h = -0.3; }   // molten lowlands
-                    else { r = 0.16f * tv; g = 0.12f * tv; b = 0.11f * tv; if (h > 4) { r = 0.3f * tv; g = 0.26f * tv; b = 0.24f * tv; } }  // black crust, ash peaks
-                    return h;
-                case "desert":
-                    if (h < -1.2) { r = 0.92f; g = 0.9f; b = 0.84f; }                                                 // salt flats in the old sea beds
-                    else if (h < 2.0) { r = 0.82f * tv; g = 0.6f * tv; b = 0.36f * tv; }                               // sand
-                    else { r = 0.6f * tv; g = 0.36f * tv; b = 0.24f * tv; }                                            // red rock
-                    return h;
-                case "snowball":
-                    if (h < 0) { r = 0.78f * tv; g = 0.88f * tv; b = 0.97f; return 0; }                                // frozen sea: flat ice
-                    if (h > 2.5 || tint > 0.55) { r = 0.95f; g = 0.96f; b = 1f; } else { r = 0.42f * tv; g = 0.43f * tv; b = 0.47f * tv; }
-                    return h;
-                case "tidally-locked":
+                double crack = Ridged(x, y, z, _seed + 900u, 5, 4 + Math.Min(fine, 8));
+                if (crack > 0.9 - 0.04 * Math.Min(1, fine / 10.0) && h < 3) { r = 1f; g = (float)(0.3 + 0.35 * tint); b = 0.06f; glow = 0.9f; return h - 0.03; }   // glowing cracks and rivers
+                if (h < -0.3) { r = 1f; g = (float)(0.35 + 0.3 * tint); b = 0.08f; glow = 0.95f; return -0.3; }   // molten lowlands
+            }
+            if (_tk.FrozenSea && h < 0) { r = 0.78f * tv; g = 0.88f * tv; b = 0.97f; return 0; }                // frozen sea: flat ice
+            if (_tk.SnowPatches && (h > 2.5 || tint > 0.55)) { r = 0.95f; g = 0.96f; b = 1f; return h; }        // snow lying in patches
+            if (_tk.Locked)
+            {
+                double day = x * StarDir[0] + y * StarDir[1] + z * StarDir[2];
+                if (day > 0.3) { if (h < 0) h = h * 0.5; r = 0.55f * tv; g = 0.28f * tv; b = 0.14f * tv; return h; }      // scorched, its seas boiled away
+                if (day < -0.2) { if (h < 0) { r = 0.8f; g = 0.88f; b = 0.96f; return 0; } r = 0.92f; g = 0.94f; b = 0.98f; return h; }  // frozen night side
+            }
+            if (_tk.Ground != null && !(_tk.Locked) && !(HasWater && h < 0))
+            {
+                // its ground's colours by height (terrain.dnat), each band shading into the next across a fifth of a km, never a
+                // hard line (a hard line lands on the ground's corners and shows as jagged patches)
+                r = g = b = 0.5f; var gb = _tk.Ground;
+                for (int q = 0; q < gb.Length; q++)
+                    if (h < gb[q][0] || q == gb.Length - 1)
                     {
-                        double day = x * StarDir[0] + y * StarDir[1] + z * StarDir[2];
-                        if (day > 0.3) { if (h < 0) h = h * 0.5; r = 0.55f * tv; g = 0.28f * tv; b = 0.14f * tv; return h; }      // scorched, its seas boiled away
-                        if (day < -0.2) { if (h < 0) { r = 0.8f; g = 0.88f; b = 0.96f; return 0; } r = 0.92f; g = 0.94f; b = 0.98f; return h; }  // frozen night side
-                        break;                                                                                                // twilight ring: water and bare land
+                        float k = gb[q][4] > 0 ? tv : 1; r = (float)gb[q][1] * k; g = (float)gb[q][2] * k; b = (float)gb[q][3] * k;
+                        if (q > 0) { float w = (float)Smooth(-0.1, 0.1, h - gb[q - 1][0]); float k0 = gb[q - 1][4] > 0 ? tv : 1; r = (float)gb[q - 1][1] * k0 * (1 - w) + r * w; g = (float)gb[q - 1][2] * k0 * (1 - w) + g * w; b = (float)gb[q - 1][3] * k0 * (1 - w) + b * w; }
+                        break;
                     }
+                return h;
             }
             if (h < 0)
             {
-                if (lat > 0.9 && Kind != "tidally-locked") { r = 0.85f; g = 0.9f; b = 0.95f; return 0.002; }   // sea ice near the poles, floating on top
-                if (Kind == "tidally-locked")
+                if (lat > 0.9 && _tk.PolarIce) { r = 0.85f; g = 0.9f; b = 0.95f; return 0.002; }   // sea ice near the poles, floating on top
+                if (_tk.Locked)
                 {
                     // the twilight ring keeps its water painted on (no separate sea surface on this world)
                     double depth = Math.Min(1, -h / 4);
@@ -301,32 +537,33 @@ namespace DnaAnd.Gen
                 else { r = 0.22f * tv; g = 0.22f * tv; b = 0.23f * tv; }
                 return h;
             }
-            if (h < 0.04) { r = 0.78f * tv; g = 0.72f * tv; b = 0.52f * tv; }                         // beaches
-            else if (h < 2.4)
-            {
-                // bare ground in patches: brown soil, pale clay, dark gravel
-                if (soil < 0.42) { r = 0.30f * tv; g = 0.28f * tv; b = 0.26f * tv; }
-                else if (soil > 0.6) { r = 0.62f * tv; g = 0.55f * tv; b = 0.45f * tv; }
-                else { r = 0.46f * tv; g = 0.38f * tv; b = 0.29f * tv; }
-            }
-            else if (h < 4.2) { r = 0.48f * tv; g = 0.47f * tv; b = 0.46f * tv; }                    // grey rock
-            else { r = 0.94f; g = 0.95f; b = 0.97f; }                                                // snow on the peaks
-            if (lat > 0.86 + 0.05 * tint) { r = 0.93f; g = 0.95f; b = 0.99f; }                       // ice caps
+            // the land's colours, each shading into the next (never a hard line, which lands on the ground's corners as jagged
+            // patches): bare ground in patches (dark gravel, brown soil, pale clay), beaches at the shore, grey rock higher up,
+            // snow on the peaks, ice caps toward the poles
+            double wg = Smooth(0.34, 0.46, soil), wc = Smooth(0.54, 0.66, soil);
+            double sr = 0.30 + (0.46 - 0.30) * wg + (0.62 - 0.46) * wc, sg = 0.28 + (0.38 - 0.28) * wg + (0.55 - 0.38) * wc, sb = 0.26 + (0.29 - 0.26) * wg + (0.45 - 0.29) * wc;
+            double wb = Smooth(0.02, 0.08, h), wr = Smooth(2.2, 2.7, h), ws = Smooth(4.0, 4.5, h);
+            double cr = 0.78 + (sr - 0.78) * wb, cg = 0.72 + (sg - 0.72) * wb, cb = 0.52 + (sb - 0.52) * wb;
+            cr += (0.48 - cr) * wr; cg += (0.47 - cg) * wr; cb += (0.46 - cb) * wr;
+            r = (float)(cr * tv); g = (float)(cg * tv); b = (float)(cb * tv);
+            r += (0.94f - r) * (float)ws; g += (0.95f - g) * (float)ws; b += (0.97f - b) * (float)ws;
+            float wi = (float)Smooth(0.84 + 0.05 * tint, 0.9 + 0.05 * tint, lat);
+            r += (0.93f - r) * wi; g += (0.95f - g) * wi; b += (0.99f - b) * wi;
             return h;
         }
 
         private void GiantColour(double x, double y, double z, int extra, out float r, out float g, out float b)
         {
             // bands of cloud, pushed and curled by the winds (layered warping), with many storms of different sizes
-            double wx = Fbm(x, y, z, _seed + 11u, 2.5, 4 + extra) - 0.5, wz = Fbm(x, y, z, _seed + 12u, 2.5, 4 + extra) - 0.5;
-            double curl = Fbm(x + wx * 0.6, y, z + wz * 0.6, _seed + 13u, 7, 3 + extra) - 0.5;
+            // the winds and their curls from the waveform (stored CDF 9/7 octaves, mode-E past them), finer as you come closer
+            double wx = 0.5 * Waveform.Octaves(x, y, z, _seed + 11u, 2.5, 1, 0.5, 2.5 * Math.Pow(2, 3 + extra)), wz = 0.5 * Waveform.Octaves(x, y, z, _seed + 12u, 2.5, 1, 0.5, 2.5 * Math.Pow(2, 3 + extra));
+            double curl = 0.5 * Waveform.Octaves(x + wx * 0.6, y, z + wz * 0.6, _seed + 13u, 7, 1, 0.5, 7 * Math.Pow(2, 2 + extra));
             double yy = y + wx * 0.06 + curl * 0.05;
-            double band = Math.Sin(yy * (Kind == "ice-giant" ? 9 : 19) + curl * 4) * 0.5 + 0.5;
-            double fine = Fbm(x + wx, y * 6, z + wz, _seed + 14u, 12, 3 + extra);
+            double band = Math.Sin(yy * _tk.Bands + curl * 4) * 0.5 + 0.5;
+            double fine = 0.5 + 0.5 * Waveform.Octaves(x + wx, y * 6, z + wz, _seed + 14u, 12, 1, 0.5, 12 * Math.Pow(2, 2 + extra));
             band = band * 0.8 + fine * 0.2;
-            if (Kind == "ice-giant") { r = (float)(0.25 + 0.14 * band); g = (float)(0.48 + 0.14 * band); b = (float)(0.85 + 0.12 * band); }
-            else if (Kind == "hot-jupiter") { r = (float)(0.32 + 0.5 * band); g = (float)(0.13 + 0.24 * band); b = (float)(0.09 + 0.1 * band); }
-            else { r = (float)(0.42 + 0.54 * band); g = (float)(0.26 + 0.62 * band); b = (float)(0.16 + 0.62 * band); }   // brown belts, cream zones
+            // its dark belts and light zones, in this kind's colours (terrain.dnat)
+            r = (float)(_tk.BandLow[0] + (_tk.BandHigh[0] - _tk.BandLow[0]) * band); g = (float)(_tk.BandLow[1] + (_tk.BandHigh[1] - _tk.BandLow[1]) * band); b = (float)(_tk.BandLow[2] + (_tk.BandHigh[2] - _tk.BandLow[2]) * band);
             // storms: round swirling ovals, one great one and many small ones
             var rng = new Rng(_seed ^ 0x570CUL);
             for (int k = 0; k < 14; k++)
@@ -338,8 +575,8 @@ namespace DnaAnd.Gen
                 if (d > size) continue;
                 double t = 1 - d / size, swirl = Math.Sin(d / size * 14 + Math.Atan2(dy, dx + dz) * 2) * 0.5 + 0.5;
                 float sr, sg, sb;
-                if (Kind == "ice-giant") { sr = 0.08f; sg = 0.15f; sb = 0.42f; }                 // dark storms, like Neptune's
-                else if (k == 0) { sr = 0.82f; sg = 0.38f; sb = 0.26f; }                          // the great red storm
+                if (k == 0 && _tk.GreatStorm > 0.5) { sr = 0.82f; sg = 0.38f; sb = 0.26f; }       // the great red storm
+                else if (_tk.GreatStorm <= 0.5) { sr = _tk.Storm[0]; sg = _tk.Storm[1]; sb = _tk.Storm[2]; }   // this kind's storms (dark, like Neptune's)
                 else { sr = 0.96f; sg = 0.93f; sb = 0.86f; }                                      // white ovals
                 float m = (float)(Math.Min(1, t * 2.5) * (0.75 + 0.25 * swirl));
                 r += (sr - r) * m; g += (sg - g) * m; b += (sb - b) * m;
@@ -348,9 +585,15 @@ namespace DnaAnd.Gen
 
         // ── volcanoes, rivers and resource fields ───────────────────────
 
-        private double _land, _mtn, _tint, _latOverride = -1, _shellLand = 0.1, _shellMtn = 1;
+        // the latitude to use for climate when the ground has drifted from where it formed (one per thread: heights are worked out on many cores)
+        [ThreadStatic] private static double _latOverrideT;
+        [ThreadStatic] private static bool _latSet;
+        private double _latOverride { get { return _latSet ? _latOverrideT : -1; } set { _latOverrideT = value; _latSet = value >= 0; } }
+        [ThreadStatic] private static double _land, _mtn, _tint;
+        private double _shellLand = 0.1, _shellMtn = 1;
         /// <summary>The resource field at the last point asked about (index into <see cref="Fields"/>), or -1.</summary>
-        public int LastField { get; private set; }
+        [ThreadStatic] private static int _lastField;
+        public int LastField { get { return _lastField; } private set { _lastField = value; } }
         /// <summary>True: every field lights up in its own colour, buried ones too (the resource view).</summary>
         public readonly bool ResourceView;
         /// <summary>Coal, oil and gas are made from buried life, so they appear only once life has lived and died on this world.</summary>
@@ -372,6 +615,9 @@ namespace DnaAnd.Gen
         /// <summary>Reads every field's name and where it is found from content/resource-fields.dnat.</summary>
         public static void LoadFields(ContentLibrary content)
         {
+            if (Kinds.Count == 0) LoadKinds(content);
+            GrainField.Load(content);
+            Waveform.Init();                                                             // the stored waveforms, made once here
             if (Fields.Count > 0) return;
             foreach (var e in content.Entries) if ((e.Kind == "planet" || e.Kind == "giant") && e.Props.ContainsKey("air")) Air[e.Id] = e.Get("air", "");
             for (int i = 0; i < FieldIds.Length; i++)
@@ -404,8 +650,8 @@ namespace DnaAnd.Gen
                 bool belt = _mtn > 0.15, hotspot = rng.NextDouble() < 0.25;
                 if (!belt && !hotspot) continue;
                 if (h0 < -2.5 && Kind != "ocean") continue;
-                list.Add(new Volcano { X = x, Y = y, Z = z, Size = (Kind == "lava" ? 0.012 : 0.007) * (0.6 + rng.NextDouble()) * 6371 / Radius,
-                    Tall = Kind == "lava" ? 3 + rng.NextDouble() * 6 : 2 + rng.NextDouble() * 4, Active = Kind == "lava" || rng.NextDouble() < 0.4 });
+                list.Add(new Volcano { X = x, Y = y, Z = z, Size = (_tk.ManyVolcanoes ? 0.012 : 0.007) * (0.6 + rng.NextDouble()) * 6371 / Radius,
+                    Tall = _tk.ManyVolcanoes ? 3 + rng.NextDouble() * 6 : 2 + rng.NextDouble() * 4, Active = _tk.ManyVolcanoes || rng.NextDouble() < 0.4 });
             }
             _volcanoes = list.ToArray();
         }
@@ -448,8 +694,7 @@ namespace DnaAnd.Gen
                 {
                     _river = (line - width) / (1 - width);
                     h -= 0.03 + 0.05 * _river;
-                    if (Kind == "desert") { r = 0.7f; g = 0.55f; b = 0.38f; }            // dry river beds
-                    else { r = 0.1f; g = 0.3f; b = 0.5f; }                                  // river water
+                    r = _tk.River[0]; g = _tk.River[1]; b = _tk.River[2];                  // river water, or a dry bed (terrain.dnat)
                 }
                 else if (line > width - 0.006) _river = -1;                               // the river banks
             }
@@ -464,9 +709,9 @@ namespace DnaAnd.Gen
         /// <summary>Which resource field is here, by real geology, and what it looks like where it shows at the surface.</summary>
         private int ClassifyField(double x, double y, double z, double h, int layers, ref float r, ref float g, ref float b, ref float glow)
         {
-            double lat = Math.Abs(y), land = _land, mtn = _mtn;
+            double lat = _latOverride >= 0 ? _latOverride : Math.Abs(y), land = _land, mtn = _mtn;
             if (HasWater && h < -0.0001 && lat < 0.9) return FieldIndex("ocean-water");
-            if (lat > 0.86 + 0.05 * _tint || Kind == "snowball" && h <= 0.0001) return FieldIndex("ice-field");
+            if (lat > 0.86 + 0.05 * _tint || _tk.FrozenSea && h <= 0.0001) return FieldIndex("ice-field");
             if (_vent > 0.3) { r = 0.95f; g = 0.85f; b = 0.15f; if (_activeVent) { r = 1f; g = 0.42f; b = 0.08f; } return FieldIndex("volcanic-sulfide"); }   // yellow sulfur crust
             if (_volcano > 0.25) { if (Spot(x, y, z, 2, 30, 0.55)) { r = 0.85f; g = 0.55f; b = 0.2f; } return FieldIndex("epithermal"); }   // hot-spring stains
             if (_river < 0) { if (Spot(x, y, z, 7, 200, 0.62)) { r = 0.9f; g = 0.78f; b = 0.3f; } return FieldIndex("placer"); }   // glints of gold in the banks
@@ -477,10 +722,10 @@ namespace DnaAnd.Gen
                 if (Spot(x, y, z, 5, 35, 0.64)) { r = 0.3f; g = 0.55f; b = 0.45f; return FieldIndex("skarn"); }        // green copper stains
                 if (Spot(x, y, z, 6, 50, 0.66)) return FieldIndex("pegmatite");
             }
-            bool dry = Kind == "desert" || Kind == "tidally-locked";
+            bool dry = _tk.Dry;
             if (dry && h < -0.8) return FieldIndex("evaporite");                                      // the salt flats (already white)
             if (!dry && h > 0 && h < 0.06 && lat < 0.45 && Spot(x, y, z, 8, 25, 0.62)) { r = 0.93f; g = 0.92f; b = 0.88f; return FieldIndex("evaporite"); }   // salt pans by the sea
-            if (Kind == "temperate" || Kind == "ocean")
+            if (_tk.TropicalSoil)
                 if (lat < 0.32 && h > 0.04 && h < 1.2 && mtn < 0.15) { r = 0.62f; g = 0.26f; b = 0.14f; return FieldIndex("laterite"); }   // red tropical soil
             if (land > 0.25 && mtn < 0.08)
             {
@@ -553,6 +798,13 @@ namespace DnaAnd.Gen
             float gl; Height(x, y, z, 30, out r, out g, out b, out gl);
         }
 
+        /// <summary>The ground's own level, without its grains (km above the sea), for the land's slope under the grains.</summary>
+        public double BaseAt(double x, double y, double z) { _noGrainsNow = true; try { return GroundAt(x, y, z); } finally { _noGrainsNow = false; } }
+        [ThreadStatic] private static bool _noGrainsNow;
+        [ThreadStatic] private static double _cellAtLeast;
+        /// <summary>The ground's height (km above the sea) with its grains worked out no finer than <paramref name="cellKm"/>:
+        /// for asking how high the ground is under you (a thirtieth of your height is all that can matter), fast.</summary>
+        public double GroundAt(double x, double y, double z, double cellKm) { _cellAtLeast = cellKm; try { return GroundAt(x, y, z); } finally { _cellAtLeast = 0; } }
         public double GroundAt(double x, double y, double z)
         {
             float r, g, b, gl;
@@ -586,7 +838,7 @@ namespace DnaAnd.Gen
                 if (day < 0.45 || day > 0.8) continue;           // a lower star: hills throw shading
                 float r, g, b, gl;
                 double h = Height(x, y, z, 8, out r, out g, out b, out gl);
-                double score = (h > 0.15 && h < 1.8 ? 1 : 0) - Math.Abs(h - 0.8) * 0.2 + (Kind == "lava" && gl > 0 ? -1 : 0);
+                double score = (h > 0.15 && h < 1.8 ? 1 : 0) - Math.Abs(h - 0.8) * 0.2 + (_tk.Molten && gl > 0 ? -1 : 0);
                 if (score > best) { best = score; lat = la; lon = lo; }
             }
         }
@@ -603,9 +855,8 @@ namespace DnaAnd.Gen
             }
             double c = Fbm(x, y, z, _seed + 500u, 2.4, 7) + 0.1 * Math.Cos(y * 7);
             if (Shell) c -= 0.1;                                     // shells: scattered clouds, so the land shows
-            if (Kind == "lava") c += 0.12;
-            if (Kind == "snowball") c -= 0.08;
-            if (Kind == "tidally-locked") { double day = x * StarDir[0] + y * StarDir[1] + z * StarDir[2]; c += 0.25 * Smooth(-0.3, 0.3, day) - 0.18; }
+            c += _tk.CloudShift;                                     // more cloud or less, by its kind (terrain.dnat)
+            if (_tk.Locked) { double day = x * StarDir[0] + y * StarDir[1] + z * StarDir[2]; c += 0.25 * Smooth(-0.3, 0.3, day) - 0.18; }
             return Smooth(0.54, 0.7, c);
         }
 
@@ -669,8 +920,9 @@ namespace DnaAnd.Gen
             return level > 3 || Fbm(x, y, z, _seed + 8100u, 2.2, 3) > 0.47;                       // part-built: whole panels missing
         }
 
-        private bool _makingHull, _drawingHull, _camInside;
-        private int _makeLevel;
+        private bool _drawingHull, _camInside;
+        [ThreadStatic] private static bool _makingHull;
+        [ThreadStatic] private static int _makeLevel;
         /// <summary>Sample views only: cut away the part of a shell facing this direction, so the star inside shows.</summary>
         public double[] Cutaway;
 
@@ -744,12 +996,7 @@ namespace DnaAnd.Gen
                     else
                     {
                         h = 0; gl = 0; al = (float)(CloudCover(x, y, z) * 0.92);
-                        r = g = bl = 0.97f;
-                        if (Kind == "lava") { r = 0.24f; g = 0.21f; bl = 0.2f; }                // ash clouds
-                        else if (Kind == "ice-giant") { r = 0.85f; g = 0.92f; bl = 1f; }        // methane ice clouds
-                        else if (Kind == "hot-jupiter") { r = 0.45f; g = 0.3f; bl = 0.26f; }    // hot dark haze
-                        else if (Kind == "gas-giant") { r = 0.98f; g = 0.95f; bl = 0.88f; }     // ammonia ice clouds
-                        else if (Kind == "desert") { r = 0.82f; g = 0.62f; bl = 0.42f; al *= 0.4f; }  // thin dust
+                        r = _tk.Cloud[0]; g = _tk.Cloud[1]; bl = _tk.Cloud[2]; al *= (float)_tk.CloudThick;   // the clouds of this kind of world (terrain.dnat)
                     }
                     double rad = Shell && layer != Hull ? baseR - h : baseR + h;   // a shell's land rises inward, toward the star
                     int k = b * (Grid + 1) + a;
@@ -768,9 +1015,7 @@ namespace DnaAnd.Gen
                         double slope = Math.Max(Math.Abs(_hh[ka] - _hh[k]), Math.Abs(_hh[kb] - _hh[k])) / spacing;
                         float rock = (float)Math.Max(0, Math.Min(1, (slope - 0.7) * 2.0));
                         if (rock <= 0) continue;
-                        float rr = 0.40f, rg = 0.38f, rb = 0.36f;
-                        if (Kind == "desert") { rr = 0.58f; rg = 0.34f; rb = 0.22f; }
-                        if (Kind == "lava") { rr = 0.12f; rg = 0.1f; rb = 0.1f; }
+                        float rr = _tk.Rock[0], rg = _tk.Rock[1], rb = _tk.Rock[2];                   // steep bare rock of this kind (terrain.dnat)
                         _cr[k] += (rr - _cr[k]) * rock; _cg[k] += (rg - _cg[k]) * rock; _cb[k] += (rb - _cb[k]) * rock;
                     }
             }
@@ -782,7 +1027,7 @@ namespace DnaAnd.Gen
                     Tri(ref v, k00, k10, k11); Tri(ref v, k00, k11, k01);
                 }
             // skirts: short walls hanging down from the patch edges, so no cracks show where detail levels meet
-            double drop = p.Edge / Grid * 4;
+            double drop = p.Edge / Grid * 4;                                       // (deeper skirts stood out as big flat walls at grain scale)
             for (int e = 0; e < (layer == Ground || layer == Hull ? 4 : 0); e++)
                 for (int q = 0; q < Grid; q++)
                 {
@@ -794,10 +1039,130 @@ namespace DnaAnd.Gen
                     Skirt(ref v, ka, kb, drop, p);
                 }
             p.Count = v;
-            p.Buffer = new UploadBuffer(_device, (long)v * Marshal.SizeOf(typeof(StarVertex)));
-            p.Buffer.Write(_scratch, v);
+            p.Verts = new StarVertex[v]; Array.Copy(_scratch, p.Verts, v);
             return p;
         }
+
+        // a built piece goes to the graphics card (main thread only)
+        // pieces' buffers on the card are kept and used again (making a new one is the slow part of putting a piece on the card);
+        // every frame waits for the card to finish, so a buffer let go before this frame's drawing is free to be written again
+        private const int PoolVerts = Grid * Grid * 6 + 4 * Grid * 6;
+        private readonly Stack<UploadBuffer> _pool = new Stack<UploadBuffer>();
+        private void Release(Patch p)
+        {
+            if (p == null || p.Buffer == null) return;
+            if (p.Buffer.Bytes == (long)PoolVerts * Marshal.SizeOf(typeof(StarVertex)) && _pool.Count < 4000) _pool.Push(p.Buffer); else p.Buffer.Dispose();
+            p.Buffer = null;
+        }
+
+        private void Upload(Patch p)
+        {
+            int stride = Marshal.SizeOf(typeof(StarVertex));
+            if (p.Count <= PoolVerts) p.Buffer = _pool.Count > 0 ? _pool.Pop() : new UploadBuffer(_device, (long)PoolVerts * stride);
+            else p.Buffer = new UploadBuffer(_device, (long)Math.Max(1, p.Count) * stride);
+            p.Buffer.Write(p.Verts, p.Count); p.Verts = null;
+        }
+
+        private Patch MakeNow(int layer, int f, int level, long i, long j) { var p = Make(layer, f, level, i, j); Upload(p); return p; }
+
+        // ── background building ──
+        // Missing pieces are asked for while the planet is walked, nearest first; background workers (one per core, from the
+        // job system) build them; each frame takes in whatever is finished. The frame never waits for a piece.
+        private sealed class Ask { public PKey Key; public int Layer, F, Level; public long I, J; public bool Pending; public int Gen; public double Need; }   // Need: its distance from you in its own sizes (smaller: wanted sooner)
+        private readonly object _askLock = new object();
+        private readonly List<Ask> _asks = new List<Ask>();                 // waiting, nearest first (rebuilt every frame)
+        private readonly HashSet<PKey> _inFlight = new HashSet<PKey>();     // being built now
+        private readonly List<KeyValuePair<Ask, Patch>> _done = new List<KeyValuePair<Ask, Patch>>();
+        private int _workersBusy;
+        private readonly List<Ask> _askedThisFrame = new List<Ask>(); private readonly HashSet<PKey> _askedKeys = new HashSet<PKey>();
+
+        private double _askCamX, _askCamY, _askCamZ;                            // the camera, for how much each piece is needed
+        private void AskFor(PKey key, int layer, int f, int level, long i, long j, bool pending)
+        {
+            lock (_askLock) _wantedAt[key] = _frame;                               // still wanted: build and keep it
+            if (!_askedKeys.Add(key)) return;
+            double size = 2.0 / Math.Pow(2, level), x, y, z; Dir(f, -1 + (i + 0.5) * size, -1 + (j + 0.5) * size, out x, out y, out z);
+            double rr = LayerRadius(layer), ex = x * rr - _askCamX, ey = y * rr - _askCamY, ez = z * rr - _askCamZ;
+            _askedThisFrame.Add(new Ask { Key = key, Layer = layer, F = f, Level = level, I = i, J = j, Pending = pending, Gen = Generation, Need = Math.Sqrt(ex * ex + ey * ey + ez * ez) / (size * rr) });
+        }
+
+        // after the walk: the new wish list replaces the old (so pieces no longer needed are not built), and workers start
+        private void StartBuilding()
+        {
+            lock (_askLock)
+            {
+                _asks.Clear();
+                foreach (var a in _askedThisFrame) if (!_inFlight.Contains(a.Key)) _asks.Add(a);
+                _asks.Sort((p0, p1) => p0.Need.CompareTo(p1.Need));                // the pieces you need most (close for their size) first
+            }
+            _askedThisFrame.Clear(); _askedKeys.Clear();
+            int want = Math.Max(1, (int)Math.Round((Jobs.Workers - 1) * Math.Min(1, 0.25 + 0.75 * Power)));   // builders: fewer on light settings
+            while (_workersBusy < want)
+            {
+                System.Threading.Interlocked.Increment(ref _workersBusy);
+                Jobs.Run(BuildLoop);
+            }
+        }
+
+        private void BuildLoop()
+        {
+            try
+            {
+                while (true)
+                {
+                    Ask a;
+                    lock (_askLock)
+                    {
+                        if (_asks.Count == 0 || _disposed) return;
+                        a = _asks[0]; _asks.RemoveAt(0);
+                        if (!a.Pending && !Wanted(a.Key)) { _droppedUnwanted++; continue; }   // you have moved on: not built
+                        _inFlight.Add(a.Key);
+                    }
+                    var t0 = System.Diagnostics.Stopwatch.GetTimestamp();
+                    var p = Make(a.Layer, a.F, a.Level, a.I, a.J);
+                    double ms = (System.Diagnostics.Stopwatch.GetTimestamp() - t0) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
+                    lock (_askLock) { _done.Add(new KeyValuePair<Ask, Patch>(a, p)); _builtCount++; _builtMs += ms; }
+                }
+            }
+            finally { System.Threading.Interlocked.Decrement(ref _workersBusy); }
+        }
+
+        // take in finished pieces: up to a few milliseconds of uploads a frame
+        private void TakeFinished()
+        {
+            var clock = System.Diagnostics.Stopwatch.StartNew();
+            List<KeyValuePair<Ask, Patch>> take;
+            lock (_askLock)
+            {
+                // once a frame: throw out every finished piece you have moved on from, then the rest most needed first
+                take = new List<KeyValuePair<Ask, Patch>>(_done.Count);
+                foreach (var d0 in _done)
+                {
+                    if (d0.Key.Pending || Wanted(d0.Key.Key)) take.Add(d0);
+                    else { _inFlight.Remove(d0.Key.Key); _droppedUnwanted++; }
+                }
+                _done.Clear();
+            }
+            take.Sort((p0, p1) => p0.Key.Need.CompareTo(p1.Key.Need));
+            int ti = 0;
+            for (; ti < take.Count && clock.Elapsed.TotalMilliseconds < Math.Max(2, Math.Min(30, 12 * Power)); ti++)   // uploads a frame: more on stronger settings
+            {
+                var d = take[ti];
+                lock (_askLock) _inFlight.Remove(d.Key.Key);
+                var a = d.Key; var np = d.Value;
+                if (a.Gen != Generation) { _droppedOld++; continue; }             // built for a shape the planet no longer has
+                Upload(np); np.LastUsed = _frame; np.Gen = a.Gen;
+                if (a.Pending) _pending[a.Key] = np;
+                else { Patch old; if (_cache.TryGetValue(a.Key, out old)) Release(old); _cache[a.Key] = np; }
+            }
+            if (ti < take.Count) lock (_askLock) for (; ti < take.Count; ti++) _done.Add(take[ti]);   // the rest wait for the next frame
+        }
+        private volatile bool _disposed;
+        private int _builtCount; private double _builtMs; private int _droppedOld, _droppedUnwanted;
+        private readonly Dictionary<PKey, int> _wantedAt = new Dictionary<PKey, int>();   // the last frame each piece was asked for
+        private bool Wanted(PKey k) { int fr; return _wantedAt.TryGetValue(k, out fr) && _frame - fr <= 3; }   // (under _askLock)
+        /// <summary>For the log: pieces wished for, being built, built so far, their mean build time, and finished pieces thrown away as out of date.</summary>
+        public string BuildStats { get { lock (_askLock) return "asked " + _asks.Count + " building " + _inFlight.Count + " built " + _builtCount + " at " + (_builtCount > 0 ? (_builtMs / _builtCount).ToString("0.0") : "0") + " ms each, old " + _droppedOld + ", unwanted " + _droppedUnwanted + ", cached " + _cache.Count + ", workers " + _workersBusy; } }
 
         private void Tri(ref int v, int a, int b, int c)
         {
@@ -821,19 +1186,34 @@ namespace DnaAnd.Gen
             var B = new StarVertex { X = (float)_hx[b], Y = (float)_hy[b], Z = (float)_hz[b], Size = _cgl[b], R = _cr[a], G = _cg[a], B = _cb[a], A = 1 };
             var A2 = A; A2.X = (float)(_hx[a] - ax / al * drop); A2.Y = (float)(_hy[a] - ay / al * drop); A2.Z = (float)(_hz[a] - az / al * drop);
             var B2 = B; B2.X = (float)(_hx[b] - bx / bl * drop); B2.Y = (float)(_hy[b] - by / bl * drop); B2.Z = (float)(_hz[b] - bz / bl * drop);
-            _scratch[v++] = A; _scratch[v++] = B; _scratch[v++] = B2;
-            _scratch[v++] = A; _scratch[v++] = B2; _scratch[v++] = A2;
+            // the skirt hangs down under the edge to hide cracks between pieces of different detail; it faces sideways, so the
+            // light would leave it black: it glows a little instead, to read as the ground beside it
+            var As = A; As.Size = Math.Max(A.Size, 0.6f); var Bs = B; Bs.Size = Math.Max(B.Size, 0.6f);
+            A2.Size = As.Size; B2.Size = Bs.Size;
+            _scratch[v++] = As; _scratch[v++] = Bs; _scratch[v++] = B2;
+            _scratch[v++] = As; _scratch[v++] = B2; _scratch[v++] = A2;
         }
 
         private Patch Get(int layer, int f, int level, long i, long j, bool mayMake)
         {
             PKey key = Key(layer, f, level, i, j);
             Patch p;
-            if (_cache.TryGetValue(key, out p)) { p.LastUsed = _frame; return p; }
+            if (_cache.TryGetValue(key, out p))
+            {
+                p.LastUsed = _frame;
+                // the planet has changed shape since this piece was made: build its new form out of sight, nearest first,
+                // and keep drawing the old one; the whole planet swaps to the new ground at once when every piece is ready
+                if (p.Gen != Generation)
+                {
+                    if (_pending.ContainsKey(key)) return p;
+                    if (mayMake) AskFor(key, layer, f, level, i, j, true);
+                    _missing++;
+                }
+                return p;
+            }
             if (!mayMake) return null;
-            if (level > 1 && (_budget <= 0 || _clock.Elapsed.TotalMilliseconds > _msLimit)) return null;
-            _budget--;
-            p = Make(layer, f, level, i, j); p.LastUsed = _frame;
+            if (level > 1) { AskFor(key, layer, f, level, i, j, false); return null; }   // built in the background
+            p = MakeNow(layer, f, level, i, j); p.LastUsed = _frame; p.Gen = Generation;
             _cache[key] = p;
             return p;
         }
@@ -846,7 +1226,13 @@ namespace DnaAnd.Gen
         public void Draw(MeshPipes pipes, double camX, double camY, double camZ, Mat4 viewRot, Mat4 proj, double time, double splitFactor,
             float fogDist, float fr, float fg, float fb, int x, int y, int w, int h, int newPatchBudget)
         {
+            if ((_frame & 63) == 0) lock (_askLock) { var gone = new List<PKey>(); foreach (var kv in _wantedAt) if (_frame - kv.Value > 60) gone.Add(kv.Key); foreach (var k in gone) _wantedAt.Remove(k); }
             _frame++; _budget = newPatchBudget; _clock.Restart(); _msLimit = newPatchBudget >= 400 ? 10 : 30;
+            TakeFinished();
+            // last frame every piece in view had its new form ready: swap the whole planet's ground at once
+            if (Generation != DrawnGeneration && _framesWaiting > 0 && _missing == 0) SwapGround();
+            if (Generation != DrawnGeneration) _framesWaiting++;
+            _missing = 0;
             _camInside = Shell && Math.Sqrt(camX * camX + camY * camY + camZ * camZ) < Radius;
             ReadyStep = double.MaxValue;
             float lx = (float)StarDir[0], ly = (float)StarDir[1], lz = (float)StarDir[2];
@@ -861,7 +1247,20 @@ namespace DnaAnd.Gen
                     DrawList(pipes.Solid, 0, camX, camY, camZ, Mat4.Identity, viewRot, proj, lx, ly, lz, fogDist, fr, fg, fb, x, y, w, h);
                     _drawingHull = false;
                 }
-                if (!Habitable || !_camInside && Cutaway == null) { Trim(); return; }
+                if (!Habitable || !_camInside && Cutaway == null) { StartBuilding(); Trim(); return; }
+            }
+            // the ground's sand worked out on the card: where you are, in grains (wrapped to 32 bits as the grain field's keys are)
+            _gg = false;
+            {
+                double cl = Math.Sqrt(camX * camX + camY * camY + camZ * camZ); var gm = Solid && !Shell && cl > 0 ? GrainMix(camY / cl) : null;
+                if (gm != null && gm.Size > 0 && cl - Radius < gm.Size * 4000)
+                {
+                    double gs = gm.Size, ux = camX / cl, uy = camY / cl, uz = camZ / cl;
+                    long bi = (long)Math.Floor(ux * Radius / gs), bj = (long)Math.Floor(uy * Radius / gs), bk = (long)Math.Floor(uz * Radius / gs);
+                    double bx = bi * gs, by = bj * gs, bz = bk * gs;
+                    _gg = true; _ggG = gs; _ggI = bi; _ggJ = bj; _ggK = bk; _ggUx = ux; _ggUy = uy; _ggUz = uz; _ggMix = gm.Index; _ggSeed = GrainField.SeedWord(GrainSeed);
+                    _ggH = (Math.Sqrt(bx * bx + by * by + bz * bz) - Radius) / gs;
+                }
             }
             // the ground (and the sea floor)
             Collect(Ground, camX, camY, camZ, splitFactor);
@@ -882,13 +1281,16 @@ namespace DnaAnd.Gen
                 DrawList(pipes.Clear, 2, kx, camY, kz, Mat4.RotationY((float)ang), viewRot, proj, clx, ly, clz, fogDist, fr, fg, fb, x, y, w, h);
             }
             if (!Shell) DrawAir(pipes.Glow, camX, camY, camZ, viewRot, proj, lx, ly, lz, x, y, w, h);
+            StartBuilding();
             Trim();
         }
 
         private int _camF; private double _camS, _camT;
+        private bool _gg; private double _ggG, _ggUx, _ggUy, _ggUz, _ggH; private long _ggI, _ggJ, _ggK; private int _ggMix; private uint _ggSeed;
 
         private void Collect(int layer, double camX, double camY, double camZ, double splitFactor)
         {
+            _askCamX = camX; _askCamY = camY; _askCamZ = camZ;
             // which cube face, and where on it, lies straight under the camera
             double cl = Math.Sqrt(camX * camX + camY * camY + camZ * camZ), dx = camX / cl, dy = camY / cl, dz = camZ / cl, best = -2;
             for (int f = 0; f < 6; f++)
@@ -924,6 +1326,7 @@ namespace DnaAnd.Gen
                 }
                 c[20] = -ox; c[21] = -oy; c[22] = -oz;          // the camera, in the patch's own frame
                 c[25] = fogDist; c[26] = surface; c[28] = fr; c[29] = fg; c[30] = fb;
+                Light(c);
                 if (Shell)
                 {
                     // outward direction of this piece (turned into the drawing frame for the turning clouds)
@@ -933,10 +1336,26 @@ namespace DnaAnd.Gen
                     c[19] = rx; c[23] = ry; c[31] = rz;
                     c[27] = _drawingHull ? 2 : 1;
                 }
+                else if (_gg && surface == 0)
+                {
+                    // the sand on the card: this piece's place in grains from the cell under you, that cell (wrapped as the keys
+                    // are), the seed, which way is up, how high that cell lies against the ground, and the mix
+                    c[40] = (float)(p.Cx / _ggG - _ggI); c[41] = (float)(p.Cy / _ggG - _ggJ); c[42] = (float)(p.Cz / _ggG - _ggK); c[43] = (float)(1 / _ggG);
+                    c[44] = Bits((uint)_ggI); c[45] = Bits((uint)_ggJ); c[46] = Bits((uint)_ggK); c[47] = Bits(_ggSeed);
+                    c[19] = (float)_ggUx; c[23] = (float)_ggUy; c[31] = (float)_ggUz; c[24] = (float)_ggH; c[39] = _ggMix + 1;
+                }
                 drawer.Draw(p.Buffer, p.Count, c, x, y, w, h);
             }
         }
 
+        private void Light(float[] c)
+        {
+            if (SunColour == null || NightColour == null) return;
+            c[32] = SunColour[0]; c[33] = SunColour[1]; c[34] = SunColour[2]; c[35] = 1;
+            c[36] = NightColour[0]; c[37] = NightColour[1]; c[38] = NightColour[2];
+        }
+
+        private static float Bits(uint u) { return BitConverter.ToSingle(BitConverter.GetBytes(u), 0); }
         private static float[] Pack(Mat4 vp)
         {
             var c = new float[BillboardPipeline.ConstantCount];
@@ -970,7 +1389,7 @@ namespace DnaAnd.Gen
             var c = Pack(vp);
             c[16] = lx; c[17] = ly; c[18] = lz;
             c[20] = (float)camX; c[21] = (float)camY; c[22] = (float)camZ;
-            c[26] = 1;
+            c[26] = 1; Light(c);
             drawer.Draw(_airShell, _airCount, c, x, y, w, h);
         }
 
@@ -999,6 +1418,13 @@ namespace DnaAnd.Gen
             {
                 double horizon = Math.Sqrt(camDist * camDist - Radius * Radius) + Math.Sqrt(Math.Max(0, r * r - Radius * Radius));
                 if (dist > horizon + p.Edge * 1.6 + 12) return;
+            }
+            // out of view (behind you or off to the side): drawn as it is, but not split finer, so only what you see loads in
+            // detail; pieces right around you always split, so turning your head never shows a hole
+            if (ViewDir != null && level >= 3 && dist > p.Edge * 1.5)
+            {
+                double ang = Math.Acos(Math.Max(-1, Math.Min(1, (dx * ViewDir[0] + dy * ViewDir[1] + dz * ViewDir[2]) / Math.Max(1e-12, dist))));
+                if (ang > ViewHalfAngle + Math.Asin(Math.Min(1, p.Edge * 0.9 / dist)) + 0.05) { _drawList.Add(p); return; }
             }
             bool mustSplit = Shell && (Mask != 0 || Cutaway != null) && level < 4;     // rings, gaps and cutaways show only once the shell is cut into small enough pieces
             if (level < MaxLevel[layer] && (dist < p.Edge * splitFactor || mustSplit))
@@ -1036,13 +1462,17 @@ namespace DnaAnd.Gen
             if (_cache.Count <= MaxCached) return;
             var old = new List<PKey>();
             foreach (var kv in _cache) if (kv.Value.Level > 1 && _frame - kv.Value.LastUsed > 30) old.Add(kv.Key);
-            foreach (PKey k in old) { _cache[k].Buffer.Dispose(); _cache.Remove(k); }
+            foreach (PKey k in old) { Release(_cache[k]); _cache.Remove(k); }
         }
 
         public void Dispose()
         {
+            _disposed = true; lock (_askLock) _asks.Clear();
             foreach (var p in _cache.Values) p.Buffer.Dispose();
+            while (_pool.Count > 0) _pool.Pop().Dispose();
             _cache.Clear();
+            foreach (var p in _pending.Values) p.Buffer.Dispose();
+            _pending.Clear();
             if (_airShell != null) _airShell.Dispose();
         }
     }

@@ -8,7 +8,22 @@ namespace DnaAnd.Platform
         private readonly bool[] _down = new bool[256];
         private readonly bool[] _pressed = new bool[256];
         public int MouseX, MouseY, MouseDX, MouseDY;
-        public int Wheel;            // wheel notches this frame (+ away from you)
+        /// <summary>The render scale: mouse positions are given in the pixels the game draws, not the window's.</summary>
+        public double Scale = 1;
+        /// <summary>How far to zoom this frame, in notches (+ away from you). The real wheel's notches are not applied at once:
+        /// they glide in over about a tenth of a second (<see cref="Glide"/>), and each counts for 0.7 of a step, so zooming is smooth and steady.</summary>
+        public double Wheel;
+        private double _pending;
+
+        /// <summary>Adds wheel notches to glide in (the real wheel, and test runs).</summary>
+        public void Notch(double n) { _pending += n * 0.7; }
+
+        /// <summary>Lets this frame's share of the waiting notches through. <paramref name="fast"/>: eight times as fast (Ctrl held).</summary>
+        public void Glide(double dt, bool fast)
+        {
+            double take = Math.Abs(_pending) < 0.02 ? _pending : _pending * (1 - Math.Exp(-dt * 12));
+            _pending -= take; Wheel = take * (fast ? 8 : 1);
+        }
         public bool LeftDown, RightDown, LeftClicked, RightClicked;
         private int _lastX, _lastY; private bool _haveLast;
 
@@ -47,7 +62,7 @@ namespace DnaAnd.Platform
                 case Win32.WM_MOUSEMOVE:
                 {
                     long lp = lParam.ToInt64();
-                    int x = (short)(lp & 0xFFFF), y = (short)((lp >> 16) & 0xFFFF);
+                    int x = (int)((short)(lp & 0xFFFF) * Scale), y = (int)((short)((lp >> 16) & 0xFFFF) * Scale);
                     if (_haveLast) { MouseDX += x - _lastX; MouseDY += y - _lastY; }
                     _lastX = MouseX = x; _lastY = MouseY = y; _haveLast = true; return true;
                 }
@@ -56,7 +71,7 @@ namespace DnaAnd.Platform
                 case Win32.WM_RBUTTONDOWN: RightDown = true; RightClicked = true; return true;
                 case Win32.WM_RBUTTONUP: RightDown = false; return true;
                 case Win32.WM_MOUSEWHEEL:
-                    Wheel += (short)((wParam.ToInt64() >> 16) & 0xFFFF) / 120; return true;
+                    Notch((short)((wParam.ToInt64() >> 16) & 0xFFFF) / 120.0); return true;
             }
             return false;
         }

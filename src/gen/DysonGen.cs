@@ -22,86 +22,71 @@ namespace DnaAnd.Gen
     internal static class DysonGen
     {
         public const double Au = 1.496e8;                     // km
-        public static readonly string[] Ids = { "mirrors", "dyson-swarm", "star-ring", "dyson-bubble", "part-shell", "dyson-shell", "matrioshka-brain", "stellar-engine", "dimmed-swarm" };
+        /// <summary>The builds in order (content/space-tech.dnat @build), the first steps first.</summary>
+        public static List<string> Ids(ContentLibrary content) { var l = new List<string>(); foreach (var e in content.OfKind("space-tech.dnat", "build")) l.Add(e.Id); return l; }
 
         public static DysonStructure Build(IntPtr device, ContentLibrary content, string id, ulong seed)
         {
             var d = new DysonStructure { Id = id, Name = id, Outer = Au };
-            string contentId = id == "part-shell" ? "dyson-shell" : id == "dimmed-swarm" ? "dyson-swarm" : id;
-            foreach (var e in content.OfKind("space-tech.dnat", "mega")) if (e.Id == contentId) d.Name = e.Name;
-            if (id == "mirrors") d.Name = "Mirror satellites (the first step)";
-            if (id == "part-shell") d.Name = d.Name + ", part-built";
-            if (id == "dimmed-swarm") d.Name = d.Name + ", finished (the star is nearly hidden)";
+            ContentEntry be = null; foreach (var e in content.OfKind("space-tech.dnat", "build")) if (e.Id == id) be = e;
+            if (be == null) return d;
+            var ci = System.Globalization.CultureInfo.InvariantCulture; var fs = System.Globalization.NumberStyles.Float;
+            Func<string, double, double> num = (t, f) => { double v; return double.TryParse(t, fs, ci, out v) ? v : f; };
+            // its name: its own, or the megastructure it is a step of, with what is added
+            d.Name = be.Get("name", id);
+            string of = be.Get("of", ""); if (of.Length > 0) foreach (var e in content.OfKind("space-tech.dnat", "mega")) if (e.Id == of) d.Name = e.Name + be.Get("suffix", "");
+            d.StarBright = (float)num(be.Get("star-bright", "1"), 1); d.Outer = Au * num(be.Get("outer-au", "1"), 1);
             var rng = new Rng(seed);
             var pts = new List<StarVertex>();
-            uint s32 = (uint)(seed & 0xFFFFFFFF);
-            switch (id)
+            uint s32 = (uint)(seed & 0xFFFFFFFF); int shells = 0;
+            foreach (var part in be.All("part"))
             {
-                case "mirrors":
-                    for (int i = 0; i < 500; i++) pts.Add(Orbiting(rng, Au * rng.Range(0.5f, 0.9f), 0.3, 900000, 0.95f, 0.95f, 1f, 0.9f));
-                    break;
-                case "dyson-swarm":
-                case "dimmed-swarm":
-                    {
-                        int n = id == "dyson-swarm" ? 30000 : 70000, rings = id == "dyson-swarm" ? 40 : 160;
-                        for (int i = 0; i < n; i++)
+                var w = part.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries); if (w.Length == 0) continue;
+                Func<int, double, double> arg = (k, f) => k < w.Length ? num(w[k], f) : f;
+                switch (w[0])
+                {
+                    case "mirrors":
+                        for (int i = 0, n = (int)arg(1, 500); i < n; i++) pts.Add(Orbiting(rng, Au * rng.Range((float)arg(2, 0.5), (float)arg(3, 0.9)), 0.3, 900000, 0.95f, 0.95f, 1f, 0.9f));
+                        break;
+                    case "swarm":
                         {
-                            // collectors on many tilted rings: dark panels that glint blue in the light
-                            int ring = i % rings; var rr = new Rng(seed + (ulong)ring * 31UL);
-                            double tilt = rr.NextDouble() * Math.PI, node = rr.NextDouble() * Math.PI * 2, rad = Au * (0.9 + 0.2 * rr.NextDouble());
-                            double a = rng.NextDouble() * Math.PI * 2;
-                            pts.Add(OnRing(rad, tilt, node, a, 700000, 0.25f, 0.35f, 0.6f, id == "dyson-swarm" ? 0.7f : 0.5f));
+                            int n = (int)arg(1, 30000), rings = Math.Max(1, (int)arg(2, 40)); float bright = (float)arg(3, 0.7);
+                            for (int i = 0; i < n; i++)
+                            {
+                                // collectors on many tilted rings: dark panels that glint blue in the light
+                                int ring = i % rings; var rr = new Rng(seed + (ulong)ring * 31UL);
+                                double tilt = rr.NextDouble() * Math.PI, node = rr.NextDouble() * Math.PI * 2, rad = Au * (0.9 + 0.2 * rr.NextDouble());
+                                double a = rng.NextDouble() * Math.PI * 2;
+                                pts.Add(OnRing(rad, tilt, node, a, 700000, 0.25f, 0.35f, 0.6f, bright));
+                            }
                         }
-                        d.StarBright = id == "dyson-swarm" ? 0.8f : 0.2f;
-                    }
-                    break;
-                case "dyson-bubble":
-                    for (int i = 0; i < 24000; i++)
-                    {
-                        // light sails held still by the star's own light: a thin even sphere, hovering, not orbiting
-                        double u = rng.NextDouble() * 2 - 1, a = rng.NextDouble() * Math.PI * 2, r = Math.Sqrt(1 - u * u), rad = Au * rng.Range(0.98f, 1.02f);
-                        pts.Add(SpaceGen.Star(new Vec3((float)(Math.Cos(a) * r * rad), (float)(u * rad), (float)(Math.Sin(a) * r * rad)), 500000, 0.8f, 0.82f, 0.9f, 0.35f));
-                    }
-                    d.StarBright = 0.7f;
-                    break;
-                case "star-ring":
-                    d.Shells.Add(PlanetTerrain.MakeShell(device, d.Name, s32, Au, true, 1));
-                    break;
-                case "part-shell":
-                    d.Shells.Add(PlanetTerrain.MakeShell(device, d.Name, s32, Au, true, 2));
-                    break;
-                case "dyson-shell":
-                    d.Shells.Add(PlanetTerrain.MakeShell(device, d.Name, s32, Au, true, 0));
-                    d.StarBright = 0f;
-                    break;
-                case "matrioshka-brain":
-                    {
-                        // nested shells of computers: each layer runs on the waste heat of the one inside it, glowing red
-                        double[] radii = { 0.4 * Au, 0.9 * Au, 1.8 * Au };
-                        for (int k = 0; k < 3; k++)
+                        break;
+                    case "bubble":
+                        for (int i = 0, n = (int)arg(1, 24000); i < n; i++)
                         {
-                            var sh = PlanetTerrain.MakeShell(device, d.Name, s32 + (uint)k, radii[k], false, k == 0 ? 0 : 2);
-                            sh.HullR = 0.5f - 0.12f * k; sh.HullG = 0.12f; sh.HullB = 0.08f; sh.HullGlow = 0.6f - 0.18f * k;
-                            d.Shells.Add(sh);
+                            // light sails held still by the star's own light: a thin even sphere, hovering, not orbiting
+                            double u = rng.NextDouble() * 2 - 1, a = rng.NextDouble() * Math.PI * 2, r = Math.Sqrt(1 - u * u), rad = Au * rng.Range(0.98f, 1.02f);
+                            pts.Add(SpaceGen.Star(new Vec3((float)(Math.Cos(a) * r * rad), (float)(u * rad), (float)(Math.Sin(a) * r * rad)), 500000, 0.8f, 0.82f, 0.9f, 0.35f));
                         }
-                        d.Outer = radii[2]; d.StarBright = 0f;
-                    }
-                    break;
-                case "stellar-engine":
-                    {
-                        // a huge curved mirror on one side pushes the star's light one way, so the whole star slowly moves
-                        var cap = PlanetTerrain.MakeShell(device, d.Name, s32, Au, false, 3);
-                        cap.HullR = 0.85f; cap.HullG = 0.86f; cap.HullB = 0.9f; cap.HullGlow = 0.45f;
-                        d.Shells.Add(cap);
-                        for (int i = 0; i < 3000; i++)
+                        break;
+                    case "shell":
                         {
+                            var sh = PlanetTerrain.MakeShell(device, d.Name, s32 + (uint)shells, Au * arg(1, 1), w.Length > 2 && w[2] == "yes", (int)arg(3, 0));
+                            if (w.Length > 7) { sh.HullR = (float)arg(4, 0.5); sh.HullG = (float)arg(5, 0.5); sh.HullB = (float)arg(6, 0.5); sh.HullGlow = (float)arg(7, 0); }
+                            d.Shells.Add(sh); shells++;
+                        }
+                        break;
+                    case "jet":
+                        for (int i = 0, n = (int)arg(1, 3000); i < n; i++)
+                        {
+                            // the light pushed out one way: the whole star slowly moves the other
                             float t = (float)rng.NextDouble();
                             double spread = Au * 0.05 * t;
                             var p = new Vec3((float)(rng.Range(-1, 1) * spread), (float)(-Au * 1.4 * t - 800000), (float)(rng.Range(-1, 1) * spread));
                             pts.Add(SpaceGen.Star(p, (float)(1500000 + spread * 0.3), 1f, 0.75f, 0.45f, 0.25f * (1 - t)));
                         }
-                    }
-                    break;
+                        break;
+                }
             }
             // docks on every hull, and ship traffic between the docks and inward toward the star
             foreach (var sh in d.Shells)
