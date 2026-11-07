@@ -217,3 +217,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (a dive onto a small body lands on the drawn stone): DESIGN 637.
 - 2026-11-07 (a spot on any small body picked by a click): DESIGN 638.
 - 2026-11-07 (small bodies from their precise offsets: the belt's grid gone): DESIGN 639.
+- 2026-11-07 (the pick's aim at a small body its precise offset): DESIGN 640.
