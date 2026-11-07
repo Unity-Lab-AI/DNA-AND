@@ -190,3 +190,4 @@ LAW 11 now includes a content-coverage check.
 - [x] "still nothing in view at 122km above a astroid" / "same with comet no trail no dust nothing": the near drawing distance counts the small bodies (DESIGN 402).
 - [x] "and it pausdes to long on a glaxy it makes me think its frozen so i know others will think that too": faster galaxy arcs; never still while waiting, and says so (DESIGN 403).
 - [x] "and it jsut rotates around the planet it zooms into for loike 20 rotations making me dizzy as fuck with gimle losk happening stilkl": no circling on the way down to a world (DESIGN 404).
+- [x] "dnd  5 fps so u arnt proply not doing other shit and only the view window": only the grain face in view worked out and drawn (DESIGN 405).
