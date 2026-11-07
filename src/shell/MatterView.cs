@@ -256,7 +256,21 @@ namespace DnaAnd.Shell
         {
             if (e == null || f <= 0.02) return;
             Orbitals(glow, e, x, y, z, s, time, key, f);
-            Add(glow, x, y, z, Math.Max(NucleusRadius(e) * 3, s * 0.0035), 1f * f, 0.75f * f, 0.5f * f, s);
+            // its electrons, each going round on its own path tilted its own way in three dimensions (never all in one plane),
+            // the inner shells faster, the valence shell (the one it bonds with) in gold
+            double ar = AtomRadius(e), dot = s * 0.0035; int shells = e.Shells.Length;
+            if (ar / s > 0.004)
+                for (int sh = 0; sh < shells; sh++)
+                {
+                    double rr = ar * (sh + 1) / shells; bool valence = sh == shells - 1; int ne = e.Shells[sh];
+                    for (int k = 0; k < ne; k++)
+                    {
+                        double tilt = Hash(key + sh, k, 33, _seed) * Math.PI, turn = Hash(key + sh, k, 34, _seed) * Math.PI * 2, ang = time * (2.2 / (sh + 1)) + k * Math.PI * 2 / ne;
+                        double ox = Math.Cos(ang) * rr, oz = Math.Sin(ang) * rr, oy = oz * Math.Sin(tilt); oz *= Math.Cos(tilt);
+                        Add(glow, x + ox * Math.Cos(turn) - oz * Math.Sin(turn), y + oy, z + ox * Math.Sin(turn) + oz * Math.Cos(turn), dot, (valence ? 1f : 0.45f) * f, (valence ? 0.8f : 0.75f) * f, (valence ? 0.25f : 1f) * f, s);
+                    }
+                }
+            Add(glow, x, y, z, Math.Max(NucleusRadius(e) * 3, dot), 1f * f, 0.75f * f, 0.5f * f, s);
         }
         private void Orbitals(List<StarVertex> glow, Element e, double x, double y, double z, double s, double time, long key, float f)
         {

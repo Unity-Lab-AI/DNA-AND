@@ -218,8 +218,19 @@ namespace DnaAnd.Gen
         public sealed class Body
         {
             public string Kind; public double OrbitUnits, RadiusUnits, Period, Phase; public float R, G, B;
+            // its orbit's tilt to the system's plane and where it crosses it (radians): planets lie within a few degrees of one
+            // plane (ours: Mercury 7, Pluto 17; around other stars mostly 1 to 3 degrees between planets, some far out of line);
+            // close moons in their planet's plane, far captured ones at any tilt, even going round backwards
+            public double Incl, Node;
+            /// <summary>Where on its orbit it is at angle <paramref name="ang"/> from where it crosses the plane, from what it circles.</summary>
+            public void At(double ang, out double x, out double y, out double z)
+            {
+                double cu = Math.Cos(ang), su = Math.Sin(ang), cn = Math.Cos(Node), sn = Math.Sin(Node), ci = Math.Cos(Incl), si = Math.Sin(Incl);
+                x = OrbitUnits * (cn * cu - sn * su * ci); y = OrbitUnits * su * si; z = OrbitUnits * (sn * cu + cn * su * ci);
+            }
             public int Parent = -1; // index of the planet a moon circles
         }
+        private static double Frac(double v) { return v - Math.Floor(v); }
         public sealed class StarSystem
         {
             public string StarName; public double StarRadius, Luminosity, FrostLineAu, HabitableAu, MassSol, TempK, RadiusSol;
@@ -292,6 +303,18 @@ namespace DnaAnd.Gen
                     });
             }
             sys.Planets = count;
+            foreach (var b in sys.Bodies)
+            {
+                double u1 = Frac(Math.Sin(b.Phase * 91.7 + b.OrbitUnits * 1e-3) * 43758.5453), u2 = Frac(Math.Sin(b.Phase * 37.3 + 4.1) * 24634.6345), u3 = Frac(Math.Sin(b.Phase * 13.1 + 9.7) * 15731.743);
+                b.Node = u2 * Math.PI * 2;
+                if (b.Parent < 0)
+                    b.Incl = (u3 < 0.06 ? 8 + u1 * 25 : Math.Sqrt(-2 * Math.Log(Math.Max(1e-9, u1))) * 1.5) * Math.PI / 180;   // most within a few degrees; a few far out of line
+                else
+                {
+                    double far = b.OrbitUnits / Math.Max(1e-30, sys.Bodies[b.Parent].RadiusUnits);
+                    b.Incl = far > 25 ? Math.Acos(1 - 2 * u1) : u1 * 2 * Math.PI / 180;    // close moons in the planet's plane; far ones captured, any tilt (past 90: backwards)
+                }
+            }
 
             var stat = new List<StarVertex>();
             // orbit lines
@@ -300,7 +323,7 @@ namespace DnaAnd.Gen
                     for (int k = 0; k < 240; k++)
                     {
                         double t = k / 240.0 * Math.PI * 2;
-                        stat.Add(Star(new Vec3((float)(Math.Cos(t) * b.OrbitUnits), 0, (float)(Math.Sin(t) * b.OrbitUnits)), 0, 0.35f, 0.45f, 0.6f, 0.22f));
+                        { double ox, oy, oz; b.At(t, out ox, out oy, out oz); stat.Add(Star(new Vec3((float)ox, (float)oy, (float)oz), 0, 0.35f, 0.45f, 0.6f, 0.22f)); }
                     }
             // asteroid belt in the gap between the rocky planets and the giants
             if (firstGiant > 0 && lastRocky > 0)
@@ -359,7 +382,7 @@ namespace DnaAnd.Gen
             int focus, double scale, out double fx, out double fy, out double fz)
         {
             int count = sys.Bodies.Count;
-            var px = new double[count]; var pz = new double[count];
+            var px = new double[count]; var py = new double[count]; var pz = new double[count];
             double seconds = yearsPerSecond > 0 ? simYears / yearsPerSecond : 0;
             for (int i = 0; i < count; i++)
             {
@@ -370,16 +393,16 @@ namespace DnaAnd.Gen
                 double ang = turn <= maxTurnPerSecond || yearsPerSecond <= 0
                     ? b.Phase + simYears / period * Math.PI * 2
                     : b.Phase + seconds * maxTurnPerSecond;
-                double cx = b.Parent >= 0 ? px[b.Parent] : 0, cz = b.Parent >= 0 ? pz[b.Parent] : 0;
-                px[i] = cx + Math.Cos(ang) * b.OrbitUnits; pz[i] = cz + Math.Sin(ang) * b.OrbitUnits;
+                double cx = b.Parent >= 0 ? px[b.Parent] : 0, cy = b.Parent >= 0 ? py[b.Parent] : 0, cz = b.Parent >= 0 ? pz[b.Parent] : 0, ox, oy, oz;
+                b.At(ang, out ox, out oy, out oz); px[i] = cx + ox; py[i] = cy + oy; pz[i] = cz + oz;
             }
-            fx = focus >= 0 && focus < count ? px[focus] : 0; fy = 0; fz = focus >= 0 && focus < count ? pz[focus] : 0;
+            fx = focus >= 0 && focus < count ? px[focus] : 0; fy = focus >= 0 && focus < count ? py[focus] : 0; fz = focus >= 0 && focus < count ? pz[focus] : 0;
             int n = 0;
-            outV[n++] = Star(new Vec3((float)(-fx * scale), 0, (float)(-fz * scale)), (float)(sys.StarRadius * scale), sys.SR, sys.SG, sys.SB, 1f);
+            outV[n++] = Star(new Vec3((float)(-fx * scale), (float)(-fy * scale), (float)(-fz * scale)), (float)(sys.StarRadius * scale), sys.SR, sys.SG, sys.SB, 1f);
             for (int i = 0; i < count; i++)
             {
                 var b = sys.Bodies[i];
-                outV[n++] = Star(new Vec3((float)((px[i] - fx) * scale), 0, (float)((pz[i] - fz) * scale)), (float)(b.RadiusUnits * scale),
+                outV[n++] = Star(new Vec3((float)((px[i] - fx) * scale), (float)((py[i] - fy) * scale), (float)((pz[i] - fz) * scale)), (float)(b.RadiusUnits * scale),
                     b.R, b.G, b.B, b.Parent >= 0 ? 0.6f : 1f);
             }
             return n;
