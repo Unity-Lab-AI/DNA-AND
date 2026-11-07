@@ -1167,6 +1167,20 @@ namespace DnaAnd.Shell
             }
             if (overlay) return;                                                         // over the ground: the ground itself is its grains; nothing is laid over it (only the grains to click)
             if (!_noGrains && !_space && mesh != null && s < FocusRad * 1.5) GrainPatch(mesh, s);   // (down among the atoms too: its rings carry the grain on out round them)
+            if (!_noGrains && !_space && s < FocusRad * 1.5 && s > AtomSpacing * 4)
+            {
+                // the grain's face can be picked anywhere, at the size you are looking at: a grid of spots round you (each its card:
+                // the mineral, its make-up, its terraces close in, how high you are above it), sitting on the face's real height
+                long fgi, fgj; double fgx, fgy, fgz, frad; FocusGrain(out fgi, out fgj, out fgx, out fgy, out fgz, out frad);
+                double step = s * 0.5; long a0 = (long)Math.Round(_fx / step), b0 = (long)Math.Round(_fz / step);
+                for (long a = a0 - 4; a <= a0 + 4; a++)
+                    for (long b = b0 - 4; b <= b0 + 4; b++)
+                    {
+                        double sx = a * step, sz = b * step, sy;
+                        if (!GrainTop(fgi, fgj, fgx, fgy, fgz, frad, sx, sz, step, out sy)) continue;
+                        AddBody(2, a, b, sx, sy, sz, step * 0.45, s);
+                    }
+            }
             if (!_noGrains && !_space && s < FocusRad * 1.5) SurfaceThings(solid, glow, mesh, s);
             AirAbove(glow, s);                                                               // the world's air over the ground, molecule by molecule
             if (overlay) return;                                                        // over the ground: only its grains so far
