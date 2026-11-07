@@ -371,3 +371,7 @@ TODO items whose markers were flipped to done in this audit, because the code ha
 
 Files touched: `README.md`, `docs/release/UNIVERSE-README.md`, `UNIVERSE-HOW-TO-BUILD.md`, `UNIVERSE-COMPARED.md`, `UNIVERSE-GUIDE.md`, `IN-GAME-HOW-IT-WORKS.md`, `IN-GAME-README.md`, `README.txt`, `universe/README.txt`, `universe/CREDITS.md`, `docs/HOW-TO-BUILD.md`, `docs/SETUP.md`, `docs/CONTENT-FORMAT.md`, `docs/LISTS.md`, `docs/ROADMAP.md`, `docs/TODO.md`, `docs/wiki/controls.md`, `faq.md`, `glossary.md` and every player page's footer, `wiki/CLAUDE.md`, `wiki/index.md`, `wiki/systems/r02`, `r04`, `r05`, `r16`, `wiki/log.md`.
 
+## 2026-11-07 — The two projects in the roadmap, R21, the Universe's still-to-come
+
+- [x] **The two projects set side by side in the roadmap, the Universe program's own road (R21), and its public still-to-come:** (DESIGN 574) "oaky are all the workflow files complete and full for both projects detailing the combined plot and notitions ive been telling what these projects are and what they intell in full as what ive said it all should be intoalitly for both projects fully and completely filled out". Files: `docs/ROADMAP.md`, `docs/release/UNIVERSE-README.md`, `docs/release/IN-GAME-HOW-IT-WORKS.md`, `docs/DESIGN.md`, `docs/TODO.md`.
+
