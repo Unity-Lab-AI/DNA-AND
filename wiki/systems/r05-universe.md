@@ -2,7 +2,7 @@
 title: R5 · Universe
 status: partial
 sources: [docs/DESIGN.md (rounds 1-2), docs/ROADMAP.md#R5, src/gen/GalaxyGen.cs, src/gen/StarGen.cs, src/gen/DysonGen.cs]
-last-verified: 5dd380b
+last-verified: b9fcaf3
 ---
 
 # 🌌 R5 · Universe
@@ -57,4 +57,5 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
   - The star is drawn as a coloured shine from far away and as its plasma and corona up close.
   - Every star kind with a surface temperature and a share of stars can appear in a galaxy: 26 kinds, from red dwarfs to Wolf-Rayet stars, white dwarfs and pulsars (stellar black holes give no light and are not picked as a system's star). Its colour comes from its surface temperature, the way a glowing hot body shines (Planck's law): red when cool, white near the Sun's temperature, blue when hot. How bright it shines comes from its size and temperature (the Sun: 1 radius, 5772 K), which sets where its frost line and habitable zone lie.
   - The planet being approached is drawn as the real 3D planet.
+  - Orbits are not all in one plane: each planet's tilts a few degrees from the system's plane (a few far out of line), close moons lie in their planet's plane, far captured moons at any tilt, some going round backwards.
 - **The Dyson sphere** (`src/gen/DysonGen.cs`, `PlanetTerrain.cs` in shell mode): an industrial hull outside and a terraformed inside-out world, with free flight.
