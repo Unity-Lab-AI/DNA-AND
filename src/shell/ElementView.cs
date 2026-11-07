@@ -46,7 +46,7 @@ namespace DnaAnd.Shell
         {
             get
             {
-                string t = "DNA-AND samples · Set 7: Elements · " + _tempK.ToString("0") + " K (" + C(_tempK) + ") · pressure " + _atm.ToString(_atm < 0.01 ? "0.0000" : "0.00") + " atm";
+                string t = DnaAnd.Shell.PreviewText.AppName + " samples · Set 7: Elements · " + _tempK.ToString("0") + " K (" + C(_tempK) + ") · pressure " + _atm.ToString(_atm < 0.01 ? "0.0000" : "0.00") + " atm";
                 int show = _hover >= 0 ? _hover : _picked;
                 if (show >= 0) { var e = _els[show]; t += " · " + e.Number + " " + e.Name + " (" + e.Symbol + "), " + e.Group + ", " + e.StateAt(_tempK, _atm) + " here"; }
                 return t + " · Up/Down: temperature · Left/Right: pressure · Home: room · wheel: zoom · drag: move · click: look closer · Legend for details";

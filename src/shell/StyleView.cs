@@ -74,14 +74,14 @@ namespace DnaAnd.Shell
             {
                 var kept = new List<string>(); for (int i = 0; i < 9; i++) if (_marks[i]) kept.Add((i + 1).ToString());
                 if (_civ)
-                    return "DNA-AND samples · What an intelligent species builds, from its own genes · builds in " + CivGen.StyleNames[CivGen.Style(_genes[0])] + " · " + (_gens == 0 ? "as first made" : _gens + " generations evolved") +
+                    return DnaAnd.Shell.PreviewText.AppName + " samples · What an intelligent species builds, from its own genes · builds in " + CivGen.StyleNames[CivGen.Style(_genes[0])] + " · " + (_gens == 0 ? "as first made" : _gens + " generations evolved") +
                            " · keepers: " + (kept.Count == 0 ? "none" : string.Join(", ", kept.ToArray())) +
                            " · 1-5: way of building · E: evolve the species · N: new species · drag: turn · wheel: zoom · Space: stop turning · right-click: mark keeper · Legend";
                 if (_family)
-                    return "DNA-AND samples · A family of " + GeneBody.KindNames[_kind] + ", built from their genes · " + (_gens == 0 ? "as first made" : _gens + " generations evolved") +
+                    return DnaAnd.Shell.PreviewText.AppName + " samples · A family of " + GeneBody.KindNames[_kind] + ", built from their genes · " + (_gens == 0 ? "as first made" : _gens + " generations evolved") +
                            " · keepers: " + (kept.Count == 0 ? "none" : string.Join(", ", kept.ToArray())) +
                            " · 1-7: kind of life · E: evolve a generation · N: new family · drag: turn · wheel: zoom · Space: stop turning · right-click: mark keeper · Legend";
-                return "DNA-AND samples · Style of living and built things · look " + (_look + 1) + " of 3: " + BodyGen.LookNames[_look] +
+                return DnaAnd.Shell.PreviewText.AppName + " samples · Style of living and built things · look " + (_look + 1) + " of 3: " + BodyGen.LookNames[_look] +
                        " · keepers: " + (kept.Count == 0 ? "none" : string.Join(", ", kept.ToArray())) +
                        " · 1 2 3: change look · drag: turn · wheel: zoom · Space: stop turning · right-click: mark keeper · Legend";
             }

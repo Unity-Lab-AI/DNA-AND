@@ -17,7 +17,7 @@ namespace DnaAnd
         private static int Main(string[] args)
         {
             // any crash, on any thread, is written to the log with where it happened, before the program goes
-            AppDomain.CurrentDomain.UnhandledException += (o, ev) => { try { System.IO.Directory.CreateDirectory("build"); System.IO.File.AppendAllText(System.IO.Path.Combine("build", "last-run.log"), "crash · " + ev.ExceptionObject + Environment.NewLine); } catch { } };
+            AppDomain.CurrentDomain.UnhandledException += (o, ev) => { try { System.IO.Directory.CreateDirectory("build"); System.IO.File.AppendAllText(System.IO.Path.Combine("build", "last-run.log"), "crash · " + (ev.ExceptionObject.ToString().Contains("887A0005") || ev.ExceptionObject.ToString().Contains("887A0006") ? "the graphics card stopped answering (a frame took longer than Windows allows, so it reset the driver) · " : "") + ev.ExceptionObject + Environment.NewLine); } catch { } };
             // --smoke <ms>: a timed test run that closes itself after <ms> milliseconds.
             int smokeMs = -1; bool testStall = false; int testDeep = -1; double testZoom = -1; bool testVisit = false, testCore = false; int openSet = 0; int openLook = 0; double testEvolve = 0; int testPlanet = -1; double clickAt = -1, clickX = 0.5, clickY = 0.5; double wheelFrom = -1, wheelFor = 0, backFrom = -1, backFor = 0; int pressKey = -1; double pressAt = -1; int testDyson = -1; bool testInside = false; int testJumps = 0; bool testFieldView = false; double testAlt = -1; double[] tour = null; int tourStep = 0; string tourName = "tour"; double shotAt = -1; string shotPath = null; int testSpeed = -1; double tryEvery = -1; int wheelEvery = 1; bool aimCentre = false; double journeyAt = -1, deepSince = -1; double clipAt = -1, clipFor = 10; string clipPath = null; DnaAnd.Render.GifWriter clip = null; int clipFrame = 0; bool wantShot = false, wantRecord = false, wantTour = false; DnaAnd.Render.Mp4Writer rec = null; double shotsEvery = -1, shotsNext = 0; int shotsN = 0; string shotName = null; string recordTour = null; bool recForTour = false;
             for (int i = 0; i < args.Length; i++)
@@ -177,7 +177,7 @@ namespace DnaAnd
                 if (testAlt > 0) planet.SetAltitude(testAlt);
             }
             if (testPlanet >= 0) { planet = new PlanetView(gpu, meshes, pipeline, viewer.TerrainAt(testPlanet), viewer.FieldTerrainAt(testPlanet), viewer.Set == 5 || testFieldView); planet.TestEvolveYears = testEvolve; planet.TestGoToCiv = Array.IndexOf(args, "--tociv") >= 0; int sli = Array.IndexOf(args, "--savelife"); if (sli >= 0 && sli + 1 < args.Length) planet.TestSaveLife = args[sli + 1]; int lli = Array.IndexOf(args, "--loadlife"); if (lli >= 0 && lli + 1 < args.Length) planet.TestLoadLife = args[lli + 1]; int csi = Array.IndexOf(args, "--civstep"); if (csi >= 0 && csi + 1 < args.Length) int.TryParse(args[csi + 1], out planet.TestCivStep); for (int k = 0; k < testJumps; k++) planet.JumpToNextField(); if (testAlt > 0) planet.SetAltitude(testAlt); int si = Array.IndexOf(args, "--undersea"); if (si >= 0 && si + 1 < args.Length) planet.GoUnderSea(double.Parse(args[si + 1], System.Globalization.CultureInfo.InvariantCulture)); }
-            UniverseView universe = journey ? new UniverseView(gpu, pipeline, content, Seed) : null;
+            GalaxiesView universe = journey ? new GalaxiesView(gpu, pipeline, content, Seed) : null;
             bool landing = PreviewBuild && args.Length == 0;                            // a plain launch: the landing page first
             DnaAnd.Platform.Launcher.Choice landed = DnaAnd.Platform.Launcher.Choice.Begin;
             if (landing)
@@ -187,8 +187,17 @@ namespace DnaAnd
                 if (landed == DnaAnd.Platform.Launcher.Choice.Quit) { window.Close(); gpu.Dispose(); return 0; }
                 if (chosen.HasValue) { Seed = chosen.Value; WriteLog("universe seed " + Seed + " (chosen on the landing page)"); }
             }
-            WorldView world = Array.IndexOf(args, "--world") >= 0 || PreviewBuild ? new WorldView(gpu, pipeline, meshes, content, Seed) { AutoPath = Array.IndexOf(args, "--autopath") >= 0, AutoNebula = Array.IndexOf(args, "--autonebula") >= 0 } : null;   // the one world: one camera through every scale
-            if (landing && landed == DnaAnd.Platform.Launcher.Choice.Tour && world != null) world.StartTour("grand-tour");
+            UniverseView world = Array.IndexOf(args, "--world") >= 0 || PreviewBuild ? new UniverseView(gpu, pipeline, meshes, content, Seed) { AutoPath = Array.IndexOf(args, "--autopath") >= 0, AutoNebula = Array.IndexOf(args, "--autonebula") >= 0 } : null;   // the universe: one camera through every scale
+            if (landing && landed == DnaAnd.Platform.Launcher.Choice.Tour && world != null)
+            {
+                world.StartTour("grand-tour");
+                if (DnaAnd.Platform.Launcher.RecordTour)
+                {
+                    // filmed: the whole tour as an MP4 clip in the captures folder, finished when the tour ends
+                    try { System.IO.Directory.CreateDirectory(DnaAnd.Platform.Launcher.Captures); } catch { }
+                    recordTour = System.IO.Path.Combine(DnaAnd.Platform.Launcher.Captures, "tour " + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss") + ".mp4");
+                }
+            }
             { int ti = Array.IndexOf(args, "--tour"); if (world != null && ti >= 0) world.StartTour(ti + 1 < args.Length && !args[ti + 1].StartsWith("--") ? args[ti + 1] : "grand-tour"); }   // a tour (content/tours/name.dnat)
             if (journey && Array.IndexOf(args, "--test-system") >= 0) { deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(0), viewer.NameOf(0), Seed); deep.TestJourney(gpu.Width, gpu.Height); }
             if (testDeep >= 0) deep = new DeepView(gpu, pipeline, content, viewer.TypeOf(testDeep), viewer.NameOf(testDeep), Seed + (ulong)testDeep * 7919UL);
@@ -199,13 +208,20 @@ namespace DnaAnd
 
                 if (deep == null && planet == null && window.Input.WasPressed(Win32.VK_ESCAPE)) window.Close();
                 // the review menu: rebuilt whenever the set or the keepers change
-                if (world != null) { if (menuDirty || world.MenuChanged) { Window.TimeNames = WorldView.TimeNames; Window.TimeStep = world.TimeStep; window.SetWorldMenu(world.ScaleOn); menuDirty = false; world.MenuChanged = false; } }
+                if (world != null) { if (menuDirty || world.MenuChanged) { Window.TimeNames = UniverseView.TimeNames; Window.TimeStep = world.TimeStep; window.SetWorldMenu(world.ScaleOn); menuDirty = false; world.MenuChanged = false; } }
                 else if (viewer.Set != menuSet || menuDirty) { window.SetReviewMenu(viewer.KeeperLabels(), viewer.KeeperTicks()); menuSet = viewer.Set; menuDirty = false; }
                 int cmd = window.MenuCommand; window.MenuCommand = 0;
                 bool askNow = false;
                 if (cmd == Window.CmdExit) { endReason = "closed with the Exit button"; window.Close(); }
+                else if (cmd == Window.CmdLanding)
+                {
+                    // back to the start page: the program opens afresh on it (a new universe, the tour, the clips) and this one closes
+                    if (rec != null) { rec.Dispose(); rec = null; }
+                    try { System.Diagnostics.Process.Start(System.Reflection.Assembly.GetEntryAssembly().Location); } catch (Exception ex) { WriteLog("start page error · " + ex.Message); }
+                    endReason = "back to the start page"; window.Close();
+                }
                 else if (cmd == Window.CmdAskNow) askNow = true;
-                else if (cmd == Window.CmdLegend) window.Tell(style != null ? style.Legend() : microbes != null ? microbes.Legend() : elements != null ? elements.Legend() : planet != null ? planet.Legend() : viewer.Legend(), "DNA-AND · Legend");
+                else if (cmd == Window.CmdLegend) window.Tell(style != null ? style.Legend() : microbes != null ? microbes.Legend() : elements != null ? elements.Legend() : planet != null ? planet.Legend() : viewer.Legend(), DnaAnd.Shell.PreviewText.AppName + " · Legend");
                 else if (cmd == Window.CmdPause && world != null) world.TogglePause();
                 else if (cmd >= Window.CmdTimeBase && cmd < Window.CmdTimeBase + 16 && world != null) world.SetTime(cmd - Window.CmdTimeBase);
                 else if (cmd > Window.CmdDragBase && cmd <= Window.CmdDragBase + 10) { Settings.Set("drag-speed", cmd - Window.CmdDragBase); menuDirty = true; }
@@ -215,12 +231,13 @@ namespace DnaAnd
                 else if (cmd == Window.CmdAbout) DocViewer.Show(window.Handle, PreviewText.Docs(), 0);
                 else if (cmd == Window.CmdReadme) DocViewer.Show(window.Handle, PreviewText.Docs(), 1);
                 else if (cmd == Window.CmdHowItWorks) DocViewer.Show(window.Handle, PreviewText.Docs(), 2);
-                else if (cmd == Window.CmdCredits) DocViewer.Show(window.Handle, PreviewText.Docs(), 5);
+                else if (cmd == Window.CmdCredits) DocViewer.Show(window.Handle, PreviewText.Docs(), 6);
                 else if (cmd == Window.CmdInvertX) { Settings.Set("invert-left-right", !Settings.Get("invert-left-right", false)); menuDirty = true; }
                 else if (cmd == Window.CmdShot) wantShot = true;
                 else if (cmd == Window.CmdRecord) wantRecord = true;
                 else if (cmd == Window.CmdTour) wantTour = true;
                 else if (cmd == Window.CmdFps) { Settings.Set("show-fps", !Settings.Get("show-fps", true)); menuDirty = true; }
+                else if (cmd == Window.CmdAlwaysDay) { Settings.Set("always-day", !Settings.Get("always-day", false)); menuDirty = true; }
                 else if (cmd == Window.CmdInvertY) { Settings.Set("invert-up-down", !Settings.Get("invert-up-down", false)); menuDirty = true; }
                 else if (cmd == Window.CmdScaleHud && world != null) { world.ScaleOn = !world.ScaleOn; menuDirty = true; }
                 else if (cmd == Window.CmdClearMarks) { viewer.ClearMarks(); menuDirty = true; }
@@ -228,7 +245,7 @@ namespace DnaAnd
                 // keep-or-revert safety pop-up: Yes keeps the test going, No or no answer in 15 s closes it safely
                 if (askNow || (tryEvery > 0 && clock.Total >= nextAsk))
                 {
-                    int answer = window.Ask("Keep this test running?\n\nYes = keep going\nNo = revert (close the game safely)\n\nNo answer in 15 seconds = revert.", "DNA-AND · Keep or revert", 15);
+                    int answer = window.Ask("Keep this test running?\n\nYes = keep going\nNo = revert (close the game safely)\n\nNo answer in 15 seconds = revert.", DnaAnd.Shell.PreviewText.AppName + " · Keep or revert", 15);
                     if (answer == Win32.IDYES) nextAsk = tryEvery > 0 ? clock.Total + tryEvery : double.MaxValue;
                     else { endReason = answer == Win32.MB_TIMEDOUT ? "closed safely: no answer to the keep-or-revert pop-up" : "reverted with the No button"; window.Close(); }
                 }
@@ -307,7 +324,7 @@ namespace DnaAnd
                     int b = deep.HandOff;
                     var body = deep.System.Bodies[b];
                     // carry on with the same 3D planet the solar system view was already drawing, so nothing jumps
-                    var t = deep.FocusTerrain ?? new DnaAnd.Gen.PlanetTerrain(gpu.Device, TerrainKind(body.Kind), body.Kind, (uint)(deep.SystemSeed * 977UL + (ulong)b));
+                    var t = deep.FocusTerrain ?? new DnaAnd.Gen.PlanetTerrain(gpu.Device, body.Terrain ?? TerrainKind(body.Kind), body.Kind, (uint)(deep.SystemSeed * 977UL + (ulong)b));
                     var tf = deep.FocusFields ?? t;
                     planet = new PlanetView(gpu, meshes, pipeline, t, tf, false) { Journey = true };
                     planet.SetAltitude((deep.Distance / deep.BodyRadiusUnits(b) - 1) * t.Radius);
@@ -330,9 +347,9 @@ namespace DnaAnd
                     if (shotsEvery > 0 && clock.Total >= shotsNext) { shotsNext = clock.Total + shotsEvery; wantShot = true; shotName = "shot_" + (shotsN++).ToString("00"); }
                     if (inp.WasPressed(0x78)) wantRecord = true;
                     if (inp.WasPressed('T') && world != null && !world.Touring) wantTour = true;
-                    if (wantTour && world != null) { if (world.Touring) world.StopTour(); else world.StartTour("grand-tour"); wantTour = false; menuDirty = true; }
+                    if (wantTour && world != null) { if (world.Touring) world.StopTour(); else if (world.TourPaused) world.ResumeTour(); else world.StartTour("grand-tour"); wantTour = false; menuDirty = true; }
                     if (recordTour != null && world != null && world.Touring && rec == null && !recForTour) { try { rec = new DnaAnd.Render.Mp4Writer(recordTour, gpu.Width, gpu.Height); recForTour = true; } catch (Exception ex) { WriteLog("record error · " + ex.Message); recordTour = null; } }
-                    if (recForTour && world != null && !world.Touring) { if (rec != null) { rec.Dispose(); WriteLog("clip saved · " + rec.Path); rec = null; } recForTour = false; recordTour = null; menuDirty = true; }
+                    if (recForTour && world != null && !world.Touring && !(world.TourPaused && !world.TourFinished)) { if (rec != null) { rec.Dispose(); WriteLog("clip saved · " + rec.Path); rec = null; } recForTour = false; recordTour = null; menuDirty = true; }
                     if (wantRecord)
                     {
                         wantRecord = false; menuDirty = true;
@@ -341,11 +358,11 @@ namespace DnaAnd
                     }
                     if (gpu.Grabbed != null && clipPath == null)
                     {
-                        if (wantShot) { try { DnaAnd.Render.PngWriter.Save(System.IO.Path.Combine(caps, (shotName ?? "Universe " + stamp) + ".png"), gpu.Grabbed, gpu.Width, gpu.Height); } catch (Exception ex) { WriteLog("screenshot error · " + ex.Message); } wantShot = false; shotName = null; }
-                        if (rec != null) { try { rec.Add(gpu.Grabbed, gpu.Width, gpu.Height); } catch (Exception ex) { WriteLog("record error · " + ex.Message); rec.Dispose(); rec = null; } }
+                        if (wantShot && gpu.GrabW == gpu.Width) { try { DnaAnd.Render.PngWriter.Save(System.IO.Path.Combine(caps, (shotName ?? "Universe " + stamp) + ".png"), gpu.Grabbed, gpu.GrabW, gpu.GrabH); } catch (Exception ex) { WriteLog("screenshot error · " + ex.Message); } wantShot = false; shotName = null; }
+                        if (rec != null && !(recForTour && world != null && (world.TourPaused || world.Loading))) { try { rec.Add(gpu.Grabbed, gpu.GrabW, gpu.GrabH); } catch (Exception ex) { WriteLog("record error · " + ex.Message); rec.Dispose(); rec = null; } }
                         gpu.Grabbed = null;
                     }
-                    if (wantShot || rec != null) gpu.GrabNext = true;
+                    if (wantShot || rec != null) { gpu.GrabNext = true; gpu.GrabDown = wantShot ? 1 : rec.Down; }   // (a screenshot at full size; a clip at its own, half each way on a big screen)
                     if (Window.Recording != (rec != null) || (world != null && Window.Touring != world.Touring)) { Window.Recording = rec != null; Window.Touring = world != null && world.Touring; menuDirty = true; }
                 }
                 if (clipPath != null && clipAt >= 0 && clock.Total >= clipAt)
@@ -397,6 +414,7 @@ namespace DnaAnd
                 window.Input.EndFrame();
                 if (smokeMs >= 0 && clock.Total * 1000 >= smokeMs) { window.Close(); smokeMs = -1; }
             }
+            if (rec != null) { try { rec.Dispose(); WriteLog("clip saved · " + rec.Path); } catch { } rec = null; }   // a clip being filmed when the window closes is finished, so it plays
             if (deep != null) deep.Dispose();
             if (elements != null) elements.Dispose();
             if (universe != null) universe.Dispose();
@@ -423,7 +441,7 @@ namespace DnaAnd
             }
         }
 
-        // the universe preview release is built with /define:PREVIEW: it always opens in the one world
+        // the universe preview release is built with /define:PREVIEW: it always opens in the universe view
 #if PREVIEW
         private const bool PreviewBuild = true;
 #else

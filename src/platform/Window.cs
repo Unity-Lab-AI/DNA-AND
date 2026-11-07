@@ -6,9 +6,10 @@ namespace DnaAnd.Platform
 {
     internal sealed class Window
     {
-        private const string ClassName = "DnaAndWindow";
+        private static readonly string ClassName = DnaAnd.Shell.PreviewText.AppName.Replace("-", "") + "Window";   // (each program its own: UniverseWindow, DNAANDWindow)
         private readonly Win32.WndProc _proc; // kept alive so Windows can call it
         public IntPtr Handle { get; private set; }
+        [DllImport("gdi32.dll")] private static extern IntPtr GetStockObject(int i);
         public bool IsOpen { get; private set; }
         public readonly Input Input = new Input();
         public int Width { get { Win32.RECT r; Win32.GetClientRect(Handle, out r); return r.Right - r.Left; } }
@@ -61,9 +62,11 @@ namespace DnaAnd.Platform
             Win32.DrawMenuBar(Handle);
         }
 
-        public const int CmdAbout = 200, CmdReadme = 201, CmdCredits = 202, CmdScaleHud = 203, CmdInvertX = 204, CmdInvertY = 205, CmdHowItWorks = 206, CmdPause = 207, CmdFps = 208, CmdShot = 209, CmdRecord = 210, CmdTour = 211;
+        public const int CmdAbout = 200, CmdReadme = 201, CmdCredits = 202, CmdScaleHud = 203, CmdInvertX = 204, CmdInvertY = 205, CmdHowItWorks = 206, CmdPause = 207, CmdFps = 208, CmdShot = 209, CmdRecord = 210, CmdTour = 211, CmdLanding = 212, CmdAlwaysDay = 213;
         /// <summary>Whether a clip is being recorded, and the panoramic tour is playing (ticked in the View menu).</summary>
         public static bool Recording, Touring;
+        /// <summary>The landing page is up (the game's own close button then quits from it); and its close was pressed.</summary>
+        public static volatile bool LandingOpen, CloseAsked;
         /// <summary>Frames a second, measured over the last half second or so (shown on screen when View > Show FPS is on).</summary>
         public static double Fps;
         public const int CmdTimeBase = 90;    // time speed i is CmdTimeBase + i
@@ -85,6 +88,7 @@ namespace DnaAnd.Platform
             Win32.AppendMenu(gpuMenu, Win32.MF_STRING | 0x1u, IntPtr.Zero, "now: card " + (int)Math.Round(GpuBusy * 100) + "% busy, detail " + (int)Math.Round(Detail * 100) + "%");
             Win32.AppendMenu(view, Win32.MF_POPUP, gpuMenu, "GPU use");
             IntPtr timeMenu = Win32.CreatePopupMenu();
+            Win32.AppendMenu(timeMenu, Win32.MF_STRING | (Settings.Get("always-day", false) ? Win32.MF_CHECKED : 0), (IntPtr)CmdAlwaysDay, "Always day (no night on the worlds)");
             Win32.AppendMenu(timeMenu, Win32.MF_STRING | (TimeStep == 0 ? Win32.MF_CHECKED : 0), (IntPtr)CmdPause, "Pause\tSpace");
             Win32.AppendMenu(timeMenu, Win32.MF_SEPARATOR, IntPtr.Zero, null);
             for (int i = 1; i < TimeNames.Length; i++) Win32.AppendMenu(timeMenu, Win32.MF_STRING | (TimeStep == i ? Win32.MF_CHECKED : 0), (IntPtr)(CmdTimeBase + i), TimeNames[i]);
@@ -105,8 +109,9 @@ namespace DnaAnd.Platform
             Win32.AppendMenu(help, Win32.MF_STRING, (IntPtr)CmdHowItWorks, "How it works (waveform, infinite zoom)");
             Win32.AppendMenu(help, Win32.MF_STRING, (IntPtr)CmdCredits, "Credits");
             Win32.AppendMenu(help, Win32.MF_SEPARATOR, IntPtr.Zero, null);
-            Win32.AppendMenu(help, Win32.MF_STRING, (IntPtr)CmdAbout, "About DNA-AND");
+            Win32.AppendMenu(help, Win32.MF_STRING, (IntPtr)CmdAbout, "About " + DnaAnd.Shell.PreviewText.AppName);
             Win32.AppendMenu(bar, Win32.MF_STRING, (IntPtr)CmdExit, "Exit");
+            Win32.AppendMenu(bar, Win32.MF_STRING, (IntPtr)CmdLanding, "Start page");   // back to the landing page: a new seed, the tour, the clips
             Win32.AppendMenu(bar, Win32.MF_POPUP, view, "View");
             Win32.AppendMenu(bar, Win32.MF_POPUP, timeMenu, "Time");
             Win32.AppendMenu(bar, Win32.MF_POPUP, help, "Help");
@@ -150,6 +155,8 @@ namespace DnaAnd.Platform
                 hCursor = Win32.LoadCursor(IntPtr.Zero, (IntPtr)Win32.IDC_ARROW),
                 lpszClassName = ClassName
             };
+            Win32.OwnIcons(out wc.hIcon, out wc.hIconSm);                                   // its own icon in the title bar and the taskbar
+            wc.hbrBackground = GetStockObject(4);                                          // black from the first moment (before the card draws its first frame), never a white box
             if (Win32.RegisterClassEx(ref wc) == 0)
                 throw new InvalidOperationException("RegisterClassEx failed: " + Marshal.GetLastWin32Error());
 
@@ -202,6 +209,7 @@ namespace DnaAnd.Platform
             if (msg == Win32.WM_COMMAND) { MenuCommand = (int)((long)wParam & 0xFFFF); return IntPtr.Zero; }
             if (msg == Win32.WM_ENTERSIZEMOVE) InSizeMove = true;
             if (msg == Win32.WM_EXITSIZEMOVE) InSizeMove = false;
+            if (msg == 0x10 && LandingOpen) { CloseAsked = true; return IntPtr.Zero; }   // the window's own close while the landing page is up: Quit
             if (msg == Win32.WM_DESTROY)
             {
                 Win32.PostQuitMessage(0);

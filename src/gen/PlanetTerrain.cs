@@ -97,55 +97,87 @@ namespace DnaAnd.Gen
         public PlanetTerrain(IntPtr device, string kind, string name, uint seed, bool resourceView = false, double radiusKm = 0)
         {
             _device = device; Kind = kind; Name = name; _seed = seed; ResourceView = resourceView;
-            var tk = TerrainKind(kind); Radius = tk.Radius;
+            var tk = Instance(kind, seed); Radius = tk.Radius;                    // this world's own traits, rolled from its kind's ranges
             if (radiusKm > 0) Radius = radiusKm;
             Solid = tk.Solid; HasWater = tk.Water; HasClouds = tk.Clouds;
             CloudKm = tk.CloudKm; AirKm = tk.AirKm; AirR = tk.Air[0]; AirG = tk.Air[1]; AirB = tk.Air[2];
             _tk = tk;
         }
 
-        // ── each kind of world's ground, air and clouds, from content/terrain.dnat (none named in code) ──
+        // ── each kind of world is a template in content/terrain.dnat (none named in code): any number may be a range
+        // (a..b) and any colour a range (r g b .. r g b); every world of the kind takes its own values from its seed, so no
+        // two are the same, and the same seed always gives the same world ──
         public sealed class TerrainKindData { public double Radius = 6371, CloudKm = 9, AirKm = 110, CloudThick = 1, BaseK = 255; public bool Solid = true, Water, Clouds = true; public float[] Air = { 0.35f, 0.56f, 1f }, Cloud = { 0.97f, 0.97f, 0.97f }, Rock = { 0.4f, 0.38f, 0.36f };
             public double LandShare = 0.06, CloudShift, DayHours = 24, Tides = 0.5, Bands = 19, GreatStorm = 1;
-            public bool Molten, Dunes, FrozenSea, SnowPatches, Locked, PolarIce = true, Dry, TropicalSoil, Life = true, ManyVolcanoes;
+            public bool Molten, Dunes, FrozenSea, SnowPatches, Locked, PolarIce = true, Dry, TropicalSoil, Life = true, ManyVolcanoes, Rivers = true, SeaFloorVolcanoes;
+            public double VolcanoCount = 30;
             public double[][] Ground;                  // land colours by height: below h, r g b, and 1 if the ground's patchiness tints it
             public float[] BandLow = { 0.42f, 0.26f, 0.16f }, BandHigh = { 0.96f, 0.88f, 0.78f }, Storm = { 0.96f, 0.93f, 0.86f }, River = { 0.1f, 0.3f, 0.5f }; }
         private static readonly Dictionary<string, TerrainKindData> Kinds = new Dictionary<string, TerrainKindData>();
+        private static readonly Dictionary<string, ContentEntry> KindEntries = new Dictionary<string, ContentEntry>();
+        private static ContentEntry _defEntry;
         private TerrainKindData _tk;
+        /// <summary>This world's own traits (its kind's template, with its own values from its seed).</summary>
+        public TerrainKindData Traits { get { return _tk; } }
+        /// <summary>A kind's template, each range at its middle (for what is the same for every world of the kind).</summary>
         public static TerrainKindData TerrainKind(string kind) { TerrainKindData t; return Kinds.TryGetValue(kind ?? "", out t) ? t : Kinds.TryGetValue("default", out t) ? t : new TerrainKindData(); }
+        /// <summary>A world of this kind with this seed: its kind's ranges rolled for it.</summary>
+        public static TerrainKindData Instance(string kind, uint seed)
+        {
+            ContentEntry e;
+            if (!KindEntries.TryGetValue(kind ?? "", out e) && !KindEntries.TryGetValue("default", out e)) return new TerrainKindData();
+            return Build(e, seed, false);
+        }
         private static void LoadKinds(ContentLibrary content)
         {
-            var ci = System.Globalization.CultureInfo.InvariantCulture; var fs = System.Globalization.NumberStyles.Float;
-            ContentEntry def = null; foreach (var e in content.OfKind("terrain.dnat", "terrain")) if (e.Id == "default") def = e;
-            foreach (var e in content.OfKind("terrain.dnat", "terrain"))
+            _defEntry = null; foreach (var e in content.OfKind("terrain.dnat", "terrain")) if (e.Id == "default") _defEntry = e;
+            foreach (var e in content.OfKind("terrain.dnat", "terrain")) { KindEntries[e.Id] = e; Kinds[e.Id] = Build(e, 0, true); }
+        }
+        private static TerrainKindData Build(ContentEntry e, uint seed, bool middle)
+        {
+            var ci = System.Globalization.CultureInfo.InvariantCulture; var fs = System.Globalization.NumberStyles.Float; var def = _defEntry;
+            Func<string, string> g = k => e.Props.ContainsKey(k) ? e.Get(k, "") : def != null ? def.Get(k, "") : "";
+            // where in a range this world falls, for each key on its own (the middle for the template)
+            Func<string, double> at = k => { if (middle) return 0.5; uint h = seed * 2654435761u; foreach (char ch in k) h = (h ^ ch) * 16777619u; return Hash(h, h >> 7, 3, seed ^ 0x5EEDu); };
+            Func<string, double, double> d = (k, f) =>
             {
-                Func<string, string> g = k => e.Props.ContainsKey(k) ? e.Get(k, "") : def != null ? def.Get(k, "") : "";
-                Func<string, double, double> d = (k, f) => { double v; return double.TryParse(g(k), fs, ci, out v) ? v : f; };
-                Func<string, float[], float[]> c = (k, f) => { var w = g(k).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries); float x, y, z; return w.Length == 3 && float.TryParse(w[0], fs, ci, out x) && float.TryParse(w[1], fs, ci, out y) && float.TryParse(w[2], fs, ci, out z) ? new[] { x, y, z } : f; };
-                var t = new TerrainKindData();
-                t.Radius = d("radius-km", 6371); t.CloudKm = d("cloud-km", 9); t.AirKm = d("air-km", 110); t.CloudThick = d("cloud-thickness", 1); t.BaseK = d("base-k", 255);
-                t.Solid = g("solid") != "no"; t.Water = g("water") == "yes"; t.Clouds = g("clouds") != "no";
-                t.Air = c("air-colour", t.Air); t.Cloud = c("cloud-colour", t.Cloud); t.Rock = c("rock-colour", t.Rock);
-                Func<string, bool, bool> yes = (k, f) => { var v = g(k); return v == "" ? f : v == "yes"; };
-                t.LandShare = d("land-share", 0.06); t.CloudShift = d("cloud-shift", 0); t.DayHours = d("day-hours", 24); t.Tides = d("tides", 0.5);
-                t.Bands = d("bands", 19); t.GreatStorm = d("great-storm", 1);
-                t.Molten = yes("molten", false); t.Dunes = yes("dunes", false); t.FrozenSea = yes("frozen-sea", false); t.SnowPatches = yes("snow-patches", false);
-                t.Locked = yes("tidally-locked", false); t.PolarIce = yes("polar-ice", true); t.Dry = yes("dry", false); t.TropicalSoil = yes("tropical-soil", false);
-                t.Life = yes("life", true); t.ManyVolcanoes = g("volcanoes") == "many";
-                t.BandLow = c("band-dark", t.BandLow); t.BandHigh = c("band-light", t.BandHigh); t.Storm = c("storm-colour", t.Storm); t.River = c("river-colour", t.River);
-                var gl = g("ground");
-                if (gl.Length > 0)
+                string v = g(k); int dots = v.IndexOf("..", StringComparison.Ordinal); double lo, hi;
+                if (dots < 0) return double.TryParse(v, fs, ci, out lo) ? lo : f;
+                if (!double.TryParse(v.Substring(0, dots), fs, ci, out lo) || !double.TryParse(v.Substring(dots + 2), fs, ci, out hi)) return f;
+                return lo + (hi - lo) * at(k);
+            };
+            Func<string, float[], float[]> c = (k, f) =>
+            {
+                string v = g(k); var halves = v.Split(new[] { ".." }, StringSplitOptions.None);
+                Func<string, float[]> rgb = s => { var w = s.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries); float x, y, z; return w.Length == 3 && float.TryParse(w[0], fs, ci, out x) && float.TryParse(w[1], fs, ci, out y) && float.TryParse(w[2], fs, ci, out z) ? new[] { x, y, z } : null; };
+                var p0 = rgb(halves[0]); if (p0 == null) return f; if (halves.Length < 2) return p0;
+                var p1 = rgb(halves[1]); if (p1 == null) return p0; float u = (float)at(k);
+                return new[] { p0[0] + (p1[0] - p0[0]) * u, p0[1] + (p1[1] - p0[1]) * u, p0[2] + (p1[2] - p0[2]) * u };
+            };
+            var t = new TerrainKindData();
+            t.Radius = d("radius-km", 6371); t.CloudKm = d("cloud-km", 9); t.AirKm = d("air-km", 110); t.CloudThick = d("cloud-thickness", 1); t.BaseK = d("base-k", 255);
+            t.Solid = g("solid") != "no"; t.Water = g("water") == "yes"; t.Clouds = g("clouds") != "no";
+            t.Air = c("air-colour", t.Air); t.Cloud = c("cloud-colour", t.Cloud); t.Rock = c("rock-colour", t.Rock);
+            Func<string, bool, bool> yes = (k, f) => { var v = g(k); return v == "" ? f : v == "yes"; };
+            t.LandShare = d("land-share", 0.06); t.CloudShift = d("cloud-shift", 0); t.DayHours = d("day-hours", 24); t.Tides = d("tides", 0.5);
+            t.Bands = Math.Round(d("bands", 19)); t.GreatStorm = d("great-storm", 1);
+            t.Molten = yes("molten", false); t.Dunes = yes("dunes", false); t.FrozenSea = yes("frozen-sea", false); t.SnowPatches = yes("snow-patches", false);
+            t.Locked = yes("tidally-locked", false); t.PolarIce = yes("polar-ice", true); t.Dry = yes("dry", false); t.TropicalSoil = yes("tropical-soil", false);
+            t.Life = yes("life", true); t.ManyVolcanoes = g("volcanoes") == "many";
+            t.Rivers = yes("rivers", true); t.SeaFloorVolcanoes = yes("seafloor-volcanoes", false); t.VolcanoCount = d("volcano-count", 30);
+            t.BandLow = c("band-dark", t.BandLow); t.BandHigh = c("band-light", t.BandHigh); t.Storm = c("storm-colour", t.Storm); t.River = c("river-colour", t.River);
+            var gl = g("ground");
+            if (gl.Length > 0)
+            {
+                var bands = new List<double[]>();
+                foreach (var part in gl.Split(';'))
                 {
-                    var bands = new List<double[]>();
-                    foreach (var part in gl.Split(';'))
-                    {
-                        var w = part.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries); if (w.Length < 4) continue;
-                        var row = new double[5]; for (int q = 0; q < 4; q++) double.TryParse(w[q], fs, ci, out row[q]); row[4] = w.Length > 4 && w[4] == "tinted" ? 1 : 0; bands.Add(row);
-                    }
-                    if (bands.Count > 0) t.Ground = bands.ToArray();
+                    var w = part.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries); if (w.Length < 4) continue;
+                    var row = new double[5]; for (int q = 0; q < 4; q++) double.TryParse(w[q], fs, ci, out row[q]); row[4] = w.Length > 4 && w[4] == "tinted" ? 1 : 0; bands.Add(row);
                 }
-                Kinds[e.Id] = t;
+                if (bands.Count > 0) t.Ground = bands.ToArray();
             }
+            return t;
         }
 
         // ── shape and colour ─────────────────────────────────────────────
@@ -218,7 +250,7 @@ namespace DnaAnd.Gen
         /// <paramref name="layers"/> is how much fine detail to add (more when the camera is close).</summary>
         public double Height(double x, double y, double z, int layers, out float r, out float g, out float b, out float glow)
         {
-            if (Kind == "dyson-shell")
+            if (Shell && Habitable)
             {
                 // the inside of the orb is a planet landscape turned inside out: the same working terrain as the planets,
                 // sized to the orb itself, so it curves up and around you with the star at the centre
@@ -480,10 +512,9 @@ namespace DnaAnd.Gen
             double land, h;
             switch (Kind)
             {
-                case "dyson-shell": land = cont + _shellLand; break;   // each terraformed section has its own share of land
-                default: land = cont + _tk.LandShare; break;   // from its kind (terrain.dnat): Earth-like about a third land
+                default: land = Shell && Habitable ? cont + _shellLand : cont + _tk.LandShare; break;   // (a shell: each terraformed section its own share of land)   // from its kind (terrain.dnat): Earth-like about a third land
             }
-            double mtn = ridge * ridge * Smooth(0, 0.35, land) * (Kind == "dyson-shell" ? _shellMtn : 1);
+            double mtn = ridge * ridge * Smooth(0, 0.35, land) * (Shell && Habitable ? _shellMtn : 1);
             _land = land; _mtn = mtn; _tint = tint;
             h = land * 3.2 + mtn * 7.5 + mtn * (mtnFine - 0.5) * 2.2 + detail * (0.12 + 0.35 * Smooth(0, 0.4, land) + 0.6 * mtn) + micro;
             if (_tk.Dunes)
@@ -637,7 +668,7 @@ namespace DnaAnd.Gen
         private void MakeVolcanoes()
         {
             int count;
-            switch (Kind) { case "lava": count = 60; break; case "desert": count = 12; break; case "snowball": count = 8; break; case "ocean": count = 22; break; default: count = 30; break; }
+            count = (int)Math.Round(_tk.VolcanoCount);                                  // (its template: volcano-count)
             var rng = new Rng(_seed ^ 0xF1AEUL);
             var list = new List<Volcano>();
             for (int tries = 0; tries < 4000 && list.Count < count; tries++)
@@ -649,7 +680,7 @@ namespace DnaAnd.Gen
                 // volcanoes rise where plates meet (the mountain belts) and on hot spots; on wet worlds some are islands
                 bool belt = _mtn > 0.15, hotspot = rng.NextDouble() < 0.25;
                 if (!belt && !hotspot) continue;
-                if (h0 < -2.5 && Kind != "ocean") continue;
+                if (h0 < -2.5 && !_tk.SeaFloorVolcanoes) continue;   // (deep under the sea only where its template says: seafloor-volcanoes)
                 list.Add(new Volcano { X = x, Y = y, Z = z, Size = (_tk.ManyVolcanoes ? 0.012 : 0.007) * (0.6 + rng.NextDouble()) * 6371 / Radius,
                     Tall = _tk.ManyVolcanoes ? 3 + rng.NextDouble() * 6 : 2 + rng.NextDouble() * 4, Active = _tk.ManyVolcanoes || rng.NextDouble() < 0.4 });
             }
@@ -686,7 +717,7 @@ namespace DnaAnd.Gen
             }
             // rivers: thin winding channels through the lowlands, running toward the sea
             _river = 0;
-            if (h > 0.02 && h < 2.2 && Kind != "lava" && Kind != "snowball")
+            if (h > 0.02 && h < 2.2 && _tk.Rivers)   // (its template: rivers)
             {
                 double line = 1 - Math.Abs(Fbm(x, y, z, _seed + 4000u, 22, 3 + Math.Min(Math.Max(0, layers - 6), 6)) * 2 - 1);
                 double width = 0.988 - 0.004 * Smooth(0, 2, h);
@@ -814,7 +845,7 @@ namespace DnaAnd.Gen
         /// <summary>A good place to start the fly-down: on the lit side, on land with hills or mountains in view.</summary>
         public void StartPoint(out double lat, out double lon)
         {
-            if (Kind == "dyson-shell")
+            if (Shell && Habitable)
             {
                 // inside a shell: dry land on a habitat plate, near the middle band
                 var rs = new Rng(_seed ^ 0xD150UL);

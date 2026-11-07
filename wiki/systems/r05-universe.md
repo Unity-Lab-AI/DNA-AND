@@ -1,7 +1,7 @@
 ---
 title: R5 · Universe
 status: partial
-sources: [docs/DESIGN.md (rounds 1-2), docs/ROADMAP.md#R5, src/gen/GalaxyGen.cs, src/gen/StarGen.cs, src/gen/DysonGen.cs]
+sources: [docs/DESIGN.md (rounds 1-2, items 423-431), docs/ROADMAP.md#R5, src/gen/GalaxyGen.cs, src/gen/StarGen.cs, src/gen/DysonGen.cs, src/gen/SpaceGen.cs, content/terrain.dnat]
 last-verified: b9fcaf3
 ---
 
@@ -47,7 +47,7 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 
 ## 🔨 Built so far
 
-- **A universe of 36 galaxies** (`src/shell/UniverseView.cs`). The wheel zooms into the galaxy under the mouse.
+- **A universe of 36 galaxies** (`src/shell/GalaxiesView.cs`). The wheel zooms into the galaxy under the mouse.
 - **The galaxy** (`DeepView.cs`):
   - 150,000 stars, clusters and nebulas, and the core black hole at the real centre.
   - The wheel zooms where the mouse points. Clicking any star marks it with a ring and flies to it.
@@ -57,6 +57,8 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
   - The star is drawn as a coloured shine from far away and as its plasma and corona up close.
   - Every star kind with a surface temperature and a share of stars can appear in a galaxy: 26 kinds, from red dwarfs to Wolf-Rayet stars, white dwarfs and pulsars (stellar black holes give no light and are not picked as a system's star). Its colour comes from its surface temperature, the way a glowing hot body shines (Planck's law): red when cool, white near the Sun's temperature, blue when hot. How bright it shines comes from its size and temperature (the Sun: 1 radius, 5772 K), which sets where its frost line and habitable zone lie.
   - The planet being approached is drawn as the real 3D planet.
+  - **Which kind of world forms where is a template** (`content/terrain.dnat`, read by `SpaceGen.WorldKind`): each kind says `forms` (rocky, giant, hot-jupiter), where its orbit lies against the liquid-water zone (`orbit-hz`) and the frost line (`orbit-frost`), how bright its star is (`star-brightness`), and its `weight`, size, moons, spin (`day-hours`), colour, card label and make-up. Every value may be a range and each world rolls its own from its seed (`PlanetTerrain.Instance`). Ocean worlds and tidally locked worlds round dim red stars now form too; a new kind is one new entry.
+  - **Every generator reads its template, never a name** (DESIGN 431): galaxies' arms, star forming, clusters and how their bodies lie (`galaxies.dnat`); rings on any world by its kind's `rings-chance`, drawn in the universe; volcanoes and rivers; a giant's layers (`gas-giants.dnat` `in:`); a system's number of worlds, first orbit and spacing, and how often each kind of system appears (`solar-systems.dnat`).
   - Black holes are feeding or quiet, by their kind's shares (content/bodies.dnat): a feeding one shows its accretion disc, hot and bright at its inner edge, some firing jets from their poles; a quiet one is its shadow and the light it bends.
   - Orbits are not all in one plane: each planet's tilts a few degrees from the system's plane (a few far out of line), close moons lie in their planet's plane, far captured moons at any tilt, some going round backwards.
 - **The Dyson sphere** (`src/gen/DysonGen.cs`, `PlanetTerrain.cs` in shell mode): an industrial hull outside and a terraformed inside-out world, with free flight.
