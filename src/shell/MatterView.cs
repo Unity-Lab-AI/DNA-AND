@@ -815,7 +815,7 @@ namespace DnaAnd.Shell
                     if (!_patchCache.TryGetValue(key, out c))
                     {
                         if (_patchBudget-- <= 0) { hy[a, b] = 0; ok[a, b] = false; continue; }      // not worked out yet: next frame
-                        double y; bool o = GrainTop(gi, gj, gx, gy, gz, rad, _fx + atA(a), _fz + atB(b), Math.Max(step * 1.5, rad * 0.004), out y);   // the coarse shape here; the fine detail is the card's
+                        double y; bool o = GrainTop(gi, gj, gx, gy, gz, rad, _fx + atA(a), _fz + atB(b), rad * 0.004, out y);   // every ring the same coarse shape (so no ring shows its edge); all finer detail per pixel on the card, the same everywhere   // the coarse shape here; the fine detail is the card's
                         float sr = 1, sg = 1, sb2 = 1;                                     // (its stains too: worked out per pixel on the card)
                         c = new[] { y, o ? 1 : 0, sr, sg, sb2 }; _patchCache[key] = c;
                     }
