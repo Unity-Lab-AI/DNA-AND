@@ -909,3 +909,4 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **A pick always shows its card:** (built: DESIGN 458; waits on the test) "also im clicking around at 1km scale and i cant select anything"
 - [ ] **Towers, spikes and lines from the ground:** "i took scren shot im getting weild toweres and spikes and lines coming out of the ground" (the F12 picture did not save: to see on screen, and why F12 saved nothing)
 - [~] **Processor and card at once:** (built: DESIGN 459; waits on the test) "and im just sitting at 1km and its shittly doing 14fps im not even zooming or nothing"
+- [~] **A comet with its coma and tails, seen across its system:** (built: DESIGN 460; waits on the test) "comet didnt have a auros or gas or a tail facing away from star and i could nt see it at solar systems scale like comets should be seen" / "it looks just like an astroid"
