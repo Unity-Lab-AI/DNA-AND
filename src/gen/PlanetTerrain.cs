@@ -300,7 +300,7 @@ namespace DnaAnd.Gen
         {
             if (_noGrainsNow || !Solid || Shell || glow > 0.01 || (HasWater && h < 0) || layers <= 6) return h;
             var gm = GrainMix(y); if (gm == null || gm.Size <= 0) return h;
-            double W = Radius / (48 * Math.Pow(2, layers - 6)), G = gm.Size;             // the finest detail here (km)
+            double W = Math.Max(Radius / (48 * Math.Pow(2, layers - 6)), _cellAtLeast), G = gm.Size;   // the finest detail here (km)
             double big = GrainField.SizeOf(gm, GrainField.Classes(gm) - 1);              // the biggest stones come in first
             if (W > big * 0.25) return h;
             double wgt = Math.Max(0, Math.Min(1, (G * 0.25 - W) / (G * 0.15)));         // the sand's own share (each size class weighs itself in Top)
@@ -793,6 +793,10 @@ namespace DnaAnd.Gen
         /// <summary>The ground's own level, without its grains (km above the sea), for the land's slope under the grains.</summary>
         public double BaseAt(double x, double y, double z) { _noGrainsNow = true; try { return GroundAt(x, y, z); } finally { _noGrainsNow = false; } }
         [ThreadStatic] private static bool _noGrainsNow;
+        [ThreadStatic] private static double _cellAtLeast;
+        /// <summary>The ground's height (km above the sea) with its grains worked out no finer than <paramref name="cellKm"/>:
+        /// for asking how high the ground is under you (a thirtieth of your height is all that can matter), fast.</summary>
+        public double GroundAt(double x, double y, double z, double cellKm) { _cellAtLeast = cellKm; try { return GroundAt(x, y, z); } finally { _cellAtLeast = 0; } }
         public double GroundAt(double x, double y, double z)
         {
             float r, g, b, gl;

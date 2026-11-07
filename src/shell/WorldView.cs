@@ -550,7 +550,7 @@ namespace DnaAnd.Shell
         // real ground (a dry basin below sea level is ground, not water)
         private double Surface(double x, double y, double z)
         {
-            double h = _ground.GroundAt(x, y, z);
+            double h = _ground.GroundAt(x, y, z, _surfaceCell);                           // the grains only as finely as your height needs
             return h < 0 && _ground.HasWater ? 0 : h;
         }
 
@@ -604,12 +604,14 @@ namespace DnaAnd.Shell
         }
 
         // how far above the planet's ground the camera is (universe units)
+        private double _surfaceCell, _lastAbove = 1;
         private double AboveGround()
         {
             if (_ground == null) return double.MaxValue;
+            _surfaceCell = Math.Max(1e-11, _lastAbove / Units.Km(1) / 30);                   // (from the height last asked: a thirtieth of it)
             double x, y, z; CamFromPlanet(out x, out y, out z);
             double r = Math.Sqrt(x * x + y * y + z * z); if (r <= 0) return 0;
-            return Math.Max(1e-9, (r - _ground.Radius - (_ground.Solid ? Surface(x / r, y / r, z / r) : 0))) * Units.Km(1);
+            return _lastAbove = Math.Max(1e-9, (r - _ground.Radius - (_ground.Solid ? Surface(x / r, y / r, z / r) : 0))) * Units.Km(1);
         }
 
         // the system's planets, moons and star placed around the star (anchor), and the nearest surface to the camera
