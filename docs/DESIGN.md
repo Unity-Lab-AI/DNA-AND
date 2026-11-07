@@ -1188,3 +1188,5 @@ Everything the creator has said about this project, in order. Short process repl
 365. Seen on the tour: the web's light read as an even dust, its strands faint. Its points are now kept by the web's density squared, so its filaments, walls and clusters stand out bright and its voids go dark, as the cosmic web is seen in galaxy surveys.
 
 366. Seen in the tour's own pictures at the web (about 500 million light-years across): the web barely showed, faint grey specks (its brightness had been set past the most a draw takes, so raising it did nothing). Each of its points is now drawn two and a half times as bright and twice as big on screen, so its strands read across the view.
+
+367. Seen in the tour's own pictures: the glide over the hills ran nearly 300 km up. Going down to the land, the zoom is held above the ground until its finer pieces are made, and they came slowly, so the zoom stood still, was taken as stuck after twenty seconds and given up on. While ground is still being built (or the web's light made), a zoom that stands still now waits, never given up on (the tour's limit of four minutes a stop still holds).

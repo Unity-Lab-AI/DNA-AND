@@ -878,7 +878,7 @@ namespace DnaAnd.Shell
                         double notches = _tourRate * Math.Log(10) / Math.Log(1 / 0.87) * dt;       // a wheel notch is 13% of the way
                         input.Wheel = OffTarget() < 0.07 ? sign * notches : 0;                     // never moving one way while looking another
                         // going nowhere (nothing nearer to fly at) for six seconds: on to the next stop
-                        if (Math.Abs(Math.Log10(Math.Max(1e-40, d) / Math.Max(1e-40, _tourLastD))) > 0.05) { _tourLastD = d; _tourStall = 0; } else _tourStall += dt;
+                        if (Math.Abs(Math.Log10(Math.Max(1e-40, d) / Math.Max(1e-40, _tourLastD))) > 0.05 || (_ground != null && _ground.Backlog > 0) || WebNotMade) { _tourLastD = d; _tourStall = 0; } else _tourStall += dt;   // (held back by ground still being built, or the web's light: waiting, never given up on)
                         if ((sign > 0 && d <= want * 1.02) || (sign < 0 && d >= want * 0.98) || _tourT > 240 || (_tourStall > 20 && _tourT > 20)) { done = true; _tourRate = 0; input.Wheel = 0; _tourStall = 0; _tourLastD = 0; }
                     }
                     break;
