@@ -45,6 +45,10 @@ The game always runs in a window and never changes your display settings, so clo
 
 `build.cmd` runs the C# compiler from Windows' own .NET Framework folder over everything in `src/`. Nothing outside the repo and Windows is used.
 
+### The Universe release
+
+Universe, the standalone universe program, is this same source shipped on its own, under its own name and in its own repository (`Universe/`, a separate git repository inside this one). `universe-sync.cmd` refreshes it: it copies `src/`, `content/` (every `.dnat` renamed to `.unt`, with the headers reworded), `installer/`, `linux/run.sh` and the release docs from `docs/release/` (the readme, the guide, the build guide, the comparison, the Linux page, the credits and the in-game pages). `Universe/release.cmd` then builds `Universe.exe`, its installer and its zip, exactly as `release.cmd` does here. Both releases are built and shipped together, so the two programs never drift apart.
+
 ---
 
 ## 🗂️ Source layout
