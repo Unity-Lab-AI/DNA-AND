@@ -645,7 +645,7 @@ namespace DnaAnd.Shell
         // ── a tour: a flight of stops read from content/tours/<name>.dnat, flown with the real controls (the wheel's zoom at one
         // steady rate, the drag's circling and looking, the same picks a click makes) so it shows the one world as it is ──
         private sealed class TourStop { public string Name, Do, Target, Caption; public double Rate, UntilKm, Turn, Tilt, Seconds; }
-        private List<TourStop> _tour; private int _tourAt; private double _tourClock, _tourStall, _tourLastD, _tourT, _tourDragX, _tourDragY, _tourRate;
+        private List<TourStop> _tour; private int _tourAt; private double _tourClock, _tourStall, _tourLastD, _tourT, _tourRate;
         /// <summary>Starts the tour of that name (content/tours/name.dnat); false if there is none.</summary>
         public bool StartTour(string name)
         {
@@ -684,7 +684,7 @@ namespace DnaAnd.Shell
                         double target = Math.Abs(st.Rate) * Math.Min(1, left / 0.6);               // easing out over the last few tenths of a tenfold
                         _tourRate += (target - _tourRate) * (1 - Math.Exp(-dt * 1.5));            // and easing in
                         double notches = _tourRate * Math.Log(10) / Math.Log(1 / 0.87) * dt;       // a wheel notch is 13% of the way
-                        input.Wheel = sign * notches;
+                        input.Wheel = OffTarget() < 0.07 ? sign * notches : 0;                     // never moving one way while looking another
                         // going nowhere (nothing nearer to fly at) for six seconds: on to the next stop
                         if (Math.Abs(Math.Log10(Math.Max(1e-40, d) / Math.Max(1e-40, _tourLastD))) > 0.05) { _tourLastD = d; _tourStall = 0; } else _tourStall += dt;
                         if ((sign > 0 && d <= want * 1.02) || (sign < 0 && d >= want * 0.98) || _tourT > 240 || (_tourStall > 6 && _tourT > 6)) { done = true; _tourRate = 0; input.Wheel = 0; _tourStall = 0; _tourLastD = 0; }
@@ -693,33 +693,26 @@ namespace DnaAnd.Shell
                 case "orbit":
                 case "look":
                     {
-                        // never circling while looking near straight up or down (the turn would spin round the pole): ease the
-                        // view toward level first, gently
+                        // never circling while looking near straight up or down (the turn would spin round the pole): ease the view
+                        // toward level first, gently
                         if (st.Do == "orbit" && Math.Abs(_pitch) > 0.9) _pitch += (Math.Sign(_pitch) * 0.9 - _pitch) * (1 - Math.Exp(-dt * 0.8));
-                        // a slow steady drag: round the pick (or round you, looking, with none); look also tilts by its degrees
-                        double px = h / (2 * Math.Tan(0.45)) * Math.PI / 180 / Math.Max(1, Window.DragSpeed);   // pixels of drag a degree
-                        double ease = Math.Min(1, _tourT / 1.5) * Math.Min(1, Math.Max(0, st.Seconds - _tourT) / 1.5);
-                        _tourDragX += st.Turn * px * dt * ease * (1 + 0.35 * Math.Sin(_tourClock * 0.17));   // the turn itself breathing a little
-                        if (st.Do == "orbit") _tourDragY += Math.Sin(_tourClock * 0.23) * 1.2 * px * dt * ease;          // the gaze drifting up and down
-                        if (st.Do == "look") _tourDragY -= st.Tilt / st.Seconds * px * dt * (Math.Abs(st.Tilt) > 0 ? 1 : 0);
-                        int ix = (int)_tourDragX, iy = (int)_tourDragY; _tourDragX -= ix; _tourDragY -= iy;
-                        input.LeftDown = true; input.MouseDX = ix; input.MouseDY = iy; _pressed = true; _dragged = true;
-                        if (_tourT >= st.Seconds) { done = true; input.LeftDown = false; input.MouseDX = input.MouseDY = 0; _pressed = false; }
+                        double ease = Math.Min(1, _tourT / 2.5) * Math.Min(1, Math.Max(0, st.Seconds - _tourT) / 2.5); ease = ease * ease * (3 - 2 * ease);
+                        double yaw = st.Turn * Math.PI / 180 * dt * ease;
+                        double pitch = st.Do == "look" ? st.Tilt / st.Seconds * Math.PI / 180 * dt * (Math.Sin(Math.Min(1, _tourT / st.Seconds) * Math.PI) * Math.PI / 2) : Math.Sin(_tourClock * 0.2) * 0.25 * Math.PI / 180 * dt * ease;   // a look tilts on an eased curve; an orbit's gaze drifts barely
+                        TourTurn(yaw, pitch);
+                        if (_tourT >= st.Seconds) done = true;
                     }
                     break;
                 case "arc":
                     {
-                        // the cinematic move: a slow dolly in (or out) while circling the subject, both eased in and out
+                        // the cinematic move: a slow dolly in (or out) while circling the subject, both eased in and out, turned smoothly
                         double ease = Math.Min(1, _tourT / 3) * Math.Min(1, Math.Max(0, st.Seconds - _tourT) / 3); ease = ease * ease * (3 - 2 * ease);
                         double sign = st.Rate >= 0 ? 1 : -1, d = ViewDistanceKm();
                         bool there = st.UntilKm > 0 && ((sign > 0 && d <= st.UntilKm) || (sign < 0 && d >= st.UntilKm));
-                        if (!there) input.Wheel = sign * Math.Abs(st.Rate) * ease * Math.Log(10) / Math.Log(1 / 0.87) * dt;
+                        if (!there && OffTarget() < 0.07) input.Wheel = sign * Math.Abs(st.Rate) * ease * Math.Log(10) / Math.Log(1 / 0.87) * dt;   // only moving where it looks
                         if (Math.Abs(_pitch) > 0.9) _pitch += (Math.Sign(_pitch) * 0.9 - _pitch) * (1 - Math.Exp(-dt * 0.8));
-                        double px = h / (2 * Math.Tan(0.45)) * Math.PI / 180 / Math.Max(1, Window.DragSpeed);
-                        _tourDragX += st.Turn * px * dt * ease; _tourDragY += Math.Sin(_tourClock * 0.23) * 1.2 * px * dt * ease;   // and the gaze drifting slowly up and down, looking round
-                        int ix = (int)_tourDragX, iy = (int)_tourDragY; _tourDragX -= ix; _tourDragY -= iy;
-                        input.LeftDown = true; input.MouseDX = ix; input.MouseDY = iy; _pressed = true; _dragged = true;
-                        if (_tourT >= st.Seconds) { done = true; input.LeftDown = false; input.MouseDX = 0; _pressed = false; }
+                        TourTurn(st.Turn * Math.PI / 180 * dt * ease, 0);
+                        if (_tourT >= st.Seconds) done = true;
                     }
                     break;
                 case "fly":
@@ -737,7 +730,7 @@ namespace DnaAnd.Shell
                     TourPick(st.Target); done = true; break;
                 default: done = true; break;
             }
-            if (done) { _tourAt++; _tourT = 0; _tourDragX = _tourDragY = 0; }
+            if (done) { _tourAt++; _tourT = 0; }
         }
         // what a stop picks, as a click would
         private void TourPick(string what)
@@ -1349,6 +1342,38 @@ namespace DnaAnd.Shell
         }
 
         // v turned by angle a (radians) round the unit axis k
+        // the tour's own turn: by exact fractions of a degree each frame, smooth (the mouse moves in whole pixels, which at a
+        // slow turn would jump a little every few frames: a judder that makes people sick); round the pick as a drag circles it
+        private void TourTurn(double yawRad, double pitchRad)
+        {
+            var lk = Look; var upv = ViewUp(); var rt = Vec3.Cross(lk, upv).Normalized;
+            for (int pass = 0; pass < 2; pass++)
+            {
+                double ang = pass == 0 ? yawRad : pitchRad; if (Math.Abs(ang) < 1e-12) continue;
+                var axis = pass == 0 ? upv.Normalized : rt;
+                var f = Turn(Look, axis, ang);
+                double odx, ody, odz, orad;
+                bool circle = _tKind >= 0 && _tKind != 3 && !(_ground != null && (_matterScale > 0 || AboveGround() < Units.Km(MatterView.OverlayKm)))
+                              && TargetFromCamera(out odx, out ody, out odz, out orad) && odx * odx + ody * ody + odz * odz > 0;
+                if (circle)
+                {
+                    TargetFromCamera(out odx, out ody, out odz, out orad);
+                    var o = new Vec3((float)-odx, (float)-ody, (float)-odz); double ol = Math.Sqrt(odx * odx + ody * ody + odz * odz);
+                    var on = Turn(new Vec3((float)(o.X / ol), (float)(o.Y / ol), (float)(o.Z / ol)), axis, ang);
+                    _ox += on.X * ol + odx; _oy += on.Y * ol + ody; _oz += on.Z * ol + odz;
+                    f = new Vec3(-on.X, -on.Y, -on.Z);
+                }
+                if (Math.Abs(f.Y) < 0.9995f) { _yaw = Math.Atan2(f.Z, f.X); _pitch = Math.Asin(Math.Max(-1, Math.Min(1, f.Y))); }
+            }
+        }
+        // how far (radians) the view is from facing what is picked; 0 with nothing picked
+        private double OffTarget()
+        {
+            double dx, dy, dz, r; if (_tKind < 0 || !TargetFromCamera(out dx, out dy, out dz, out r)) return 0;
+            double l = Math.Sqrt(dx * dx + dy * dy + dz * dz); if (l <= 0) return 0; var lk = Look;
+            return Math.Acos(Math.Max(-1, Math.Min(1, (dx * lk.X + dy * lk.Y + dz * lk.Z) / l)));
+        }
+
         private static Vec3 Turn(Vec3 v, Vec3 k, double a)
         {
             float c = (float)Math.Cos(a), sn = (float)Math.Sin(a), d = Vec3.Dot(k, v); var x = Vec3.Cross(k, v);
