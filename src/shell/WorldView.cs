@@ -845,7 +845,7 @@ namespace DnaAnd.Shell
         public bool Touring { get { return _tour != null; } }
         /// <summary>Stops the tour; the controls are yours again.</summary>
         public void StopTour() { _tour = null; _pressed = false; }
-        private double _tourH0, _tourLook;
+        private double _tourH0, _tourLook, _tourLookFrom;
         // how fast the tour may go now: never faster than the world round you is made (slower when the frames a second drop below
         // about 45, and while many pieces of ground are still waiting to be built), eased so it never jerks
         private double _tourPace = 1;
@@ -898,11 +898,19 @@ namespace DnaAnd.Shell
                     {
                         // never circling while looking near straight up or down (the turn would spin round the pole): ease the view
                         // toward level first, gently
-                        if (st.Do == "orbit" && Math.Abs(_pitch) > 0.9) _pitch += (Math.Sign(_pitch) * 0.9 - _pitch) * (1 - Math.Exp(-dt * 0.8));
+                        { double lp = LocalPitch(); if (st.Do == "orbit" && Math.Abs(lp) > 0.9) TourPitchToward(Math.Sign(lp) * 0.9, 1 - Math.Exp(-dt * 0.8)); }
                         double ease = Math.Min(1, _tourT / 2.5) * Math.Min(1, Math.Max(0, st.Seconds - _tourT) / 2.5); ease = ease * ease * (3 - 2 * ease);
                         double yaw = st.Turn * Math.PI / 180 * dt * ease;
-                        double pitch = st.Do == "look" ? st.Tilt / st.Seconds * Math.PI / 180 * dt * (Math.Sin(Math.Min(1, _tourT / st.Seconds) * Math.PI) * Math.PI / 2) : Math.Sin(_tourClock * 0.2) * 0.25 * Math.PI / 180 * dt * ease;   // a look tilts on an eased curve; an orbit's gaze drifts barely
-                        TourTurn(yaw, pitch);
+                        if (st.Do == "look")
+                        {
+                            // a look: up to its tilt above the horizon (on a world, the sky with its stars and galaxies) or down below it,
+                            // a definite aim, eased in over the stop
+                            if (_tourT <= dt * 1.5) _tourLookFrom = LocalPitch();
+                            double t01 = Math.Min(1, _tourT / Math.Max(0.5, st.Seconds * 0.8)), ee = t01 * t01 * (3 - 2 * t01);
+                            double aim = Math.Max(-1.45, Math.Min(1.45, (_ground != null ? 0 : _tourLookFrom) + st.Tilt * Math.PI / 180));
+                            TourTurn(yaw, 0); TourPitchToward(_tourLookFrom + (aim - _tourLookFrom) * ee, 0.5);
+                        }
+                        else TourTurn(yaw, Math.Sin(_tourClock * 0.2) * 0.25 * Math.PI / 180 * dt * ease);   // an orbit's gaze drifts barely
                         if (_tourT >= st.Seconds) done = true;
                     }
                     break;
@@ -945,7 +953,7 @@ namespace DnaAnd.Shell
                             double sp = _tourH0 * st.Rate * dt * ease; _ox += tx / tl * sp; _oy += ty / tl * sp; _oz += tz / tl * sp;
                         }
                         double dh = (_tourH0 - AboveGround()) * Math.Min(1, dt * 3); _ox += ux * dh; _oy += uy * dh; _oz += uz * dh;   // the same height over the ground
-                        _pitch += (-0.22 - _pitch) * (1 - Math.Exp(-dt * 0.6));                // looking a little ahead and down
+                        TourPitchToward(-0.22, 1 - Math.Exp(-dt * 0.6));                         // looking a little ahead and down (against the world's own horizon)
                         TourTurn(st.Turn * Math.PI / 180 * dt * ease, 0);
                         if (_tourT >= st.Seconds) { done = true; _tourH0 = 0; }
                     }
@@ -1689,6 +1697,16 @@ namespace DnaAnd.Shell
         }
 
         // the view's up: the universe's up in space; near a planet's ground, the planet's own up (so its horizon is level)
+        // on a world, how far above its horizon you look (radians, up from the planet's middle through you); off a world, the
+        // view's own pitch
+        private double LocalPitch()
+        {
+            if (_ground == null) return _pitch;
+            double x, y, z; CamFromPlanet(out x, out y, out z); double r = Math.Sqrt(x * x + y * y + z * z); if (r <= 0) return _pitch;
+            var lk = Look; return Math.Asin(Math.Max(-1, Math.Min(1, (lk.X * x + lk.Y * y + lk.Z * z) / r)));
+        }
+        // turns the view up or down toward a pitch above the horizon (on a world, its own horizon), eased by k
+        private void TourPitchToward(double want, double k) { TourTurn(0, (want - LocalPitch()) * k); }
         private Vec3 ViewUp()
         {
             var wu = new Vec3(0, 1, 0);

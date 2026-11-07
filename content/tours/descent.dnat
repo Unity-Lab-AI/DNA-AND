@@ -44,6 +44,26 @@ do: pick
 target: none
 caption: n
 
+@stop up
+do: look
+tilt: 55
+turn: 1
+seconds: 6
+caption: up
+
+@stop sky
+do: orbit
+turn: 3
+seconds: 6
+caption: sky
+
+@stop down
+do: look
+tilt: -85
+turn: 1
+seconds: 5
+caption: down
+
 @stop grains
 do: zoom
 rate: 0.25
