@@ -12,7 +12,10 @@ namespace DnaAnd.Gen
 {
     internal static class GrainField
     {
-        public sealed class Mix { public string Id; public string[] Minerals; public double[] Share; public float[][] Colour; public double Size; }
+        public sealed class Mix { public string Id; public string[] Minerals; public double[] Share; public float[][] Colour; public double Size; public double[] ClassSize = new double[0], ClassCover = new double[0]; }
+        // size class c: 0 the sand itself, 1 and on its clasts (granules, pebbles, cobbles, boulders), biggest last
+        public static double SizeOf(Mix m, int c) { return c == 0 ? m.Size : m.ClassSize[c - 1]; }
+        public static int Classes(Mix m) { return 1 + m.ClassSize.Length; }
         private static readonly Dictionary<string, Mix> Mixes = new Dictionary<string, Mix>();
 
         /// <summary>Reads every ground's mix: its minerals, their shares and colours, and its grains' size (km).</summary>
@@ -36,7 +39,15 @@ namespace DnaAnd.Gen
                     if (w.Length == 2 && double.TryParse(w[1], fs, ci, out share) && col.TryGetValue(w[0], out c)) { ids.Add(w[0]); sh.Add(share); cs.Add(c); }
                 }
                 double lo, hi; if (ids.Count == 0 || !e.TryRange("grain-mm", out lo, out hi)) continue;
-                Mixes[e.Id] = new Mix { Id = e.Id, Minerals = ids.ToArray(), Share = sh.ToArray(), Colour = cs.ToArray(), Size = (lo + hi) * 0.5 * 1e-6 };
+                var mx = new Mix { Id = e.Id, Minerals = ids.ToArray(), Share = sh.ToArray(), Colour = cs.ToArray(), Size = (lo + hi) * 0.5 * 1e-6 };
+                var csz = new List<double>(); var ccv = new List<double>();
+                foreach (var part in e.Get("clasts", "").Split(','))
+                {
+                    var w = part.Trim().Split(' '); if (w.Length != 3) continue; var rg = w[1].Split(new[] { ".." }, StringSplitOptions.None); double a, b2, cv;
+                    if (rg.Length == 2 && double.TryParse(rg[0], fs, ci, out a) && double.TryParse(rg[1], fs, ci, out b2) && double.TryParse(w[2], fs, ci, out cv)) { csz.Add(Math.Sqrt(a * b2) * 1e-6); ccv.Add(cv); }
+                }
+                mx.ClassSize = csz.ToArray(); mx.ClassCover = ccv.ToArray();
+                Mixes[e.Id] = mx;
             }
         }
 
@@ -56,14 +67,16 @@ namespace DnaAnd.Gen
         private static long Key(long i, long j, long k) { return i * 73856093L ^ j * 19349663L ^ k * 83492791L; }
 
         // the grain of cube (i, j, k), if that cube's point lies on the planet's shell (within half a grain of radius R)
-        public static bool At(long i, long j, long k, int layer, double R, Mix m, ulong seed, out Grain g)
+        public static bool At(long i, long j, long k, int layer, double R, Mix m, ulong seed, out Grain g) { return At(i, j, k, layer, 0, R, m, seed, out g); }
+        public static bool At(long i, long j, long k, int layer, int cls, double R, Mix m, ulong seed, out Grain g)
         {
-            g = new Grain(); double G = m.Size; long key = Key(i, j, k) * 2 + layer;
+            g = new Grain(); double G = SizeOf(m, cls); long key = (Key(i, j, k) * 8 + cls) * 2 + layer;
+            if (cls > 0 && (layer > 0 || Hash(key, 8, 0, seed) > Math.Min(1, m.ClassCover[cls - 1] * 2))) return false;   // the clasts lie only here and there, by how much they cover
             double px = (i + 0.2 + 0.6 * Hash(key, 1, 0, seed)) * G, py = (j + 0.2 + 0.6 * Hash(key, 2, 0, seed)) * G, pz = (k + 0.2 + 0.6 * Hash(key, 3, 0, seed)) * G;
             double l = Math.Sqrt(px * px + py * py + pz * pz); if (Math.Abs(l - R) > G * 0.5) return false;
             g.Key = key; g.Dx = px / l; g.Dy = py / l; g.Dz = pz / l;
             g.Rad = G * (0.3 + 0.2 * Hash(key, 4, 0, seed));
-            g.Depth = layer == 0 ? g.Rad * (0.55 + 0.3 * Hash(key, 5, 0, seed)) : G * 0.75 + g.Rad * 0.6;   // the top ones mostly sunk in; the ones under them fill the gaps
+            g.Depth = cls > 0 ? g.Rad * (0.3 + 0.35 * Hash(key, 5, 0, seed)) : layer == 0 ? g.Rad * (0.55 + 0.3 * Hash(key, 5, 0, seed)) : G * 0.75 + g.Rad * 0.6;   // stones rest half sunk; the sand's top grains mostly sunk in, the ones under them fill the gaps
             double total = 0; foreach (var s in m.Share) total += s;
             double t = Hash(key, 6, 0, seed) * total; g.Mineral = m.Share.Length - 1;
             for (int q = 0; q < m.Share.Length; q++) { t -= m.Share[q]; if (t <= 0) { g.Mineral = q; break; } }
@@ -71,14 +84,16 @@ namespace DnaAnd.Gen
             return true;
         }
 
-        /// <summary>Every grain whose place on the ground is within <paramref name="reachKm"/> of the unit direction
-        /// (dx, dy, dz) on a planet of radius <paramref name="R"/>.</summary>
+        /// <summary>Every grain and stone (all size classes) whose place on the ground is within <paramref name="reachKm"/>
+        /// of the unit direction (dx, dy, dz) on a planet of radius <paramref name="R"/>.</summary>
         public static void Near(double dx, double dy, double dz, double R, double reachKm, Mix m, ulong seed, List<Grain> into)
         {
-            double G = m.Size; long n = (long)Math.Ceiling(reachKm / G) + 1;
+            for (int c = 0; c < Classes(m); c++) NearClass(dx, dy, dz, R, reachKm, c, m, seed, into);
+        }
+        private static void NearClass(double dx, double dy, double dz, double R, double reachKm, int cls, Mix m, ulong seed, List<Grain> into)
+        {
+            double G = SizeOf(m, cls); long n = (long)Math.Ceiling(reachKm / G) + 1;
             double px = dx * R, py = dy * R, pz = dz * R;
-            long ci = (long)Math.Floor(px / G), cj = (long)Math.Floor(py / G), ck = (long)Math.Floor(pz / G);
-            // only the cubes the shell passes through: step across the ground's own plane, a few cubes deep
             double ex, ey, ez, nx, ny, nz; Axes(dx, dy, dz, out ex, out ey, out ez, out nx, out ny, out nz);
             // step across the ground's plane (closer than a cube, so none is skipped) and take the cubes the shell passes
             // through there: the one at the step and those either side of it along the axis the shell crosses
@@ -94,7 +109,7 @@ namespace DnaAnd.Gen
                         long i = i0 + (ax == 0 ? d : 0), j = j0 + (ax == 1 ? d : 0), k = k0 + (ax == 2 ? d : 0), key = Key(i, j, k); if (!seen.Add(key)) continue;
                         for (int layer = 0; layer < 2; layer++)
                         {
-                            Grain g; if (!At(i, j, k, layer, R, m, seed, out g)) continue;
+                            Grain g; if (!At(i, j, k, layer, cls, R, m, seed, out g)) continue;
                             double hx = (g.Dx - dx) * R, hy = (g.Dy - dy) * R, hz = (g.Dz - dz) * R;
                             if (hx * hx + hy * hy + hz * hz > (reachKm + G) * (reachKm + G)) continue;
                             into.Add(g);
@@ -180,22 +195,37 @@ namespace DnaAnd.Gen
             r = (float)((1 + ir * 0.25 + cl * 0.3) * (1 - dark)); g = (float)((1 - ir * 0.35 + cl * 0.3) * (1 - dark)); b = (float)((1 - ir * 0.55 + cl * 0.25) * (1 - dark));
         }
 
-        /// <summary>The top of the grain bed at a unit direction on the ground (km above the ground's own level there), the
-        /// grain that is the top there, and false where the point falls in a gap between grains (top then the gap's floor).</summary>
+        /// <summary>The top of the ground's loose bed at a unit direction (km above the ground's own level there): the sand's
+        /// grains, and the stones of every size lying on it; each size class comes in as <paramref name="cell"/> (the finest
+        /// detail drawn there) grows fine enough to show it, so the ground breaks into boulders, then cobbles, pebbles and
+        /// sand as you come in. The grain or stone that is the top there; false in a gap between sand grains.</summary>
         public static bool Top(double dx, double dy, double dz, double R, Mix m, ulong seed, double cell, out double top, out Grain hit)
         {
+            top = 0; hit = new Grain(); bool on = false; double best = double.MinValue;
+            for (int c = Classes(m) - 1; c >= 0; c--)
+            {
+                double G = SizeOf(m, c), w = Math.Max(0, Math.Min(1, (G * 0.25 - cell) / (G * 0.15))); if (w <= 0) continue;
+                double t; Grain g; bool o = TopClass(dx, dy, dz, R, m, c, seed, cell, out t, out g);
+                if (c > 0 && !o) continue;                                              // no stone of this size here
+                double v = t * w;
+                if (v > best) { best = v; hit = g; on = o; top = v; }
+            }
+            if (best == double.MinValue) { top = 0; return false; }
+            return on;
+        }
+        private static bool TopClass(double dx, double dy, double dz, double R, Mix m, int cls, ulong seed, double cell, out double top, out Grain hit)
+        {
             double ex, ey, ez, nx, ny, nz; Axes(dx, dy, dz, out ex, out ey, out ez, out nx, out ny, out nz);
-            top = -m.Size * 0.45; hit = new Grain(); bool any = false; double G = m.Size;
+            double G = SizeOf(m, cls); top = -G * 0.45; hit = new Grain(); bool any = false;
             long i0 = (long)Math.Floor(dx * R / G), j0 = (long)Math.Floor(dy * R / G), k0 = (long)Math.Floor(dz * R / G);
             for (int di = -1; di <= 1; di++) for (int dj = -1; dj <= 1; dj++) for (int dk = -1; dk <= 1; dk++)   // a grain near here has its cube next to this one
             for (int layer = 0; layer < 2; layer++)
             {
-                Grain g; if (!At(i0 + di, j0 + dj, k0 + dk, layer, R, m, seed, out g)) continue;
-                // the point across from the grain's middle, in the ground's plane
+                Grain g; if (!At(i0 + di, j0 + dj, k0 + dk, layer, cls, R, m, seed, out g)) continue;
                 double ox = (dx - g.Dx) * R, oy = (dy - g.Dy) * R, oz = (dz - g.Dz) * R;
                 double a = ox * ex + oy * ey + oz * ez, b = ox * nx + oy * ny + oz * nz, d2 = a * a + b * b;
                 if (d2 > g.Rad * g.Rad * 1.6) continue;
-                double py = g.Rad * 0.6, ty = 0; bool ok = true;
+                double py = g.Rad * 0.6; bool ok = true;
                 for (int it = 0; it < 2; it++)
                 {
                     double l = Math.Sqrt(a * a + py * py + b * b); if (l <= 0) { ok = false; break; }
@@ -203,8 +233,8 @@ namespace DnaAnd.Gen
                     py = Math.Sqrt(hz2);
                 }
                 if (!ok) continue;
-                ty = py - g.Depth;
-                if (ty > top || !any) { if (ty > top) { top = ty; hit = g; any = true; } }
+                double ty = py - g.Depth;
+                if (ty > top) { top = ty; hit = g; any = true; }
             }
             return any;
         }

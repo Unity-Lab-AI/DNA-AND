@@ -196,7 +196,7 @@ namespace DnaAnd.Gen
             for (int i = from; i < to; i++)
             {
                 double width = Radius / f;                           // km across one bump at this layer
-                if (_grainKm > 0 && width < _grainKm * 0.25) break;  // finer than a quarter of a grain: the grains themselves take over there
+                if (_grainKm > 0 && width < _grainKm * 0.25) break;  // finer than a quarter of a sand grain: the grains themselves take over (the stones lie on it all the way)
                 sum += (Value(x * f + i * 3.1, y * f - i * 5.3, z * f + i * 2.9, seed + (uint)i * 13u) * 2 - 1) * Math.Min(width * 0.18, 3.0);
                 f *= 2;
             }
@@ -301,7 +301,9 @@ namespace DnaAnd.Gen
             if (_noGrainsNow || !Solid || Shell || glow > 0.01 || (HasWater && h < 0) || layers <= 6) return h;
             var gm = GrainMix(y); if (gm == null || gm.Size <= 0) return h;
             double W = Radius / (48 * Math.Pow(2, layers - 6)), G = gm.Size;             // the finest detail here (km)
-            double wgt = Math.Max(0, Math.Min(1, (G * 0.25 - W) / (G * 0.15))); if (wgt <= 0) return h;   // only once the mesh has several points to a grain (fewer would land on grain or gap at random: flicker)
+            double big = GrainField.SizeOf(gm, GrainField.Classes(gm) - 1);              // the biggest stones come in first
+            if (W > big * 0.25) return h;
+            double wgt = Math.Max(0, Math.Min(1, (G * 0.25 - W) / (G * 0.15)));         // the sand's own share (each size class weighs itself in Top)
             double top; GrainField.Grain gr;
             bool on = GrainField.Top(x, y, z, Radius, gm, GrainSeed, Math.Max(W, 1e-13), out top, out gr);
             float cr, cg, cb;
@@ -314,8 +316,8 @@ namespace DnaAnd.Gen
                 cr = c[0] * gr.Shade * sr; cg = c[1] * gr.Shade * sg; cb = c[2] * gr.Shade * sb;
             }
             else { cr = r * 0.25f; cg = g * 0.25f; cb = b * 0.25f; }                    // down in a gap between grains
-            float w = (float)wgt; r = r * (1 - w) + cr * w; g = g * (1 - w) + cg * w; b = b * (1 - w) + cb * w;
-            return h + top * wgt;
+            float w = (float)(on && gr.Rad > G ? 1 : wgt); r = r * (1 - w) + cr * w; g = g * (1 - w) + cg * w; b = b * (1 - w) + cb * w;   // a stone shows its colour as soon as it shows
+            return h + top;                                                              // (Top has weighed each size in as it comes)
         }
 
         // ── the planet changing shape over time ──

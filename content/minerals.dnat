@@ -4,6 +4,9 @@
 #   iron oxides; basalt is mostly pyroxene, calcic plagioclase and olivine; the Moon's highlands are anorthite-rich,
 #   its seas basalt with ilmenite; Mars's dust is basalt minerals reddened by hematite; icy worlds are water ice with
 #   frozen carbon dioxide, nitrogen and methane). Shares are rough parts per 100 of the grains.
+# clasts: the bigger loose stones lying on the sand, by size class (Wentworth: granule 2-4 mm, pebble 4-64, cobble 64-256,
+#   boulder above 256), each with its size range in mm and how much of the ground it covers (soils carry few stones; desert
+#   pavement is mostly pebbles; lava fields are blocks and scoria; the Moon's boulders cover about a hundredth of its ground).
 # Each grain of ground is one mineral, picked from its ground's mix; zooming into it shows that mineral's own atoms.
 # grain-mm: the grains' sizes across, smallest to largest (Wentworth scale: sand 0.0625 to 2 mm, silt 0.0039 to 0.0625 mm,
 #   clay below 0.0039 mm; dune sand mostly 0.2 to 0.5 mm; the Moon's dust about 0.04 to 0.1 mm; snow grains 0.1 to 2 mm).
@@ -1120,36 +1123,43 @@ site: 0.5 0.5 0 C
 @mix temperate
 name: Land of a temperate world
 grain-mm: 0.1..0.5
+clasts: pebble 4..64 0.08, cobble 64..256 0.03, boulder 256..1500 0.005
 minerals: quartz 25, albite 18, orthoclase 14, kaolinite 12, augite 6, biotite 5, calcite 8, hematite 5, magnetite 3, forsterite 2, gypsum 2
 
 @mix desert
 name: Dry rocky ground
 grain-mm: 0.2..0.5
+clasts: granule 2..4 0.3, pebble 4..64 0.45, cobble 64..256 0.1, boulder 256..2000 0.02
 minerals: quartz 22, hematite 14, albite 14, augite 14, forsterite 10, enstatite 6, magnetite 6, gypsum 6, halite 4, calcite 4
 
 @mix lava
 name: Fresh basalt and lava rock
 grain-mm: 0.2..1
+clasts: pebble 4..64 0.3, cobble 64..256 0.25, boulder 256..3000 0.1
 minerals: augite 28, anorthite 26, forsterite 18, fayalite 6, magnetite 10, ilmenite 6, sulfur 4, pyrite 2
 
 @mix snowball
 name: Frozen ground
 grain-mm: 0.2..1
+clasts: pebble 4..64 0.1, cobble 64..256 0.05, boulder 256..2000 0.02
 minerals: water-ice 70, dry-ice 10, nitrogen-ice 5, methane-ice 5, forsterite 5, enstatite 5
 
 @mix moon
 name: Moon ground
 grain-mm: 0.04..0.1
+clasts: pebble 4..64 0.05, cobble 64..256 0.02, boulder 256..4000 0.01
 minerals: anorthite 40, augite 22, forsterite 14, ilmenite 14, fayalite 5, quartz 5
 
 @mix tidally-locked
 name: Ground of a tidally locked world
 grain-mm: 0.1..0.5
+clasts: pebble 4..64 0.25, cobble 64..256 0.06, boulder 256..2000 0.015
 minerals: augite 22, anorthite 18, quartz 14, hematite 14, forsterite 12, water-ice 10, magnetite 10
 
 @mix ocean
 name: Sea floor
 grain-mm: 0.01..0.06
+clasts: pebble 4..64 0.02
 minerals: augite 30, anorthite 25, forsterite 15, calcite 15, kaolinite 10, pyrite 5
 
 @mix sea
