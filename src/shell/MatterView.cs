@@ -265,7 +265,8 @@ namespace DnaAnd.Shell
             // its electrons, each going round on its own path tilted its own way in three dimensions (never all in one plane),
             // the inner shells faster, the valence shell (the one it bonds with) in gold
             double ar = AtomRadius(e), dot = s * 0.0035; int shells = e.Shells.Length;
-            if (ar / s > 0.004)
+            // (only the atoms near where you look: never every electron of every atom in view, millions of them)
+            if (ar / s > 0.004 && fdx * fdx + fdy * fdy + fdz * fdz < Math.Pow(Math.Max(AtomSpacing * 6, s * 1.2), 2))
                 for (int sh = 0; sh < shells; sh++)
                 {
                     double rr = ar * (sh + 1) / shells; bool valence = sh == shells - 1; int ne = e.Shells[sh];
