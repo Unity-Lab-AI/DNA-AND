@@ -33,7 +33,8 @@ cbuffer C : register(b0)
     float4 screen;  // x width, y height (of this tile, in pixels), z minimum size per unit of distance, w maximum (0: none)
     float4 extra;   // x: how much dimmer (0 full bright, 1 gone), so things fade in and out, never switch
     float4 lensA;   // a black hole's light bending: xy where it is on screen (-1..1), z its Einstein ring (same units, up the screen), w its distance
-    float4 lensB;   // x: width over height of the screen; y: 1 = orbital clouds (each record an orbital, its points placed here); z: points per orbital
+    float4 lensB;   // x: width over height of the screen; y: 1 = orbital clouds (each record an orbital, its points placed here); z: points per orbital; w: the web's fade distance (0: not the web)
+    float4 webA;    // the cosmic web's light, sifted here on the card: xyz where you are (in the points' own frame), w how near round you is left out (the galaxies made in full stand there)
 };
 struct Star { float3 pos; float size; float4 color; };
 StructuredBuffer<Star> stars : register(t0);
@@ -56,6 +57,15 @@ VO VS(uint vid : SV_VertexID, uint iid : SV_InstanceID)
     uint rec = iid, sub = 0;
     if (lensB.y > 0.5) { uint per = max(1u, (uint)lensB.z); rec = iid / per; sub = iid % per; }
     Star s = stars[rec];
+    bool webOut = false;
+    if (lensB.w > 0)
+    {
+        // a point of the web's light: left out near you (the galaxies made in full stand there) and past three fade distances;
+        // fading with distance otherwise (seen through the whole web at once it would stack into an even dust)
+        float wl = length(s.pos - webA.xyz);
+        webOut = wl < webA.w || wl > lensB.w * 3;
+        s.color.rgb *= exp(-wl / lensB.w);
+    }
     if (lensB.y > 0.5)
     {
         // an electron's orbital, worked out here on the card: one of its points, where the electron may be found, in the
@@ -84,6 +94,7 @@ VO VS(uint vid : SV_VertexID, uint iid : SV_InstanceID)
     float3 world = s.pos + (right.xyz * c.x + up.xyz * c.y) * size;
     VO o;
     o.pos = mul(float4(world, 1), viewProj);
+    if (webOut) o.pos = float4(2, 2, 2, 1);                       // (outside the view: not drawn)
     if (lensA.z > 0 && cc0.w > lensA.w)
     {
         // light passing a black hole is bent toward it by its mass (general relativity): what is behind it shows moved outward,

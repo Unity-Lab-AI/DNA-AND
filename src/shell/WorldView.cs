@@ -234,21 +234,15 @@ namespace DnaAnd.Shell
                     return;
                 }
             }
-            // left out round you, where the galaxies are made in full
-            double cx = _cx, cy = _cy, cz = _cz, keep = _nearUnits * 1.2;
-            var shown = new List<StarVertex>(_glowAll.Length);
-            // the web near you stands out and the far universe fades to a haze (seen through its whole depth at once, its walls
-            // and filaments would stack into an even dust): each point's light falls off with distance, gone by about 3 billion
-            // light-years
-            double fadeU = 1.0e9 / Units.LightYearsPerUnit, cut = fadeU * 3;
-            foreach (var v0 in _glowAll)
+            // the whole web's light goes to the card once; the card leaves out the points near you (where the galaxies are made in
+            // full) and fades the rest by distance, every frame, per point (nothing sifted on the processor)
+            double cx = _cx, cy = _cy, cz = _cz;
+            if (_glowShown != _glowAll)
             {
-                double dx = v0.X - cx, dy = v0.Y - cy, dz = v0.Z - cz, d2 = dx * dx + dy * dy + dz * dz; if (d2 < keep * keep || d2 > cut * cut) continue;
-                var v = v0; float k = (float)Math.Exp(-Math.Sqrt(d2) / fadeU); v.R *= k; v.G *= k; v.B *= k; shown.Add(v);
+                _glowShown = _glowAll; _glowCount = _glowAll.Length;
+                if (_glowBuf == null || _glowBuf.Bytes < (long)Math.Max(1, _glowCount) * Stride) { if (_glowBuf != null) _glowBuf.Dispose(); _glowBuf = new UploadBuffer(_gpu.Device, (long)(_glowAll.Length + 16) * Stride); }
+                if (_glowCount > 0) _glowBuf.Write(_glowAll, _glowCount);
             }
-            _glowCount = shown.Count; _glowShown = shown.ToArray();                      // (one copy: drawn and picked from the same)
-            if (_glowBuf == null || _glowBuf.Bytes < (long)Math.Max(1, _glowCount) * Stride) { if (_glowBuf != null) _glowBuf.Dispose(); _glowBuf = new UploadBuffer(_gpu.Device, (long)(_glowAll.Length + 16) * Stride); }
-            if (_glowCount > 0) _glowBuf.Write(_glowShown, _glowCount);
             _glowAtX = cx; _glowAtY = cy; _glowAtZ = cz;
         }
         // the edge of the visible universe cannot be passed: you are held just inside it
@@ -265,7 +259,7 @@ namespace DnaAnd.Shell
         private sealed class Place { public string Id, Name, Where, Entry, Says; public double PerLy3, SizeKm; public int Shown; public float R, G, B; }
         private sealed class Extra { public double X, Y, Z, R, Mass; public string Name; public List<string> Lines; public float Cr, Cg, Cb; public bool Hole; }
         private List<Place> _places; private readonly List<Extra> _extras = new List<Extra>(); private string _extraKey = "";
-        private UploadBuffer _extraBuf; private StarVertex[] _extraV = new StarVertex[0]; private readonly float[] _lens = new float[4];
+        private UploadBuffer _extraBuf; private StarVertex[] _extraV = new StarVertex[0]; private readonly float[] _lens = new float[4], _web = new float[5];
         private void LoadPlaces()
         {
             _places = new List<Place>(); var ci = System.Globalization.CultureInfo.InvariantCulture; var fs = System.Globalization.NumberStyles.Float;
@@ -1823,9 +1817,11 @@ namespace DnaAnd.Shell
             float others = (float)(1 - 0.85 * Math.Max(0, Math.Min(1, within)));
             {
                 // the rest of the universe's galaxies, a glow along the cosmic web (remade without the near ones as you move far)
-                if (double.IsNaN(_glowAtX) || (_glowAll == null && _glowReady != null) || (Math.Abs(_cx - _glowAtX) + Math.Abs(_cy - _glowAtY) + Math.Abs(_cz - _glowAtZ) > Math.Max(_nearUnits * 0.25, _farScale * 0.3) && time - _glowAtT > 0.5)) { MakeGlow(); _glowAtT = time; }   // (refiltered only when you have moved a real share of how far out you are, at most twice a second: never every frame of a zoom)
+                if (double.IsNaN(_glowAtX) || (_glowAll == null && _glowReady != null) || (Math.Abs(_cx - _glowAtX) + Math.Abs(_cy - _glowAtY) + Math.Abs(_cz - _glowAtZ) > _nearUnits * 0.25 && time - _glowAtT > 0.5)) { MakeGlow(); _glowAtT = time; }   // (only to start it, take it in when made, or make it again far away: the card sifts it each frame)
                 var gm = Mat4.Identity; gm.M41 = (float)-_cx; gm.M42 = (float)-_cy; gm.M43 = (float)-_cz;
-                DrawPoints(_glowBuf, _glowCount, gm * vp, right, up, 1f, 0.0012f, w, h, time, 0.004f, 3.2f * others, 0f);   // each a galaxy at its true size (a pinpoint from afar), faint, so the web shows where they crowd
+                _web[0] = (float)(1.0e9 / Units.LightYearsPerUnit); _web[1] = (float)_cx; _web[2] = (float)_cy; _web[3] = (float)_cz; _web[4] = (float)(_nearUnits * 1.2);
+                DrawPoints(_glowBuf, _glowCount, gm * vp, right, up, 1f, 0.0012f, w, h, time, 0.004f, 3.2f * others, 0f);
+                _web[0] = 0;   // each a galaxy at its true size (a pinpoint from afar), faint, so the web shows where they crowd
             }
             for (int i = 0; i < _galaxies.Count; i++)
             {
@@ -2081,6 +2077,7 @@ namespace DnaAnd.Shell
             c[16] = right.X; c[17] = right.Y; c[18] = right.Z; c[20] = up.X; c[21] = up.Y; c[22] = up.Z;
             c[24] = (float)time; c[25] = sizeScale; c[26] = style; c[27] = 4; c[28] = w; c[29] = h; c[30] = minSize; c[31] = maxSize; c[32] = 1 - Math.Min(1, b);
             c[36] = _lens[0]; c[37] = _lens[1]; c[38] = _lens[2]; c[39] = _lens[3]; c[40] = w / (float)Math.Max(1, h);
+            c[43] = _web[0]; c[44] = _web[1]; c[45] = _web[2]; c[46] = _web[3]; c[47] = _web[4];   // the web's light, sifted on the card (0: not the web)
             _dots.Draw(buf, count, c, 0, 0, w, h);
         }
 
