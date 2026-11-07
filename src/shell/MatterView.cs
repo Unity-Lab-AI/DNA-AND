@@ -1142,7 +1142,12 @@ namespace DnaAnd.Shell
             if (!_noGrains)
             {
                 int meshes = 0, smalls = 0; var focusG = FocusRec;
-                foreach (var gr in NearGrains(_fx, _fz, Math.Max(Grain * 12, Math.Min((overlay ? 30 : 110) * Grain, 2.2 * s) + Grain)))   // always the grains round you, to the horizon
+                var nearG = NearGrains(_fx, _fz, Math.Max(Grain * 12, Math.Min((overlay ? 30 : 110) * Grain, 2.2 * s) + Grain));   // always the grains round you, to the horizon
+                // the biggest on screen first, so the grains right in front of you always get their real 3D bodies (never a flat
+                // eight-sided stand-in, which is only for grains a few pixels across)
+                Func<GrainRec, double> onScreen = gq => gq.Rad / Math.Max(1e-30, Math.Sqrt((gq.X - _fx) * (gq.X - _fx) + (gq.Z - _fz) * (gq.Z - _fz) + (0.6 * s - gq.Y) * (0.6 * s - gq.Y)));
+                nearG.Sort((p1, p2) => onScreen(p2).CompareTo(onScreen(p1)));
+                foreach (var gr in nearG)
                 {
                     var m = gr.M; long gi = gr.Key, gj = 0;
                     bool under = gr == focusG && s < FocusRad * 1.5;                             // close in: its fine face is drawn round you (below); its body carries it on out to its curve
@@ -1156,7 +1161,7 @@ namespace DnaAnd.Shell
                     // rings); closer in than a twentieth of its size its face and atoms are all there is to see
                     if (under && s < FocusRad * 0.05) continue;
                     if (mesh != null && px > 8 && meshes < 700) { int at0 = _stoneMesh.Count; Stone(_stoneMesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); _stones.Add(new double[] { at0, _stoneMesh.Count - at0, gi, gx, gy, gz, rad, m.Lustre }); meshes++; }   // its detail and stains worked out on the card
-                    else if (mesh != null && smalls < 24000) { Octa(mesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); smalls++; }
+                    else if (mesh != null && px <= 8 && smalls < 24000) { Octa(mesh, gi, gj, gx, gy, gz, rad, m.R * sh, m.G * sh, m.B * sh, s); smalls++; }
                 }
             }
             if (overlay) return;                                                         // over the ground: the ground itself is its grains; nothing is laid over it (only the grains to click)
