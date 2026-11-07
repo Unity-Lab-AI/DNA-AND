@@ -10,7 +10,7 @@ do: arc
 rate: -0.06
 until-km: 2e18
 turn: 2.5
-seconds: 12
+seconds: 10
 caption: We begin at home: our galaxy, a hundred billion suns turning in the dark
 
 @stop leave
@@ -209,7 +209,7 @@ caption: An atom is not a ball
 do: arc
 rate: 0.03
 until-km: 2.5e-13
-turn: 2.5
+turn: 4
 seconds: 8
 caption: A tiny nucleus, its electrons round it on tilted paths
 
@@ -219,10 +219,25 @@ target: bonded-atom
 caption: Its neighbour
 
 @stop across-bond
-do: orbit
-turn: 2
-seconds: 8
-caption: Atoms share outer electrons: that glow is the bond
+do: arc
+rate: 0.0
+until-km: 0
+turn: 4
+seconds: 7
+caption: Across the bond to its neighbour: atoms share their outer electrons
+
+@stop to-next-atom
+do: pick
+target: bonded-atom
+caption: The next atom
+
+@stop round-next-atom
+do: arc
+rate: 0.0
+until-km: 0
+turn: 4
+seconds: 7
+caption: Atom to atom through the crystal, each its own little system
 
 @stop choose-electron
 do: pick
@@ -234,17 +249,6 @@ do: orbit
 turn: 2
 seconds: 6
 caption: An electron: a point, and a wave spread through its cloud
-
-@stop next-electron
-do: pick
-target: electron
-caption: The next
-
-@stop follow-next
-do: orbit
-turn: 2
-seconds: 6
-caption: Each in its own orbital
 
 @stop choose-nucleus
 do: pick
