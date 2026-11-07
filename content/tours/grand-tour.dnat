@@ -10,7 +10,8 @@
 #   do: arc     the cinematic move: a slow dolly in (rate, until-km as zoom) while circling (turn) for seconds, eased
 #   do: fly     fly steadily forward past what is ahead for seconds: rate is the share of the distance to the nearest thing
 #               a second (no sudden speed-ups), turn degrees a second as it goes
-#   do: pick    choose what to go to: galaxy, next-galaxy, star, planet, next-planet, none, atom, electron, nucleus, proton, quark
+#   do: pick    choose what to go to: galaxy, next-galaxy, star, planet, next-planet, none, atom, bonded-atom (the next atom,
+#               sharing its outer electrons: the camera glides across the bond), electron, nucleus, proton, quark
 #   caption:    the words shown while the stop runs
 # It plays as a film: letterbox bars, captions fading in and out, the camera easing round to each new subject, holds.
 # Picks explore: a galaxy chosen afresh some way off, a star among those round you, one of the star's worlds, so every
@@ -257,6 +258,28 @@ until-km: 2.5e-13
 turn: 3
 seconds: 28
 caption: An atom: its electrons in their shells round the nucleus, like a solar system; the outer (valence) shell in gold
+
+@stop to-neighbour
+do: pick
+target: bonded-atom
+caption: Across to its neighbour
+
+@stop across-bond
+do: orbit
+turn: 2
+seconds: 16
+caption: Through the bond: the two atoms' outer, valence, electrons shared between them, the glow that holds the crystal together
+
+@stop to-next-neighbour
+do: pick
+target: bonded-atom
+caption: And on to the next atom
+
+@stop along-lattice
+do: orbit
+turn: 2
+seconds: 16
+caption: Atom to atom through the lattice, each bond a shared pair of electrons
 
 @stop choose-electron
 do: pick

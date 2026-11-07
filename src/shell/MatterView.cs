@@ -1362,7 +1362,7 @@ namespace DnaAnd.Shell
             _lastH = h;
             // the point you dive into eases across to what you picked
             double dt = _lastTime < 0 ? 0 : Math.Max(0, Math.Min(0.1, time - _lastTime)); _lastTime = time;
-            double k = 1 - Math.Exp(-dt * 4); _fx += (_tfx - _fx) * k; _fz += (_tfz - _fz) * k; _fy += (_tfy - _fy) * k;
+            double k = 1 - Math.Exp(-dt * Glide); _fx += (_tfx - _fx) * k; _fz += (_tfz - _fz) * k; _fy += (_tfy - _fy) * k;
             var solid = new List<StarVertex>(20000); var glow = new List<StarVertex>(2000); var mesh = pipes != null ? new List<StarVertex>(60000) : null;
             _bodies.Clear();
             _clock = time; Build(scaleKm, time, solid, glow, mesh, overlay);
@@ -1463,8 +1463,26 @@ namespace DnaAnd.Shell
         /// <summary>Where the picked grain or atom is on screen (pixels) and how big, for its ring; false if nothing is picked.</summary>
         /// <summary>Picks the nearest of a kind of thing to the point you dive into, as a click on it would (atom, electron,
         /// nucleus, proton, quark): for the tour.</summary>
+        /// <summary>How quickly the point you dive into glides to what is picked (a share a second): slow on the tour, a film's glide.</summary>
+        public double Glide = 4; private double _lastLeftX = double.NaN, _lastLeftZ = double.NaN;
         public void PickNearest(string what)
         {
+            if (what == "bonded-atom")
+            {
+                // the atom next to this one: the nearest other atom (its neighbour in the crystal, sharing its outer electrons),
+                // never the one just left
+                Body nb = null; double nd = double.MaxValue;
+                foreach (var b in _bodies)
+                {
+                    if (b.Kind != 1 || b == _picked) continue;
+                    double dx = b.X - _fx, dy = b.Y - _yOff - _fy, dz = b.Z - _fz, d = dx * dx + dy * dy + dz * dz;
+                    if (d < AtomSpacing * AtomSpacing * 0.25 || (_lastLeftX == b.X && _lastLeftZ == b.Z)) continue;   // not the one you are on, nor the one you came from
+                    if (d < nd) { nd = d; nb = b; }
+                }
+                if (nb == null) return;
+                if (_picked != null) { _lastLeftX = _picked.X; _lastLeftZ = _picked.Z; }
+                _picked = nb; _tfx = nb.X; _tfz = nb.Z; _tfy = nb.Y; return;
+            }
             int kind = what == "atom" ? 1 : what == "electron" ? 3 : what == "nucleus" ? 7 : what == "proton" ? 5 : what == "quark" ? 4 : -1; if (kind < 0) return;
             Body best = null; double bd = double.MaxValue;
             foreach (var b in _bodies)

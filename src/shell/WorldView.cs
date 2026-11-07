@@ -1005,7 +1005,8 @@ namespace DnaAnd.Shell
         public bool Update(Input input, double dt, int w, int h)
         {
             Mark();
-            if (_tour != null) TourStep(input, dt, w, h);                                  // a tour gives the controls what each stop asks
+            if (_tour != null) TourStep(input, dt, w, h);
+            _matter.Glide = _tour != null ? 0.45 : 4;                                     // on the tour the matter glides as a film camera would                                  // a tour gives the controls what each stop asks
             // a click (pressed and let go without dragging) picks what is under the mouse
             if (input.LeftClicked) { _pressed = true; _dragged = false; _pressX = input.MouseX; _pressY = input.MouseY; }
             if (_pressed && input.LeftDown && Math.Abs(input.MouseX - _pressX) + Math.Abs(input.MouseY - _pressY) > 6) _dragged = true;   // dragging circles round the pick (or looks around if nothing is picked)
@@ -1092,6 +1093,7 @@ namespace DnaAnd.Shell
             }
             if (input.RightClicked) { _matter.Unpick(); if (_spaceScale <= 0) { _tKind = -1; _tName = ""; } }   // lets go of everything picked (in a nebula's gas the nebula stays where you are)                    // right click: let go of what you picked
             if (input.WasPressed(0x48)) { _hud.Visible = !_hud.Visible; MenuChanged = true; }   // H: the scale on screen, on or off
+            if (input.WasPressed(0x42) && (_matterScale > 0 || _spaceScale > 0)) _matter.PickNearest("bonded-atom");   // B: glide across the bond to the next atom
             if (input.WasPressed(Win32.VK_ESCAPE)) return false;
             if (input.LeftDown && (input.MouseDX != 0 || input.MouseDY != 0))
             {
