@@ -1,56 +1,16 @@
 # DNA-AND content · the grand tour: one flight from the whole visible universe down to the quarks, for watching
 # Run it: Universe.exe --tour grand-tour (or DNA-AND.exe --tour grand-tour). Any key or click takes the controls back.
-# Edit the stops to make your own. Each @stop is done in order:
-#   do: zoom    fly in (or out, with a negative rate) steadily until the view is "until-km" across (km, the distance to what
-#               you look at); rate: tenfolds a second (one steady rate, each tenfold the same time), eased in and out; a zoom
-#               that stops getting anywhere for six seconds goes on to the next stop
-#   do: orbit   circle slowly round what is picked (or look round if nothing is): turn degrees a second, for seconds; the view
-#               is eased toward level first, so it never spins round straight up or down
-#   do: look    tilt your view up (+) or down (-) by tilt degrees over seconds, turning a little as it goes
-#   do: arc     the cinematic move: a slow dolly in (rate, until-km as zoom) while circling (turn) for seconds, eased
-#   do: fly     fly steadily forward past what is ahead for seconds: rate is the share of the distance to the nearest thing
-#               a second (no sudden speed-ups), turn degrees a second as it goes
-#   do: glide   fly low over the land, level at the height you are at, rising and falling with the ground: rate is heights a
-#               second (at head height, a walk; from higher, a glide over the hills), looking a little ahead and down,
-#               turning turn degrees a second, for seconds
-#   do: pick    choose what to go to: galaxy, next-galaxy, star, planet, next-planet, none, atom, bonded-atom (the next atom,
-#               sharing its outer electrons: the camera glides across the bond), electron (each time the next electron, not
-#               the one you are on), nucleus, proton, quark
-#   caption:    the words shown while the stop runs
-# It is told as a story: each stop stays until its words have had time to be read (a moment to look, then about a
-# third of a second a word); a zoom that arrives early holds still. It plays as a film: letterbox bars, captions fading in and out, the camera easing round to each new subject, holds.
-# Picks explore: a galaxy chosen afresh some way off, a star among those round you, one of the star's worlds, so every
-# seed and every run is its own journey.
-# Every caption is followed by how far the view reaches at that moment: the scale is what the tour shows.
-# For the eye: zoom about one tenfold in ten seconds, turn no more than two degrees a second, and stop to look round at
-# each new scale, so each size can be read against the last. Nothing goes by at warp speed.
-# Sizes for scale: the visible universe 1.3e23 km, a web filament 1e21 km, a galaxy 1e18 km, a star system 1e10 km, Earth
-# 12,742 km, a person 0.0018 km, a sand grain 2e-7 km, an atom 2e-13 km, a nucleus 1e-17 km, a proton 1.7e-18 km.
-
-@stop leave
+# Edit the stops to make your own. Each @stop leave
 do: zoom
-rate: -0.1
+rate: -0.3
 until-km: 5e21
-caption: We begin as far out as anything can see. Every point of light here is a whole galaxy
+caption: Every point of light out here is a whole galaxy
 
 @stop web
 do: orbit
-turn: 1.5
-seconds: 30
-caption: This is the cosmic web: galaxies strung along filaments and walls, gathered where they cross, round voids hundreds of millions of light-years across
-
-@stop web-look
-do: look
-tilt: 15
-turn: 1
-seconds: 12
-caption: Gravity drew it out of tiny ripples in the young universe, over thirteen billion years
-
-@stop back-in
-do: zoom
-rate: 0.12
-until-km: 3e19
-caption: Now we fall toward one strand of the web
+turn: 2.5
+seconds: 10
+caption: The cosmic web: galaxies along filaments, round vast empty voids
 
 @stop choose-galaxy
 do: pick
@@ -59,48 +19,23 @@ caption: A galaxy
 
 @stop to-galaxy
 do: zoom
-rate: 0.1
+rate: 0.3
 until-km: 1.5e18
-caption: One galaxy among a hundred billion
+caption: We fall toward one galaxy among a hundred billion
 
 @stop round-galaxy
 do: arc
 rate: 0.03
-until-km: 6e17
-turn: 2
-seconds: 32
-caption: A hundred billion stars or more, turning once in a few hundred million years, round a black hole millions of times the Sun's mass
-
-@stop choose-next
-do: pick
-target: next-galaxy
-caption: On to a neighbour
-
-@stop to-next
-do: zoom
-rate: 0.12
-until-km: 1.5e18
-caption: Galaxies come in groups. Its neighbour lies millions of light-years away, the emptiest space there is
-
-@stop round-next
-do: arc
-rate: 0.03
-until-km: 6e17
-turn: 2
-seconds: 26
-caption: No two galaxies are alike: spirals with arms of young blue stars, smooth ellipticals of old red ones, irregular clouds
+until-km: 8e17
+turn: 2.5
+seconds: 12
+caption: A hundred billion stars round a giant black hole
 
 @stop into-galaxy
 do: zoom
-rate: 0.1
+rate: 0.3
 until-km: 1e16
-caption: Into the galaxy. The glow breaks into stars, each a sun
-
-@stop among-stars
-do: orbit
-turn: 1.5
-seconds: 20
-caption: Among its stars: young clusters, glowing clouds of gas where new stars are born, the light of old ones
+caption: Into it: the glow breaks into stars, each a sun
 
 @stop choose-star
 do: pick
@@ -109,194 +44,108 @@ caption: A star
 
 @stop into-system
 do: zoom
-rate: 0.1
+rate: 0.45
 until-km: 3e9
-caption: One star, and the worlds that formed round it from the same cloud
-
-@stop system-above
-do: look
-tilt: -25
-turn: 1.5
-seconds: 14
-caption: Its planets go round it on orbits of their own, each tilted a little from the rest
+caption: One star, and the worlds born round it
 
 @stop round-system
 do: orbit
-turn: 2
-seconds: 30
-caption: Rocky worlds close in, giants of gas and ice farther out where it is cold, belts of rubble between
-
-@stop past-star
-do: fly
-rate: 0.12
-turn: 1.5
-seconds: 22
-caption: Past the star itself: a ball of hydrogen turning into helium in its heart, the fire that lights every world here
-
-@stop planet-1
-do: pick
-target: next-planet
-caption: One of its worlds
-
-@stop to-planet-1
-do: zoom
-rate: 0.1
-until-km: 1e5
-caption: One of its worlds
-
-@stop round-planet-1
-do: orbit
-turn: 2
-seconds: 22
-caption: Every world is made from its place: what was near it in the cloud, how much heat its star gave it
-
-@stop planet-2
-do: pick
-target: next-planet
-caption: The next world
-
-@stop to-planet-2
-do: zoom
-rate: 0.12
-until-km: 1e5
-caption: Across to the next
-
-@stop round-planet-2
-do: orbit
-turn: 2
-seconds: 22
-caption: Its own size, its own air or none, its own ground
+turn: 2.5
+seconds: 10
+caption: Each world on its own tilted orbit
 
 @stop choose-planet
 do: pick
 target: planet
-caption: The world we go down to
+caption: A world
 
 @stop to-planet
 do: zoom
-rate: 0.1
-until-km: 4e4
-caption: And down to the world we will walk on
+rate: 0.4
+until-km: 2e4
+caption: Down to one of its worlds
 
 @stop round-planet
 do: arc
 rate: 0.03
 until-km: 1.5e4
-turn: 2
-seconds: 32
-caption: Seas, land, clouds, a thin shell of air: from here the whole world fits in the view
+turn: 2.5
+seconds: 10
+caption: Seas, land, clouds and a thin shell of air
 
 @stop to-land
 do: zoom
-rate: 0.1
-until-km: 2
-caption: Down through the air
+rate: 0.35
+until-km: 1.5
+caption: Down through the air to the land
 
 @stop over-hills
 do: glide
-rate: 0.4
-turn: 1
-seconds: 30
-caption: Over the land: hills raised by the planet's slow moving plates, valleys worn down by water and wind
-
-@stop lower
-do: zoom
-rate: 0.08
-until-km: 0.06
-caption: Lower
-
-@stop over-ground
-do: glide
-rate: 0.3
+rate: 0.5
 turn: 1.5
-seconds: 24
-caption: The ground: rock broken down into soil, the land's own minerals
+seconds: 12
+caption: Hills raised by moving plates, valleys worn by water
 
 @stop to-head-height
 do: zoom
-rate: 0.08
+rate: 0.3
 until-km: 0.002
 caption: Down to where a person stands
 
 @stop stand
 do: pick
 target: none
-caption: On the ground, six feet up
-
-@stop walk
-do: glide
-rate: 0.5
-turn: 1
-seconds: 18
-caption: Walking. Everything above us and everything below us, we stand halfway between in size
+caption: Standing
 
 @stop look-up
 do: look
 tilt: 55
 turn: 1.5
-seconds: 14
+seconds: 6
 caption: Look up
 
 @stop sky
 do: orbit
-turn: 1.5
-seconds: 28
-caption: The sky: our star, the other worlds as wandering points, the galaxy's stars behind them all. Everything we flew through
+turn: 2.5
+seconds: 8
+caption: Our star, the other worlds, the galaxy's stars beyond
 
 @stop look-down
 do: look
 tilt: -85
 turn: 1
-seconds: 14
-caption: And now down, to the ground at our feet. There is as much below us as above
-
-@stop to-stones
-do: zoom
-rate: 0.08
-until-km: 1e-4
-caption: The ground breaks into stones
-
-@stop round-stones
-do: orbit
-turn: 2
-seconds: 14
-caption: Pebbles and stones, broken from the land's own rock
+seconds: 6
+caption: And down: there is as much below us as above
 
 @stop to-grains
 do: zoom
-rate: 0.08
+rate: 0.25
 until-km: 2e-6
-caption: And the stones into grains of sand
-
-@stop round-grains
-do: orbit
-turn: 2
-seconds: 16
-caption: Each grain a crystal of one mineral, its own colour, shape and stains
+caption: The ground breaks into stones, then grains of sand
 
 @stop to-face
 do: zoom
-rate: 0.08
+rate: 0.25
 until-km: 2e-9
-caption: Onto one grain. It fills the whole view now
+caption: Onto one grain, a crystal of one mineral
 
 @stop round-face
 do: orbit
-turn: 2
-seconds: 16
-caption: Its face is a landscape of its own: steps, cracks, clay plates, a skin of iron rust, a film of water
+turn: 2.5
+seconds: 8
+caption: Its face: steps, cracks, clay plates, a film of water
 
 @stop to-crystal
 do: zoom
-rate: 0.08
+rate: 0.25
 until-km: 6e-12
 caption: Down to its atoms
 
 @stop round-crystal
 do: orbit
-turn: 2
-seconds: 22
-caption: The crystal: atoms in a pattern repeated billions of times, each held to its neighbours
+turn: 2.5
+seconds: 8
+caption: Atoms in a pattern repeated billions of times
 
 @stop choose-atom
 do: pick
@@ -305,39 +154,28 @@ caption: One atom
 
 @stop to-atom
 do: zoom
-rate: 0.08
+rate: 0.25
 until-km: 6e-13
-caption: Into one atom
+caption: An atom is not a ball
 
 @stop round-atom
 do: arc
 rate: 0.03
 until-km: 2.5e-13
-turn: 2
-seconds: 30
-caption: An atom is not a ball. It is a nucleus, far too small to see from here, and its electrons round it, each on its own tilted path
+turn: 2.5
+seconds: 10
+caption: A tiny nucleus, its electrons round it on tilted paths
 
 @stop to-neighbour
 do: pick
 target: bonded-atom
-caption: Across to its neighbour
+caption: Its neighbour
 
 @stop across-bond
 do: orbit
-turn: 1.5
-seconds: 18
-caption: Atoms hold together by sharing their outer electrons. This glow between them is the bond
-
-@stop to-next-neighbour
-do: pick
-target: bonded-atom
-caption: And on to the next atom
-
-@stop along-lattice
-do: orbit
-turn: 1.5
-seconds: 18
-caption: Atom to atom, every bond a shared pair of electrons. This is what keeps the stone solid
+turn: 2
+seconds: 8
+caption: Atoms share outer electrons: that glow is the bond
 
 @stop choose-electron
 do: pick
@@ -346,31 +184,20 @@ caption: One electron
 
 @stop follow-electron
 do: orbit
-turn: 1.5
-seconds: 16
-caption: One electron: as small as anything ever measured, a point with no size at all
+turn: 2
+seconds: 6
+caption: An electron: a point, and a wave spread through its cloud
 
 @stop next-electron
 do: pick
 target: electron
-caption: On to the next electron
+caption: The next
 
 @stop follow-next
 do: orbit
-turn: 1.5
-seconds: 14
-caption: Another. An electron is not a little planet. It is a wave, spread through its orbital
-
-@stop third-electron
-do: pick
-target: electron
-caption: And the next
-
-@stop follow-third
-do: orbit
-turn: 1.5
-seconds: 14
-caption: Where an electron is, only its cloud can say: most likely here, less likely there
+turn: 2
+seconds: 6
+caption: Each in its own orbital
 
 @stop choose-nucleus
 do: pick
@@ -379,48 +206,48 @@ caption: The nucleus
 
 @stop to-nucleus
 do: zoom
-rate: 0.12
+rate: 0.45
 until-km: 3e-17
-caption: Now inward, through the electrons' cloud. The nucleus is a hundred thousand times smaller than the atom. Almost all of an atom is empty
+caption: Inward: an atom is almost all empty space
 
 @stop round-nucleus
 do: arc
 rate: 0.03
-until-km: 1e-17
-turn: 2
-seconds: 26
-caption: The nucleus: protons and neutrons packed tight, holding almost all the atom's mass, bound by the strong force
+until-km: 1.2e-17
+turn: 2.5
+seconds: 8
+caption: Protons and neutrons, bound by the strong force
 
 @stop choose-proton
 do: pick
 target: proton
-caption: One proton
+caption: A proton
 
 @stop to-proton
 do: zoom
-rate: 0.08
+rate: 0.25
 until-km: 2.5e-18
 caption: Into a single proton
 
 @stop round-proton
 do: orbit
-turn: 2
-seconds: 20
-caption: A proton is not solid either: three quarks, two up and one down, in a storm of gluons that never rests
+turn: 2.5
+seconds: 8
+caption: Three quarks in a storm of gluons
 
 @stop choose-quark
 do: pick
 target: quark
-caption: One quark
+caption: A quark
 
 @stop to-quark
 do: zoom
-rate: 0.08
+rate: 0.25
 until-km: 6e-19
-caption: And one quark
+caption: One quark
 
 @stop end
 do: orbit
 turn: 1.5
-seconds: 30
-caption: A quark: the smallest thing we know. From the cosmic web to here, the same universe at every scale
+seconds: 10
+caption: The smallest thing we know. The same universe at every scale

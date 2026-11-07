@@ -875,9 +875,9 @@ namespace DnaAnd.Shell
                     TourPick(st.Target); done = true; break;
                 default: done = true; break;
             }
-            // the story is read, never rushed: a stop goes on only once its words have had time to be read (a calm pace, about a
-            // third of a second a word, after a moment to look); a zoom that has arrived holds still till then
-            if (done && st.Do != "pick" && _tourT < 2.5 + st.Caption.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length * 0.33) { done = false; input.Wheel = 0; }
+            // the story is read, never rushed: a stop goes on only once its words have had time to be read (a moment to look, then a
+            // quarter of a second a word); a zoom that has arrived holds still till then
+            if (done && st.Do != "pick" && _tourT < 1.5 + st.Caption.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length * 0.25) { done = false; input.Wheel = 0; }
             if (done) { _tourAt++; _tourT = 0; }
         }
         // what a stop picks, as a click would
