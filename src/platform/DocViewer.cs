@@ -139,7 +139,13 @@ namespace DnaAnd.Platform
             if (d != _doc)
             {
                 _doc = d;
-                SendMessageAnsi(_page, WM_SETTEXT, IntPtr.Zero, Encoding.ASCII.GetBytes(ToRtf(_docs[d].Text) + "\0"));
+                // the page as formatted text, said outright (EM_SETTEXTEX: default flags, the ANSI code page); handed over as plain
+                // window text the box can take the formatting itself for words and show it raw
+                byte[] rtf = Encoding.ASCII.GetBytes(ToRtf(_docs[d].Text) + "\0");
+                IntPtr ste = Marshal.AllocHGlobal(8), txt = Marshal.AllocHGlobal(rtf.Length);
+                Marshal.WriteInt32(ste, 0, 0); Marshal.WriteInt32(ste, 4, 0); Marshal.Copy(rtf, 0, txt, rtf.Length);
+                SendMessage(_page, WM_USER + 97, ste, txt);
+                Marshal.FreeHGlobal(ste); Marshal.FreeHGlobal(txt);
                 SendMessage(_page, EM_SETZOOM, (IntPtr)_zoom, (IntPtr)100);
                 Win32.SetWindowText(_wnd, DnaAnd.Shell.PreviewText.AppName + " · " + _docs[d].Title);
             }
