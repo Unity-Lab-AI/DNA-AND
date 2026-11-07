@@ -218,3 +218,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (a spot on any small body picked by a click): DESIGN 638.
 - 2026-11-07 (small bodies from their precise offsets: the belt's grid gone): DESIGN 639.
 - 2026-11-07 (the pick's aim at a small body its precise offset): DESIGN 640.
+- 2026-11-07 (the dive firing where the zoom reaches, matter stops never in open space): DESIGN 641.
