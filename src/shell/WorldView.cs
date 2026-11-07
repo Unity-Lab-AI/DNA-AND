@@ -1048,6 +1048,7 @@ namespace DnaAnd.Shell
                             bool fits = what == "black-hole" ? ex.Hole : what == "asteroid" ? nm.Contains("asteroid") : nm.Contains("comet");
                             if (!fits) continue;
                             double dx = (ex.X - _ax) - _ox, dy = (ex.Y - _ay) - _oy, dz = (ex.Z - _az) - _oz, d = dx * dx + dy * dy + dz * dz;
+                            if (what == "black-hole" && ex.Feeding > 0) d *= 1e-6;             // (a feeding one, its disc glowing, before a quiet one)
                             if (d < bd) { bd = d; bi = q; }
                         }
                         if (bi >= 0) { var ex = _extras[bi]; _tKind = 6; _tIndex = bi; _tx = ex.X; _ty = ex.Y; _tz = ex.Z; _tRadius = ex.R; _tName = ex.Name; }
