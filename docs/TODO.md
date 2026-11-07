@@ -893,3 +893,9 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **All docs good to go, in the game and out:** (built: DESIGN 444) "make sure all docs are good to go" / "in game and out" / "the readme last i saw was pretty shit"
 - [~] **Docs finished to the creator's words, no emoji:** (built: DESIGN 445) "fix the files of the docs fully and completely to how ive already descirbbeed many many times then do full cascade for both projects all four remotes" / "and not a emohji desacster like dna and for the docs"
 - [~] **How a universe fits in 1.7 MB, in the readme:** (built: DESIGN 446) "and make sure the readme properly describnbes how we make such a massive universe with only 1.7 Mb or what ever the count is now"
+- [~] **Comet seen, smooth turn to it:** (built: DESIGN 447; waits on the test) "the comet was a ghost and the pan from astroid to commet was jerk as fuck"
+- [~] **Tidal locking from the orbit:** (built: DESIGN 448; waits on the test) "and tiadally loceked jsut means a moon or something is always near one side of the planet or body due to orboitoitalk distance of like moons and stuff"
+- [~] **No straight lines in nature:** (built: DESIGN 449; waits on the test) "and some planets ave straihgt line surface coloring and pattrering< nature sdoesnt build in straight lines"
+- [~] **No driver time-out over the ground's sand:** (built: DESIGN 450; waits on the test) "200 million for a micron sounds high"
+- [ ] **At 20 micrometres, space and black-and-white:** "at 20 microns im seeing space and only white and black texture" (to see on screen)
+- [~] **Moons are worlds, orbits are ellipses:** (built: DESIGN 451; waits on the test) "and remmeber planets can be moons and moons planets and all these bodies orbits are too perfect reall orbits are eliptical and wild in cvariation"
