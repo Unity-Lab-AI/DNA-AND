@@ -1,6 +1,19 @@
 # DNA-AND content · the grand tour: one flight from the whole visible universe down to the quarks, for watching
 # Run it: Universe.exe --tour grand-tour (or DNA-AND.exe --tour grand-tour). Any key or click takes the controls back.
-# Edit the stops to make your own. Each @stop leave
+# Edit the stops to make your own. Each @stop home
+do: pick
+target: home-galaxy
+caption: Home
+
+@stop open
+do: arc
+rate: -0.06
+until-km: 2e18
+turn: 2.5
+seconds: 12
+caption: We begin at home: our galaxy, a hundred billion suns turning in the dark
+
+@stop leave
 do: zoom
 rate: -0.3
 until-km: 5e21
@@ -8,8 +21,8 @@ caption: Every point of light out here is a whole galaxy
 
 @stop web
 do: orbit
-turn: 2.5
-seconds: 10
+turn: 3
+seconds: 8
 caption: The cosmic web: galaxies along filaments, round vast empty voids
 
 @stop choose-galaxy
@@ -28,12 +41,12 @@ do: arc
 rate: 0.03
 until-km: 8e17
 turn: 3
-seconds: 10
+seconds: 8
 caption: A hundred billion stars round a giant black hole
 
 @stop into-galaxy
 do: zoom
-rate: 0.3
+rate: 0.4
 until-km: 1e16
 caption: Into it: the glow breaks into stars, each a sun
 
@@ -68,7 +81,7 @@ caption: Across to one of its worlds
 @stop round-planet-1
 do: orbit
 turn: 3
-seconds: 8
+seconds: 6
 caption: Round it: a world of its own make
 
 @stop star-2
@@ -85,7 +98,7 @@ caption: Across light-years to another star and its worlds
 @stop round-star-2
 do: orbit
 turn: 3
-seconds: 8
+seconds: 6
 caption: Another system, its worlds on their own orbits
 
 @stop choose-planet
@@ -141,7 +154,7 @@ caption: Look up
 @stop sky
 do: orbit
 turn: 3
-seconds: 7
+seconds: 6
 caption: Our star, the other worlds, the galaxy's stars beyond
 
 @stop look-down
@@ -166,7 +179,7 @@ caption: Onto one grain, a crystal of one mineral
 @stop round-face
 do: orbit
 turn: 2.5
-seconds: 6
+seconds: 5
 caption: Its face: steps, cracks, clay plates, a film of water
 
 @stop to-crystal
@@ -178,7 +191,7 @@ caption: Down to its atoms
 @stop round-crystal
 do: orbit
 turn: 2.5
-seconds: 6
+seconds: 5
 caption: Atoms in a pattern repeated billions of times
 
 @stop choose-atom
@@ -283,5 +296,5 @@ caption: One quark
 @stop end
 do: orbit
 turn: 1.5
-seconds: 8
+seconds: 6
 caption: The smallest thing we know. The same universe at every scale

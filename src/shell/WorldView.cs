@@ -919,6 +919,14 @@ namespace DnaAnd.Shell
             switch (what)
             {
                 case "none": _tKind = -1; _tName = ""; _matter.Unpick(); break;
+                case "home-galaxy":
+                    {
+                        // the galaxy you begin in (the nearest), to open on
+                        int bi = -1; double bd = double.MaxValue;
+                        for (int i = 0; i < _galaxies.Count; i++) { var g = _galaxies[i]; double dx = g.X - _cx, dy = g.Y - _cy, dz = g.Z - _cz, d = dx * dx + dy * dy + dz * dz; if (d < bd) { bd = d; bi = i; } }
+                        if (bi >= 0) { _tKind = 0; _tIndex = bi; _tName = _galaxies[bi].Name; }
+                    }
+                    break;
                 case "galaxy":
                 case "next-galaxy":
                     {
