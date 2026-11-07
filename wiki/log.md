@@ -214,3 +214,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (the orbit lines continuous, no rows of dots): DESIGN 634.
 - 2026-11-07 (one dive chain for any body, the supernova pick, the lattice probe, the levels' words): DESIGN 635.
 - 2026-11-07 (the comet dived like the planet and the asteroid): DESIGN 636.
+- 2026-11-07 (a dive onto a small body lands on the drawn stone): DESIGN 637.
