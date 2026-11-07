@@ -101,6 +101,20 @@ namespace DnaAnd.Shell
                 if (double.TryParse(e.Get("near-ly", "2e7"), fs, ci, out v)) _nearUnits = v / Units.LightYearsPerUnit;
                 if (double.TryParse(e.Get("glow-points", "300000"), fs, ci, out v)) _glowPoints = (int)v;
             }
+            {
+                // the web's mean over space, measured, so the regions hold the real total of galaxies; and home placed on a
+                // filament (as the Local Group lies on a filament of the Laniakea supercluster), not in a void
+                var mr = new Rng(seed ^ 0x3EA5UL); double sum = 0; int nS = 6000;
+                for (int q = 0; q < nS; q++) sum += Web((mr.NextDouble() * 2 - 1) * _webUnits * 20, (mr.NextDouble() * 2 - 1) * _webUnits * 20, (mr.NextDouble() * 2 - 1) * _webUnits * 20);
+                _webMean = Math.Max(1e-6, sum / nS);
+                double best = -1, bx = 0, by = 0, bz = 0;
+                for (int q = 0; q < 4000; q++)
+                {
+                    double x = (mr.NextDouble() * 2 - 1) * _webUnits, y = (mr.NextDouble() * 2 - 1) * _webUnits, z = (mr.NextDouble() * 2 - 1) * _webUnits, wv = Web(x, y, z);
+                    if (wv > best && wv < _webContrast * 3 / _webMean) { best = wv; bx = x; by = y; bz = z; }   // a filament (not the very heart of a cluster)
+                }
+                _webOffX = bx; _webOffY = by; _webOffZ = bz;
+            }
             // home: a spiral at the middle, then every galaxy of the regions round you
             AddGalaxy(Math.Max(0, types.IndexOf("spiral")), seed, 0, 0, 0, 0.5f, 0.3f, 1f);
             SpawnRegions();
@@ -137,8 +151,10 @@ namespace DnaAnd.Shell
             ulong h = (ulong)(i * 73856093L ^ j * 19349663L ^ k * 83492791L) ^ _seed; var r = new Rng(h * 0x9E3779B97F4A7C15UL + 7);
             x = (i + 0.15 + 0.7 * r.NextDouble()) * _webUnits; y = (j + 0.15 + 0.7 * r.NextDouble()) * _webUnits; z = (k + 0.15 + 0.7 * r.NextDouble()) * _webUnits;
         }
+        private double _webOffX, _webOffY, _webOffZ, _webMean = 1;
         private double Web(double x, double y, double z)
         {
+            x += _webOffX; y += _webOffY; z += _webOffZ;
             long ci = (long)Math.Floor(x / _webUnits), cj = (long)Math.Floor(y / _webUnits), ck = (long)Math.Floor(z / _webUnits);
             double d1 = double.MaxValue, d2 = double.MaxValue, d3 = double.MaxValue, d4 = double.MaxValue;
             for (long i = ci - 1; i <= ci + 1; i++) for (long j = cj - 1; j <= cj + 1; j++) for (long k = ck - 1; k <= ck + 1; k++)
@@ -149,7 +165,7 @@ namespace DnaAnd.Shell
             }
             // how near the point is to a wall (equal distance to its two nearest voids), a filament (three), a node (four)
             double w = _wallUnits, wall = Math.Exp(-Math.Pow((d2 - d1) / w, 2)), fil = Math.Exp(-Math.Pow((d3 - d1) / (w * 1.4), 2)), node = Math.Exp(-Math.Pow((d4 - d1) / (w * 2), 2));
-            return 0.005 + wall * 0.6 + fil * _webContrast + node * _webContrast * 8;   // voids nearly empty; walls thin; most on filaments and in clusters
+            return (0.005 + wall * 0.6 + fil * _webContrast + node * _webContrast * 8) / _webMean;   // voids nearly empty; walls thin; most on filaments and in clusters (its mean over space one)
         }
         private double MeanPerUnit3 { get { return _uGalaxies / (4.0 / 3.0 * Math.PI * _uRadius * _uRadius * _uRadius); } }
         // the galaxies of every region within reach of you that has none yet (each region's own from its place); at most a few a frame
@@ -198,7 +214,7 @@ namespace DnaAnd.Shell
                     {
                         // points through the whole sphere, each kept as often as the web is crowded there: the walls, filaments and
                         // clusters show, the voids stay dark; made on a thread of its own so nothing waits
-                        int want = _glowPoints; double R = _uRadius, gcx = _cx, gcy = _cy, gcz = _cz, gr = reachU; _glowCX = gcx; _glowCY = gcy; _glowCZ = gcz; double top = 0.005 + 0.6 + _webContrast + _webContrast * 8; ulong sd = _seed;
+                        int want = _glowPoints; double R = _uRadius, gcx = _cx, gcy = _cy, gcz = _cz, gr = reachU; _glowCX = gcx; _glowCY = gcy; _glowCZ = gcz; double top = (0.005 + 0.6 + _webContrast + _webContrast * 8) / _webMean; ulong sd = _seed;
                         _glowMaker = new System.Threading.Thread(() =>
                         {
                             var rng = new Rng(sd ^ 0x6107UL); var list = new List<StarVertex>(want); long tries = 0;
