@@ -3,10 +3,12 @@
 <p align="center"><b><i>One spark. One planet. One galaxy. Every gene fighting to live.</i></b></p>
 
 <p align="center">
-  <a href="https://git.unityailab.com/GFourteen/DNA-AND/releases" title="Download DNA-AND-Setup.exe from Unity AI Lab Git"><b>⬇️ DOWNLOAD — Unity AI Lab Git</b></a>
+  <a href="https://github.com/Unity-Lab-AI/DNA-AND/releases/latest" title="The latest release on GitHub: the installer and the zip"><b>⬇️ DOWNLOAD THE LATEST RELEASE</b></a>
   &nbsp;·&nbsp;
-  <a href="https://github.com/Unity-Lab-AI/DNA-AND/releases" title="Download DNA-AND-Setup.exe from GitHub"><b>⬇️ DOWNLOAD — GitHub</b></a>
+  <a href="https://git.unityailab.com/GFourteen/DNA-AND/releases" title="The same release on Unity AI Lab Git"><b>Unity AI Lab Git</b></a>
 </p>
+
+> **Get it in one minute.** The current release is **0.1.0, the universe preview**: the universe of DNA-AND before any life is in it. Download **[DNA-AND-Setup-0.1.0.exe](https://github.com/Unity-Lab-AI/DNA-AND/releases/download/v0.1.0/DNA-AND-Setup-0.1.0.exe "The installer, 0.6 MB, from GitHub")** (0.6 MB) and run it, or the **[zip](https://github.com/Unity-Lab-AI/DNA-AND/releases/download/v0.1.0/DNA-AND-0.1.0-windows.zip "DNA-AND-0.1.0-windows.zip: unpack anywhere and run DNA-AND.exe")** to unpack anywhere and run `DNA-AND.exe`. The same two files are on **[Unity AI Lab Git](https://git.unityailab.com/GFourteen/DNA-AND/releases "The release on the lab's own Git")**. Needs Windows 10 or 11 (64-bit) and a Direct3D 12 graphics card; installed it is under 2 MB. What you get now: one continuous zoom from the cosmic web of 100 billion galaxies down to the quarks inside a grain of sand, a guided tour (press **T**), and a card on everything you click. The life, the genes and the god powers below are what the game grows into.
 
 <p align="center">🔞 18+ &nbsp;·&nbsp; 🪟 Windows 10 | 11 &nbsp;·&nbsp; 🎮 Single · Co-op · Multiplayer (up to 8) &nbsp;·&nbsp; 🛠️ 100% built from scratch</p>
 
