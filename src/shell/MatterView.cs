@@ -620,8 +620,9 @@ namespace DnaAnd.Shell
             var m = GrainMineral(gi, gj); if (m == null) return;
             // a grid fixed on the grain itself (never on the camera), a power of two in size, so its points stay put as you zoom
             // and move; between two sizes the in-between points ease from the coarser shape to their own (no pops, no swimming)
-            const int N = 72; double want = 4.8 * s / N, lv = Math.Log(want / AtomSpacing, 2), L = Math.Floor(lv), frac = lv - L;
+            const int N0 = 72; double want = 4.8 * s / N0, lv = Math.Log(want / AtomSpacing, 2), L = Math.Floor(lv), frac = lv - L;
             double step = AtomSpacing * Math.Pow(2, L);
+            int N = (int)Math.Min(160, Math.Ceiling(4.8 * s / step / 2) * 2);              // always the whole view across (two to four of its steps finer than the view needs)
             long ia0 = (long)Math.Round(_fx / step) - N / 2, ib0 = (long)Math.Round(_fz / step) - N / 2;
             Func<int, double> atA = q => (ia0 + q) * step - _fx; Func<int, double> atB = q => (ib0 + q) * step - _fz;
             var hy = new double[N + 1, N + 1]; var ok = new bool[N + 1, N + 1];
@@ -1030,7 +1031,7 @@ namespace DnaAnd.Shell
                     // from afar a ball in its colour, growing up out of the face; close in the ball gives way to the atom's own system
                     // (its nucleus and its electrons on their paths), as the electrons are what an atom's size really is
                     double ball = 1 - Fade(s, AtomSpacing * 4, AtomSpacing * 2);
-                    if (ball > 0.03) Add(solid, at.X, ay + ar * (1 - f) * 0.6, at.Z, ar * 0.38 * (0.25 + 0.75 * f) * ball, at.E.R * sh, at.E.G * sh, at.E.B * sh, s);   // ball and stick: the balls small, so the bonds show
+                    if (ball > 0.03) Add(solid, at.X, ay, at.Z, ar * 0.6 * ball, at.E.R * sh * (0.35f + 0.65f * f), at.E.G * sh * (0.35f + 0.65f * f), at.E.B * sh * (0.35f + 0.65f * f), s);   // each atom at its own size, its colour coming in   // ball and stick: the balls small, so the bonds show
                     if ((at.X - _fx) * (at.X - _fx) + (at.Z - _fz) * (at.Z - _fz) < bondReach * bondReach) drawnAt.Add(new CAtom { E = at.E, X = at.X, Y = ay, Z = at.Z });
                     if (s < AtomSpacing * 4) Cloud(glow, at.E, at.X, ay, at.Z, s, time, (long)(at.X / 1e-14) ^ (long)(at.Z / 1e-14) * 31, (float)Fade(s, AtomSpacing * 4, AtomSpacing * 2));
                     { int nb = _bodies.Count; AddBody(1, 0, 0, at.X, ay, at.Z, ar, s); if (_bodies.Count > nb) _bodies[nb].Sym = at.E.Symbol; }   // every layer's atoms
