@@ -32,7 +32,7 @@ namespace DnaAnd.Shell
         {
             get
             {
-                return "DNA-AND samples · Set 8: The microscopic world · " + _world.Microbes.Count + " microbes in " + _world.Families + " families, " + _world.Viruses.Count + " viruses · " +
+                return DnaAnd.Shell.PreviewText.AppName + " samples · Set 8: The microscopic world · " + _world.Microbes.Count + " microbes in " + _world.Families + " families, " + _world.Viruses.Count + " viruses · " +
                        "births " + _world.Births + ", deaths " + _world.Deaths + ", infections " + _world.Infections + " · thriving: " + _world.Leader +
                        " · " + (_paused ? "PAUSED" : "speed " + _speed + "x") + " · wheel or Q/E: zoom · drag, W A S D or arrows: move · Space: pause · 1-5: speed · Legend";
             }

@@ -74,18 +74,16 @@ namespace DnaAnd.Gen
             // nebulae and remnants from its old stars.
             var rng = new Rng(seed ^ 0xC1u);
             var list = new List<StarVertex>();
-            string t = galaxyType.ToLowerInvariant();
-            bool spiral = t.Contains("spiral");
-            bool irregular = t.Contains("irregular") || t.Contains("magellanic") || t.Contains("blue-compact") || t.Contains("green-pea") || t.Contains("jellyfish") || t.Contains("starburst") || t.Contains("ring") || t.Contains("interacting") || t.Contains("peculiar");
-            bool elliptical = t.Contains("elliptical") || t.Contains("spheroidal") || t == "cd" || t.Contains("lenticular");
-            bool giant = t.Contains("giant") || t == "cd";
-            bool dwarf = t.Contains("dwarf") || t.Contains("ultra-diffuse");
-            double young = t.Contains("starburst") || t.Contains("green-pea") ? 3 : spiral ? 1 : irregular ? 0.7 : t.Contains("lenticular") ? 0.05 : elliptical ? 0.01 : 0.2;   // how much it is still making stars
-            double size = giant ? 3 : dwarf ? 0.15 : 1;
+            // all from its kind's template (content/galaxies.dnat), never its name: whether its young things lie on arms, whether
+            // its bodies swarm in a ball or lie in a disc, how much it still makes stars, how much it holds, its old clusters
+            bool spiral = GalaxyGen.Yes(galaxyType, "bodies-on-arms", false);
+            bool elliptical = GalaxyGen.Word(galaxyType, "bodies-spread", "disc") == "ball";
+            double young = GalaxyGen.Trait(galaxyType, "star-forming-rate", 0.2, seed);   // how much it is still making stars
+            double size = GalaxyGen.Trait(galaxyType, "structure-size", 1, seed);
             // researched counts: the Milky Way about 150-180 globular clusters, a few tens of thousands of open clusters (about 10,000
             // known), about 10,000-30,000 planetary nebulae (about 3,500 known), about 1,000 supernova remnants (about 300 known);
             // a giant elliptical like M87 about 12,000-15,000 globular clusters
-            int globulars = (int)((giant ? 12000 : elliptical ? 600 : dwarf ? 8 : 160) * (0.8 + 0.4 * rng.NextDouble()));
+            int globulars = (int)(GalaxyGen.Trait(galaxyType, "globular-clusters", 160, seed) * (0.8 + 0.4 * rng.NextDouble()));
             int opens = (int)(3000 * young * size), emis = (int)(2000 * young * size), refl = (int)(500 * young * size), dark = (int)(3000 * young * size);
             int planetary = (int)(3000 * size), remnants = (int)((300 + 700 * young) * size);
             clusterCount = 0; nebulaCount = 0;
@@ -169,7 +167,7 @@ namespace DnaAnd.Gen
             foreach (var e in content.OfKind("black-holes.dnat", "blackhole"))
                 if (e.Id == "supermassive") e.TryRange("mass-sol", out lo, out hi);
             double mass = Math.Exp(Math.Log(lo) + rng.NextDouble() * (Math.Log(Math.Min(hi, 1e9)) - Math.Log(lo)));
-            double rs = Units.Km(2.95 * mass);                    // event horizon radius
+            Physics.Load(content); double rs = Units.Km(Physics.HorizonKm(mass));   // event horizon radius (2GM/c², content/physics.dnat)
             var bh = new BlackHole { MassSol = mass, HorizonUnits = rs, Active = rng.NextDouble() < 0.5 };
 
             var disk = new List<StarVertex>();
@@ -218,6 +216,10 @@ namespace DnaAnd.Gen
         public sealed class Body
         {
             public string Kind; public double OrbitUnits, RadiusUnits, Period, Phase; public float R, G, B;
+            /// <summary>Its kind's template in content/terrain.dnat (null for a moon), and whether it is a giant (no ground).</summary>
+            public string Terrain; public bool Giant, Rings;
+            /// <summary>What it is made of, for its card; and how much the tour's director wants to visit it.</summary>
+            public string[] MakeUp, MakeUpDry; public double Interest = 1;
             // its orbit's tilt to the system's plane and where it crosses it (radians): planets lie within a few degrees of one
             // plane (ours: Mercury 7, Pluto 17; around other stars mostly 1 to 3 degrees between planets, some far out of line);
             // close moons in their planet's plane, far captured ones at any tilt, even going round backwards
@@ -264,36 +266,43 @@ namespace DnaAnd.Gen
             double scale = Math.Sqrt(sys.Luminosity);
             sys.FrostLineAu = frostSun * scale; sys.HabitableAu = hzSun * scale;
 
-            int count = 3 + rng.Int(8);
-            double a = 0.3 * scale * rng.Range(0.6f, 1.4f), step = rng.Range(1.45f, 1.9f);
-            if (layout == "compact") { count = 6 + rng.Int(3); a = 0.012 * rng.Range(0.8f, 1.2f); step = rng.Range(1.25f, 1.4f); } // packed close to a dim star (content: compact system)
-            if (layout == "hot-jupiter") count = 1 + rng.Int(3);                                                                  // few close neighbors (content: hot-Jupiter system)
-            bool hotJupiter = layout == "hot-jupiter" || (layout == null && rng.NextDouble() < 0.1);
+            // its layout from the system kinds in content/solar-systems.dnat (none named here): the usual one (sun-like) first,
+            // then the kind asked for over it, each trait it gives taking the place of the usual one's; planets: how many,
+            // first-orbit-au and first-orbit-spread: the first world's orbit, scales-with-star: moved out by the star's
+            // brightness, spacing: each orbit over the one before; share-in-universe: how often a system is of that kind
+            int count; double a, step; double lo, hi;
+            Func<string, string, double, double, double[]> sysT = (id, key, l0, h0) => { foreach (var e in content.OfKind("solar-systems.dnat", "system")) if (e.Id == id && e.TryRange(key, out lo, out hi)) return new[] { lo, hi }; return null; };
+            Func<string, bool> scales = id => { foreach (var e in content.OfKind("solar-systems.dnat", "system")) if (e.Id == id && e.Props.ContainsKey("scales-with-star")) return e.Get("scales-with-star", "yes") == "yes"; return true; };
+            Action<string, bool> layoutOf = (id, first) =>
+            {
+                var pl = sysT(id, "planets", 0, 0); var fo = sysT(id, "first-orbit-au", 0, 0); var fs2 = sysT(id, "first-orbit-spread", 0, 0); var sp = sysT(id, "spacing", 0, 0);
+                if (pl != null || first) count = (int)(pl != null ? pl[0] : 3) + rng.Int((int)(pl != null ? pl[1] - pl[0] : 7) + 1);
+                if (fo != null || first) a = (fo != null ? fo[0] : 0.3) * (scales(id) ? scale : 1) * rng.Range((float)(fs2 != null ? fs2[0] : 0.6), (float)(fs2 != null ? fs2[1] : 1.4));
+                if (sp != null || first) step = rng.Range((float)(sp != null ? sp[0] : 1.45), (float)(sp != null ? sp[1] : 1.9));
+            };
+            count = 0; a = 0; step = 1;
+            layoutOf("sun-like", true);
+            if (layout != null && layout != "sun-like") layoutOf(layout, false);
+            var hj = sysT("hot-jupiter", "share-in-universe", 0, 0);
+            bool hotJupiter = layout == "hot-jupiter" || (layout == null && rng.NextDouble() < (hj != null ? hj[0] : 0.1));
             double lastRocky = 0, firstGiant = 0, outer = 0;
             for (int i = 0; i < count; i++, a *= step)
             {
                 var b = new Body { OrbitUnits = Units.Au(a), Phase = rng.NextDouble() * Math.PI * 2, Period = Math.Sqrt(a * a * a / mass) };
                 bool giant = a > sys.FrostLineAu || (hotJupiter && i == 0);
-                if (giant)
-                {
-                    bool ice = a > sys.FrostLineAu * 3.5;
-                    b.Kind = (hotJupiter && i == 0) ? "Hot Jupiter" : ice ? "Ice giant" : "Gas giant";
-                    b.RadiusUnits = Units.Km(ice ? 25000 : 70000 * rng.Range(0.6f, 1.2f));
-                    if (ice) { b.R = 0.5f; b.G = 0.8f; b.B = 1f; } else { b.R = 0.95f; b.G = 0.75f; b.B = 0.5f; }
-                    if (firstGiant == 0) firstGiant = a;
-                }
-                else
-                {
-                    bool hot = a < 0.1 * scale, wet = Math.Abs(a - sys.HabitableAu) < sys.HabitableAu * 0.25;
-                    b.Kind = hot ? "Lava planet" : wet ? "Temperate world" : a > sys.HabitableAu ? "Ice world" : "Rocky planet";
-                    b.RadiusUnits = Units.Km(6371 * rng.Range(0.4f, 1.8f));
-                    if (hot) { b.R = 1f; b.G = 0.4f; b.B = 0.15f; } else if (wet) { b.R = 0.3f; b.G = 0.6f; b.B = 1f; }
-                    else if (a > sys.HabitableAu) { b.R = 0.9f; b.G = 0.95f; b.B = 1f; } else { b.R = 0.75f; b.G = 0.65f; b.B = 0.55f; }
-                    lastRocky = a;
-                }
+                // which kind of world forms here: every kind in content/terrain.dnat whose rules fit this orbit (where it lies
+                // against the habitable zone and the frost line, how bright its star is), one chosen by their weights; its
+                // size, moons, colour and make-up from its template
+                var k = WorldKind(content, giant ? (hotJupiter && i == 0 ? "hot-jupiter" : "giant") : "rocky", a / sys.HabitableAu, a / sys.FrostLineAu, sys.Luminosity, rng);
+                b.Terrain = k.Id; b.Giant = giant; b.Kind = k.Label; b.MakeUp = k.MakeUp; b.MakeUpDry = k.MakeUpDry; b.Interest = k.Interest;
+                b.RadiusUnits = Units.Km(k.SpreadLo != k.SpreadHi ? k.SizeKm * rng.Range((float)k.SpreadLo, (float)k.SpreadHi) : k.SizeKm * k.SpreadLo);
+                b.R = k.Dot[0]; b.G = k.Dot[1]; b.B = k.Dot[2];
+                // rings by its template's chance (rings-chance), from its own place, so the seed's other worlds stay as they were
+                { ulong rh = (seed ^ (ulong)(i + 1) * 0x9E3779B97F4A7C15UL) * 0xBF58476D1CE4E5B9UL; rh ^= rh >> 31; b.Rings = (rh >> 11) * (1.0 / 9007199254740992.0) < k.RingChance; }
+                if (giant) { if (firstGiant == 0) firstGiant = a; } else lastRocky = a;
                 sys.Bodies.Add(b); outer = a;
                 int planetIndex = sys.Bodies.Count - 1;
-                int moons = giant ? 2 + rng.Int(7) : rng.Int(3);
+                var mk = WorldKind(content, null, 0, 0, 0, null, b.Terrain); int moons = mk.MoonsLo + rng.Int(mk.MoonsHi - mk.MoonsLo + 1);
                 for (int m = 0; m < moons; m++)
                     sys.Bodies.Add(new Body
                     {
@@ -342,6 +351,63 @@ namespace DnaAnd.Gen
             }
             sys.Static = stat.ToArray();
             return sys;
+        }
+
+        // ── the kinds of world a system can make: templates in content/terrain.dnat, each with the rules for where it forms ──
+        public sealed class WorldKindRule
+        {
+            public string Id, Label, Forms; public double HzLo = -1, HzHi = -1, FrostLo = -1, FrostHi = -1, LumLo = -1, LumHi = -1, Weight = 1, Interest = 1;
+            public double SizeKm = 6371, SpreadLo = 1, SpreadHi = 1, RingChance; public int MoonsLo, MoonsHi; public float[] Dot = { 0.75f, 0.65f, 0.55f };
+            public string[] MakeUp, MakeUpDry;
+        }
+        private static List<WorldKindRule> _kinds;
+        private static List<WorldKindRule> Kinds(ContentLibrary content)
+        {
+            if (_kinds != null) return _kinds;
+            var list = new List<WorldKindRule>(); var ci = global::System.Globalization.CultureInfo.InvariantCulture; var nf = global::System.Globalization.NumberStyles.Float;
+            foreach (var e in content.OfKind("terrain.dnat", "terrain"))
+            {
+                if (!e.Props.ContainsKey("forms")) continue;
+                var k = new WorldKindRule { Id = e.Id, Label = e.Get("label", e.Name), Forms = e.Get("forms", "rocky") };
+                double lo, hi;
+                if (e.TryRange("orbit-hz", out lo, out hi)) { k.HzLo = lo; k.HzHi = hi; }
+                if (e.TryRange("orbit-frost", out lo, out hi)) { k.FrostLo = lo; k.FrostHi = hi; }
+                if (e.TryRange("star-brightness", out lo, out hi)) { k.LumLo = lo; k.LumHi = hi; }
+                if (e.TryRange("weight", out lo, out hi)) k.Weight = lo;
+                if (e.TryRange("interest", out lo, out hi)) k.Interest = lo;
+                if (e.TryRange("rings-chance", out lo, out hi)) k.RingChance = lo;
+                if (e.TryRange("size-km", out lo, out hi)) k.SizeKm = lo;
+                if (e.TryRange("size-spread", out lo, out hi)) { k.SpreadLo = lo; k.SpreadHi = hi; }
+                if (e.TryRange("moons", out lo, out hi)) { k.MoonsLo = (int)lo; k.MoonsHi = (int)hi; }
+                var w = e.Get("dot-colour", "").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries); float x, y, z;
+                if (w.Length == 3 && float.TryParse(w[0], nf, ci, out x) && float.TryParse(w[1], nf, ci, out y) && float.TryParse(w[2], nf, ci, out z)) k.Dot = new[] { x, y, z };
+                Func<string, string[]> lines = key => { var v = e.Get(key, ""); if (v.Length == 0) return null; var parts = v.Split(';'); for (int q = 0; q < parts.Length; q++) parts[q] = parts[q].Trim(); return parts; };
+                k.MakeUp = lines("makeup"); k.MakeUpDry = lines("makeup-dry");
+                list.Add(k);
+            }
+            _kinds = list; return list;
+        }
+        /// <summary>The kind of world that forms in a place: <paramref name="forms"/> rocky, giant or hot-jupiter; x the orbit over
+        /// the habitable zone's distance, f over the frost line's, lum the star's brightness (the Sun 1). With
+        /// <paramref name="byId"/>, that kind itself. Only one kind fitting: no chance spent, so a seed's worlds stay its own.</summary>
+        public static WorldKindRule WorldKind(ContentLibrary content, string forms, double x, double f, double lum, Rng rng, string byId = null)
+        {
+            var all = Kinds(content);
+            if (byId != null) { foreach (var k in all) if (k.Id == byId) return k; return new WorldKindRule { Id = byId, Label = byId }; }
+            var fit = new List<WorldKindRule>(); double total = 0;
+            foreach (var k in all)
+            {
+                if (k.Forms != forms) continue;
+                if (k.HzLo >= 0 && (x < k.HzLo || x >= k.HzHi)) continue;
+                if (k.FrostLo >= 0 && (f < k.FrostLo || f >= k.FrostHi)) continue;
+                if (k.LumLo >= 0 && (lum < k.LumLo || lum >= k.LumHi)) continue;
+                fit.Add(k); total += k.Weight;
+            }
+            if (fit.Count == 0) { foreach (var k in all) if (k.Forms == forms) return k; return new WorldKindRule { Id = "default", Label = "World" }; }
+            if (fit.Count == 1) return fit[0];
+            double pick = rng.NextDouble() * total;
+            foreach (var k in fit) { pick -= k.Weight; if (pick <= 0) return k; }
+            return fit[fit.Count - 1];
         }
 
         private static double ZoneAu(ContentLibrary content, string id, double fallback)

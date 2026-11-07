@@ -268,20 +268,18 @@ namespace DnaAnd.Shell
             // of a crystal at once, their lobes would hang everywhere as pairs of glowing blobs; farther ones show their nucleus
             // and their electrons on their paths
             double fdx = x - _fx, fdy = y + _yOff - _fy, fdz = z - _fz;
-            if (fdx * fdx + fdy * fdy + fdz * fdz < Math.Pow(Math.Max(AtomSpacing * 3, s * 0.6), 2)) Orbitals(glow, e, x, y, z, s, time, key, f);
+            if (fdx * fdx + fdy * fdy + fdz * fdz < Math.Pow(AtomSpacing * 0.6, 2)) Orbitals(glow, e, x, y, z, s, time, key, f);   // (only the atom you are at: the clouds of every atom in view at once read as static)
             // its electrons, each going round on its own path tilted its own way in three dimensions (never all in one plane),
             // the inner shells faster, the valence shell (the one it bonds with) in gold
             double ar = AtomRadius(e), dot = s * 0.0035; int shells = e.Shells.Length;
             // (only the atoms near where you look: never every electron of every atom in view, millions of them)
             if (ar / s > 0.004 && fdx * fdx + fdy * fdy + fdz * fdz < Math.Pow(Math.Max(AtomSpacing * 6, s * 1.2), 2))
-                for (int sh = 0; sh < shells; sh++)
                 {
-                    double rr = ar * (sh + 1) / shells; bool valence = sh == shells - 1; int ne = e.Shells[sh];
-                    for (int k = 0; k < ne; k++)
+                    var els = ElectronsOf(e);
+                    for (int k = 0; k < els.Length; k++)
                     {
-                        double tilt = Hash(key + sh, k, 33, _seed) * Math.PI, turn = Hash(key + sh, k, 34, _seed) * Math.PI * 2, ang = time * (2.2 / (sh + 1)) + k * Math.PI * 2 / ne;
-                        double ox = Math.Cos(ang) * rr, oz = Math.Sin(ang) * rr, oy = oz * Math.Sin(tilt); oz *= Math.Cos(tilt);
-                        Add(glow, x + ox * Math.Cos(turn) - oz * Math.Sin(turn), y + oy, z + ox * Math.Sin(turn) + oz * Math.Cos(turn), dot, (valence ? 1f : 0.45f) * f, (valence ? 0.8f : 0.75f) * f, (valence ? 0.25f : 1f) * f, s);
+                        var el = els[k]; bool valence = el.N == shells; double ox, oy, oz; ElectronAt(el, key, ElectronPhase(el, k, time), out ox, out oy, out oz);
+                        Add(glow, x + ox * ar, y + oy * ar, z + oz * ar, dot, (valence ? 1f : 0.45f) * f, (valence ? 0.8f : 0.75f) * f, (valence ? 0.25f : 1f) * f, s);
                     }
                 }
             // its nucleus: a clear sharp point of light in its element's own colour, so the crystal's pattern reads at a glance
@@ -301,11 +299,100 @@ namespace DnaAnd.Shell
                     float b = (valence ? 0.9f : 0.5f) * f * 0.35f;
                     double vx = (x - _fx) / s + _ex, vy = (y + _yOff - _fy) / s + _ey, vz = (z - _fz) / s + _ez;
                     if (Math.Abs(vx - _ex) > 60 || Math.Abs(vz - _ez) > 60) continue;
-                    _orbRecs.Add(new StarVertex { X = (float)vx, Y = (float)vy, Z = (float)vz, Size = (float)(ar * n / top / s),
+                    double rf = 1; foreach (var el in ElectronsOf(e)) if (el.N == n && el.L == l) { rf = el.R; break; }   // (its subshell's own distance)
+                    _orbRecs.Add(new StarVertex { X = (float)vx, Y = (float)vy, Z = (float)vz, Size = (float)(ar * rf / s),
                         R = valence ? b : b * 0.55f, G = valence ? b * 0.78f : b * 0.7f, B = valence ? b * 0.25f : b, A = (l * 8 + m + 0.25f) / 64f });
                 }
             }
         }
+
+
+        // ── each element's own electrons, as its real make-up gives them: every electron in its subshell (1s 2s 2p 3s ...,
+        // filled in the Madelung order), each orbital holding two of opposite spin (filled one to each first, Hund's rule); how
+        // far out each subshell sits from the charge its electrons feel (Slater's rules: the nucleus less the screening of the
+        // electrons inside), its mean distance n^2 a0 / Zeff, so heavy atoms pull their inner shells in tight; and how fast each
+        // goes round (as the charge it feels and its shell: inner electrons of a heavy atom far faster); each moves on a path in
+        // its orbital's own shape (s round, p through its two lobes, d round its four leaves) ──
+        private sealed class Electron { public int N, L, M, Spin, Sub; public double R, W; }
+        private readonly Dictionary<int, Electron[]> _electrons = new Dictionary<int, Electron[]>();
+        private Electron[] ElectronsOf(Element e)
+        {
+            Electron[] r; if (_electrons.TryGetValue(e.Z, out r)) return r;
+            var subs = Subshells(e.Z); var list = new List<Electron>(); double rmax = 0;
+            var rs = new double[subs.Count]; var ws = new double[subs.Count];
+            for (int i = 0; i < subs.Count; i++)
+            {
+                int n = subs[i][0], l = subs[i][1];
+                // Slater's groups: (1s)(2s 2p)(3s 3p)(3d)(4s 4p)(4d)(4f)(5s 5p)...: the same group screens 0.35 each (1s 0.30); for an
+                // s or p electron the shell below screens 0.85 and all deeper 1.00; for a d or f electron everything inside 1.00
+                double screen = 0;
+                for (int j = 0; j < subs.Count; j++)
+                {
+                    int n2 = subs[j][0], l2 = subs[j][1], c = subs[j][2] - (j == i ? 1 : 0); if (c <= 0) continue;
+                    bool sameGroup = l <= 1 ? (n2 == n && l2 <= 1) : (n2 == n && l2 == l);
+                    bool inside = l <= 1 ? (n2 < n || (n2 == n && l2 > 1 && false)) : (n2 < n || (n2 == n && l2 < l));
+                    if (sameGroup) screen += c * (n == 1 ? 0.30 : 0.35);
+                    else if (l <= 1 && n2 == n - 1) screen += c * 0.85;
+                    else if (l <= 1 && n2 < n - 1) screen += c * 1.00;
+                    else if (l > 1 && inside) screen += c * 1.00;
+                }
+                double zeff = Math.Max(1, e.Z - screen);
+                rs[i] = n * n / zeff; ws[i] = zeff * zeff / (n * n * n); rmax = Math.Max(rmax, rs[i]);
+            }
+            double wOut = 0; for (int i = 0; i < subs.Count; i++) if (rs[i] == rmax) wOut = ws[i];
+            for (int i = 0; i < subs.Count; i++)
+            {
+                int n = subs[i][0], l = subs[i][1], count = subs[i][2], orbs = 2 * l + 1;
+                for (int k = 0; k < count; k++)
+                    list.Add(new Electron { N = n, L = l, M = k % orbs, Spin = k / orbs, Sub = i, R = rs[i] / rmax, W = Math.Min(8, ws[i] / Math.Max(1e-9, wOut)) });
+            }
+            r = list.ToArray(); _electrons[e.Z] = r; return r;
+        }
+        // where an electron is on its path (as a share of the atom's size, from its nucleus) at phase a, its orbital's shape
+        // turned its own way for this atom (key)
+        private void ElectronAt(Electron el, long key, double a, out double x, out double y, out double z)
+        {
+            double r = el.R; a += el.Spin * Math.PI;                                       // (its partner of opposite spin: across from it)
+            double u, v, w;
+            switch (el.L)
+            {
+                case 0:
+                    {
+                        // s: round, a path on its sphere, tilted its own way
+                        double tilt = Hash(key + el.Sub, el.Spin, 33, _seed) * Math.PI;
+                        u = Math.Cos(a) * r; v = Math.Sin(a) * r * Math.Sin(tilt); w = Math.Sin(a) * r * Math.Cos(tilt); break;
+                    }
+                case 1:
+                    {
+                        // p: out through one lobe, back through the node at the nucleus, out through the other, along its axis
+                        double t = Math.Sin(a), side = Math.Sin(2 * a) * 0.32;
+                        double ax = el.M == 0 ? 1 : 0, ay = el.M == 1 ? 1 : 0, az = el.M == 2 ? 1 : 0;
+                        double px = ay, py = az, pz = ax;                                      // (a direction across it)
+                        u = (ax * t * 1.25 + px * side) * r; v = (ay * t * 1.25 + py * side) * r; w = (az * t * 1.25 + pz * side) * r; break;
+                    }
+                case 2:
+                    {
+                        // d: round its four leaves in their plane (or, for d z^2, through its two lobes and round its ring)
+                        if (el.M == 4) { double t = Math.Sin(a); u = Math.Cos(3 * a) * r * 0.45; v = t * r * 1.2; w = Math.Sin(3 * a) * r * 0.45; break; }
+                        double q = Math.Abs(Math.Cos(2 * a)) * r * 1.3, c = Math.Cos(a) * q, d2 = Math.Sin(a) * q;
+                        if (el.M == 3) { double cc = (c - d2) * 0.7071, dd = (c + d2) * 0.7071; c = cc; d2 = dd; }
+                        if (el.M == 0 || el.M == 3) { u = c; v = el.M == 0 ? d2 : 0; w = el.M == 3 ? d2 : 0; }
+                        else if (el.M == 1) { u = 0; v = c; w = d2; } else { u = c; v = 0; w = d2; }
+                        break;
+                    }
+                default:
+                    {
+                        // f: round its six leaves
+                        double q = Math.Abs(Math.Cos(3 * a)) * r * 1.3, b = el.M * 0.9;
+                        u = Math.Cos(a) * q; v = Math.Sin(b) * Math.Sin(a) * q; w = Math.Cos(b) * Math.Sin(a) * q; break;
+                    }
+            }
+            // the whole atom's orbitals turned one way for this atom (its own place in the crystal)
+            double turn = Hash(key, 7, 34, _seed) * Math.PI * 2, ct = Math.Cos(turn), st = Math.Sin(turn);
+            x = u * ct - w * st; y = v; z = u * st + w * ct;
+        }
+        // how far round its path an electron is at a time (inner and more tightly held electrons faster; slowed to be watched)
+        private static double ElectronPhase(Electron el, int k, double time) { return time * 0.5 * el.W + k * 2.399963229728653; }
 
         private static int[] Shells(int z)
         {
@@ -786,6 +873,13 @@ namespace DnaAnd.Shell
             _patchKey = gi; _patchGX = gx; _patchGY = gy; _patchGZ = gz; _patchRad = rad;
             var m = GrainMineral(gi, gj); if (m == null) return;
             if (_patchGrain != gi || _patchCache.Count > 600000) { _patchCache.Clear(); _patchGrain = gi; }
+            {
+                // a level floor of the face's own colour under its rings, far out all round: never a hole or the dark past its edge
+                float fr = m.R * FocusShade * 0.85f, fg = m.G * FocusShade * 0.85f, fb = m.B * FocusShade * 0.85f, n0 = PackNormal(0, 1, 0);
+                double fy = (-AtomSpacing * 2 + _yOff - _fy) / s + _ey, big = 400;
+                Func<double, double, StarVertex> fv = (x, z) => new StarVertex { X = (float)(x + _ex), Y = (float)fy, Z = (float)(z + _ez), Size = n0, R = fr, G = fg, B = fb, A = m.Lustre };
+                _patchMesh.Add(fv(-big, -big)); _patchMesh.Add(fv(big, -big)); _patchMesh.Add(fv(big, big)); _patchMesh.Add(fv(-big, -big)); _patchMesh.Add(fv(big, big)); _patchMesh.Add(fv(-big, big));
+            }
             // the grain's face as rings of detail round you: the finest grid under you, then rings each four times coarser out
             // to the whole grain, each on a grid fixed on the grain (never on the camera, so nothing slides as you zoom and
             // move), each point worked out once; the finest eases between its two sizes so nothing pops
@@ -802,6 +896,15 @@ namespace DnaAnd.Shell
                 if (inner > rad * 1.3 || ring >= 6) break;                                // the grain round you as far as can be seen (never the whole of it at nanometres: it cannot show)
             }
         }
+        // whether a point (in the view's units) is in view, with a margin of its own size: what is not is neither worked out nor drawn
+        private bool InView(double x, double y, double z, double margin)
+        {
+            if (!_haveVp) return true; var m = _lastVp;
+            double cx = x * m.M11 + y * m.M21 + z * m.M31 + m.M41, cy = x * m.M12 + y * m.M22 + z * m.M32 + m.M42, cw = x * m.M14 + y * m.M24 + z * m.M34 + m.M44;
+            if (cw < -margin) return false;
+            double lim = Math.Max(0.05, cw) * 1.15 + margin * 2;
+            return Math.Abs(cx) <= lim && Math.Abs(cy) <= lim;
+        }
         // one ring: a grid of N x N steps round the point you dive into, its quads inside 'hole' (the finer ring's reach) left out
         private void PatchRing(List<StarVertex> mesh, double s, Mineral m, long gi, long gj, double gx, double gy, double gz, double rad, double L, double step, int N, double frac, double hole)
         {
@@ -812,7 +915,8 @@ namespace DnaAnd.Shell
                 for (int b = 0; b <= N; b++)
                 {
                     long key = ((long)L * 1000003L + (ia0 + a)) * 2000003L + (ib0 + b); double[] c;   // each point fixed on the grain: worked out once
-                    if (!_patchCache.TryGetValue(key, out c))
+                    if (!_patchCache.TryGetValue(key, out c) && !InView(atA(a) / s + _ex, _ey, atB(b) / s + _ez, step / s * 2)) { hy[a, b] = 0; ok[a, b] = false; continue; }   // (out of view: not worked out)
+                    if (c == null)
                     {
                         if (_patchBudget-- <= 0) { hy[a, b] = 0; ok[a, b] = false; continue; }      // not worked out yet: next frame
                         double y; bool o = GrainTop(gi, gj, gx, gy, gz, rad, _fx + atA(a), _fz + atB(b), rad * 0.004, out y);   // every ring the same coarse shape (so no ring shows its edge); all finer detail per pixel on the card, the same everywhere   // the coarse shape here; the fine detail is the card's
@@ -853,6 +957,7 @@ namespace DnaAnd.Shell
                 for (int b = 0; b < N; b++)
                 {
                     if (!ok[a, b] || !ok[a + 1, b] || !ok[a, b + 1] || !ok[a + 1, b + 1]) continue;
+                    if (!InView((atA(a) + step * 0.5) / s + _ex, (hy[a, b] - sink + _yOff - _fy) / s + _ey, (atB(b) + step * 0.5) / s + _ez, step / s * 1.5)) continue;   // only what is in view is drawn
                     // each ring round, never a square: the finer ring inside its hole, its own edge a circle, the grain's body beyond
                     double r00 = Math.Sqrt(atA(a) * atA(a) + atB(b) * atB(b)), r11 = Math.Sqrt(atA(a + 1) * atA(a + 1) + atB(b + 1) * atB(b + 1)), r10 = Math.Sqrt(atA(a + 1) * atA(a + 1) + atB(b) * atB(b)), r01 = Math.Sqrt(atA(a) * atA(a) + atB(b + 1) * atB(b + 1));
                     double rmax = Math.Max(Math.Max(r00, r11), Math.Max(r10, r01)), edge = N / 2 * step * 0.98;
@@ -1306,7 +1411,7 @@ namespace DnaAnd.Shell
                     // inside its electron cloud it is not empty: the innermost electrons (1s) are densest at the nucleus itself,
                     // |psi|^2 falling as exp(-2Zr/a0), so all the way down to the nucleus you are inside their cloud: a shimmer of
                     // where they may be found, as bright as that density, sampled afresh a few times a second
-                    double a1s = 5.29e-14 / Math.Max(1, focus.Z); long tick = (long)Math.Floor(time * 6);
+                    double a1s = 5.29e-14 / Math.Max(1, focus.Z); long tick = 0;                                         // (steady: never a flicker)
                     for (int k = 0; k < 400; k++)
                     {
                         double u = Hash(k, tick, 401, _seed), v = Hash(k, tick, 402, _seed), wq = Hash(k, tick, 403, _seed);
@@ -1332,14 +1437,14 @@ namespace DnaAnd.Shell
                         // and two down), points as far as measured, moving in about 0.84 fm, in the glow of the gluons that hold them
                         float gf = (float)Math.Max(0.15, Fade(s, Nucleon * 8, Nucleon * 3));
                         if (nball > 0.03) Add(solid, nx, ny, nz, Nucleon / 0.75 * nball, proton ? 0.9f : 0.6f, proton ? 0.22f : 0.65f, proton ? 0.2f : 0.75f, s);
-                        Add(glow, nx, ny, nz, Nucleon, 0.25f * gf, 0.12f * gf, 0.05f * gf, s);
+                        Add(glow, nx, ny, nz, Nucleon, 0.1f * gf, 0.05f * gf, 0.02f * gf, s);   // the gluon field's faint glow (never an orb hiding its quarks)
                         string q = proton ? "uud" : "udd"; float[][] colour = { new[] { 1f, 0.2f, 0.2f }, new[] { 0.2f, 1f, 0.2f }, new[] { 0.3f, 0.4f, 1f } };   // their three colour charges
                         // the strong field between them: flux tubes of gluon field joining the three quarks (it does not spread out
                         // like the electric field, it pulls into strings), and quark-antiquark pairs of the sea popping in and out
                         double[][] qp = new double[3][];
                         for (int qi = 0; qi < 3; qi++)
                         {
-                            double a1 = time * (1.3 + qi * 0.4) + qi * 2.1 + k * 0.77, a2 = time * (0.9 + qi * 0.3) + qi + k * 1.3, qr = Nucleon * (0.35 + 0.2 * Math.Sin(time * 0.7 + qi + k));
+                            double a1 = time * (0.25 + qi * 0.08) + qi * 2.1 + k * 0.77, a2 = time * (0.18 + qi * 0.06) + qi + k * 1.3, qr = Nucleon * (0.35 + 0.2 * Math.Sin(time * 0.15 + qi + k));   // (slowed to be watched)
                             qp[qi] = new[] { nx + qr * Math.Sin(a2) * Math.Cos(a1), ny + qr * Math.Cos(a2), nz + qr * Math.Sin(a2) * Math.Sin(a1) };
                         }
                         double ycx = (qp[0][0] + qp[1][0] + qp[2][0]) / 3, ycy = (qp[0][1] + qp[1][1] + qp[2][1]) / 3, ycz = (qp[0][2] + qp[1][2] + qp[2][2]) / 3;
@@ -1358,10 +1463,12 @@ namespace DnaAnd.Shell
                         }
                         for (int qi = 0; qi < 3; qi++)
                         {
-                            double a1 = time * (1.3 + qi * 0.4) + qi * 2.1 + k * 0.77, a2 = time * (0.9 + qi * 0.3) + qi + k * 1.3, qr = Nucleon * (0.35 + 0.2 * Math.Sin(time * 0.7 + qi + k));
+                            double a1 = time * (0.25 + qi * 0.08) + qi * 2.1 + k * 0.77, a2 = time * (0.18 + qi * 0.06) + qi + k * 1.3, qr = Nucleon * (0.35 + 0.2 * Math.Sin(time * 0.15 + qi + k));   // (slowed to be watched)
                             double qx = nx + qr * Math.Sin(a2) * Math.Cos(a1), qy = ny + qr * Math.Cos(a2), qz = nz + qr * Math.Sin(a2) * Math.Sin(a1);
-                            Add(glow, qx, qy, qz, s * 0.003, colour[qi][0] * gf, colour[qi][1] * gf, colour[qi][2] * gf, s);
-                            int nb = _bodies.Count; AddBody(4, qi, q[qi] == 'u' ? 1 : 0, qx, qy, qz, Nucleon * 0.15, s); if (_bodies.Count > nb) _bodies[nb].Sym = q[qi] == 'u' ? "up" : "down";
+                            Add(glow, qx, qy, qz, Math.Max(s * 0.003, Nucleon * 0.05), colour[qi][0] * gf, colour[qi][1] * gf, colour[qi][2] * gf, s);
+                            int nb = _bodies.Count; AddBody(4, qi, q[qi] == 'u' ? 1 : 0, qx, qy, qz, Nucleon * 0.3, s); if (_bodies.Count > nb) { _bodies[nb].Sym = q[qi] == 'u' ? "up" : "down"; _bodies[nb].Key = k + 1; }
+                            // the quark you picked moves on: the view keeps going to where it is now (as with an electron)
+                            if (_picked != null && _picked.Kind == 4 && _picked.Key == k + 1 && _picked.I == qi) { _tfx = qx; _tfy = qy + _yOff; _tfz = qz; _picked.X = qx; _picked.Y = qy + _yOff; _picked.Z = qz; }
                         }
                         continue;
                     }
@@ -1391,31 +1498,30 @@ namespace DnaAnd.Shell
             key = (long)Math.Round(x / 1e-16) * 73856093L ^ (long)Math.Round(y / 1e-16) * 19349663L ^ (long)Math.Round(z / 1e-16) * 83492791L;   // from where the atom is: the same atom, the same electrons, however it is drawn
             double ar = AtomRadius(e); int shells = e.Shells.Length;
             double dot = s * 0.0035;                                                     // electrons: points, shown as a clear dot a few pixels wide
-            for (int sh = 0; sh < shells; sh++)
             {
-                double rr = ar * (sh + 1) / shells; bool valence = sh == shells - 1;    // the outermost shell: the one that bonds
-                Add(glow, x, y, z, rr * 1.05, (valence ? 0.09f : 0.04f) * f, (valence ? 0.07f : 0.06f) * f, (valence ? 0.03f : 0.12f) * f, s);
-                int ne = e.Shells[sh];                                          // every one of its electrons
-                for (int k = 0; k < ne; k++)
+                // every one of its electrons, in its own subshell and orbital (this element's own make-up), each on its path in its
+                // orbital's shape, at its subshell's distance, at its own speed; the valence (outermost) shell in gold
+                var els = ElectronsOf(e);
+                for (int k = 0; k < els.Length; k++)
                 {
-                    double tilt = Hash(key + sh, k, 33, _seed) * Math.PI, turn = Hash(key + sh, k, 34, _seed) * Math.PI * 2, ang = time * (2.2 / (sh + 1)) + k * Math.PI * 2 / ne;
-                    double ct = Math.Cos(turn), st = Math.Sin(turn), ci = Math.Cos(tilt), si = Math.Sin(tilt);
-                    // its path: a ring of faint points
-                    for (int q = 0; q < 28; q++)
-                    {
-                        double pa = q * Math.PI * 2 / 28, px = Math.Cos(pa) * rr, pz = Math.Sin(pa) * rr, py = pz * si; pz *= ci;
-                        Add(glow, x + px * ct - pz * st, y + py, z + px * st + pz * ct, dot * 0.35, (valence ? 0.16f : 0.08f) * f, (valence ? 0.12f : 0.12f) * f, (valence ? 0.04f : 0.2f) * f, s);
-                    }
-                    double ox = Math.Cos(ang) * rr, oz = Math.Sin(ang) * rr, oy = oz * si; oz *= ci;
-                    Add(glow, x + ox * ct - oz * st, y + oy, z + ox * st + oz * ct, dot, (valence ? 1f : 0.45f) * f, (valence ? 0.8f : 0.75f) * f, (valence ? 0.25f : 1f) * f, s);
-                    double exx = x + ox * ct - oz * st, eyy = y + oy, ezz = z + ox * st + oz * ct;
-                    { int nb = _bodies.Count; AddBody(3, sh + 1, k, exx, eyy, ezz, ar * 0.05, s); if (_bodies.Count > nb) { _bodies[nb].Sym = "electron:" + e.Symbol + ":" + shells; _bodies[nb].Key = key; } }   // every atom's electrons can be picked
+                    var el = els[k]; bool valence = el.N == shells;
+                    // its path, faint (only one of each orbital's pair: they share it)
+                    if (el.Spin == 0)
+                        for (int q = 0; q < 28; q++)
+                        {
+                            double px, py, pz; ElectronAt(el, key, q * Math.PI * 2 / 28, out px, out py, out pz);
+                            Add(glow, x + px * ar, y + py * ar, z + pz * ar, dot * 0.35, (valence ? 0.16f : 0.08f) * f, (valence ? 0.12f : 0.12f) * f, (valence ? 0.04f : 0.2f) * f, s);
+                        }
+                    double ox, oy, oz; ElectronAt(el, key, ElectronPhase(el, k, time), out ox, out oy, out oz);
+                    double exx = x + ox * ar, eyy = y + oy * ar, ezz = z + oz * ar;
+                    Add(glow, exx, eyy, ezz, dot, (valence ? 1f : 0.45f) * f, (valence ? 0.8f : 0.75f) * f, (valence ? 0.25f : 1f) * f, s);
+                    { int nb = _bodies.Count; AddBody(3, el.N, k, exx, eyy, ezz, ar * 0.05, s); if (_bodies.Count > nb) { _bodies[nb].Sym = "electron:" + e.Symbol + ":" + shells + ":" + el.N + "spdf"[Math.Min(3, el.L)]; _bodies[nb].Key = key; } }   // every atom's electrons can be picked
                     // the electron you picked moves on its path: the camera keeps going to where it is now
-                    if (_picked != null && _picked.Kind == 3 && _picked.Key == key && _picked.I == sh + 1 && _picked.J == k)
+                    if (_picked != null && _picked.Kind == 3 && _picked.Key == key && _picked.J == k)
                     { _tfx = exx; _tfy = eyy + _yOff; _tfz = ezz; _picked.X = exx; _picked.Y = eyy + _yOff; _picked.Z = ezz; }
                 }
             }
-            Orbitals(glow, e, x, y, z, s, time, key, f);                                     // and where its electrons may be: their orbitals, as clouds
+            { double odx = x - _fx, ody = y + _yOff - _fy, odz = z - _fz; if (odx * odx + ody * ody + odz * odz < Math.Pow(AtomSpacing * 0.6, 2)) Orbitals(glow, e, x, y, z, s, time, key, f); }   // and where its electrons may be, as steady clouds: only for the atom you are at
             Add(glow, x, y, z, Math.Max(NucleusRadius(e), s * 0.0014), 1f * f, 0.95f * f, 0.9f * f, s);   // its nucleus: a sharp point of light at the middle
             { int nb = _bodies.Count; AddBody(7, 0, 0, x, y, z, ar * 0.08, s); if (_bodies.Count > nb) _bodies[nb].Sym = e.Symbol; }   // and its nucleus can be picked
         }
@@ -1441,7 +1547,7 @@ namespace DnaAnd.Shell
             double k = 1 - Math.Exp(-dt * Glide);
             // an electron moves on its path faster than the view could glide after it: once you are almost at it the view rides with
             // it, so zooming in goes to it, never past
-            if (_picked != null && _picked.Kind == 3) { double gx = _tfx - _fx, gy = _tfy - _fy, gz = _tfz - _fz; if (gx * gx + gy * gy + gz * gz < Math.Pow(_scale * 3, 2)) k = 1; }
+            if (_picked != null && (_picked.Kind == 3 || _picked.Kind == 4)) { double gx = _tfx - _fx, gy = _tfy - _fy, gz = _tfz - _fz; if (gx * gx + gy * gy + gz * gz < Math.Pow(_scale * 3, 2)) k = 1; }
             _fx += (_tfx - _fx) * k; _fz += (_tfz - _fz) * k; _fy += (_tfy - _fy) * k;
             var solid = new List<StarVertex>(20000); var glow = new List<StarVertex>(2000); var mesh = pipes != null ? new List<StarVertex>(60000) : null;
             _bodies.Clear();
@@ -1503,7 +1609,7 @@ namespace DnaAnd.Shell
                 double ox0 = (_fx - _patchGX) / _patchRad - _ex * sr, oy0 = (_fy - _yOff - _patchGY) / _patchRad - _ey * sr, oz0 = (_fz - _patchGZ) / _patchRad - _ez * sr;
                 pc[40] = (float)ox0; pc[41] = (float)oy0; pc[42] = (float)oz0; pc[43] = (float)sr;
                 pc[19] = (float)(ox0 - pc[40]); pc[23] = (float)(oy0 - pc[41]); pc[31] = (float)(oz0 - pc[42]);   // the low halves
-                pc[44] = BitConverter.ToSingle(BitConverter.GetBytes((uint)(_patchKey & 0xFFFFFFFF)), 0); pc[45] = (float)(_patchRad / Math.Max(1e-30, _scale)); pc[46] = 1; pc[47] = 1;
+                pc[44] = BitConverter.ToSingle(BitConverter.GetBytes((uint)(_patchKey & 0xFFFFFFFF)), 0); pc[45] = (float)(_patchRad / Math.Max(1e-30, _scale)); pc[46] = (float)(3e-13 / Math.Max(1e-30, _patchRad)); pc[47] = 1;   // (one atomic layer, 0.3 nm, in the grain's own units: its terraces)
                 Put(_patchMesh, ref _patchArr, ref _patchBuf);
                 pipes.Solid.Draw(_patchBuf, _patchMesh.Count, pc, 0, 0, w, h);
             }
@@ -1569,9 +1675,12 @@ namespace DnaAnd.Shell
 
         /// <summary>Where the picked grain or atom is on screen (pixels) and how big, for its ring; false if nothing is picked.</summary>
         /// <summary>Picks the nearest of a kind of thing to the point you dive into, as a click on it would (atom, electron,
-        /// nucleus, proton, quark): for the tour.</summary>
+        /// nucleus, proton, quark, a grain, a spot on a grain's face): for the tour.</summary>
         /// <summary>How quickly the point you dive into glides to what is picked (a share a second): slow on the tour, a film's glide.</summary>
         public double Glide = 4; private double _lastLeftX = double.NaN, _lastLeftZ = double.NaN;
+        /// <summary>How far the point you dive into still is from what is picked, in shares of the view's size (0 with nothing
+        /// picked): the tour flies in only once it is there, so it never flies past what it shows.</summary>
+        public double PickOff { get { if (_picked == null) return 0; double dx = _tfx - _fx, dz = _tfz - _fz; return Math.Sqrt(dx * dx + dz * dz) / Math.Max(1e-40, _scale); } }   // (across: how high it sits is the zoom's own)
         public void PickNearest(string what)
         {
             if (what == "bonded-atom")
@@ -1590,7 +1699,7 @@ namespace DnaAnd.Shell
                 if (_picked != null) { _lastLeftX = _picked.X; _lastLeftZ = _picked.Z; }
                 _picked = nb; _tfx = nb.X; _tfz = nb.Z; _tfy = nb.Y; PickCount++; return;
             }
-            int kind = what == "atom" ? 1 : what == "electron" ? 3 : what == "nucleus" ? 7 : what == "proton" ? 5 : what == "quark" ? 4 : -1; if (kind < 0) return;
+            int kind = what == "grain" ? 0 : what == "spot" ? 2 : what == "atom" ? 1 : what == "electron" ? 3 : what == "nucleus" ? 7 : what == "proton" ? 5 : what == "quark" ? 4 : -1; if (kind < 0) return;
             Body best = null; double bd = double.MaxValue;
             foreach (var b in _bodies)
             {
@@ -1637,6 +1746,7 @@ namespace DnaAnd.Shell
                 var ps = (_picked.Sym ?? "electron").Split(':'); var pe = ps.Length > 1 ? El(ps[1]) : null; int pshells = ps.Length > 2 ? int.Parse(ps[2]) : 0;
                 L.Add("an electron of " + (pe != null ? "an atom of " + pe.Name.ToLowerInvariant() + " (" + pe.Symbol + ")" : "an atom"));
                 L.Add("shell " + _picked.I + (pshells > 0 && _picked.I == pshells ? ", its outermost: a valence electron, the kind that bonds" : " of " + Math.Max(pshells, (int)_picked.I)));
+                if (ps.Length > 3) L.Add("in its " + ps[3] + " subshell (" + (ps[3].EndsWith("s") ? "round" : ps[3].EndsWith("p") ? "two lobes" : ps[3].EndsWith("d") ? "four leaves" : "six leaves") + ")");
                 L.Add("charge -1; mass 1/1836 of a proton");
                 L.Add("a point as far as measured: smaller than 10^-22 m");
                 L.Add("where it is: a cloud of chance round the nucleus");

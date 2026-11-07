@@ -20,7 +20,8 @@ Controls
   Left-drag               circle round what you picked, at your distance;
                           with nothing picked, look around (View menu: drag speed, show FPS, invert left-right or up-down)
   H                       the scale on screen, on or off
-  T                       the tour on or off
+  T                       the tour on or off; carries a paused tour on
+  R                       starts a paused tour again
   F12 / F9                a screenshot (PNG) / start or stop a clip (MP4), in the captures folder
   View menu               the scale, and the render scale (lower is faster, higher is sharper)
   Help menu               Readme, Credits, About

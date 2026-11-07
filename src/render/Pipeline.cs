@@ -34,7 +34,7 @@ cbuffer C : register(b0)
     float4 extra;   // x: how much dimmer (0 full bright, 1 gone), so things fade in and out, never switch
     float4 lensA;   // a black hole's light bending: xy where it is on screen (-1..1), z its Einstein ring (same units, up the screen), w its distance
     float4 lensB;   // x: width over height of the screen; y: 1 = orbital clouds (each record an orbital, its points placed here); z: points per orbital; w: the web's fade distance (0: not the web)
-    float4 webA;    // the cosmic web's light, sifted here on the card: xyz where you are (in the points' own frame), w how near round you is left out (the galaxies made in full stand there)
+    float4 webA;    // the cosmic web's light, sifted here on the card: xyz where you are (in the points' own frame), w how near round you is left out (the galaxies made in full stand there; it fades in over half again past that, as they fade out)
 };
 struct Star { float3 pos; float size; float4 color; };
 StructuredBuffer<Star> stars : register(t0);
@@ -64,7 +64,7 @@ VO VS(uint vid : SV_VertexID, uint iid : SV_InstanceID)
         // fading with distance otherwise (seen through the whole web at once it would stack into an even dust)
         float wl = length(s.pos - webA.xyz);
         webOut = wl < webA.w || wl > lensB.w * 3;
-        s.color.rgb *= 2.5 * exp(-wl / lensB.w);                        // each point a galaxy's whole light, bright enough that the web's strands read across hundreds of millions of light-years
+        s.color.rgb *= 4.0 * exp(-wl / lensB.w) * saturate((wl - webA.w) / (webA.w * 0.5));   // faded in over half again past where it starts: just where the galaxies made in full fade out, so the two never show at once                        // each point a galaxy's whole light, bright enough that the web's strands read across hundreds of millions of light-years
     }
     if (lensB.y > 0.5)
     {
@@ -72,7 +72,7 @@ VO VS(uint vid : SV_VertexID, uint iid : SV_InstanceID)
         // orbital's real shape about its shell's distance, sampled afresh a few times a second (it shimmers: a wave, not a dot)
         uint code = (uint)(s.color.a * 64 + 0.5), l = code / 8u, m = code % 8u;
         uint key = asuint(s.pos.x) ^ (asuint(s.pos.y) * 7919u) ^ (asuint(s.pos.z) * 104729u) ^ (code * 31u);
-        uint tick = (uint)floor(misc.x * 6);
+        uint tick = 0;                                                    // (a steady cloud: sampled once, never flickering like static)
         float3 dir = float3(0, 1, 0); float best = -1;
         for (uint t = 0; t < 6u; t++)
         {
@@ -87,14 +87,19 @@ VO VS(uint vid : SV_VertexID, uint iid : SV_InstanceID)
         s.size = 0;
         s.color.a = 1;
     }
+    bool o0 = false;
     float2 c = corners[vid];
     float4 cc0 = mul(float4(s.pos, 1), viewProj);
     float size = max(s.size * misc.y, cc0.w * screen.z); // never smaller than screen.z of the view distance
     if (screen.w > 0) size = min(size, cc0.w * screen.w);   // and, when asked, never bigger than screen.w of it (points of light stay points up close)
+    size = min(size, cc0.w * 0.35);                               // and never more than most of the view, for every point (a soft glow right up close
+                                                                  // looks the same, but thousands of them each covering the whole screen are more work
+                                                                  // than the card may take in a frame, and Windows resets it)
+    if (cc0.w <= 0) o0 = true;
     float3 world = s.pos + (right.xyz * c.x + up.xyz * c.y) * size;
     VO o;
     o.pos = mul(float4(world, 1), viewProj);
-    if (webOut) o.pos = float4(2, 2, 2, 1);                       // (outside the view: not drawn)
+    if (webOut || o0) o.pos = float4(2, 2, 2, 1);                 // (outside the view, or behind you: not drawn)
     if (lensA.z > 0 && cc0.w > lensA.w)
     {
         // light passing a black hole is bent toward it by its mass (general relativity): what is behind it shows moved outward,

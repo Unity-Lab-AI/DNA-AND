@@ -65,17 +65,17 @@ namespace DnaAnd.Shell
             get
             {
                 if (Set == 6)
-                    return "DNA-AND samples · Set 6: Dyson structures (Populous-like) · click a shell or ring to fly to it, then I goes inside · Legend for which is which · right-click marks a keeper";
+                    return DnaAnd.Shell.PreviewText.AppName + " samples · Set 6: Dyson structures (Populous-like) · click a shell or ring to fly to it, then I goes inside · Legend for which is which · right-click marks a keeper";
                 if (Set == 5)
-                    return "DNA-AND samples · Set 5: Resource fields (every field lit in its own colour) · click or roll the wheel on a world to fly down · Legend for colours · right-click marks a keeper";
+                    return DnaAnd.Shell.PreviewText.AppName + " samples · Set 5: Resource fields (every field lit in its own colour) · click or roll the wheel on a world to fly down · Legend for colours · right-click marks a keeper";
                 if (Set == 4)
-                    return "DNA-AND samples · Set 4: Planets and gas giants (Populous-like) · see the Legend menu for which is which · right-click marks a keeper";
+                    return DnaAnd.Shell.PreviewText.AppName + " samples · Set 4: Planets and gas giants (Populous-like) · see the Legend menu for which is which · right-click marks a keeper";
                 if (Set == 3)
-                    return "DNA-AND samples · Set 3: Stars (Populous-like) · see the Legend menu for which star is which · right-click marks a keeper";
+                    return DnaAnd.Shell.PreviewText.AppName + " samples · Set 3: Stars (Populous-like) · see the Legend menu for which star is which · right-click marks a keeper";
                 if (Set == 2)
-                    return "DNA-AND samples · Set 2: Solar systems (Populous-like) · rows: " + string.Join(", ", _systemNames) +
+                    return DnaAnd.Shell.PreviewText.AppName + " samples · Set 2: Solar systems (Populous-like) · rows: " + string.Join(", ", _systemNames) +
                            " · click a planet to follow it, wheel to zoom · right-click marks a keeper";
-                return "DNA-AND samples · Set 1: Galaxies (Populous-like) · rows: " + string.Join(", ", _typeNames) +
+                return DnaAnd.Shell.PreviewText.AppName + " samples · Set 1: Galaxies (Populous-like) · rows: " + string.Join(", ", _typeNames) +
                        " · click a galaxy to zoom deep into it · right-click marks a keeper";
             }
         }
