@@ -1960,9 +1960,18 @@ namespace DnaAnd.Shell
             {
                 // the tour is a film: letterbox bars, the caption in the lower one, faded in after a moment and out before the cut
                 _hud.DrawBars(_meshes, w, h, 0.1f);
+                _gpu.ClearDepth();                                                     // the caption in front of the bar it sits in
                 var cs = _tourAt < _tour.Count ? _tour[_tourAt] : null;
                 float cap = cs == null ? 0 : (float)Math.Min(1, Math.Max(0, (_tourT - 0.8) / 1.5));
-                if (cs != null && cs.Do != "pick" && cap > 0.05 && TourCaption.Length > 0) _hud.DrawCard(_meshes, new[] { TourCaption }, w * 0.06, h * 0.915, w, h, cap);
+                if (cs != null && cs.Do != "pick" && cap > 0.05 && TourCaption.Length > 0)
+                {
+                    // the story, and under it what is really in view and in focus now, written from what is there (this galaxy's
+                    // own name and kind, this star, this world, this mineral, this atom), so every run tells its own journey
+                    var lines = new List<string> { TourCaption };
+                    var now = _matterScale > 0 || _spaceScale > 0 ? _matter.Card() : (_tKind >= 0 ? Card() : null);
+                    if (now != null && now.Count > 0) lines.Add("now: " + now[0] + (now.Count > 1 ? ", " + now[1] : ""));
+                    _hud.DrawCard(_meshes, lines, w * 0.06, h * 0.9, w, h, cap);
+                }
                 _gpu.ClearDepth();                                                     // the cards and the frames a second on top of the bars
                 // what is in view and in focus, written as you go, just below the top bar
                 if (_hud.Visible && (_matterScale > 0 || _spaceScale > 0)) _hud.DrawCard(_meshes, _matter.Card(), 24 * Math.Max(1, h / 1080.0), h * 0.11, w, h);
