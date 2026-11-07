@@ -179,3 +179,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (the word swept, the Universe's road built): our own star's name swept out of content, code, wikis and pages (DESIGN 578); every world's mass (579); the gravity switch (580); frame dragging, redshift and contraction (581); a star's layers (582); decay before your eyes (583); the tour's end figure (584); the clip's text scaled (585); duplicated code from reran scripts cut back (586).
 - 2026-11-07 (the clip's size on the landing page, its text measured right): DESIGN 587; `Launcher.cs`, `Program.cs`.
 - 2026-11-07 (the cards short again): every line added today one clause, no card more than two thirds of the screen (DESIGN 588).
+- 2026-11-07 (the face and the ride, from the creator's shots): the spots on the face's coarse shape, the ridden electron drawn from the pick, the face matte and grey at the nanometres, spikes a step off (DESIGN 589).
