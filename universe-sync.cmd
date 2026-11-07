@@ -16,6 +16,9 @@ copy /y "%~dp0docs\release\UNIVERSE-README.md" "%U%\README.md" > nul
 copy /y "%~dp0docs\release\UNIVERSE-HOW-TO-BUILD.md" "%U%\docs\HOW-TO-BUILD.md" > nul
 copy /y "%~dp0docs\release\UNIVERSE-GUIDE.md" "%U%\docs\GUIDE.md" > nul
 copy /y "%~dp0docs\release\UNIVERSE-COMPARED.md" "%U%\docs\COMPARED.md" > nul
+copy /y "%~dp0docs\release\UNIVERSE-LINUX.md" "%U%\docs\LINUX.md" > nul
+if not exist "%U%\linux" mkdir "%U%\linux"
+copy /y "%~dp0linux\run.sh" "%U%\linux\run.sh" > nul
 copy /y "%~dp0docs\release\universe\README.txt" "%U%\docs\README.txt" > nul
 copy /y "%~dp0docs\release\universe\CREDITS.md" "%U%\CREDITS.md" > nul
 if not exist "%U%\docs\img" mkdir "%U%\docs\img"
