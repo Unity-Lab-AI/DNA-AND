@@ -1020,7 +1020,7 @@ namespace DnaAnd.Gen
                     Tri(ref v, k00, k10, k11); Tri(ref v, k00, k11, k01);
                 }
             // skirts: short walls hanging down from the patch edges, so no cracks show where detail levels meet
-            double drop = p.Edge / Grid * 12;                                      // deep enough for steep ground and grain-scale relief between levels (no slivers of sky through the planet)
+            double drop = p.Edge / Grid * 4;                                       // (deeper skirts stood out as big flat walls at grain scale)
             for (int e = 0; e < (layer == Ground || layer == Hull ? 4 : 0); e++)
                 for (int q = 0; q < Grid; q++)
                 {
