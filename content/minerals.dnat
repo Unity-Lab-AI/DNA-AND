@@ -1063,6 +1063,16 @@ clarity: opaque
 state: liquid
 spacing-nm: 0.21
 
+@mineral cell-matter
+name: Living cell matter (a microbe's body)
+formula: about C5H7O2N (the average make-up of bacterial cells, by dry weight), in water
+atoms: C C C C C H H H H H H H O O N O H H
+colour: 0.62 0.78 0.55
+lustre: wet
+clarity: translucent
+state: liquid
+spacing-nm: 0.3
+
 @mineral sea-water
 name: Sea water
 formula: H2O with dissolved salt
@@ -1194,7 +1204,8 @@ minerals: water-ice 100
 # ── what lies on a grain's surface, everywhere, at its real size (soil science: clay platelets 0.2 to 2 um across,
 #   iron-oxide coatings 0.1 to 1 um, iron-oxide nanoparticles 5 to 50 nm, and a film of water one or two molecules thick
 #   from the air on every mineral surface; and specks of silt, 4 to 62 um, stuck on sand grains by clay and water).
-#   mineral: ground means one of that ground's own minerals. size-km: smallest to largest across; chance: how many of its cells hold one
+#   mineral: ground means one of that ground's own minerals. life: yes only on a living world; aspect: how many times
+#   longer than wide (a rod). size-km: smallest to largest across; chance: how many of its cells hold one
 #   (a cell is 'spacing' of its largest size, 4 if not given: clay coats much of a sand grain, so it is packed close); mineral: what it is made of (you go into its own atoms); shape: flat (a plate or a
 #   skin, its thickness a share of its width: kaolinite plates about 1/15, coatings thinner), round, or molecule (drawn atom by atom from its mineral, with its bond length in nm and bond angle in degrees).
 @surface silt
@@ -1205,6 +1216,38 @@ chance: 0.5
 spacing: 2.5
 shape: round
 about: a tiny grain of the same ground, 4 to 62 micrometres across | held on by clay and the water film | wind and water carry it as dust and mud
+
+@surface bacterium-rod
+name: A rod-shaped bacterium (a bacillus)
+mineral: cell-matter
+size-km: 1e-9 5e-9
+chance: 0.25
+spacing: 3
+shape: round
+aspect: 3.5
+life: yes
+about: a single living cell, 1 to 5 micrometres long | soil holds about a billion bacteria in every gram | it feeds on what the water brings past the grain
+
+@surface bacterium-coccus
+name: A round bacterium (a coccus)
+mineral: cell-matter
+size-km: 5e-10 2e-9
+chance: 0.25
+spacing: 3
+shape: round
+life: yes
+about: a single living cell, 0.5 to 2 micrometres across | often in pairs, chains or clusters
+
+@surface biofilm
+name: A biofilm (a mat of microbes in their slime)
+mineral: cell-matter
+size-km: 5e-9 3e-8
+chance: 0.2
+spacing: 3
+shape: flat
+thickness: 0.05
+life: yes
+about: microbes living together in a skin of their own slime | it holds water and food to the grain | most soil microbes live in films like this
 
 @surface clay-platelet
 name: A clay platelet (kaolinite)

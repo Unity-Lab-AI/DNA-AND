@@ -545,6 +545,7 @@ namespace DnaAnd.Shell
                 if (double.IsNaN(he) || Math.Abs(he) > 20) he = 0; if (double.IsNaN(hn) || Math.Abs(hn) > 20) hn = 0;
                 var gm = _ground.GrainMix(uy);
                 _matter.SetGround(R, ux, uy, uz, sea || molten ? null : gm != null ? gm.Id : null, _ground.GrainSeed, he, hn);
+                _matter.SetLife(_ground.HasWater && PlanetTerrain.TerrainKind(_ground.Kind).Life && _system.Bodies[_planet].Kind != "Moon");   // microbes on a living world's grains
                 string airHere; _matter.SetAirAbove(_system.Bodies[_planet].Kind == "Moon" || !PlanetTerrain.Air.TryGetValue(_ground.Kind, out airHere) ? null : airHere);   // its own air (a moon: none)
             }
         }

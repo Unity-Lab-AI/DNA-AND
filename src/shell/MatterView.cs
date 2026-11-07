@@ -99,6 +99,9 @@ namespace DnaAnd.Shell
                         }
                     }
         }
+        private bool _lifeHere;
+        /// <summary>Whether this ground's world is alive (microbes on its grains).</summary>
+        public void SetLife(bool alive) { _lifeHere = alive; }
         private bool _plasma; private string _plasmaMake = "hydrogen 91.2%, helium 8.7%"; private double _plasmaPerCc = 1e17;
         /// <summary>Into a star's surface: its plasma (content/physics.dnat star-plasma): bare nuclei of its elements in their
         /// shares, at its density, with free electrons darting between them (too hot for any atom to keep its electrons).</summary>
@@ -185,7 +188,7 @@ namespace DnaAnd.Shell
                 double.TryParse(e.Get("angle", "180"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out ang);
                 string shape = e.Get("shape", "round");
                 _surf.Add(new SurfThing { Id = e.Id, Name = e.Name, M = om, Lo = lo, Hi = hi, Chance = ch, Flat = shape == "flat", Molecule = shape == "molecule",
-                    Bond = bl * 1e-12, Angle = ang, FromGround = fromGround, Thick = TryD(e.Get("thickness", "0.05"), 0.05), Cell = TryD(e.Get("spacing", "4"), 4), About = e.Get("about", "").Split('|').Select(q => q.Trim()).Where(q => q.Length > 0).ToArray() });
+                    Bond = bl * 1e-12, Angle = ang, FromGround = fromGround, Thick = TryD(e.Get("thickness", "0.05"), 0.05), Cell = TryD(e.Get("spacing", "4"), 4), Aspect = TryD(e.Get("aspect", "1"), 1), Life = e.Get("life", "no") == "yes", About = e.Get("about", "").Split('|').Select(q => q.Trim()).Where(q => q.Length > 0).ToArray() });
             }
             foreach (var e in content.OfKind("physics.dnat", "gas")) _gasAtoms[e.Id.ToLowerInvariant()] = e.Get("atoms", "").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var e in content.OfKind("physics.dnat", "law"))
@@ -808,7 +811,7 @@ namespace DnaAnd.Shell
 
         // ── what sits on a grain's surface, each at its real size, fixed in place (from its cell), each pickable ──
         // (all of them from content/minerals.dnat @surface: what it is made of, its sizes, how common, its shape, what it is)
-        private sealed class SurfThing { public string Id, Name; public Mineral M; public double Lo, Hi, Chance, Bond, Angle; public bool Flat, Molecule, FromGround; public double Thick = 0.05, Cell = 4; public string[] About; }
+        private sealed class SurfThing { public string Id, Name; public Mineral M; public double Lo, Hi, Chance, Bond, Angle; public bool Flat, Molecule, FromGround, Life; public double Thick = 0.05, Cell = 4, Aspect = 1; public string[] About; }
         private readonly List<SurfThing> _surf = new List<SurfThing>();
         private double _clock;                                                             // the matter's time, for the electrons of things drawn here
         private void SurfaceThings(List<StarVertex> solid, List<StarVertex> glow, List<StarVertex> mesh, double s)
@@ -816,7 +819,7 @@ namespace DnaAnd.Shell
             long fgi, fgj; double fgx, fgy, fgz, frad; FocusGrain(out fgi, out fgj, out fgx, out fgy, out fgz, out frad);
             for (int t = 0; t < _surf.Count; t++)
             {
-                var st = _surf[t];
+                var st = _surf[t]; if (st.Life && !_lifeHere) continue;                     // living things only on a living world
                 if (st.Hi / s < 0.004 || st.Lo / s > 3) continue;                           // only at sizes where it shows
                 double cell = st.Hi * st.Cell; long n = (long)Math.Ceiling(2 * s / cell);
                 if (n > 40) continue;
@@ -855,7 +858,7 @@ namespace DnaAnd.Shell
                         else
                         {
                             if (st.Flat) { if (mesh != null) Plate(mesh, st, tm, x, y, z, size, i, j, s); }   // a six-sided plate (clay) or a thin skin (coating), with real thickness
-                            else Stone(mesh, solid, tm, x, y, z, size, i, j, s);
+                            else Stone(mesh, solid, tm, x, y, z, size, i, j, s, st.Aspect);
                         }
                         int nb = _bodies.Count; AddBody(8, i, j, x, y, z, size * 0.5, s); if (_bodies.Count > nb) _bodies[nb].Sym = st.Id;
                     }
@@ -887,15 +890,17 @@ namespace DnaAnd.Shell
             }
         }
         // a small rounded speck (a silt grain, a nanoparticle): a lumpy ball of its own mineral, shaded smooth, sitting on the face
-        private void Stone(List<StarVertex> mesh, List<StarVertex> solid, Mineral m, double x, double y, double z, double size, long i, long j, double s)
+        private void Stone(List<StarVertex> mesh, List<StarVertex> solid, Mineral m, double x, double y, double z, double size, long i, long j, double s, double aspect = 1)
         {
+            double turn = Hash(i, j, 109, _seed) * Math.PI, ca = Math.Cos(turn), sa = Math.Sin(turn), wide = 1 / Math.Sqrt(aspect);
             if (mesh == null || _ico == null) { Add(solid, x, y, z, size * 0.5 / 0.75, m.R, m.G, m.B, s); return; }
             double R = size * 0.5; if (R / s < 0.004 || Math.Abs((x - _fx) / s) > 60 || Math.Abs((z - _fz) / s) > 60) return;
             float sh = (float)(0.8 + 0.3 * Hash(i, j, 107, _seed)), r = m.R * sh, g = m.G * sh, b = m.B * sh;
             foreach (int k in _icoTri)
             {
                 var d = _ico[k]; double lump = 1 + 0.18 * (Hash(i * 64 + k, j, 108, _seed) - 0.5) * 2 * 0 + 0.12 * Math.Sin(d.X * 3.1 + i) * Math.Cos(d.Z * 2.7 + j);
-                mesh.Add(new StarVertex { X = (float)((x + d.X * R * lump - _fx) / s + _ex), Y = (float)((y + d.Y * R * 0.8 * lump + _yOff - _fy) / s + _ey), Z = (float)((z + d.Z * R * lump - _fz) / s + _ez),
+                double lx = d.X * aspect * wide, lz = d.Z * wide, rx = lx * ca - lz * sa, rz = lx * sa + lz * ca;   // long along its own way (a rod)
+                mesh.Add(new StarVertex { X = (float)((x + rx * R * lump - _fx) / s + _ex), Y = (float)((y + d.Y * R * 0.8 * wide * lump + _yOff - _fy) / s + _ey), Z = (float)((z + rz * R * lump - _fz) / s + _ez),
                     Size = PackNormal(d.X, d.Y / 0.8, d.Z), R = r, G = g, B = b, A = m.Lustre });
             }
         }
