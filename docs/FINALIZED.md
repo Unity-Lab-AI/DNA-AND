@@ -165,3 +165,4 @@ LAW 11 now includes a content-coverage check.
 
 ## 2026-11-06: releases
 - [x] "okay we need to make sure that nboth project docs are complete for both of them and push bothe proect to both of eaches remotes onbly after all docs and shit are proper" / "that would incluse deploys and exe and releases" / "make sure each project is properly named and there is no over lap": Universe 0.1.0 released on git.unityailab.com/GFourteen/Universe and github.com/Unity-Lab-AI/Universe; DNA-AND 0.1.0 (universe preview) released on both its remotes; each project its own name.
+- [x] "installer is not finding wehere its already intstaslled and is defaulting to appdata": Setup finds the install from its Apps list entry or its shortcuts, and offers the folder chosen last time (DESIGN 380).
