@@ -96,6 +96,7 @@ namespace DnaAnd.Shell
                 if (double.TryParse(e.Get("galaxies", "1e11"), fs, ci, out v)) _uGalaxies = v;
                 if (double.TryParse(e.Get("web-ly", "2e8"), fs, ci, out v)) _webUnits = v / Units.LightYearsPerUnit;
                 if (double.TryParse(e.Get("web-contrast", "6"), fs, ci, out v)) _webContrast = v;
+                if (double.TryParse(e.Get("web-wall-ly", "1.2e7"), fs, ci, out v)) _wallUnits = v / Units.LightYearsPerUnit;
                 if (double.TryParse(e.Get("region-ly", "1e6"), fs, ci, out v)) _regionUnits = v / Units.LightYearsPerUnit;
                 if (double.TryParse(e.Get("near-ly", "2e7"), fs, ci, out v)) _nearUnits = v / Units.LightYearsPerUnit;
                 if (double.TryParse(e.Get("glow-points", "300000"), fs, ci, out v)) _glowPoints = (int)v;
@@ -126,19 +127,29 @@ namespace DnaAnd.Shell
             _galaxies.Add(g);
         }
         // how crowded the cosmic web is at a place: filaments and walls (ridges of a noise a web cell across) dense, voids empty
-        // how crowded the cosmic web is at a place (its mean over space about one): walls are the ridges of a noise a web cell
-        // across, filaments where two such walls cross, clusters where three meet (Virgo-like knots of a thousand galaxies); the
-        // voids between, which fill most of the space, hold only a few (as surveys measure: about 70% of space is void, the
-        // filaments and clusters holding most galaxies)
+        // how crowded the cosmic web is at a place (its mean over space about one): the Voronoi foam of large-scale structure.
+        // Space is packed with voids, one round each seed point of a grid a void across (jittered); galaxies lie on the thin
+        // walls where two voids meet, more on the filaments where three meet, most in the clusters at the nodes where four
+        // meet; the voids' insides hold very few (as the surveys and the Millennium simulation show)
+        private double _wallUnits = 240;
+        private void VoidSeed(long i, long j, long k, out double x, out double y, out double z)
+        {
+            ulong h = (ulong)(i * 73856093L ^ j * 19349663L ^ k * 83492791L) ^ _seed; var r = new Rng(h * 0x9E3779B97F4A7C15UL + 7);
+            x = (i + 0.15 + 0.7 * r.NextDouble()) * _webUnits; y = (j + 0.15 + 0.7 * r.NextDouble()) * _webUnits; z = (k + 0.15 + 0.7 * r.NextDouble()) * _webUnits;
+        }
         private double Web(double x, double y, double z)
         {
-            float f = (float)(1.0 / _webUnits); uint sd = (uint)(_seed & 0xFFFFFFFF);
-            Func<float, float, float, uint, double> ridge = (a, b2, c, k) => 1 - Math.Abs(Noise.Fractal(a, b2, c, sd ^ k, 3) * 2 - 1);
-            double w1 = ridge((float)(x * f) + 11.3f, (float)(y * f) - 7.1f, (float)(z * f) + 3.7f, 0x3EBu);
-            double w2 = ridge((float)(x * f) - 5.9f, (float)(y * f) + 2.3f, (float)(z * f) - 9.4f, 0x7A1u);
-            double w3 = ridge((float)(x * f) + 1.7f, (float)(y * f) + 8.8f, (float)(z * f) + 4.2f, 0xC55u);
-            double wall = Math.Pow(w1, 6), filament = Math.Pow(w1 * w2, 6), knot = Math.Pow(w1 * w2 * w3, 6);
-            return (0.15 + wall * 1.2 + filament * 6 + knot * 40) * _webContrast / 6;
+            long ci = (long)Math.Floor(x / _webUnits), cj = (long)Math.Floor(y / _webUnits), ck = (long)Math.Floor(z / _webUnits);
+            double d1 = double.MaxValue, d2 = double.MaxValue, d3 = double.MaxValue, d4 = double.MaxValue;
+            for (long i = ci - 1; i <= ci + 1; i++) for (long j = cj - 1; j <= cj + 1; j++) for (long k = ck - 1; k <= ck + 1; k++)
+            {
+                double sx, sy, sz; VoidSeed(i, j, k, out sx, out sy, out sz);
+                double d = Math.Sqrt((sx - x) * (sx - x) + (sy - y) * (sy - y) + (sz - z) * (sz - z));
+                if (d < d1) { d4 = d3; d3 = d2; d2 = d1; d1 = d; } else if (d < d2) { d4 = d3; d3 = d2; d2 = d; } else if (d < d3) { d4 = d3; d3 = d; } else if (d < d4) d4 = d;
+            }
+            // how near the point is to a wall (equal distance to its two nearest voids), a filament (three), a node (four)
+            double w = _wallUnits, wall = Math.Exp(-Math.Pow((d2 - d1) / w, 2)), fil = Math.Exp(-Math.Pow((d3 - d1) / (w * 1.4), 2)), node = Math.Exp(-Math.Pow((d4 - d1) / (w * 2), 2));
+            return 0.04 + wall * 1.0 + fil * _webContrast + node * _webContrast * 6;
         }
         private double MeanPerUnit3 { get { return _uGalaxies / (4.0 / 3.0 * Math.PI * _uRadius * _uRadius * _uRadius); } }
         // the galaxies of every region within reach of you that has none yet (each region's own from its place); at most a few a frame
@@ -173,21 +184,36 @@ namespace DnaAnd.Shell
         }
         // the glow of the rest of the universe's galaxies: points drawn from the same web, each standing for many galaxies,
         // left out round you where the galaxies are made in full
+        private System.Threading.Thread _glowMaker; private volatile StarVertex[] _glowReady;
         private void MakeGlow()
         {
             if (_glowAll == null)
             {
-                // points spread through the whole sphere, more of them along the web (each kept with the chance the web gives it)
-                var rng = new Rng(_seed ^ 0x6107UL); var list = new List<StarVertex>(_glowPoints); int tries = 0;
-                while (list.Count < _glowPoints && tries++ < _glowPoints * 40)
+                if (_glowReady != null) { _glowAll = _glowReady; }
+                else
                 {
-                    double x = (rng.NextDouble() * 2 - 1) * _uRadius, y = (rng.NextDouble() * 2 - 1) * _uRadius, z = (rng.NextDouble() * 2 - 1) * _uRadius;
-                    if (x * x + y * y + z * z > _uRadius * _uRadius) continue;
-                    if (rng.NextDouble() * 12 > Web(x, y, z)) continue;                         // kept by how crowded the web is there
-                    float warm = (float)rng.NextDouble();                                  // old red-gold ellipticals to young blue spirals
-                    list.Add(new StarVertex { X = (float)x, Y = (float)y, Z = (float)z, Size = (float)(1.2 + rng.NextDouble() * 2), R = 0.75f + 0.25f * warm, G = 0.72f + 0.1f * warm, B = 1f - 0.3f * warm, A = 1 });
+                    if (_glowMaker == null)
+                    {
+                        // points through the whole sphere, each kept as often as the web is crowded there: the walls, filaments and
+                        // clusters show, the voids stay dark; made on a thread of its own so nothing waits
+                        int want = _glowPoints; double R = _uRadius, top = 0.04 + 1 + _webContrast + _webContrast * 6; ulong sd = _seed;
+                        _glowMaker = new System.Threading.Thread(() =>
+                        {
+                            var rng = new Rng(sd ^ 0x6107UL); var list = new List<StarVertex>(want); long tries = 0;
+                            while (list.Count < want && tries++ < (long)want * 60)
+                            {
+                                double x = (rng.NextDouble() * 2 - 1) * R, y = (rng.NextDouble() * 2 - 1) * R, z = (rng.NextDouble() * 2 - 1) * R;
+                                if (x * x + y * y + z * z > R * R) continue;
+                                if (rng.NextDouble() * top > Web(x, y, z)) continue;
+                                float warm = (float)rng.NextDouble();
+                                list.Add(new StarVertex { X = (float)x, Y = (float)y, Z = (float)z, Size = 1.2f, R = 0.75f + 0.25f * warm, G = 0.72f + 0.1f * warm, B = 1f - 0.3f * warm, A = 1 });
+                            }
+                            _glowReady = list.ToArray();
+                        }) { IsBackground = true, Priority = System.Threading.ThreadPriority.BelowNormal };
+                        _glowMaker.Start();
+                    }
+                    return;
                 }
-                _glowAll = list.ToArray();
             }
             // left out round you, where the galaxies are made in full
             double cx = _cx, cy = _cy, cz = _cz, keep = _nearUnits * 1.05;
@@ -1181,7 +1207,9 @@ namespace DnaAnd.Shell
                 if (input.Wheel < 0)
                 {
                     double basis = Math.Max(Math.Max(reach, Units.Km(1e-9)), _farScale);
-                    step = -basis * (Math.Pow(1 / 0.87, -input.Wheel) - 1); _farScale = basis * Math.Pow(1 / 0.87, -input.Wheel);
+                    double most = _uRadius * 0.1;                                                  // never so far out that the universe is one ball: always inside it, among the web
+                    if (basis >= most) { step = 0; _farScale = most; }
+                    else { double nb = Math.Min(most, basis * Math.Pow(1 / 0.87, -input.Wheel)); step = -(nb - basis); _farScale = nb; }
                 }
                 else { _farScale *= Math.Pow(0.87, input.Wheel); if (_farScale < reach) _farScale = 0; }
                 double altBefore = _ground != null ? AboveGround() / Units.Km(1) : 0;
@@ -1445,9 +1473,9 @@ namespace DnaAnd.Shell
             double share = NearShare();
             {
                 // the rest of the universe's galaxies, a glow along the cosmic web (remade without the near ones as you move far)
-                if (double.IsNaN(_glowAtX) || Math.Abs(_cx - _glowAtX) + Math.Abs(_cy - _glowAtY) + Math.Abs(_cz - _glowAtZ) > _nearUnits * 0.25) MakeGlow();
+                if (double.IsNaN(_glowAtX) || (_glowAll == null && _glowReady != null) || Math.Abs(_cx - _glowAtX) + Math.Abs(_cy - _glowAtY) + Math.Abs(_cz - _glowAtZ) > _nearUnits * 0.25) MakeGlow();
                 var gm = Mat4.Identity; gm.M41 = (float)-_cx; gm.M42 = (float)-_cy; gm.M43 = (float)-_cz;
-                DrawPoints(_glowBuf, _glowCount, gm * vp, right, up, 0.006f, 0.0011f, w, h, time, 0.004f, 0.8f);
+                DrawPoints(_glowBuf, _glowCount, gm * vp, right, up, 1f, 0.0007f, w, h, time, 0.0025f, 0.35f);   // each a galaxy at its true size (a pinpoint from afar), faint, so the web shows where they crowd
             }
             for (int i = 0; i < _galaxies.Count; i++)
             {

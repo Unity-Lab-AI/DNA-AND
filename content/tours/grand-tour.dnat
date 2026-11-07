@@ -20,8 +20,8 @@
 @stop leave
 do: zoom
 rate: -0.2
-until-km: 2e22
-caption: Out past the galaxies, until the visible universe shows its shape
+until-km: 5e21
+caption: Out past the galaxies, into the cosmic web
 
 @stop web
 do: orbit
