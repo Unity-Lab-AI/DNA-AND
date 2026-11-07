@@ -147,7 +147,8 @@ namespace DnaAnd.Gen
             double ct = Math.Cos(turn), st = Math.Sin(turn), ux = dx * ct + dz * st, uz = -dx * st + dz * ct;
             double r = rad / Math.Sqrt(ux * ux / (sx * sx) + dy * dy / (sy * sy) + uz * uz / (sz * sz));
             // its roughness at every size: the waveform (stored CDF 9/7 levels, then mode-E finer), to the finest that can show
-            double rough = Waveform.Octaves(ux, dy, uz, key, 2.5, 0.16, 0.5, rad / cell * 2);
+            // (a crystal face is not rough at every size: below about a micrometre it is flat terraces and steps, not hills)
+            double rough = Waveform.Octaves(ux, dy, uz, key, 2.5, 0.16, 0.5, Math.Min(rad / cell * 2, rad / 1e-9));
             // its face is broken and grown in steps at every size (cleavage and growth terraces, curved fracture ripples):
             // each size of step a quarter the one above, coming in as the detail reaches it, so there is always more to see
             double steps = 0, sh = 0.03, sf = 3;
@@ -174,7 +175,7 @@ namespace DnaAnd.Gen
         public static void Stain(long key, double dx, double dy, double dz, double rad, double cell, out float r, out float g, out float b)
         {
             // its stains and cracks at every size: the waveform too
-            double lim = rad / cell * 1.6; if (lim < 2) { r = g = b = 1; return; }
+            double lim = Math.Min(rad / cell * 1.6, rad / 2e-10); if (lim < 2) { r = g = b = 1; return; }   // stains no finer than a fifth of a micrometre
             double iron = Waveform.Octaves(dx, dy, dz, key * 7 + 300, 2.0, 1, 0.6, lim), clay = Waveform.Octaves(dx + 9, dy, dz - 4, key * 7 + 400, 2.0, 1, 0.6, lim);
             double crackv = Waveform.Octaves(dx * 1.7, dy * 1.7, dz * 1.7, key * 7 + 500, 2.0, 1, 0.6, lim), dark = Math.Max(0, 0.5 - Math.Abs(crackv) * 3), norm = 2.4;
             if (norm <= 0) { r = g = b = 1; return; }

@@ -557,6 +557,16 @@ namespace DnaAnd.Shell
             return list;
         }
 
+        // the crystal round you, worked out once and kept while you stay about where you are (not every frame)
+        private List<CAtom> _kept; private Mineral _keptM; private double _keptX, _keptZ, _keptReach, _keptDepth;
+        private List<CAtom> CrystalKept(Mineral m, double reach, double depth, int budget)
+        {
+            if (_kept != null && _keptM == m && Math.Abs(_keptDepth - depth) < 1e-20 && reach <= _keptReach && reach > _keptReach * 0.4
+                && Math.Abs(_fx - _keptX) < _keptReach * 0.25 && Math.Abs(_fz - _keptZ) < _keptReach * 0.25) return _kept;
+            _keptReach = reach * 1.6; _keptX = _fx; _keptZ = _fz; _keptM = m; _keptDepth = depth;
+            _kept = Crystal(m, _fx, _fz, _keptReach, depth, budget); return _kept;
+        }
+
         private static KeyValuePair<string, double[]> P(string el, double x, double y, double z) { return new KeyValuePair<string, double[]>(el, new[] { x, y, z }); }
 
         // turns a molecule's offset by its site's own orientation (from the site's hash)
@@ -750,7 +760,7 @@ namespace DnaAnd.Shell
                 int N = (int)Math.Min(160, Math.Ceiling(2 * half / step / 2) * 2);
                 PatchRing(mesh, s, m, gi, gj, gx, gy, gz, rad, Lr, step, N, ring == 0 ? frac : 0, ring == 0 ? 0 : inner * 0.98);
                 inner = N / 2 * step;
-                if (inner > rad * 1.3) break;                                            // the whole grain is drawn
+                if (inner > rad * 1.3 || ring >= 3) break;                                // the grain round you as far as can be seen (never the whole of it at nanometres: it cannot show)
             }
         }
         // one ring: a grid of N x N steps round the point you dive into, its quads inside 'hole' (the finer ring's reach) left out
@@ -1167,7 +1177,7 @@ namespace DnaAnd.Shell
                 float f = (float)Fade(s, AtomSpacing * 40, AtomSpacing * 20);
                 var drawnAt = new List<CAtom>(); double bondReach = Math.Min(1.2 * s, AtomSpacing * 22);
                 double depth = s < AtomSpacing * 14 ? AtomSpacing * 9 : AtomSpacing * 3;     // close in, deep: solid every way you look
-                foreach (var at0 in Crystal(fm, _fx, _fz, 2.4 * s, depth, 60000))
+                foreach (var at0 in CrystalKept(fm, 2.4 * s, depth, 25000))
                 {
                     var at = at0; double ar = AtomRadius(at.E), ay = at.Y - ar - _yOff;                     // on the grain's real surface
                     bool inFocus = at.E == focus && Math.Abs(at.X - fax) < 1e-20 && Math.Abs(ay - fay) < 1e-20 && Math.Abs(at.Z - faz) < 1e-20 && s < ar * 4;
