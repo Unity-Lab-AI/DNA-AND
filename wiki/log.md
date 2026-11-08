@@ -229,3 +229,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (the crash at the asteroid's ground fixed; every small body its own size and shape): DESIGN 649, 650.
 - 2026-11-07 (the landing page's seed field takes the typing, no refusing beep): DESIGN 651.
 - 2026-11-07 (the small body's ground by distance, the supernova target live): DESIGN 652, 653.
+- 2026-11-07 (the small body's ground centred after the ride, no shaking): DESIGN 654.
