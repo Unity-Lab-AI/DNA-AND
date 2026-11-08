@@ -22,7 +22,7 @@ Controls
   H                       the scale on screen, on or off
   T                       the tour on or off; carries a paused tour on
   R                       starts a paused tour again
-  F12 / F9                a screenshot (PNG) / start or stop a clip (MP4), in the captures folder
+  F12 / F9                a screenshot (PNG) / start or stop a clip (.cdf97w), in the captures folder
   View menu               drag speed, FPS with the GPU and CPU stats, render scale (lower is faster, higher is sharper), GPU use,
                           the clip's size (auto, full, half, quarter), the periodic table, the tour, screenshot and clip
   Help menu               Documents (what's here), Readme, How it works, Against the field, Credits, About

@@ -62,7 +62,7 @@ One folder per part of the game. The folders that exist today:
 | `content/` | Game content, read by the generators (`.dnat`) |
 | `src/platform/` | Talking to Windows: the window, input, menus, settings, the document viewer, the landing page |
 | `src/core/` | Math, the CDF 9/7 wavelet and mode-E, physics, jobs, saves, the content reader |
-| `src/render/` | Direct3D 12 graphics, the shaders, the PNG, GIF and MP4 writers |
+| `src/render/` | Direct3D 12 graphics, the shaders, the PNG and GIF writers, our own H.264, VP9 and AV1 writers, the WebM layout and the .cdf97w |
 | `src/gen/` | The live generators: galaxies, stars, star systems, worlds and their ground, bodies in space, grains, elements, creature bodies, cities |
 | `src/sim/` | The living planet (core, plates, surface, air, weather, impacts), planet life, the microbe world, sea life |
 | `src/shell/` | The views: the universe (one camera from the cosmic web to the quarks), the matter, the planet, the elements, the samples; the scale and cards on screen |
