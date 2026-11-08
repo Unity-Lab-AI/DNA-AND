@@ -270,3 +270,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (C1 rejected: no other people's code, formats or software): DESIGN 693.
 - 2026-11-08 (the .cdf97w version 8: dyadic layout, Full at 0.016, the full equations in the metadata): DESIGN 694.
 - 2026-11-08 (every doc re-measured: sizes, counts, captures; GpuWavelet removed): DESIGN 695.
+- 2026-11-08 (the last old sizes: the readme's opening, the comparison's templates, DNA-AND's readme and setup, the Universe release notes and repo description): DESIGN 695.
