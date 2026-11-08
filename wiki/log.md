@@ -297,3 +297,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (the simulation in a player: probed, needs a machine-wide plug-in; not built, the front man kept): DESIGN 720.
 - 2026-11-08 (the clip size dropdown back: Full 4K, Half, Quarter): DESIGN 721.
 - 2026-11-08 (the clip held under 850 MB: one rate-control account for the whole clip): DESIGN 722.
+- 2026-11-08 (the tour's zooms fly along the view, not the resting mouse): DESIGN 723.
