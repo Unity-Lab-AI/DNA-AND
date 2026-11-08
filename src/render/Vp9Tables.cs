@@ -22,6 +22,11 @@ namespace DnaAnd.Render
         public static readonly byte[] Coefband4x4 = { 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 5 };
         public static readonly byte[] EnergyClass = { 0, 1, 2, 3, 3, 4, 4, 5, 5, 5, 5, 5 };
         public static readonly byte[] DefaultSkipProb = { 192, 128, 64 };
+        // the inter frames' default odds (section 10.5): partitions, is-inter, the single reference, the inter modes by their context
+        public static readonly byte[] DefaultPartitionProbs = { 199, 122, 141, 147, 63, 159, 148, 133, 118, 121, 104, 114, 174, 73, 87, 92, 41, 83, 82, 99, 50, 53, 39, 39, 177, 58, 59, 68, 26, 63, 52, 79, 25, 17, 14, 12, 222, 34, 30, 72, 16, 44, 58, 32, 12, 10, 7, 6 };
+        public static readonly byte[] DefaultIsInterProb = { 9, 102, 187, 225 };
+        public static readonly byte[] DefaultSingleRefProb = { 33, 16, 77, 74, 142, 142, 172, 170, 238, 247 };
+        public static readonly byte[] DefaultInterModeProbs = { 2, 173, 34, 7, 145, 85, 7, 166, 63, 7, 94, 66, 8, 64, 46, 17, 81, 31, 25, 29, 30 };
         // cat_probs, each category its own length
         public static readonly byte[] CatProbs0 = { 0 };
         public static readonly byte[] CatProbs1 = { 159 };
