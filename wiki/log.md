@@ -287,3 +287,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (our own H.264 front man's colour detail, chroma AC, checked with Windows' decoder): DESIGN 709.
 - 2026-11-08 (the encoders' comparison taken out of the game; a sample on its own, --encoders): DESIGN 710.
 - 2026-11-08 (the sample galaxies drawn over the universe, a bug from the comparison's drawing line; put right): DESIGN 711.
+- 2026-11-08 (a filmed tour is always the clip of the universe itself; no .cdf97u side file): DESIGN 712.
