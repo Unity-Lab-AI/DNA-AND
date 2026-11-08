@@ -26,7 +26,7 @@ Get the latest `DNA-AND-Setup.exe` from either release page. They're the same fi
 | 🧠 CPU | 4 cores | 8+ cores |
 | 💾 RAM | 8 GB | 16 GB |
 | 🎨 Graphics | Direct3D 12 card, 4 GB | Direct3D 12 card, 8 GB |
-| 📀 Disk | Under 2 MB (a 0.6 MB installer) | Under 2 MB |
+| 📀 Disk | Under 2 MB (a 0.7 MB installer) | Under 2 MB |
 | 🌐 Internet | Only for the leaderboard, Genebank and online multiplayer | — |
 
 ## 📦 3. Install
