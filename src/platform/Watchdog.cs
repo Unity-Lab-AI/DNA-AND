@@ -55,8 +55,9 @@ namespace DnaAnd.Platform
             try { if (BeforeExit != null) BeforeExit(); } catch { }
             try
             {
-                Directory.CreateDirectory("build");
-                File.AppendAllText(Path.Combine("build", "watchdog.log"), DateTime.Now.ToString("s") + "  SAFETY EXIT: " + why + Environment.NewLine);
+                string dir = DnaAnd.Program.LogDir; Directory.CreateDirectory(dir);
+                File.AppendAllText(Path.Combine(dir, "watchdog.log"), DateTime.Now.ToString("s") + "  SAFETY EXIT: " + why + Environment.NewLine);
+                DnaAnd.Program.WriteLog("SAFETY EXIT by the watchdog: " + why + (Window.LastMenuNote != null ? " (" + Window.LastMenuNote + ")" : ""));
             }
             catch { }
             Environment.Exit(3);
