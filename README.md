@@ -147,7 +147,7 @@ Still to come:
 | 🌫️ **Nebulas** | Star nurseries, pillars, dark clouds, planetary nebulas and supernova remnants |
 | 🪐 **Worlds** | Lava worlds, ocean worlds, super-Earths, mini-Neptunes, hot Jupiters, ice giants, rogue planets |
 | 🌙 **Moons** | Volcanic moons, ice-shell ocean moons with geysers, moons with thick air and hydrocarbon lakes |
-| ☄️ **Small bodies** | Asteroids by makeup, comets and their tails, dwarf planets, the Kuiper belt, the Oort cloud, meteorites, each with its real minerals and elements down to the traces, dived into at its surface |
+| ☄️ **Small bodies** | Asteroids by makeup, comets and their tails, dwarf planets, the Kuiper belt, the Oort cloud, meteorites, each its own size and shape, with its real minerals and elements down to the traces, landed on as a world and zoomed into to its quarks |
 
 👉 [The Deep Sky](docs/wiki/deep-sky.md "Galaxies, stars, black holes, nebulas") · [Worlds & Moons](docs/wiki/worlds-and-moons.md "Planets, giants, moons, comets")
 
@@ -418,7 +418,7 @@ Powers cost **Souls**. Cost = the power's **tier (T1–T100) × area × strength
 
 Every key can be rebound. 👉 [Controls](docs/wiki/controls.md "Every control")
 
-🔭 **In the universe preview:** it opens on a landing page (type a seed or leave it blank, Begin or take the tour). Then the scroll wheel flies toward what the mouse points at, `Ctrl` makes it eight times as fast, `Left-drag` looks around, `H` turns the scale on screen on or off, `T` plays the quarter-hour grand tour, `F12` saves a screenshot and `F9` records a clip (View > Clip size: auto, full, half or quarter of the screen), and the **View** and **Help** menus hold the settings, the Guide and wiki, and Credits. The universe preview is also released on its own as **Universe** (its own project: https://git.unityailab.com/GFourteen/Universe).
+🔭 **In the universe preview:** it opens on a landing page (type a seed or leave it blank, Begin or take the tour). Then the scroll wheel flies toward what the mouse points at, `Ctrl` makes it eight times as fast, `Left-drag` looks around, `H` turns the scale on screen on or off, `T` plays the half-hour grand tour, `F12` saves a screenshot and `F9` records a clip (View > Clip size: auto, full, half or quarter of the screen), and the **View** and **Help** menus hold the settings, the Guide and wiki, and Credits. The universe preview is also released on its own as **Universe** (its own project: https://git.unityailab.com/GFourteen/Universe).
 
 ---
 
