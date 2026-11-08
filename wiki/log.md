@@ -243,3 +243,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (the water ice lattice crash: molecular sites capped, a glow ceiling): DESIGN 666.
 - 2026-11-07 (a zoom below the hand-over ends only in the matter): DESIGN 667.
 - 2026-11-07 (the nebula clouds: six radii, the nearest six, built once): DESIGN 668.
+- 2026-11-07 (the nebula clouds dimmed, no white cores): DESIGN 669.
