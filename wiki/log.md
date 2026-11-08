@@ -303,3 +303,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (the front man's motion: our VP9 writer searches and codes each block's motion): DESIGN 726.
 - 2026-11-08 (the tour's caption in the lower bar, never over the middle of the view): DESIGN 727.
 - 2026-11-08 (a clip finished off the game's thread, never cut off by the watchdog; its name): DESIGN 728.
+- 2026-11-08 (the back-out from the quark through the atom, the crystal and the grain: the held atom's height): DESIGN 729.
