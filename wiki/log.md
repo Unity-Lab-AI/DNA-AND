@@ -231,3 +231,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (the small body's ground by distance, the supernova target live): DESIGN 652, 653.
 - 2026-11-07 (the small body's ground centred after the ride, no shaking): DESIGN 654.
 - 2026-11-07 (rule: the tour is a gimmick over the program's own code): DESIGN 655.
+- 2026-11-07 (a spot on the face at height nothing: the lattice to the nucleus no longer black): DESIGN 656.
