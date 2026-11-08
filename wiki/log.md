@@ -252,3 +252,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (E1 of the front-man research measured): DESIGN 675.
 - 2026-11-08 (E1b and E1c: the packing, not the wavelet, is the size): DESIGN 676.
 - 2026-11-08 (the .cdf97w version 2: quantised, whole frames and changes, Deflate): DESIGN 677.
+- 2026-11-08 (E2: H1 true, no use): DESIGN 678.
