@@ -187,7 +187,7 @@ namespace DnaAnd
             GalaxiesView universe = journey ? new GalaxiesView(gpu, pipeline, content, Seed) : null;
             // a .cdf97w handed over (double-clicked in Explorer): the clip of the universe itself plays through the universe made again
             // from its seed, straight away; a waveform clip plays in the program's own player, then the landing page
-            string handed = args.Length == 1 && args[0].EndsWith(".cdf97w", StringComparison.OrdinalIgnoreCase) && System.IO.File.Exists(args[0]) ? args[0] : null;
+            string handed = args.Length == 1 && DnaAnd.Platform.ClipPlayer.Plays(args[0]) && System.IO.File.Exists(args[0]) ? args[0] : null;
             if (handed != null && DnaAnd.Render.UniverseClipReader.Is(handed)) { try { var rc = new DnaAnd.Render.UniverseClipReader(handed); if (rc.Seed.HasValue) Seed = rc.Seed.Value; DnaAnd.Platform.Launcher.ReplayClip = handed; WriteLog("universe clip handed over: " + handed + ", seed " + Seed); } catch (Exception ex) { WriteLog("universe clip: " + ex.Message); handed = null; } }
             bool waveHanded = false;
             if (handed != null && DnaAnd.Platform.Launcher.ReplayClip == null) { DnaAnd.Platform.ClipPlayer.Play(window.Handle, handed, () => watchdog.Beat()); waveHanded = true; }
@@ -218,7 +218,7 @@ namespace DnaAnd
                 {
                     // filmed: the whole tour as the clip of the universe itself in the captures folder, finished when the tour ends
                     try { System.IO.Directory.CreateDirectory(DnaAnd.Platform.Launcher.Captures); } catch { }
-                    recordTour = System.IO.Path.Combine(DnaAnd.Platform.Launcher.Captures, "tour " + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss") + ".cdf97w");
+                    recordTour = System.IO.Path.Combine(DnaAnd.Platform.Launcher.Captures, "tour " + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss") + DnaAnd.Render.ClipWriters.Extension);
                 }
             }
             { int ti = Array.IndexOf(args, "--tour"); if (world != null && ti >= 0) world.StartTour(ti + 1 < args.Length && !args[ti + 1].StartsWith("--") ? args[ti + 1] : "grand-tour"); }   // a tour (content/tours/name.dnat)
@@ -257,7 +257,7 @@ namespace DnaAnd
                         if (landed2 == DnaAnd.Platform.Launcher.Choice.Tour)
                         {
                             world.StartTour(DnaAnd.Platform.Launcher.ReplayTour ?? "grand-tour");
-                            if (DnaAnd.Platform.Launcher.RecordTour && DnaAnd.Platform.Launcher.ReplayTour == null) { try { System.IO.Directory.CreateDirectory(DnaAnd.Platform.Launcher.Captures); } catch { } recordTour = System.IO.Path.Combine(DnaAnd.Platform.Launcher.Captures, "tour " + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss") + ".cdf97w"); }
+                            if (DnaAnd.Platform.Launcher.RecordTour && DnaAnd.Platform.Launcher.ReplayTour == null) { try { System.IO.Directory.CreateDirectory(DnaAnd.Platform.Launcher.Captures); } catch { } recordTour = System.IO.Path.Combine(DnaAnd.Platform.Launcher.Captures, "tour " + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss") + DnaAnd.Render.ClipWriters.Extension); }
                         }
                         menuDirty = true;
                     }
@@ -409,7 +409,7 @@ namespace DnaAnd
                     {
                         wantRecord = false; menuDirty = true;
                         if (rec != null) { rec.Dispose(); WriteLog("clip saved · " + rec.Path); rec = null; recForTour = false; }
-                        else try { DnaAnd.Render.ClipWriters.Seed = Seed; DnaAnd.Render.ClipWriters.Tour = null; rec = OpenClip = DnaAnd.Render.ClipWriters.Open(System.IO.Path.Combine(caps, DnaAnd.Shell.PreviewText.AppName + " " + stamp + ".cdf97w"), gpu.Width, gpu.Height); } catch (Exception ex) { WriteLog("record error · " + ex.Message); rec = null; }
+                        else try { DnaAnd.Render.ClipWriters.Seed = Seed; DnaAnd.Render.ClipWriters.Tour = null; rec = OpenClip = DnaAnd.Render.ClipWriters.Open(System.IO.Path.Combine(caps, DnaAnd.Shell.PreviewText.AppName + " " + stamp + DnaAnd.Render.ClipWriters.Extension), gpu.Width, gpu.Height); } catch (Exception ex) { WriteLog("record error · " + ex.Message); rec = null; }
                     }
                     if (gpu.Grabbed != null && clipPath == null && frontman != null && frontWanted && rec == null && !wantShot && gpu.GrabW == gpu.Width / frontman.Down(gpu.Width)) { frontman.Take(gpu.Grabbed, gpu.GrabW, gpu.GrabH, clock.Total); frontWanted = false; }   // (the front man compared: a fresh frame for its tiles)
                     if (gpu.Grabbed != null && clipPath == null)
