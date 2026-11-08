@@ -416,7 +416,7 @@ namespace DnaAnd
                     {
                         if (wantShot && gpu.GrabW == gpu.Width) { try { DnaAnd.Render.PngWriter.Save(System.IO.Path.Combine(caps, (shotName ?? DnaAnd.Shell.PreviewText.AppName + " " + stamp) + ".png"), gpu.Grabbed, gpu.GrabW, gpu.GrabH); } catch (Exception ex) { WriteLog("screenshot error · " + ex.Message); } wantShot = false; shotName = null; }
                         // (a frame grabbed at full size for a screenshot is not the clip's size: that one is skipped, the clip goes on)
-                        if (rec != null && gpu.GrabW == gpu.Width / Math.Max(1, rec.Down) && !(recForTour && world != null && (world.TourPaused || world.Loading))) { try { rec.Add(gpu.Grabbed, gpu.GrabW, gpu.GrabH); } catch (Exception ex) { WriteLog("record error · " + ex.Message); rec.Dispose(); rec = null; } }
+                        if (rec != null && gpu.GrabW == gpu.Width / Math.Max(1, rec.Down) && !(recForTour && world != null && (world.TourPaused || world.Loading))) { try { { var ucw = rec as DnaAnd.Render.UniverseClipWriter; if (ucw != null) ucw.Camera = world != null ? world.CameraNow() : null; } rec.Add(gpu.Grabbed, gpu.GrabW, gpu.GrabH); } catch (Exception ex) { WriteLog("record error · " + ex.Message); rec.Dispose(); rec = null; } }
                         gpu.Grabbed = null;
                     }
                     { var cr = rec as DnaAnd.Render.ICardRecorder; bool onCard = cr != null && (rec is DnaAnd.Render.Cdf97wWriter && ((DnaAnd.Render.Cdf97wWriter)rec).OnCard); gpu.Recorder = onCard ? cr : null;   // (a .cdf97w worked out on the card inside the frame: the picture is never copied back for it)
