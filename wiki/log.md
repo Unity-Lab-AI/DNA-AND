@@ -307,3 +307,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (the front man's transforms each block's own size, 4 x 4 to 32 x 32): DESIGN 730.
 - 2026-11-08 (the front man's loop filter): DESIGN 731.
 - 2026-11-08 (the front man's motion from the universe's equations): DESIGN 732.
+- 2026-11-08 (the front man coded on the graphics card): DESIGN 733.
