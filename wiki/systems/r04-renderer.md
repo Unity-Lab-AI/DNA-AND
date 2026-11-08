@@ -2,7 +2,7 @@
 title: R4 · Renderer
 status: verified
 sources: [docs/DESIGN.md (round 1, round 4, items 62-76), docs/ROADMAP.md#R4, src/render/, src/gen/PlanetTerrain.cs, src/shell/PlanetView.cs, src/shell/MatterView.cs, content/minerals.dnat, content/terrain.dnat]
-last-verified: 6499931
+last-verified: 16bbc1c
 ---
 
 # 🎨 R4 · Renderer
@@ -73,6 +73,7 @@ The renderer draws what the live generators build. Every asset is generated on t
 | 🧪 Elements | All 118 as icons: bars, crystals, powders, drops and clouds by state at any temperature and pressure | `src/shell/ElementView.cs`, `src/gen/ElementGen.cs`, `IconFont.cs` |
 | 🦠 Microbes | A live ecosystem: genes, mutation, selection, viruses by surface match | `src/sim/MicrobeWorld.cs`, `src/shell/MicrobeView.cs` |
 | 🎞️ Clips | `--clip <start s> <seconds> <file.gif>` saves every fourth frame into a looping GIF, written by our own encoder (a fixed 252-colour palette, LZW packing); `--wheel` with `--wheelevery <n>` zooms in gently while it records, `--aimcentre` aims it at the middle, `--journeyat <s>` flies to a star's temperate world; the journey clip is `docs/img/journey.gif` | `src/render/GifWriter.cs`, `Gpu.cs`, `src/Program.cs` |
+| 🎞️ The .cdf97w | Our own clip format (DESIGN 667 to 694): the frame worked out on the graphics card inside the frame (`CardClip`: the dyadic CDF 9/7, 6 levels, steps weighted by subband), only the terms read back, packed by `WaveletCoder`, played by `ClipPlayer`; a metadata block carries the waveforms-to-pixels equations |
 | 🎮 Any computer's card | At start the game goes through every graphics card and takes the one with the most video memory of its own (software ones skipped), so two-GPU laptops use the real one; the run log names it | `src/render/Gpu.cs` |
 | 🧵 Background ground | Missing ground pieces are asked for while the planet is walked, nearest first, and built by background workers (one per core); each frame takes in what is finished (about 4 ms of uploads) and never waits | `src/gen/PlanetTerrain.cs` |
 | 📐 Resolution-true ground | Ground pieces split by how big they look in pixels (tuned at 600 pixels tall), so a facet stays the same size on screen at any resolution | `src/shell/PlanetView.cs` |
