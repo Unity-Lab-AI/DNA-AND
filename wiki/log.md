@@ -294,3 +294,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (the .cdf97w as designed: equations into our VP9 encoder, the front man for any player, full 4K, no frame let go; VP9 writer version 2, tile columns): DESIGN 717.
 - 2026-11-08 (the front man's quality 30: the stars points of light, no blocks): DESIGN 718.
 - 2026-11-08 (the .cdf97w: the front man under 850 MB for 10 minutes at 4K, the universe's own equations inside): DESIGN 719.
+- 2026-11-08 (the simulation in a player: probed, needs a machine-wide plug-in; not built, the front man kept): DESIGN 720.
