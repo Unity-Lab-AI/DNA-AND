@@ -14,6 +14,9 @@ xcopy /e /i /q /y "%~dp0installer" "%U%\installer" > nul
 rem the Uni Vs Matics reference (the equations and the builders the .c97 clip is ported from) travels with the program's source
 if exist "%U%\reference" rmdir /s /q "%U%\reference"
 xcopy /e /i /q /y "%~dp0reference" "%U%\reference" > nul
+rem the web player (our own page that plays a .cdf97w in a browser or as a Discord Activity)
+if exist "%U%\web" rmdir /s /q "%U%\web"
+xcopy /e /i /q /y "%~dp0web" "%U%\web" > nul
 if not exist "%U%\docs" mkdir "%U%\docs"
 copy /y "%~dp0docs\release\UNIVERSE-README.md" "%U%\README.md" > nul
 copy /y "%~dp0docs\release\UNIVERSE-HOW-TO-BUILD.md" "%U%\docs\HOW-TO-BUILD.md" > nul
