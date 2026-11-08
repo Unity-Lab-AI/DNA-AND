@@ -274,3 +274,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (the sync no longer adds a release/ line to the Universe .gitignore every run; 101 duplicates removed)
 - 2026-11-08 (H15 designed: the clip as the universe's own equations): DESIGN 696.
 - 2026-11-08 (H15 step 1: the universe clip recorded): DESIGN 697.
+- 2026-11-08 (MP4 for sharing, about 100 MB for ten minutes): DESIGN 698.
