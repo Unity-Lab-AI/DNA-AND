@@ -298,3 +298,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (the clip size dropdown back: Full 4K, Half, Quarter): DESIGN 721.
 - 2026-11-08 (the clip held under 850 MB: one rate-control account for the whole clip): DESIGN 722.
 - 2026-11-08 (the tour's zooms fly along the view, not the resting mouse): DESIGN 723.
+- 2026-11-08 (the pull-out from the quark looks down at the atoms, the crystal and the grain): DESIGN 724.
