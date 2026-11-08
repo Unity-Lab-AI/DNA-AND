@@ -42,5 +42,5 @@ rem its own name throughout its code and content (namespace, file headers, conte
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0installer\universe-names.ps1" "%U%" || exit /b 1
 rem the Universe project keeps its own .gitignore, .claude/, wiki/ and workflow docs: never written over from here
 if not exist "%U%\.gitignore" (> "%U%\.gitignore" echo build/)
->> "%U%\.gitignore" echo release/
+findstr /x /c:"release/" "%U%\.gitignore" > nul || >> "%U%\.gitignore" echo release/
 echo Universe synced into %U%
