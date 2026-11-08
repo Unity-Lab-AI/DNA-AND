@@ -276,3 +276,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (H15 step 1: the universe clip recorded): DESIGN 697.
 - 2026-11-08 (MP4 for sharing taken back: other people's formats): DESIGN 699.
 - 2026-11-08 (the front man: our own H.264, VP9 and AV1 encoders, opened): DESIGN 700.
+- 2026-11-08 (our own H.264 front man, version 0): DESIGN 701.
