@@ -301,3 +301,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (the pull-out from the quark looks down at the atoms, the crystal and the grain): DESIGN 724.
 - 2026-11-08 (clips named name.cdf97w.webm, shown as video in Discord and every player): DESIGN 725.
 - 2026-11-08 (the front man's motion: our VP9 writer searches and codes each block's motion): DESIGN 726.
+- 2026-11-08 (the tour's caption in the lower bar, never over the middle of the view): DESIGN 727.
