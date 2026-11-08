@@ -279,3 +279,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (our own H.264 front man, version 0): DESIGN 701.
 - 2026-11-08 (our own H.264 front man: change frames and detail terms): DESIGN 702.
 - 2026-11-08 (the front man compared, side by side): DESIGN 703.
+- 2026-11-08 (the universe clip played back and handed over): DESIGN 704.
