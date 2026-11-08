@@ -230,3 +230,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (the landing page's seed field takes the typing, no refusing beep): DESIGN 651.
 - 2026-11-07 (the small body's ground by distance, the supernova target live): DESIGN 652, 653.
 - 2026-11-07 (the small body's ground centred after the ride, no shaking): DESIGN 654.
+- 2026-11-07 (rule: the tour is a gimmick over the program's own code): DESIGN 655.
