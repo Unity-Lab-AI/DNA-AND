@@ -37,6 +37,8 @@ That's it. Nothing to download or install.
 
 🔭 **Sample sets:** run the exe with `--set2` to `--set6` to open one sample set on its own (`--set5` resource fields, `--set6` the Dyson sphere: I or C goes in and out, M is the view from the middle, inside W A S D flies and dragging looks around).
 
+🎞️ **The encoders' sample:** run the exe with `--encoders` to open the universe with the encoders side by side over it: the frame as drawn, and the same frame through our own `.cdf97w`, H.264, VP9 and AV1, each with its size for the frame and its quality. Right-click a tile to keep it. It is a sample only, never part of the game.
+
 ⏱️ **Quick check:** `test.cmd 3000` runs for 3 seconds and closes. Quick checks open small in the bottom-right corner and don't take the keyboard.
 
 ▶️ **Normal play:** run `play.cmd`, or double-click `build\DNA-AND.exe`. There's no timer at all.
