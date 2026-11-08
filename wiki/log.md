@@ -289,3 +289,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (the sample galaxies drawn over the universe, a bug from the comparison's drawing line; put right): DESIGN 711.
 - 2026-11-08 (a filmed tour is always the clip of the universe itself; no .cdf97u side file): DESIGN 712.
 - 2026-11-08 (the .cdf97w as our own WebM: a VP9 picture track for Media Player, the universe's records attached): DESIGN 713.
+- 2026-11-08 (the program closing on its own in a menu: the logs kept across runs, every way out and every menu recorded): DESIGN 714.
