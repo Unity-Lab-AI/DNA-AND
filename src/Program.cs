@@ -390,13 +390,13 @@ namespace DnaAnd
                     if (inp.WasPressed(0x78)) wantRecord = true;
                     if (inp.WasPressed('T') && world != null && !world.Touring) wantTour = true;
                     if (wantTour && world != null) { if (world.Touring) world.StopTour(); else if (world.TourPaused) world.ResumeTour(); else world.StartTour("grand-tour"); wantTour = false; menuDirty = true; }
-                    if (recordTour != null && world != null && world.Touring && rec == null && !recForTour) { try { rec = OpenClip = DnaAnd.Render.ClipWriters.Open(recordTour, gpu.Width, gpu.Height); recForTour = true; DnaAnd.Render.ClipWriters.WriteUniverse(rec.Path, Seed, "grand-tour"); } catch (Exception ex) { WriteLog("record error · " + ex.Message); recordTour = null; } }
+                    if (recordTour != null && world != null && world.Touring && rec == null && !recForTour) { try { DnaAnd.Render.ClipWriters.Seed = Seed; DnaAnd.Render.ClipWriters.Tour = "grand-tour"; rec = OpenClip = DnaAnd.Render.ClipWriters.Open(recordTour, gpu.Width, gpu.Height); recForTour = true; DnaAnd.Render.ClipWriters.WriteUniverse(rec.Path, Seed, "grand-tour"); } catch (Exception ex) { WriteLog("record error · " + ex.Message); recordTour = null; } }
                     if (recForTour && world != null && !world.Touring && !(world.TourPaused && !world.TourFinished)) { if (rec != null) { rec.Dispose(); WriteLog("clip saved · " + rec.Path); rec = null; } recForTour = false; recordTour = null; menuDirty = true; }
                     if (wantRecord)
                     {
                         wantRecord = false; menuDirty = true;
                         if (rec != null) { rec.Dispose(); WriteLog("clip saved · " + rec.Path); rec = null; recForTour = false; }
-                        else try { rec = OpenClip = DnaAnd.Render.ClipWriters.Open(System.IO.Path.Combine(caps, DnaAnd.Shell.PreviewText.AppName + " " + stamp + ".mp4"), gpu.Width, gpu.Height); } catch (Exception ex) { WriteLog("record error · " + ex.Message); rec = null; }
+                        else try { DnaAnd.Render.ClipWriters.Seed = Seed; DnaAnd.Render.ClipWriters.Tour = null; rec = OpenClip = DnaAnd.Render.ClipWriters.Open(System.IO.Path.Combine(caps, DnaAnd.Shell.PreviewText.AppName + " " + stamp + ".mp4"), gpu.Width, gpu.Height); } catch (Exception ex) { WriteLog("record error · " + ex.Message); rec = null; }
                     }
                     if (gpu.Grabbed != null && clipPath == null)
                     {
