@@ -273,3 +273,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (the last old sizes: the readme's opening, the comparison's templates, DNA-AND's readme and setup, the Universe release notes and repo description): DESIGN 695.
 - 2026-11-08 (the sync no longer adds a release/ line to the Universe .gitignore every run; 101 duplicates removed)
 - 2026-11-08 (H15 designed: the clip as the universe's own equations): DESIGN 696.
+- 2026-11-08 (H15 step 1: the universe clip recorded): DESIGN 697.
