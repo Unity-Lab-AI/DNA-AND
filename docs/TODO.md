@@ -744,3 +744,4 @@ Order: galactic scale down, the same order as the sample sets.
 - [~] **The review's HIGH item and the quick MEDIUM, LOW and nitpick fixes (first batch of the open list):** (built: DESIGN 683; waits on the test) "1-5 all are a go lets get to em"
 - [~] **The review's MEDIUM and LOW items (second batch of the open list): the star's radius eased, the stale small-body frame, one spin clock, the fallback pick's height:** (built: DESIGN 684; waits on the test) "1-5 all are a go lets get to em"
 - [~] **The .cdf97w version 3: a wavelet-aware coder in place of Deflate (1.4 to 1.75 times smaller):** (built: DESIGN 685; waits on the test) "1-5 all are a go lets get to em"
+- [~] **The .cdf97w on the graphics card (the wavelet in a compute shader) and its packing on every core (version 4):** (built: DESIGN 686; waits on the test) "1-5 all are a go lets get to em"
