@@ -221,3 +221,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (the dive firing where the zoom reaches, matter stops never in open space): DESIGN 641.
 - 2026-11-07 (the ghost discs gone, the dive's state logged): DESIGN 642.
 - 2026-11-07 (the near plane beside a body, every rock a kind): DESIGN 643.
+- 2026-11-07 (a young supernova's ejecta a ballooning cloud): DESIGN 644.
