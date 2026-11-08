@@ -236,3 +236,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (the public pages read in full and mended): DESIGN 658.
 - 2026-11-07 (the dive atom drawn and pickable at every size in gas and plasma): DESIGN 659.
 - 2026-11-07 (the shot's pace eased; the ground under the camera never culled, the ground probe): DESIGN 660, 661.
+- 2026-11-07 (nebulae close up as clouds of their own gas): DESIGN 662.
