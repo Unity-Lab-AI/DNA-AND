@@ -185,6 +185,7 @@ namespace DnaAnd
             if (testPlanet >= 0) { planet = new PlanetView(gpu, meshes, pipeline, viewer.TerrainAt(testPlanet), viewer.FieldTerrainAt(testPlanet), viewer.Set == 5 || testFieldView); planet.TestEvolveYears = testEvolve; planet.TestGoToCiv = Array.IndexOf(args, "--tociv") >= 0; int sli = Array.IndexOf(args, "--savelife"); if (sli >= 0 && sli + 1 < args.Length) planet.TestSaveLife = args[sli + 1]; int lli = Array.IndexOf(args, "--loadlife"); if (lli >= 0 && lli + 1 < args.Length) planet.TestLoadLife = args[lli + 1]; int csi = Array.IndexOf(args, "--civstep"); if (csi >= 0 && csi + 1 < args.Length) int.TryParse(args[csi + 1], out planet.TestCivStep); for (int k = 0; k < testJumps; k++) planet.JumpToNextField(); if (testAlt > 0) planet.SetAltitude(testAlt); int si = Array.IndexOf(args, "--undersea"); if (si >= 0 && si + 1 < args.Length) planet.GoUnderSea(double.Parse(args[si + 1], System.Globalization.CultureInfo.InvariantCulture)); }
             GalaxiesView universe = journey ? new GalaxiesView(gpu, pipeline, content, Seed) : null;
             bool landing = PreviewBuild && args.Length == 0;                            // a plain launch: the landing page first
+            DnaAnd.Shell.FrontmanCompare frontman = null; bool frontWanted = false;   // (View > Front man compared)
             DnaAnd.Platform.Launcher.Choice landed = DnaAnd.Platform.Launcher.Choice.Begin;
             if (landing)
             {
@@ -262,6 +263,7 @@ namespace DnaAnd
                 else if (cmd == Window.CmdReadme) DocViewer.Show(window.Handle, PreviewText.Docs(), 2);
                 else if (cmd == Window.CmdHowItWorks) DocViewer.Show(window.Handle, PreviewText.Docs(), 3);
                 else if (cmd == Window.CmdCompared) DocViewer.Show(window.Handle, PreviewText.Docs(), 5);
+                else if (cmd == Window.CmdFrontman && world != null) { if (frontman == null) frontman = new DnaAnd.Shell.FrontmanCompare(gpu.Device); frontman.On = !frontman.On; Window.FrontmanOn = frontman.On; menuDirty = true; }
                 else if (cmd == Window.CmdElements && world != null) { if (elements == null) elements = new ElementView(gpu, meshes, content); showElements = !showElements; }
                 else if (cmd == Window.CmdCredits) DocViewer.Show(window.Handle, PreviewText.Docs(), 8);
                 else if (cmd == Window.CmdStats) { Settings.Set("show-stats", !Settings.Get("show-stats", true)); menuDirty = true; }
@@ -370,6 +372,7 @@ namespace DnaAnd
                 }
                 gpu.BeginFrame(0.005f, 0.006f, 0.012f);
                 if (world != null && !showElements) world.Draw(gpu.Width, gpu.Height, clock.Total);
+                if (frontman != null && frontman.On && world != null && !showElements && rec == null) frontman.Draw(meshes, window.Input, gpu.Width, gpu.Height);   // (over the universe, never into a clip)
                 else if (style != null) style.Draw(gpu, gpu.Width, gpu.Height, clock.Total);
                 else if (microbes != null) microbes.Draw(gpu, gpu.Width, gpu.Height, clock.Total);
                 else if (elements != null) elements.Draw(gpu, gpu.Width, gpu.Height, clock.Total);
@@ -398,6 +401,7 @@ namespace DnaAnd
                         if (rec != null) { rec.Dispose(); WriteLog("clip saved · " + rec.Path); rec = null; recForTour = false; }
                         else try { DnaAnd.Render.ClipWriters.Seed = Seed; DnaAnd.Render.ClipWriters.Tour = null; rec = OpenClip = DnaAnd.Render.ClipWriters.Open(System.IO.Path.Combine(caps, DnaAnd.Shell.PreviewText.AppName + " " + stamp + ".mp4"), gpu.Width, gpu.Height); } catch (Exception ex) { WriteLog("record error · " + ex.Message); rec = null; }
                     }
+                    if (gpu.Grabbed != null && clipPath == null && frontman != null && frontWanted && rec == null && !wantShot && gpu.GrabW == gpu.Width / frontman.Down(gpu.Width)) { frontman.Take(gpu.Grabbed, gpu.GrabW, gpu.GrabH, clock.Total); frontWanted = false; }   // (the front man compared: a fresh frame for its tiles)
                     if (gpu.Grabbed != null && clipPath == null)
                     {
                         if (wantShot && gpu.GrabW == gpu.Width) { try { DnaAnd.Render.PngWriter.Save(System.IO.Path.Combine(caps, (shotName ?? DnaAnd.Shell.PreviewText.AppName + " " + stamp) + ".png"), gpu.Grabbed, gpu.GrabW, gpu.GrabH); } catch (Exception ex) { WriteLog("screenshot error · " + ex.Message); } wantShot = false; shotName = null; }
@@ -406,6 +410,7 @@ namespace DnaAnd
                         gpu.Grabbed = null;
                     }
                     { var cr = rec as DnaAnd.Render.ICardRecorder; bool onCard = cr != null && (rec is DnaAnd.Render.Cdf97wWriter ? ((DnaAnd.Render.Cdf97wWriter)rec).OnCard : rec is DnaAnd.Render.FrontmanWriter && ((DnaAnd.Render.FrontmanWriter)rec).OnCard); gpu.Recorder = onCard ? cr : null;   // (a .cdf97w worked out on the card inside the frame: the picture is never copied back for it)
+                    if (frontman != null && rec == null && !wantShot && frontman.Wants(clock.Total) && !frontWanted) { frontWanted = true; gpu.GrabNext = true; gpu.GrabDown = frontman.Down(gpu.Width); }
                     if (wantShot || (rec != null && !onCard && !(rec is DnaAnd.Render.UniverseClipWriter))) { gpu.GrabNext = true; gpu.GrabDown = wantShot ? 1 : rec.Down; } }   // (a screenshot at full size; a clip at its own, half each way on a big screen)
                     // the frame's picture is taken here, before the REC notice goes on: the notice shows on screen (as a camcorder's) and stays out of the clip and the screenshot
                     gpu.CaptureHere();
