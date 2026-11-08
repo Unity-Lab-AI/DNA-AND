@@ -284,3 +284,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (our own VP9 front man from the specification, key and change frames, our WebM, a tile in the front man compared): DESIGN 706.
 - 2026-11-08 (our own AV1 front man from the specification, key and change frames, one WebM writer for VP9 and AV1, a tile in the front man compared): DESIGN 707.
 - 2026-11-08 (our own .cdf97w player for the web and a Discord Activity, web/; checked exact against the C# decode): DESIGN 708.
+- 2026-11-08 (our own H.264 front man's colour detail, chroma AC, checked with Windows' decoder): DESIGN 709.
