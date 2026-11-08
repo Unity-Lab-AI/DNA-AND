@@ -258,3 +258,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (E5: the front man, an MP4 carrying the .cdf97w; E1 to E5 done): DESIGN 681.
 - 2026-11-08 (the front man made from the solved equations): DESIGN 682.
 - 2026-11-08 (the review's HIGH item and the quick fixes): DESIGN 683.
+- 2026-11-08 (the review's MEDIUM and LOW items): DESIGN 684.
