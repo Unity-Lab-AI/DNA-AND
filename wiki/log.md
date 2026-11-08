@@ -308,3 +308,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (the front man's loop filter): DESIGN 731.
 - 2026-11-08 (the front man's motion from the universe's equations): DESIGN 732.
 - 2026-11-08 (the front man coded on the graphics card): DESIGN 733.
+- 2026-11-08 (the file sizes in the docs put right from the built files): DESIGN 734.
