@@ -305,3 +305,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (a clip finished off the game's thread, never cut off by the watchdog; its name): DESIGN 728.
 - 2026-11-08 (the back-out from the quark through the atom, the crystal and the grain: the held atom's height): DESIGN 729.
 - 2026-11-08 (the front man's transforms each block's own size, 4 x 4 to 32 x 32): DESIGN 730.
+- 2026-11-08 (the front man's loop filter): DESIGN 731.
