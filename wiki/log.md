@@ -280,3 +280,5 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (our own H.264 front man: change frames and detail terms): DESIGN 702.
 - 2026-11-08 (the front man compared, side by side): DESIGN 703.
 - 2026-11-08 (the universe clip played back and handed over): DESIGN 704.
+- 2026-11-08 (VP9 and AV1 specs may be read for our own encoders): DESIGN 705.
+- 2026-11-08 (our own VP9 front man from the specification, key and change frames, our WebM, a tile in the front man compared): DESIGN 706.
