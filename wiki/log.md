@@ -250,3 +250,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (the .cdf97w clip: writer, start-page and View format pick, in-program player): DESIGN 673.
 - 2026-11-08 (the front-man equation research written up): DESIGN 674.
 - 2026-11-08 (E1 of the front-man research measured): DESIGN 675.
+- 2026-11-08 (E1b and E1c: the packing, not the wavelet, is the size): DESIGN 676.
