@@ -11,6 +11,9 @@ if exist "%U%\installer" rmdir /s /q "%U%\installer"
 xcopy /e /i /q /y "%~dp0src" "%U%\src" > nul
 xcopy /e /i /q /y "%~dp0content" "%U%\content" > nul
 xcopy /e /i /q /y "%~dp0installer" "%U%\installer" > nul
+rem the Uni Vs Matics reference (the equations and the builders the .c97 clip is ported from) travels with the program's source
+if exist "%U%\reference" rmdir /s /q "%U%\reference"
+xcopy /e /i /q /y "%~dp0reference" "%U%\reference" > nul
 if not exist "%U%\docs" mkdir "%U%\docs"
 copy /y "%~dp0docs\release\UNIVERSE-README.md" "%U%\README.md" > nul
 copy /y "%~dp0docs\release\UNIVERSE-HOW-TO-BUILD.md" "%U%\docs\HOW-TO-BUILD.md" > nul

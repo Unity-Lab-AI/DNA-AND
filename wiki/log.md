@@ -246,3 +246,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (the nebula clouds dimmed, no white cores): DESIGN 669.
 - 2026-11-07 (the face's molecules bounded, the climb out drawn): DESIGN 670.
 - 2026-11-08 (the watchdog forgives menus, dialogs and message boxes): DESIGN 671.
+- 2026-11-08 (the Uni Vs Matics engine and papers pulled into reference/univsmatics/ for the .c97 clip): DESIGN 672.
