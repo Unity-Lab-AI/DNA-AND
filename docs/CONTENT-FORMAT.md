@@ -87,7 +87,7 @@ The sample subjects come first (round 15): planets, stars, gas giants, Dyson sph
 ### Current files
 
 - `content/black-holes.dnat`
-- `content/bodies.dnat` (`@place` entries: every kind of body made round you, black holes, neutron stars, rogue planets, asteroids, Kuiper bodies and comets, with their shares and where they live)
+- `content/bodies.dnat` (`@place` entries: every kind of body made round you, black holes, neutron stars, rogue planets, asteroids, Kuiper bodies and comets, with their shares and where they live; a `size-km` range with `size-power` gives each body its own size, `round-above-km` the size gravity rounds a body at, below which they are lumpy, the smallest the most)
 - `content/cities.dnat`
 - `content/climate.dnat`
 - `content/elements.dnat` (each `@element` also carries `colour`, `covalent-a`, `atomic-a`, `made-in` (where its atoms were forged); the unstable ones `half-life` and `decays`)
