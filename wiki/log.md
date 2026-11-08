@@ -226,3 +226,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (the one zoom chain on every body, nothing left out): DESIGN 646.
 - 2026-11-07 (a small body a world: one ground system for every body): DESIGN 647; `@terrain asteroid`, `relief-of-radius`.
 - 2026-11-07 (the dive's arcs and orbits short, no pauses): DESIGN 648.
+- 2026-11-07 (the crash at the asteroid's ground fixed; every small body its own size and shape): DESIGN 649, 650.
