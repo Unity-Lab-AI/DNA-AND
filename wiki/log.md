@@ -259,3 +259,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (the front man made from the solved equations): DESIGN 682.
 - 2026-11-08 (the review's HIGH item and the quick fixes): DESIGN 683.
 - 2026-11-08 (the review's MEDIUM and LOW items): DESIGN 684.
+- 2026-11-08 (the .cdf97w version 3, the wavelet coder): DESIGN 685.
