@@ -266,3 +266,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (the clip as the universe itself, .cdf97u, for tours): DESIGN 689.
 - 2026-11-08 (the .cdf97w as one media file: solved on the card, video outside, equations inside, registered as video): DESIGN 690.
 - 2026-11-08 (full size keeping up: 16 strips, packed terms, reading off the game thread): DESIGN 691.
+- 2026-11-08 (full 4K steps, the .cdf97w as waveforms and metadata, the conversion equation opened as research): DESIGN 692.
