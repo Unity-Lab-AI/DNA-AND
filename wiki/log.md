@@ -291,3 +291,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (the .cdf97w as our own WebM: a VP9 picture track for Media Player, the universe's records attached): DESIGN 713.
 - 2026-11-08 (the program closing on its own in a menu: the logs kept across runs, every way out and every menu recorded): DESIGN 714.
 - 2026-11-08 (a zoom off course turns back to what it flies to; MP4 taken out of the program and its docs): DESIGN 715, 716.
+- 2026-11-08 (the .cdf97w as designed: equations into our VP9 encoder, the front man for any player, full 4K, no frame let go; VP9 writer version 2, tile columns): DESIGN 717.
