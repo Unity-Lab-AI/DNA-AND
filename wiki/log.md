@@ -240,3 +240,4 @@ Append-only. Newest at the bottom.
 - 2026-11-07 (the tour: the asteroid seen not dived into, the nebula out): DESIGN 663.
 - 2026-11-07 (a star whose system is open is the target at its real place): DESIGN 664.
 - 2026-11-07 (the tour back to what it was, the unasked chains out): DESIGN 665.
+- 2026-11-07 (the water ice lattice crash: molecular sites capped, a glow ceiling): DESIGN 666.
