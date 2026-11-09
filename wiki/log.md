@@ -310,3 +310,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (the front man coded on the graphics card): DESIGN 733.
 - 2026-11-08 (the file sizes in the docs put right from the built files): DESIGN 734.
 - 2026-11-08 (the README's five videos from the 16:55 take): DESIGN 735.
+- 2026-11-08 (the README's videos as GitHub's own uploads): DESIGN 736.

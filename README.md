@@ -39,42 +39,26 @@ And somewhere along the way, they start to wonder **who you are**.
 
 Five stretches of one filmed tour, each played as it was flown (press the player's full-screen button to watch it large).
 
-<table><tr>
-<td width="50%"><video src="docs/release/universe/media/across-the-universe.webm" controls muted loop playsinline width="100%" title="Across the universe"></video><br><b>Across the universe.</b> Out through the cosmic web, past galaxy after galaxy, closing on the first. <a href="docs/release/universe/media/across-the-universe.webm" title="Across the universe, the video file">▶ the video</a></td>
-<td width="50%"><video src="docs/release/universe/media/into-the-black-hole.webm" controls muted loop playsinline width="100%" title="Into the black hole"></video><br><b>Into the black hole.</b> Down the galaxy's middle and into its black hole, the sky squeezed into its mouth. <a href="docs/release/universe/media/into-the-black-hole.webm" title="Into the black hole, the video file">▶ the video</a></td>
-</tr></table>
+**Across the universe.** Out through the cosmic web, past galaxy after galaxy, closing on the first.
 
-<table><tr>
-<td width="50%"><video src="docs/release/universe/media/planetfall.webm" controls muted loop playsinline width="100%" title="Planetfall"></video><br><b>Planetfall.</b> Down onto a world, the ground under you, then into the face of a grain. <a href="docs/release/universe/media/planetfall.webm" title="Planetfall, the video file">▶ the video</a></td>
-<td width="50%"><video src="docs/release/universe/media/into-the-atom.webm" controls muted loop playsinline width="100%" title="Into the atom"></video><br><b>Into the atom.</b> Through an atom's electron clouds to its nucleus, a proton, and a quark. <a href="docs/release/universe/media/into-the-atom.webm" title="Into the atom, the video file">▶ the video</a></td>
-</tr></table>
+https://github.com/user-attachments/assets/f5d5b96c-b4d3-4b18-ac16-2ffa0cfe0fbc
 
-<table><tr>
-<td width="50%"><video src="docs/release/universe/media/out-across-the-universe.webm" controls muted loop playsinline width="100%" title="Out across the universe"></video><br><b>Out across the universe.</b> Up off the world, out of its star system and away past the galaxies. <a href="docs/release/universe/media/out-across-the-universe.webm" title="Out across the universe, the video file">▶ the video</a></td>
-</tr></table>
+**Into the black hole.** Down the galaxy's middle and into its black hole, the sky squeezed into its mouth.
 
+https://github.com/user-attachments/assets/aaee4d09-5d91-4ba8-a19b-361733e569f4
 
-*The grand tour, as the game records it: from the cosmic web into a galaxy, past its stars, to a comet, down to a world, its ground and the face of one grain.*
+**Planetfall.** Down onto a world, the ground under you, then into the face of a grain.
 
-🔭 **One camera, every scale.** There are no separate views to switch between. The same camera flies from among the galaxies into one, through its hundred billion stars (made around you as you go), into a star's solar system, down to a planet's ground and on into its matter: grains, the crystal of its mineral, then its atoms. Point the mouse and roll the wheel; it flies toward what you point at, at any angle, and slows by itself as things come close. A scale on screen shows how big things are, from billions of light-years down past the quarks: the zoom in has no floor.
+https://github.com/user-attachments/assets/b324cbfa-dfbd-4d61-96e4-c5bcff5f0a97
 
-| | Era | What happens |
-|:-:|---|---|
-| 🌑 | **The dead world** | You shape a lifeless planet with heat, cold, water and lightning. Everything else is unlocked by the life that evolves |
-| ✨ | **The spark** | Your first action starts life. It never starts without you |
-| 🦠 | **The microbes** | Cells, viruses and the first wars, fought with chemistry |
-| 🐟 | **The seas** | Shells, spines, eyes and jaws. Schools and reefs |
-| 🌿 | **The land** | Plants, insects, then animals crawl out of the water |
-| 🐺 | **The packs** | Everything groups up: packs, herds, flocks, hives, hordes |
-| 🧠 | **The minds** | Any species can wake up: apes, wolves, crows, octopuses, bees |
-| 🏛️ | **The civilizations** | 100 ages of history: tribes, kingdoms, empires, nations, wars |
-| 🚀 | **The stars** | Colonies, space stations, other planets and solar systems |
-| ☀️ | **The sphere** | A Dyson sphere wrapped around a star |
-| 🌌 | **The galaxies** | Galactic minds, intergalactic war, life across the universe |
+**Into the atom.** Through an atom's electron clouds to its nucleus, a proton, and a quark.
 
-> ⏱️ A typical game reaches the **space age in about 4–6 hours**. Then it never ends, until you start a new world and galaxy.
+https://github.com/user-attachments/assets/c7143e5b-391d-4f35-9920-6c34a88941c3
 
----
+**Out across the universe.** Up off the world, out of its star system and away past the galaxies.
+
+https://github.com/user-attachments/assets/7c437893-42eb-4039-ae33-116f7edaf0ea
+
 
 ## 📸 A look inside
 
