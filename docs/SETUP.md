@@ -38,7 +38,7 @@ Get the latest `DNA-AND-Setup.exe` from either release page. They're the same fi
 
 ## 🚀 4. First launch
 
-> 🔭 **In the 0.1.1 universe preview** the program opens on the universe's landing page (type a seed or leave it blank, Begin or Take the tour), not the main menu below: the menu, the powers and the saves are the full game's, still to come. The preview's keys are in the [README](../README.md#-keys).
+> 🔭 **In the 0.1.2 universe preview** the program opens on the universe's landing page (type a seed or leave it blank, Begin or Take the tour), not the main menu below: the menu, the powers and the saves are the full game's, still to come. The preview's keys are in the [README](../README.md#-keys).
 
 | Step | What you'll see |
 |---|---|

@@ -8,7 +8,7 @@ namespace DnaAnd.Shell
         /// preview included), never one in the other's place.</summary>
 #if UNIVERSE
         public const string AppName = "Universe";
-        public const string Version = "0.1.1";
+        public const string Version = "0.1.2";
 #else
         public const string AppName = "DNA-AND";
         public const string Version = "0.1 (universe preview)";
