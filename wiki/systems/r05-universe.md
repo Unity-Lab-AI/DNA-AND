@@ -2,7 +2,7 @@
 title: R5 · Universe
 status: partial
 sources: [docs/DESIGN.md (rounds 1-2, items 423-431), docs/ROADMAP.md#R5, src/gen/GalaxyGen.cs, src/gen/StarGen.cs, src/gen/DysonGen.cs, src/gen/SpaceGen.cs, content/terrain.dnat]
-last-verified: bb93317
+last-verified: 7a96a43
 ---
 
 # 🌌 R5 · Universe
@@ -92,3 +92,18 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 - **Climate** (`src/gen/Climate.cs`, `src/shell/UniverseView.Climate.cs`): each world's temperature from its own star, orbit, albedo and greenhouse (content/terrain.dnat optical-depth), by latitude (North 1975) and by height; its air by height (air-bar, its scale height from its own mean molecule, its fall of temperature, its tropopause near 0.1 bar); its seas (salt from its water's ions, temperature through a thermocline, frozen or methane where cold); tides (the equilibrium range) and currents (the wind belts).
 - **Rivers and lakes** (`src/gen/Drainage.cs`): a priority flood over forty thousand points, rivers where the rain has gathered, lakes where basins fill.
 - **The world at work**: DNA-AND's PlanetCore and PlanetPlates running with the game's time on the world you are at.
+
+## Render by scale
+
+Everything too big to work out for the whole universe is worked out only where you are, at the detail the view needs:
+
+- **Small streams** (`src/gen/LocalDrainage.cs`): a 256-by-256 gnomonic grid forty times your height across, filled by a priority flood in the background; `PlanetTerrain.AskStreams` asks for it, `StreamAt` draws streams and ponds.
+- **Ice ages** (`src/gen/Climate.cs` `IceLineSin`, `IceAgeK`): each world's ice line from its mean temperature, swayed by the 100k/405k/41k/23k-year cycles; `PlanetTerrain.IceSin` set from it, the ground remade at most every five seconds.
+- **Galaxy collisions** (`src/shell/UniverseView.Collision.cs`): the near galaxy and its nearest within fifteen widths as softened point masses, 2,500 test stars each, leapfrog steps of at most 2 Myr.
+- **Star lives** (`src/shell/UniverseView.Lives.cs`): each star round you its mass and age by its lasting id (`StarKey`), main sequence 1e10 M^-2.5 years, then giant, then remnant; flares, winds and gamma-ray bursts from `content/physics.dnat`.
+- **Seas** (`UniverseView.Climate.cs` `SeaLines`, `WorldSalt`; `PlanetTerrain.SeaTint`): upwelling, deep water forming, Green's-law shoaling and a bay's narrowing, each world's salt from its measured land share, the currents drawn on the water from a basin map made once.
+- **Air** (`PlanetTerrain` constructor): a clear air's sky colour by Rayleigh depth times its pressure, a dusty air's kept.
+- **Plates** (`UniverseView.Climate.cs` `WorldInside`): `PlanetPlates.Back` set as the ground's `Drift`, remade every million years moved.
+- **Space stretching** (`UniverseView.Gravity.cs` `Stretched`; the web's matrix in `UniverseView.Draw.cs`): far galaxies and the web drawn at their true distances now; clicks keep the grid's places.
+- **Gravity back on** (`src/core/Kepler.cs`; `UniverseView.Gravity.cs` `DriftYears`, `SwellNow`; the shader's `keplerOn` in `src/render/Pipeline.cs`): rubble, rings and a hole's parts on new Kepler orbits, the stars round you on epicycles, swollen gas falling back in its free-fall time.
+

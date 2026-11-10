@@ -24,7 +24,7 @@ internal static class Setup
     private const string AppName = "DNA-AND";
     private const string Tagline = "The universe of DNA-AND, a 3D god game of life (universe preview): from the cosmic web of galaxies down to the quarks.";
 #endif
-    private const string Version = "0.1.1";
+    private const string Version = "0.1.2";
     private const string Publisher = "Unity AI Lab";
     private const string UninstallKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\" + AppName;
 
