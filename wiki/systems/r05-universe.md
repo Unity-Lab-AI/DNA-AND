@@ -2,7 +2,7 @@
 title: R5 · Universe
 status: partial
 sources: [docs/DESIGN.md (rounds 1-2, items 423-431), docs/ROADMAP.md#R5, src/gen/GalaxyGen.cs, src/gen/StarGen.cs, src/gen/DysonGen.cs, src/gen/SpaceGen.cs, content/terrain.dnat]
-last-verified: set3-motion (2026-11-10)
+last-verified: 3bef7c0
 ---
 
 # 🌌 R5 · Universe
