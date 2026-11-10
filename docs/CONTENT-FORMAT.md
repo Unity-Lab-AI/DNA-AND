@@ -116,6 +116,7 @@ The sample subjects come first (round 15): planets, stars, gas giants, Dyson sph
 - `content/solar-systems.dnat`
 - `content/space-tech.dnat`
 - `content/stars.dnat` (each `@star` with `makeup`, by count of atoms, and `makeup-note`; the `@layer` entries, a star's layers from its surface to its core, each with `from-r`, `to-r`, `temp-k`, `density-g-cc`, `makeup` and `in`)
+- `@layer` in any content file, one reader for every body (`src/gen/BodyLayers.cs`): `content/stars.dnat` (stars, white dwarfs, neutron stars), `content/gas-giants.dnat` (giants), `content/planets.dnat` (rocky worlds, moons, icy moons) and `content/small-bodies.dnat` (asteroids, comets). Each has `from-r` and `to-r` (shares of the radius from the middle), `matter`, and may have `temp-k`, `density-g-cc` and `pressure-gpa` (from the layer's top to its bottom), `makeup`, `mix` (a `content/minerals.dnat` `@mix`; `ground` is the world's own surface mix) and `in` (the kinds that have it; a rocky world's or small body's layers name its `content/terrain.dnat` `@terrain` id). A solid body's card lists its layers and its whole make-up by element, each layer weighed by its volume and density and made of its mix's minerals' atoms
 
 `real:` values in use: `yes`, `hypothetical`, `game` (for example hyperdrives and world grinders), and `rule`.
 

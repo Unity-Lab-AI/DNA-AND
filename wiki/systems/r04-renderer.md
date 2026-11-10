@@ -1,8 +1,8 @@
 ---
 title: R4 · Renderer
 status: verified
-sources: [docs/DESIGN.md (round 1, round 4, items 62-76), docs/ROADMAP.md#R4, src/render/, src/gen/PlanetTerrain.cs, src/shell/PlanetView.cs, src/shell/MatterView.cs, content/minerals.dnat, content/terrain.dnat]
-last-verified: 16bbc1c
+sources: [docs/DESIGN.md (round 1, round 4, items 62-76), docs/ROADMAP.md#R4, src/render/, src/gen/PlanetTerrain.cs, src/shell/PlanetView.cs, src/shell/MatterView.cs and its parts src/shell/MatterView.*.cs, content/minerals.dnat, content/terrain.dnat]
+last-verified: 10fad85
 ---
 
 # 🎨 R4 · Renderer
