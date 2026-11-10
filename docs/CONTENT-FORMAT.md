@@ -111,7 +111,7 @@ The sample subjects come first (round 15): planets, stars, gas giants, Dyson sph
 - `content/planets.dnat`
 - `content/resource-fields.dnat`
 - `content/small-bodies.dnat` (each kind with `mix`, `makeup`, `density`, `albedo`; asteroids with `belt-share`)
-- `content/terrain.dnat` (`@terrain`: each kind of world's size, `density-g-cc` (its mass follows), ground, water, air, clouds, rock and base temperature, and its geometric `albedo`: with its size, its distance from its star and from you and its phase, its apparent magnitude, how bright it shows)
+- `content/terrain.dnat` (`@terrain`: each kind of world's size, `density-g-cc` (its mass follows), ground, water, air, clouds, rock and base temperature, and its geometric `albedo`: with its size, its distance from its star and from you and its phase, its apparent magnitude, how bright it shows; `optical-depth`, its air's greenhouse (a grey atmosphere: the ground at T_e (1 + 0.75 tau)^(1/4), Earth 0.83), and `air-bar`, its air's pressure at the ground)
 - `content/tours/grand-tour.dnat` (`@stop` entries: the grand tour's camera moves and captions; `{seen}` in a caption is how much of the universe the tour reached)
 - `content/universe.dnat` (`@universe`: how far you see, how many galaxies, the cosmic web, how finely galaxies and real stars are made round you)
 - `content/solar-systems.dnat`
