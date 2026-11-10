@@ -2,7 +2,7 @@
 title: R5 · Universe
 status: partial
 sources: [docs/DESIGN.md (rounds 1-2, items 423-431), docs/ROADMAP.md#R5, src/gen/GalaxyGen.cs, src/gen/StarGen.cs, src/gen/DysonGen.cs, src/gen/SpaceGen.cs, content/terrain.dnat]
-last-verified: ca8a21e
+last-verified: 95a7103
 ---
 
 # 🌌 R5 · Universe
@@ -74,3 +74,9 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 - **A black hole's swarm, clickable** (`src/shell/UniverseView.Swarm.cs`): each star round a feeding hole is worked out on the processor exactly as the card draws it, so the one under the mouse is picked and followed round its orbit; its card gives its orbit, its year and its speed at its closest.
 - **What there is to pick, at every size** (`src/shell/MatterView.Census.cs`): the matter's card says what is laid out to pick at this size, or that there is nothing real there; the zoom log writes it at every tenfold.
 
+## Set 2: matter on the tree
+
+- **Down through a world** (`src/shell/UniverseView.Depth.cs`): Page Down and Page Up in a solid world's matter dig through its layers to its middle; the matter there its layer's own (from the world's own make-up), the crystal round you every way, the card the layer, depth, heat, pressure and density.
+- **One atom model at every size** (DESIGN 740): every atom its electron density, one record grown on the card, neighbours' clouds overlapping, its light kept by its size on screen; ions by their ionic character (Shannon radii, Pauling); the matter's own light, photons drawn from Planck's spectrum at the place's temperature, infrared to gamma, ionising where they carry more than the atom's first ionisation energy.
+- **No fades**: the planets and the stars round you as bright as their apparent magnitude; nebulae grown on the card from their seeds at every distance; the sky behind the matter at every size; a world's glow gone once its ground is ready; the galaxies and the web's light handed over at one distance with their light matched (WEBMATCH in the zoom log).
+- **Clickable**: a feeding hole's swarm stars, disc, jets and torn star; each matter size's census on its card.
