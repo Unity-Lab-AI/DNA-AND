@@ -1,4 +1,4 @@
-DNA-AND 0.1.3 (universe preview)
+DNA-AND 0.1.4 (universe preview)
 Made by the Unity AI Lab team - https://unityailab.com
 
 A preview of the universe of DNA-AND, a 3D god game of life: one continuous zoom from a sky full of galaxies, into a galaxy
