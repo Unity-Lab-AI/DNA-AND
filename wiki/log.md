@@ -323,3 +323,4 @@ Append-only. Newest at the bottom.
 - 2026-11-10 (natural ice lines and bands, 0.1.4 released): DESIGN 747.
 - 2026-11-10 (the slow tour timed by part, the colliding galaxy drawn whole, 0.1.5 released): DESIGN 748.
 - 2026-11-10 (supernova remnants by scale; one version a day, 0.1.5 replaced): DESIGN 749.
+- 2026-11-10 (the nebulae' pass by scale, the supernovae once a year, in 0.1.5): DESIGN 750.
