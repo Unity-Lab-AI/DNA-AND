@@ -316,3 +316,4 @@ Append-only. Newest at the bottom.
 - 2026-11-10 (Set 1 closed to FINALIZED; Set 2 begun: the swarm clickable, the census, ferrihydrite): DESIGN 739.
 - 2026-11-10 (Set 2 closed: the dive, the one atom model, the photons, the clickable hole, no fades): DESIGN 741.
 - 2026-11-10 (Set 3 closed: live gravity, gravity off everywhere, faster time, galaxies turning, the expansion, novae and kilonovae): DESIGN 742.
+- 2026-11-10 (Set 4 closed: climate, air, seas, tides, currents, rivers and lakes, the world at work): DESIGN 743.

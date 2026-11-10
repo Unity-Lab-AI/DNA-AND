@@ -2,7 +2,7 @@
 title: R5 · Universe
 status: partial
 sources: [docs/DESIGN.md (rounds 1-2, items 423-431), docs/ROADMAP.md#R5, src/gen/GalaxyGen.cs, src/gen/StarGen.cs, src/gen/DysonGen.cs, src/gen/SpaceGen.cs, content/terrain.dnat]
-last-verified: 3bef7c0
+last-verified: bb93317
 ---
 
 # 🌌 R5 · Universe
@@ -86,3 +86,9 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 - **Gravity a live force** in the open system (`src/gen/SystemGravity.cs`): every body pulling on every other, a symplectic leapfrog from their Kepler orbits; calm motion gone, every body where it truly is.
 - **Gravity off** (`src/shell/UniverseView.Gravity.cs`): every body, star, galaxy star and the stars round you straight on at their speeds; every star and gas giant swelling on its own free-fall time; a hole's disc, swarm and torn star, belts and rings flying apart; every card saying so; back on, the system's worlds falling back, the rest held where it flew.
 - **Time up to a billion years a second**; disc galaxies turning at their rim speed; the scale factor of a universe of matter and dark energy on the cards; classical novae and kilonovae among the supernovae, each at its own rate.
+
+## Set 4: worlds alive
+
+- **Climate** (`src/gen/Climate.cs`, `src/shell/UniverseView.Climate.cs`): each world's temperature from its own star, orbit, albedo and greenhouse (content/terrain.dnat optical-depth), by latitude (North 1975) and by height; its air by height (air-bar, its scale height from its own mean molecule, its fall of temperature, its tropopause near 0.1 bar); its seas (salt from its water's ions, temperature through a thermocline, frozen or methane where cold); tides (the equilibrium range) and currents (the wind belts).
+- **Rivers and lakes** (`src/gen/Drainage.cs`): a priority flood over forty thousand points, rivers where the rain has gathered, lakes where basins fill.
+- **The world at work**: DNA-AND's PlanetCore and PlanetPlates running with the game's time on the world you are at.
