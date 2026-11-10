@@ -1,9 +1,9 @@
 @echo off
 rem DNA-AND release: builds the universe preview and its Windows installer, using only what comes with Windows
 rem (its C# compiler and PowerShell's zip). No outside tools.
-rem   release.cmd   ->  release\DNA-AND-Setup-0.1.0.exe  and  release\DNA-AND-0.1.0-windows.zip
+rem   release.cmd   ->  release\DNA-AND-Setup-0.1.1.exe  and  release\DNA-AND-0.1.1-windows.zip
 setlocal
-set VER=0.1.0
+set VER=0.1.1
 set CSC=%WINDIR%\Microsoft.NET\Framework64\v4.0.30319\csc.exe
 set FW=%WINDIR%\Microsoft.NET\Framework64\v4.0.30319
 call "%~dp0build.cmd" preview-release preview || exit /b 1
