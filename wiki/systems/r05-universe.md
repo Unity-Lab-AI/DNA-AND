@@ -103,7 +103,7 @@ Everything too big to work out for the whole universe is worked out only where y
 - **Star lives** (`src/shell/UniverseView.Lives.cs`): each star round you its mass and age by its lasting id (`StarKey`), main sequence 1e10 M^-2.5 years, then giant, then remnant; flares, winds and gamma-ray bursts from `content/physics.dnat`.
 - **Seas** (`UniverseView.Climate.cs` `SeaLines`, `WorldSalt`; `PlanetTerrain.SeaTint`): upwelling, deep water forming, Green's-law shoaling and a bay's narrowing, each world's salt from its measured land share, the currents drawn on the water from a basin map made once.
 - **Air** (`PlanetTerrain` constructor): a clear air's sky colour by Rayleigh depth times its pressure, a dusty air's kept.
-- **Plates** (`UniverseView.Climate.cs` `WorldInside`): `PlanetPlates.Back` set as the ground's `Drift`, remade every million years moved.
+- **Plates** (`UniverseView.Climate.cs` `WorldInside`): `PlanetPlates.Back` set as the ground's `Drift`; the ground remade for the ice, the plates and the craters only through `GroundMayChange` (time slower than 1,000 years a second, the change three pixels wide from your height, at most every five seconds), the card saying how far the plates have moved.
 - **Space stretching** (`UniverseView.Gravity.cs` `Stretched`; the web's matrix in `UniverseView.Draw.cs`): far galaxies and the web drawn at their true distances now; clicks keep the grid's places.
 - **Gravity back on** (`src/core/Kepler.cs`; `UniverseView.Gravity.cs` `DriftYears`, `SwellNow`; the shader's `keplerOn` in `src/render/Pipeline.cs`): rubble, rings and a hole's parts on new Kepler orbits, the stars round you on epicycles, swollen gas falling back in its free-fall time.
 
