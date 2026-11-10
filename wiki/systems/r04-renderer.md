@@ -2,7 +2,7 @@
 title: R4 · Renderer
 status: verified
 sources: [docs/DESIGN.md (round 1, round 4, items 62-76), docs/ROADMAP.md#R4, src/render/, src/gen/PlanetTerrain.cs, src/shell/PlanetView.cs, src/shell/MatterView.cs and its parts src/shell/MatterView.*.cs, content/minerals.dnat, content/terrain.dnat]
-last-verified: set2-matter (2026-11-10)
+last-verified: 95a7103
 ---
 
 # 🎨 R4 · Renderer
