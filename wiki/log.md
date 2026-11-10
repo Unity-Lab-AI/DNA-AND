@@ -313,3 +313,4 @@ Append-only. Newest at the bottom.
 - 2026-11-08 (the README's videos as GitHub's own uploads): DESIGN 736.
 - 2026-11-08 (wrap up: docs checked, docs/NOW.md written): DESIGN 737.
 - 2026-11-10 (Set 1 of the super-review: every body's layers, its make-up by element, the one tree, the two views split): DESIGN 738.
+- 2026-11-10 (Set 1 closed to FINALIZED; Set 2 begun: the swarm clickable, the census, ferrihydrite): DESIGN 739.
