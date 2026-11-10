@@ -2,7 +2,7 @@
 title: R5 · Universe
 status: partial
 sources: [docs/DESIGN.md (rounds 1-2, items 423-431), docs/ROADMAP.md#R5, src/gen/GalaxyGen.cs, src/gen/StarGen.cs, src/gen/DysonGen.cs, src/gen/SpaceGen.cs, content/terrain.dnat]
-last-verified: 95a7103
+last-verified: set3-motion (2026-11-10)
 ---
 
 # 🌌 R5 · Universe
@@ -80,3 +80,9 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 - **One atom model at every size** (DESIGN 740): every atom its electron density, one record grown on the card, neighbours' clouds overlapping, its light kept by its size on screen; ions by their ionic character (Shannon radii, Pauling); the matter's own light, photons drawn from Planck's spectrum at the place's temperature, infrared to gamma, ionising where they carry more than the atom's first ionisation energy.
 - **No fades**: the planets and the stars round you as bright as their apparent magnitude; nebulae grown on the card from their seeds at every distance; the sky behind the matter at every size; a world's glow gone once its ground is ready; the galaxies and the web's light handed over at one distance with their light matched (WEBMATCH in the zoom log).
 - **Clickable**: a feeding hole's swarm stars, disc, jets and torn star; each matter size's census on its card.
+
+## Set 3: motion and time
+
+- **Gravity a live force** in the open system (`src/gen/SystemGravity.cs`): every body pulling on every other, a symplectic leapfrog from their Kepler orbits; calm motion gone, every body where it truly is.
+- **Gravity off** (`src/shell/UniverseView.Gravity.cs`): every body, star, galaxy star and the stars round you straight on at their speeds; every star and gas giant swelling on its own free-fall time; a hole's disc, swarm and torn star, belts and rings flying apart; every card saying so; back on, the system's worlds falling back, the rest held where it flew.
+- **Time up to a billion years a second**; disc galaxies turning at their rim speed; the scale factor of a universe of matter and dark energy on the cards; classical novae and kilonovae among the supernovae, each at its own rate.

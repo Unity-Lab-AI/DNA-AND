@@ -88,6 +88,7 @@ The sample subjects come first (round 15): planets, stars, gas giants, Dyson sph
 
 - `content/black-holes.dnat`
 - `content/bodies.dnat` (`@place` entries: every kind of body made round you, black holes, neutron stars, rogue planets, asteroids, Kuiper bodies and comets, with their shares and where they live; a `size-km` range with `size-power` gives each body its own size, `round-above-km` the size gravity rounds a body at, below which they are lumpy, the smallest the most; a feeding black hole's `feeding-eddington`, its feeding rate as a share of the Eddington rate, with its mass the heat of its disc by the thin-disc law)
+- `content/physics.dnat` `@supernova`: each kind of stellar blast, by its share of the supernovae's rate or, with `rate-a-year`, at a rate of its own in a galaxy of a hundred billion stars (classical novae, kilonovae); `remnant-mass-sol` what it leaves (solar masses), `leaves: white-dwarf` for a nova (the white dwarf goes on)
 - `content/cities.dnat`
 - `content/climate.dnat`
 - `content/elements.dnat` (each `@element` also carries `colour`, `covalent-a`, `atomic-a`, `made-in` (where its atoms were forged); the unstable ones `half-life` and `decays`; the common ions' `ion-charge` and `ionic-a` (Shannon 1976: each atom's reach in a mineral set between its own size and its ion's by its ionic character against its most different neighbour), and `ionise-ev`, its first ionisation energy (NIST): a photon carrying more pulls its outer electron off)
