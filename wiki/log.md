@@ -318,3 +318,4 @@ Append-only. Newest at the bottom.
 - 2026-11-10 (Set 3 closed: live gravity, gravity off everywhere, faster time, galaxies turning, the expansion, novae and kilonovae): DESIGN 742.
 - 2026-11-10 (Set 4 closed: climate, air, seas, tides, currents, rivers and lakes, the world at work): DESIGN 743.
 - 2026-11-10 (Set 5 closed: the content audit, the docs swept, 0.1.1 released): DESIGN 744.
+- 2026-11-10 (render by scale: streams, ice ages, collisions, star lives and the remains, 0.1.2 released): DESIGN 745.

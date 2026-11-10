@@ -107,7 +107,7 @@ The sample subjects come first (round 15): planets, stars, gas giants, Dyson sph
 - `content/geology.dnat`
 - `content/moons.dnat`
 - `content/nebulas.dnat`
-- `content/physics.dnat` (`@law` entries, among them `gravity` with `g-m3-kg-s2`, `frame-dragging` with `spin-range`, `gravity-off` with `swell-over-freefall`, `hole-inside` with `way-in-ly`; `@law supernova` and the `@supernova` kinds)
+- `content/physics.dnat` (`@law` entries, among them `gravity` with `g-m3-kg-s2`, `frame-dragging` with `spin-range`, `gravity-off` with `swell-over-freefall`, `hole-inside` with `way-in-ly`, `axial-tilt` with `tilt-deg`, `wild-share`, `wild-deg`, `flares` with `per-day`, `energy-power`, `minutes`, `winds` with `solar-masses-a-year`, `gamma-ray-bursts` with `long-share`; `@law supernova` and the `@supernova` kinds; `@gas` entries, among them `ethane`)
 - `content/planets.dnat`
 - `content/resource-fields.dnat`
 - `content/small-bodies.dnat` (each kind with `mix`, `makeup`, `density`, `albedo`; asteroids with `belt-share`)
