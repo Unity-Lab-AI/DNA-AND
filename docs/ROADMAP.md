@@ -280,7 +280,7 @@ Every galaxy's supernovae from its seed and the clock (content/physics.dnat, res
 Everything the Universe program still owes on its own, apart from the game. Each item keeps the creator's words from its TODO line; the public side of this list is "Still to come" in `docs/release/UNIVERSE-README.md`.
 
 - A star's layers down through to the heavier elements at its core (R18's remainder): "stars shoiuld be mostly hydrogen till getting to it heavey m,etal cores ect ect"
-- Gravity as a live force: orbits shaped moment by moment (today Kepler's law exactly), and the gravity switch: "as i dont thinkg galxies are acutally being held togetther buy the laws of nature. like if i has a setting to turn off all gravity.. would stars explode pressures of all bodies zero and every body move to straight line travel... right?" (DESIGN 519)
+- Gravity as a live force: orbits shaped moment by moment (built for the open system in Set 3 of the 2026-11-10 super-review, src/gen/SystemGravity.cs; the small bodies and far systems still on Kepler's law), and the gravity switch: "as i dont thinkg galxies are acutally being held togetther buy the laws of nature. like if i has a setting to turn off all gravity.. would stars explode pressures of all bodies zero and every body move to straight line travel... right?" (DESIGN 519)
 - The rest of relativity: length contraction, redshift, frame dragging
 - Decay happening before your eyes (today each nucleus says how it would decay), and the fields particles are waves in
 - Light rendered truly below its wavelength: "later when ther is color properly do it"

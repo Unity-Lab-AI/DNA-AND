@@ -17,6 +17,7 @@ How the game gets built, system by system, all from scratch. 🟢 = verified aga
 | | Page | What it covers |
 |---|---|---|
 | 🟠 | [R5 · Universe](systems/r05-universe.md "Stars, planets, solar systems, galaxies") | Built in part: universe of galaxies, galaxy, any star, its solar system, the Dyson sphere |
+| 🟢 | [Content audit](systems/content-audit.md "Which content entries the program reads") | Every kind of entry in every content file, read by the program or words only, and why |
 | 🟠 | [R6 · Planet](systems/r06-planet.md "Earth + unlockable templates") | Built in part: ground to micrometres, sea, air, weather, resource fields, sea life at true scale; the living planet on its own clock (inside, plates, quakes, eruptions, air and climate, water and weather, erosion, impacts) and its ground changing in whole-planet swaps |
 
 ## 🧬 Life
