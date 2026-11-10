@@ -2,7 +2,7 @@
 title: R5 · Universe
 status: partial
 sources: [docs/DESIGN.md (rounds 1-2, items 423-431), docs/ROADMAP.md#R5, src/gen/GalaxyGen.cs, src/gen/StarGen.cs, src/gen/DysonGen.cs, src/gen/SpaceGen.cs, content/terrain.dnat]
-last-verified: b9fcaf3
+last-verified: set1-foundation (2026-11-10)
 ---
 
 # 🌌 R5 · Universe
@@ -47,7 +47,7 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
 
 ## 🔨 Built so far
 
-- **A universe of 36 galaxies** (`src/shell/GalaxiesView.cs`): the sample viewer's, in the plain DNA-AND build. The universe view (`src/shell/UniverseView.cs`) holds about 100 billion galaxies on the cosmic web in a visible universe 13.4 billion light-years across, with no edge, only a horizon that moves with you.
+- **A universe of 36 galaxies** (`src/shell/GalaxiesView.cs`): the sample viewer's, in the plain DNA-AND build. The universe view (`src/shell/UniverseView.cs` and its parts `src/shell/UniverseView.*.cs`, one class in twelve files) holds about 100 billion galaxies on the cosmic web in a visible universe 13.4 billion light-years across, with no edge, only a horizon that moves with you.
 - **The galaxy** (`DeepView.cs`):
   - 150,000 stars, clusters and nebulas, and the core black hole at the real centre.
   - The wheel zooms where the mouse points. Clicking any star marks it with a ring and flies to it.
@@ -66,3 +66,8 @@ This system is built from these researched content files (`docs/CONTENT-FORMAT.m
   - Supernovae: UniverseView.Supernovae (per galaxy, from its seed and _simYears, content/physics.dnat @law supernova and @supernova kinds), DrawSupernovae (points by physics, the fireball, the shells near only), the remnants among the bodies round you, the dead stars (_localDead), ScorchWords.
   - Orbits are not all in one plane: each planet's tilts a few degrees from the system's plane (a few far out of line), close moons lie in their planet's plane, far captured moons at any tilt, some going round backwards.
 - **The Dyson sphere** (`src/gen/DysonGen.cs`, `PlanetTerrain.cs` in shell mode): an industrial hull outside and a terraformed inside-out world, with free flight.
+
+## Inside every body, and the one tree
+
+- **Layers for every body** (`src/gen/BodyLayers.cs`): one reader for every `@layer` in the content. Rocky worlds have crust, upper mantle, lower mantle, outer core and inner core (the Preliminary Reference Earth Model's depths, temperatures, densities and pressures); the Moon crust, mantle and core; icy moons an ice shell, a hidden ocean, a rock mantle and a core; asteroids regolith over a rubble body; comets a dust crust over an icy body; neutron stars an outer crust, an inner crust, an outer core and an unknown inner core; white dwarfs a hydrogen skin, a helium layer and a carbon-oxygen body. A solid body's card lists its layers and its whole make-up by element (an Earth-type world comes out with a core of about a third of its mass, as Earth's is).
+- **The one tree** (`src/core/Thing.cs`): wherever you are, the chain from the universe down (galaxy, star, world or hole or nebula, the layer you are in, the gas or the grain, its crystal, the atom, and inside it the electron, nucleus, nucleon or quark) is one list, written on every card as "you are in:". Each level made from its parent's own make-up, and the matter view reading the layer you are in, come next.
