@@ -320,3 +320,4 @@ Append-only. Newest at the bottom.
 - 2026-11-10 (Set 5 closed: the content audit, the docs swept, 0.1.1 released): DESIGN 744.
 - 2026-11-10 (render by scale: streams, ice ages, collisions, star lives and the remains, 0.1.2 released): DESIGN 745.
 - 2026-11-10 (the ground held still while time runs fast, 0.1.3 released): DESIGN 746.
+- 2026-11-10 (natural ice lines and bands, 0.1.4 released): DESIGN 747.
