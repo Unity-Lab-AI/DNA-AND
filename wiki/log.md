@@ -325,3 +325,4 @@ Append-only. Newest at the bottom.
 - 2026-11-10 (supernova remnants by scale; one version a day, 0.1.5 replaced): DESIGN 749.
 - 2026-11-10 (the nebulae' pass by scale, the supernovae once a year, in 0.1.5): DESIGN 750.
 - 2026-11-10 (the stack overflow that closed the tour: the basins and the ice line, the grain size and the ground, in 0.1.5): DESIGN 751.
+- 2026-11-10 (the orbitals' unplaced points drawn as rainbow discs, and the tour paused by F8, in 0.1.5): DESIGN 752.
